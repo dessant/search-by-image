@@ -1,0 +1,4 @@
+{
+  'plugins': ['lodash'],
+  'presets': [['env', {'targets': {'firefox': 53}}]]
+}

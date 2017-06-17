@@ -1,0 +1,153 @@
+{
+  "extensionName": {
+    "message": "Search by Image",
+    "description": "Name of the extension."
+  },
+
+  "extensionDescription": {
+    "message": "Reverse image search using the most popular search engines, such as Google, Bing, Yandex, Baidu and TinEye.",
+    "description": "Description of the extension."
+  },
+
+
+  "engineName:google:short": {
+    "message": "Google",
+    "description": "Short name of the search engine."
+  },
+
+  "engineName:google:full": {
+    "message": "Google Images",
+    "description": "Full name of the search engine."
+  },
+
+  "engineName:bing:short": {
+    "message": "Bing",
+    "description": "Short name of the search engine."
+  },
+
+  "engineName:bing:full": {
+    "message": "Bing Images",
+    "description": "Full name of the search engine."
+  },
+
+  "engineName:yandex:short": {
+    "message": "Yandex",
+    "description": "Short name of the search engine."
+  },
+
+  "engineName:yandex:full": {
+    "message": "Yandex.Images",
+    "description": "Full name of the search engine."
+  },
+
+
+  "engineName:baidu:short": {
+    "message": "Baidu",
+    "description": "Short name of the search engine."
+  },
+
+  "engineName:baidu:full": {
+    "message": "Baidu Image Search",
+    "description": "Full name of the search engine."
+  },
+
+  "engineName:tineye:short": {
+    "message": "TinEye",
+    "description": "Short name of the search engine."
+  },
+
+  "engineName:tineye:full": {
+    "message": "TinEye Reverse Image Search",
+    "description": "Full name of the search engine."
+  },
+
+
+  "contextMenuItemTitle:allEngines:main": {
+    "message": "Search all engines for image",
+    "description": "Title of the context menu item."
+  },
+
+  "contextMenuItemTitle:allEngines:sub": {
+    "message": "All engines",
+    "description": "Title of the context menu item."
+  },
+
+  "contextMenuItemTitle:engine:main": {
+    "message": "Search $ENGINE$ for image",
+    "description": "Title of the context menu item.",
+    "placeholders": {
+      "engine" : {
+        "content" : "$1",
+        "example" : "Google"
+      }
+    }
+  },
+
+  "contextMenuGroupTitle:searchImage:main": {
+    "message": "Search image on...",
+    "description": "Title of the context menu group."
+  },
+
+
+  "optionSectionTitle:engines": {
+    "message": "Search engines",
+    "description": "Title of the search engine options section."
+  },
+
+  "optionSectionDescription:engines": {
+    "message": "Toggle search engines and customize their order (drag and drop)",
+    "description": "Description of the search engine options section."
+  },
+
+  "optionSectionTitle:misc": {
+    "message": "Miscellaneous",
+    "description": "Title of the miscellaneous options section."
+  },
+
+  "optionTitle:searchAllEngines": {
+    "message": "Search all engines",
+    "description": "Title of the option."
+  },
+
+  "optionValue:searchAllEnginesLocation:menu": {
+    "message": "from menu",
+    "description": "Value of the option."
+  },
+
+  "optionValue:searchAllEnginesLocation:submenu": {
+    "message": "from submenu",
+    "description": "Value of the option."
+  },
+
+  "optionTitle:tabInBackgound": {
+    "message": "Open new tabs in the background",
+    "description": "Title of the option."
+  },
+
+  "optionTitle:localGoogle": {
+    "message": "Use local Google site",
+    "description": "Title of the option."
+  },
+
+
+  "error:InvalidPageUrl": {
+    "message": "The page URL is not valid. Try searching for the image again.",
+    "description": "Error message."
+  },
+
+  "error:sessionExpired": {
+    "message": "The session has expired. Try searching for the image again.",
+    "description": "Error message."
+  },
+
+  "error:InvalidImageUrl:dataUri": {
+    "message": "Searching for data URI images is not supported on $ENGINE$.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine" : {
+        "content" : "$1",
+        "example" : "Google Images"
+      }
+    }
+  }
+}
