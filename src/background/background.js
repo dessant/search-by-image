@@ -28,7 +28,7 @@ function createMenuItem(id, title, parentId, type = 'normal') {
     {
       id: id,
       title: title,
-      contexts: ['image'],
+      contexts: ['image', 'link'],
       parentId: parentId,
       type: type
     },
@@ -103,13 +103,11 @@ async function getTabUrl(imgUrl, dataKey, engineId, options) {
   return tabUrl;
 }
 
-async function searchImage(info, tab) {
+async function searchImage(imgUrl, menuItemId, tabIndex) {
   var options = await storage.get(optionKeys, 'sync');
-  var imgUrl = info.srcUrl;
-  var menuItemId = info.menuItemId;
-  var newTabIndex = tab.index + 1;
-  var newTabActive = !options.tabInBackgound;
 
+  var newTabActive = !options.tabInBackgound;
+  var newTabIndex = tabIndex + 1;
   if (imgUrl.startsWith('data:')) {
     var dataKey = saveDataUri(imgUrl);
   } else {
@@ -129,6 +127,22 @@ async function searchImage(info, tab) {
   }
 }
 
+async function onContextMenuClick(info, tab) {
+  var imgUrl = '';
+
+  if (info.srcUrl) {
+    imgUrl = info.srcUrl;
+  } else {
+    if (info.linkUrl) {
+      imgUrl = info.linkUrl;
+    }
+  }
+
+  if (imgUrl) {
+    await searchImage(imgUrl, info.menuItemId, tab.index);
+  }
+}
+
 function onDataUriRequest(request, sender, sendResponse) {
   if (request.hasOwnProperty('dataKey')) {
     var dataUri = dataUriStore[request.dataKey];
@@ -141,7 +155,7 @@ function onDataUriRequest(request, sender, sendResponse) {
 }
 
 function addMenuListener(data) {
-  browser.contextMenus.onClicked.addListener(searchImage);
+  browser.contextMenus.onClicked.addListener(onContextMenuClick);
 }
 
 function addStorageListener() {
