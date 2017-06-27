@@ -6,8 +6,6 @@ var webpack = require('webpack');
 var cleanCSS = require('gulp-clean-css');
 var htmlmin = require('gulp-htmlmin');
 var svgmin = require('gulp-svgmin');
-var concat = require('gulp-concat');
-var sass = require('gulp-sass');
 var del = require('del');
 
 gulp.task('clean', function() {
@@ -33,33 +31,12 @@ gulp.task('html', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('css:options', function() {
+gulp.task('css', function() {
   return gulp
-    .src(['src/options/*.scss'])
-    .pipe(
-      sass({
-        includePaths: [path.resolve(__dirname, 'node_modules')]
-      }).on('error', sass.logError)
-    )
+    .src('dist/**/*.css', {base: '.'})
     .pipe(cleanCSS({level: 2}))
-    .pipe(concat('style.bundle.css'))
-    .pipe(gulp.dest('dist/src/options'));
+    .pipe(gulp.dest('.'));
 });
-
-gulp.task('css:upload', function() {
-  return gulp
-    .src(['src/upload/*.scss'])
-    .pipe(
-      sass({
-        includePaths: [path.resolve(__dirname, 'node_modules')]
-      }).on('error', sass.logError)
-    )
-    .pipe(cleanCSS({level: 2}))
-    .pipe(concat('style.bundle.css'))
-    .pipe(gulp.dest('dist/src/upload'));
-});
-
-gulp.task('css', ['css:options', 'css:upload']);
 
 gulp.task('svg', function() {
   return gulp
@@ -74,6 +51,6 @@ gulp.task('copy', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build', gulpSeq('clean', ['js', 'html', 'css', 'svg', 'copy']));
+gulp.task('build', gulpSeq('clean', 'js', ['html', 'css', 'svg', 'copy']));
 
 gulp.task('default', ['build']);

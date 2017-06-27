@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const BabiliPlugin = require('babili-webpack-plugin');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -31,11 +32,13 @@ module.exports = {
             loader: 'vue-loader',
             options: {
               loaders: {
-                scss:
-                  'vue-style-loader!css-loader!sass-loader?' +
-                    JSON.stringify({
-                      includePaths: [path.resolve(__dirname, 'node_modules')]
-                    })
+                scss: ExtractTextPlugin.extract({
+                  use:
+                    'css-loader!sass-loader?' +
+                      JSON.stringify({
+                        includePaths: [path.resolve(__dirname, 'node_modules')]
+                      })
+                })
               }
             }
           }
@@ -65,6 +68,7 @@ module.exports = {
       ),
       global: {}
     }),
+    new ExtractTextPlugin('[name]/style.bundle.css'),
     new LodashModuleReplacementPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       names: ['vue', 'manifest'],

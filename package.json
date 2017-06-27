@@ -26,6 +26,7 @@
     "commander": "^2.9.0",
     "css-loader": "^0.28.1",
     "del": "^2.2.2",
+    "extract-text-webpack-plugin": "^2.1.2",
     "fs-extra": "^2.1.2",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^3.0.4",

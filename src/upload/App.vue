@@ -83,6 +83,34 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-#app {}
+<style lang="scss">
+$spinkit-size: 36px;
+$spinkit-spinner-color: #e74c3c;
+
+@import 'spinkit/scss/spinners/1-rotating-plane';
+
+html,
+body {
+  height: 80%;
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-icon {
+  font-size: 96px;
+  color: #e74c3c;
+}
+
+.error-text {
+  font-size: 20px;
+  font-family: sans-serif;
+  color: #34495e;
+  max-width: 520px;
+  margin-top: 36px;
+}
 </style>
