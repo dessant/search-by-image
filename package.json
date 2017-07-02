@@ -23,7 +23,7 @@
     "vuedraggable": "^2.14.1"
   },
   "devDependencies": {
-    "babel-loader": "^7.1.0",
+    "babel-loader": "^7.1.1",
     "babel-plugin-lodash": "^3.2.11",
     "babel-preset-env": "^1.5.2",
     "babili-webpack-plugin": "^0.1.2",
@@ -33,7 +33,7 @@
     "extract-text-webpack-plugin": "^2.1.2",
     "fs-extra": "^3.0.1",
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^3.4.2",
+    "gulp-clean-css": "^3.5.0",
     "gulp-concat": "^2.6.1",
     "gulp-htmlmin": "^3.0.0",
     "gulp-sass": "^3.1.0",
@@ -43,7 +43,7 @@
     "npm-check-updates": "^2.12.1",
     "sass-loader": "^6.0.6",
     "shortid": "^2.2.8",
-    "vue-loader": "^12.2.1",
+    "vue-loader": "^13.0.0",
     "vue-template-compiler": "^2.3.4",
     "web-ext": "^1.10.0",
     "webpack": "^3.0.0",
