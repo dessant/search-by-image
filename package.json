@@ -13,6 +13,9 @@
     "update": "ncu --upgrade --upgradeAll && yarn upgrade --latest"
   },
   "dependencies": {
+    "@material/checkbox": "^0.3.7",
+    "@material/select": "^0.3.9",
+    "@material/switch": "^0.1.9",
     "lodash": "^4.17.4",
     "spinkit": "^1.2.5",
     "uuid": "^3.1.0",

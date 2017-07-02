@@ -31,6 +31,7 @@
   ],
 
   "content_security_policy": "default-src 'self'; connect-src https://www.google.com/",
+  "content_security_policy": "default-src 'self'; img-src 'self' data:; connect-src https://www.google.com/",
 
   "options_ui": {
     "page": "src/options/index.html"

@@ -35,9 +35,9 @@ module.exports = {
                 scss: ExtractTextPlugin.extract({
                   use:
                     'css-loader!sass-loader?' +
-                      JSON.stringify({
-                        includePaths: [path.resolve(__dirname, 'node_modules')]
-                      })
+                    JSON.stringify({
+                      includePaths: [path.resolve(__dirname, 'node_modules')]
+                    })
                 })
               }
             }

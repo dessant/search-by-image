@@ -1,34 +1,53 @@
 <template>
 <div id="app" v-if="dataLoaded">
   <div class="section">
-    <div class="section-title" v-once>{{ getText('optionSectionTitle:engines') }}</div>
-    <div class="section-desc" v-once>{{ getText('optionSectionDescription:engines') }}</div>
-      <draggable class="option-wrap" :list="options.engines">
-        <div class="option" v-for="engine in options.engines" :key="engine.id">
-          <input type="checkbox" :id="engine" :checked="engineEnabled(engine)" @change="setEngineState(engine, $event)">
-          <label class="option-title" :for="engine">{{ getText(`engineName:${engine}:full`) }}</label>
-        </div>
+    <div class="section-title" v-once>
+      {{ getText('optionSectionTitle:engines') }}
+    </div>
+    <div class="section-desc" v-once>
+      {{ getText('optionSectionDescription:engines') }}
+    </div>
+    <draggable class="option-wrap" :list="options.engines">
+      <div class="option" v-for="engine in options.engines" :key="engine.id">
+        <v-checkbox :id="engine" :checked="engineEnabled(engine)"
+            @change="setEngineState(engine, $event)">
+        </v-checkbox>
+        <label class="option-title" :for="engine">
+          {{ getText(`engineName:${engine}:full`) }}
+        </label>
+      </div>
     </draggable>
   </div>
 
   <div class="section">
-    <div class="section-title" v-once>{{ getText('optionSectionTitle:misc') }}</div>
+    <div class="section-title" v-once>
+      {{ getText('optionSectionTitle:misc') }}
+    </div>
     <div class="option-wrap">
       <div class="option">
-        <input type="checkbox" id="sae" v-model="options.searchAllEngines">
-        <label class="option-title" for="sae" v-once>{{ getText('optionTitle:searchAllEngines') }}</label>
-        <select v-show="options.searchAllEngines" v-model="options.searchAllEnginesLocation">
-          <option value="submenu" v-once>{{ getText('optionValue:searchAllEnginesLocation:submenu') }}</option>
-          <option value="menu" v-once>{{ getText('optionValue:searchAllEnginesLocation:menu') }}</option>
-        </select>
+        <v-switch id="sae" v-model="options.searchAllEngines"></v-switch>
+        <label class="option-title" for="sae" v-once
+            @click="options.searchAllEngines = !options.searchAllEngines">
+          {{ getText('optionTitle:searchAllEngines') }}
+        </label>
+        <v-select v-show="options.searchAllEngines"
+            v-model="options.searchAllEnginesLocation"
+            :options="searchAllEnginesLocationOptions">
+        </v-select>
       </div>
       <div class="option">
-        <input type="checkbox" id="tib" v-model="options.tabInBackgound">
-        <label class="option-title" for="tib" v-once>{{ getText('optionTitle:tabInBackgound') }}</label>
+        <v-switch id="tib" v-model="options.tabInBackgound"></v-switch>
+        <label class="option-title" for="tib" v-once
+            @click="options.tabInBackgound = !options.tabInBackgound">
+          {{ getText('optionTitle:tabInBackgound') }}
+        </label>
       </div>
       <div class="option">
-        <input type="checkbox" id="lg" v-model="options.localGoogle">
-        <label class="option-title" for="lg" v-once>{{ getText('optionTitle:localGoogle') }}</label>
+        <v-switch id="lg" v-model="options.localGoogle"></v-switch>
+        <label class="option-title" for="lg" v-once
+            @click="options.localGoogle = !options.localGoogle">
+          {{ getText('optionTitle:localGoogle') }}
+        </label>
       </div>
     </div>
   </div>
@@ -44,14 +63,22 @@ import storage from 'storage/storage';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
 
+import Checkbox from './components/Checkbox';
+import Switch from './components/Switch';
+import Select from './components/Select';
+
 export default {
   components: {
-    draggable
+    draggable,
+    [Checkbox.name]: Checkbox,
+    [Switch.name]: Switch,
+    [Select.name]: Select
   },
 
   data: function() {
     return {
       dataLoaded: false,
+      searchAllEnginesLocationOptions: [],
       options: {
         engines: [],
         disabledEngines: [],
@@ -70,8 +97,8 @@ export default {
       return !_.includes(this.options.disabledEngines, engine);
     },
 
-    setEngineState: async function(engine, e) {
-      if (e.target.checked) {
+    setEngineState: async function(engine, enabled) {
+      if (enabled) {
         this.options.disabledEngines = _.without(
           this.options.disabledEngines,
           engine
@@ -92,23 +119,35 @@ export default {
       });
     }
 
+    this.searchAllEnginesLocationOptions = [
+      {id: 'menu', label: getText('optionValue:searchAllEnginesLocation:menu')},
+      {
+        id: 'submenu',
+        label: getText('optionValue:searchAllEnginesLocation:submenu')
+      }
+    ];
+
     this.dataLoaded = true;
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.section-desc,
-.section-title,
-.option-title,
-option,
-select {
-  color: #444;
+.mdc-checkbox {
+  margin-left: 12px;
+  margin-right: 12px;
 }
 
-option,
-select {
-  font-size: 16px;
+.mdc-switch {
+  margin-left: 8px;
+  margin-right: 24px;
+}
+
+.section-desc,
+.section-title,
+.option-title {
+  color: #444;
+  font-family: sans-serif;
 }
 
 .section-title {
@@ -137,7 +176,6 @@ select {
 
 .option-title {
   font-size: 20px;
-  padding-left: 12px;
   padding-right: 8px;
 }
 </style>
