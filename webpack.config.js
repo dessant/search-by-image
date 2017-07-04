@@ -16,7 +16,7 @@ module.exports = {
     filename: '[name]/[name].bundle.js'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         use: [
@@ -33,11 +33,20 @@ module.exports = {
             options: {
               loaders: {
                 scss: ExtractTextPlugin.extract({
-                  use:
-                    'css-loader!sass-loader?' +
-                    JSON.stringify({
-                      includePaths: [path.resolve(__dirname, 'node_modules')]
-                    })
+                  use: [
+                    {
+                      loader: 'css-loader',
+                      options: {
+                        minimize: true
+                      }
+                    },
+                    {
+                      loader: 'sass-loader',
+                      options: {
+                        includePaths: [path.resolve(__dirname, 'node_modules')]
+                      }
+                    }
+                  ]
                 })
               }
             }
@@ -63,9 +72,9 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(
-        process.env.NODE_ENV || 'production'
-      ),
+      'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'production')
+      },
       global: {}
     }),
     new ExtractTextPlugin('[name]/style.bundle.css'),

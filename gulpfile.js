@@ -3,7 +3,6 @@ var exec = require('child_process').exec;
 var gulp = require('gulp');
 var gulpSeq = require('gulp-sequence');
 var webpack = require('webpack');
-var cleanCSS = require('gulp-clean-css');
 var htmlmin = require('gulp-htmlmin');
 var svgmin = require('gulp-svgmin');
 var del = require('del');
@@ -31,13 +30,6 @@ gulp.task('html', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('css', function() {
-  return gulp
-    .src('dist/**/*.css', {base: '.'})
-    .pipe(cleanCSS({level: 2}))
-    .pipe(gulp.dest('.'));
-});
-
 gulp.task('svg', function() {
   return gulp
     .src('src/**/*.svg', {base: '.'})
@@ -47,10 +39,17 @@ gulp.task('svg', function() {
 
 gulp.task('copy', function() {
   gulp
-    .src(['src/manifest.json', 'src/_locales*/**/*', 'LICENSE'])
+    .src([
+      'src/manifest.json',
+      'src/_locales*/**/*',
+      'LICENSE',
+      'src*/content/insert.js',
+      'src*/content/parse.js',
+      'src*/content/probe.js'
+    ])
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build', gulpSeq('clean', 'js', ['html', 'css', 'svg', 'copy']));
+gulp.task('build', gulpSeq('clean', ['js', 'html', 'svg', 'copy']));
 
 gulp.task('default', ['build']);
