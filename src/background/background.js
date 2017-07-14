@@ -46,8 +46,8 @@ async function createMenu() {
     createMenuItem(
       engine,
       getText(
-        'contextMenuItemTitle:engine:main',
-        getText(`engineName:${engine}:short`)
+        'contextMenuItemTitle_engine_main',
+        getText(`engineName_${engine}_short`)
       )
     );
     return;
@@ -60,17 +60,17 @@ async function createMenu() {
     if (searchAllLocation === 'menu') {
       createMenuItem(
         'allEngines',
-        getText('contextMenuItemTitle:allEngines:main')
+        getText('contextMenuItemTitle_allEngines_main')
       );
       return;
     }
 
-    createMenuItem('par-1', getText('contextMenuGroupTitle:searchImage:main'));
+    createMenuItem('par-1', getText('contextMenuGroupTitle_searchImage_main'));
 
     if (searchAllLocation === 'submenu') {
       createMenuItem(
         'allEngines',
-        getText('contextMenuItemTitle:allEngines:sub'),
+        getText('contextMenuItemTitle_allEngines_sub'),
         'par-1'
       );
       createMenuItem('sep-1', '', 'par-1', 'separator');
@@ -79,7 +79,7 @@ async function createMenu() {
     _.forEach(enEngines, function(engineId) {
       createMenuItem(
         engineId,
-        getText(`engineName:${engineId}:short`),
+        getText(`engineName_${engineId}_short`),
         'par-1'
       );
     });
@@ -166,7 +166,7 @@ async function onContextMenuClick(info, tab) {
     await browser.notifications.create('sbi-notification', {
       type: 'basic',
       title: getText('extensionName'),
-      message: getText('error:InternalError')
+      message: getText('error_InternalError')
     });
     return;
   }
@@ -177,7 +177,7 @@ async function onContextMenuClick(info, tab) {
     await browser.notifications.create('sbi-notification', {
       type: 'basic',
       title: getText('extensionName'),
-      message: getText('error:imageNotFound')
+      message: getText('error_imageNotFound')
     });
     return;
   }

@@ -26,7 +26,7 @@ export default {
   methods: {
     processDataUri: async function(message) {
       if (message.hasOwnProperty('error')) {
-        this.error = getText(`error:${message.error}`);
+        this.error = getText(`error_${message.error}`);
         return;
       }
 
@@ -70,24 +70,24 @@ export default {
 
     this.engine = query.get('engine');
     if (!this.engine) {
-      this.error = getText('error:invalidPageUrl');
+      this.error = getText('error_invalidPageUrl');
       return;
     }
 
-    document.title = getText(`engineName:${this.engine}:full`);
+    document.title = getText(`engineName_${this.engine}_full`);
 
     var supportedEngines = ['google', 'tineye'];
     if (supportedEngines.indexOf(this.engine) === -1) {
       this.error = getText(
-        'error:invalidImageUrl:dataUri',
-        getText(`engineName:${this.engine}:full`)
+        'error_invalidImageUrl_dataUri',
+        getText(`engineName_${this.engine}_full`)
       );
       return;
     }
 
     var dataKey = query.get('dataKey');
     if (!dataKey) {
-      this.error = getText('error:invalidPageUrl');
+      this.error = getText('error_invalidPageUrl');
       return;
     }
 

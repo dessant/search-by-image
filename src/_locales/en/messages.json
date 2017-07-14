@@ -10,69 +10,69 @@
   },
 
 
-  "engineName:google:short": {
+  "engineName_google_short": {
     "message": "Google",
     "description": "Short name of the search engine."
   },
 
-  "engineName:google:full": {
+  "engineName_google_full": {
     "message": "Google Images",
     "description": "Full name of the search engine."
   },
 
-  "engineName:bing:short": {
+  "engineName_bing_short": {
     "message": "Bing",
     "description": "Short name of the search engine."
   },
 
-  "engineName:bing:full": {
+  "engineName_bing_full": {
     "message": "Bing Images",
     "description": "Full name of the search engine."
   },
 
-  "engineName:yandex:short": {
+  "engineName_yandex_short": {
     "message": "Yandex",
     "description": "Short name of the search engine."
   },
 
-  "engineName:yandex:full": {
+  "engineName_yandex_full": {
     "message": "Yandex.Images",
     "description": "Full name of the search engine."
   },
 
 
-  "engineName:baidu:short": {
+  "engineName_baidu_short": {
     "message": "Baidu",
     "description": "Short name of the search engine."
   },
 
-  "engineName:baidu:full": {
+  "engineName_baidu_full": {
     "message": "Baidu Image Search",
     "description": "Full name of the search engine."
   },
 
-  "engineName:tineye:short": {
+  "engineName_tineye_short": {
     "message": "TinEye",
     "description": "Short name of the search engine."
   },
 
-  "engineName:tineye:full": {
+  "engineName_tineye_full": {
     "message": "TinEye Reverse Image Search",
     "description": "Full name of the search engine."
   },
 
 
-  "contextMenuItemTitle:allEngines:main": {
+  "contextMenuItemTitle_allEngines_main": {
     "message": "Search all engines for image",
     "description": "Title of the context menu item."
   },
 
-  "contextMenuItemTitle:allEngines:sub": {
+  "contextMenuItemTitle_allEngines_sub": {
     "message": "All engines",
     "description": "Title of the context menu item."
   },
 
-  "contextMenuItemTitle:engine:main": {
+  "contextMenuItemTitle_engine_main": {
     "message": "Search $ENGINE$ for image",
     "description": "Title of the context menu item.",
     "placeholders": {
@@ -83,78 +83,78 @@
     }
   },
 
-  "contextMenuGroupTitle:searchImage:main": {
+  "contextMenuGroupTitle_searchImage_main": {
     "message": "Search image on...",
     "description": "Title of the context menu group."
   },
 
 
-  "optionSectionTitle:engines": {
+  "optionSectionTitle_engines": {
     "message": "Search engines",
     "description": "Title of the search engine options section."
   },
 
-  "optionSectionDescription:engines": {
+  "optionSectionDescription_engines": {
     "message": "Toggle search engines and customize their order (drag and drop)",
     "description": "Description of the search engine options section."
   },
 
-  "optionSectionTitle:misc": {
+  "optionSectionTitle_misc": {
     "message": "Miscellaneous",
     "description": "Title of the miscellaneous options section."
   },
 
-  "optionTitle:searchAllEngines": {
+  "optionTitle_searchAllEngines": {
     "message": "Search all engines",
     "description": "Title of the option."
   },
 
-  "optionValue:searchAllEnginesLocation:menu": {
+  "optionValue_searchAllEnginesLocation_menu": {
     "message": "from menu",
     "description": "Value of the option."
   },
 
-  "optionValue:searchAllEnginesLocation:submenu": {
+  "optionValue_searchAllEnginesLocation_submenu": {
     "message": "from submenu",
     "description": "Value of the option."
   },
 
-  "optionTitle:tabInBackgound": {
+  "optionTitle_tabInBackgound": {
     "message": "Open new tabs in the background",
     "description": "Title of the option."
   },
 
-  "optionTitle:localGoogle": {
+  "optionTitle_localGoogle": {
     "message": "Use local Google site",
     "description": "Title of the option."
   },
 
-  "optionTitle:imgFullParse": {
+  "optionTitle_imgFullParse": {
     "message": "Look above and below <img> elements",
     "description": "Title of the option."
   },
 
-  "dialogTitle:imageSelection": {
+  "dialogTitle_imageSelection": {
     "message": "Select an image to search for",
     "description": "Title of the dialog."
   },
 
-  "buttonText:cancel": {
+  "buttonText_cancel": {
     "message": "CANCEL",
     "description": "Text of the button."
   },
 
-  "error:invalidPageUrl": {
+  "error_invalidPageUrl": {
     "message": "The page URL is not valid. Try searching for the image again.",
     "description": "Error message."
   },
 
-  "error:sessionExpired": {
+  "error_sessionExpired": {
     "message": "The session has expired. Try searching for the image again.",
     "description": "Error message."
   },
 
-  "error:invalidImageUrl:dataUri": {
+  "error_invalidImageUrl_dataUri": {
     "message": "Searching for data URI images is not supported on $ENGINE$.",
     "description": "Error message.",
     "placeholders": {
@@ -165,12 +165,12 @@
     }
   },
 
-  "error:imageNotFound": {
+  "error_imageNotFound": {
     "message": "No image found. Try searching again by placing the cursor above the image.",
     "description": "Error message."
   },
 
-  "error:internalError": {
+  "error_internalError": {
     "message": "Something went wrong. Reload the page before searching again.",
     "description": "Error message."
   }

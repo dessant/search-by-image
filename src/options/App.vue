@@ -2,10 +2,10 @@
 <div id="app" v-if="dataLoaded">
   <div class="section">
     <div class="section-title" v-once>
-      {{ getText('optionSectionTitle:engines') }}
+      {{ getText('optionSectionTitle_engines') }}
     </div>
     <div class="section-desc" v-once>
-      {{ getText('optionSectionDescription:engines') }}
+      {{ getText('optionSectionDescription_engines') }}
     </div>
     <v-draggable class="option-wrap" :list="options.engines">
       <div class="option" v-for="engine in options.engines" :key="engine.id">
@@ -13,7 +13,7 @@
             @change="setEngineState(engine, $event)">
         </v-checkbox>
         <label class="option-title" :for="engine">
-          {{ getText(`engineName:${engine}:full`) }}
+          {{ getText(`engineName_${engine}_full`) }}
         </label>
       </div>
     </v-draggable>
@@ -21,14 +21,14 @@
 
   <div class="section">
     <div class="section-title" v-once>
-      {{ getText('optionSectionTitle:misc') }}
+      {{ getText('optionSectionTitle_misc') }}
     </div>
     <div class="option-wrap">
       <div class="option" v-for="option in miscOptionKeys" :key="option.id">
         <v-switch :id="option" v-model="options[option]"></v-switch>
         <span class="option-title"
             @click="options[option] = !options[option]" v-once>
-          {{ getText(`optionTitle:${option}`) }}
+          {{ getText(`optionTitle_${option}`) }}
         </span>
         <v-select v-if="option === 'searchAllEngines'"
             v-show="options.searchAllEngines"

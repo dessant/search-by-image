@@ -1,7 +1,7 @@
 <template>
 <v-dialog id="sbi-dialog-select"
-    :title="getText('dialogTitle:imageSelection')"
-    :cancel-text="getText('buttonText:cancel')"
+    :title="getText('dialogTitle_imageSelection')"
+    :cancel-text="getText('buttonText_cancel')"
     :scrollable="scrollableDialog"
     :show-dialog="showDialog"
     @cancel="showDialog = false">
