@@ -23,7 +23,7 @@ async function getVersions(area = 'local') {
 async function upgrade(area = 'local', toVer) {
   var versions = (await getVersions(area)).versions;
   if (_.isUndefined(toVer)) {
-    var toVer = _.last(versions);
+    toVer = _.last(versions);
   }
   var fromVer = await storageVersion(area);
 

@@ -1,5 +1,5 @@
 {
-  'presets': [['env', {'targets': {'firefox': 53}}]],
+  'presets': [['env', {'targets': {'firefox': 52}}]],
   'env': {
     'production': {
       'presets': [['babili', {deadcode: false}]]

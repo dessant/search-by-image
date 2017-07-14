@@ -15,7 +15,7 @@
     "update": "ncu --upgrade --upgradeAll && yarn upgrade --latest"
   },
   "browserslist": [
-    "Firefox >= 53"
+    "Firefox >= 52"
   ],
   "dependencies": {
     "@material/button": "^0.3.8",

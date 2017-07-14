@@ -1,5 +1,12 @@
 {
-  'presets': [['env', {'targets': {'firefox': 53}}]],
+  'presets': [
+    [
+    'env', {
+      'targets': {'firefox': 52},
+      'exclude': ['transform-regenerator']
+      }
+    ]
+  ],
   'env': {
     'production': {
       'plugins': ['lodash']
