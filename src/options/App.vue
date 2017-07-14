@@ -75,11 +75,11 @@ export default {
       searchAllEnginesLocationOptions: [
         {
           id: 'menu',
-          label: getText('optionValue:searchAllEnginesLocation:menu')
+          label: getText('optionValue_searchAllEnginesLocation_menu')
         },
         {
           id: 'submenu',
-          label: getText('optionValue:searchAllEnginesLocation:submenu')
+          label: getText('optionValue_searchAllEnginesLocation_submenu')
         }
       ],
 
