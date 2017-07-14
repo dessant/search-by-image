@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Armin Sebastian",
   "homepage_url": "https://github.com/dessant/search-by-image",
   "default_locale": "en",
