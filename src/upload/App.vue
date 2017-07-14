@@ -29,6 +29,7 @@ export default {
         this.error = getText(`error:${message.error}`);
         return;
       }
+
       if (this.engine === 'google') {
         var data = new FormData();
         data.append('encoded_image', dataUriToBlob(message.dataUri));
@@ -47,6 +48,20 @@ export default {
 
         window.location.replace(tabUrl);
       }
+
+      if (this.engine === 'tineye') {
+        var data = new FormData();
+        data.append('image', dataUriToBlob(message.dataUri));
+        var rsp = await fetch('https://www.tineye.com/search', {
+          referrer: 'https://www.tineye.com/',
+          mode: 'cors',
+          method: 'POST',
+          body: data
+        });
+        var tabUrl = rsp.url;
+
+        window.location.replace(tabUrl);
+      }
     }
   },
 
@@ -61,7 +76,8 @@ export default {
 
     document.title = getText(`engineName:${this.engine}:full`);
 
-    if (this.engine !== 'google') {
+    var supportedEngines = ['google', 'tineye'];
+    if (supportedEngines.indexOf(this.engine) === -1) {
       this.error = getText(
         'error:invalidImageUrl:dataUri',
         getText(`engineName:${this.engine}:full`)
