@@ -26,9 +26,27 @@ function dataUriToBlob(dataUri) {
   return new Blob([ia], {type: mimeString});
 }
 
+function executeCode(string, tabId, frameId = 0, runAt = 'document_start') {
+  return browser.tabs.executeScript(tabId, {
+    frameId: frameId,
+    runAt: runAt,
+    code: string
+  });
+}
+
+function executeFile(file, tabId, frameId = 0, runAt = 'document_start') {
+  return browser.tabs.executeScript(tabId, {
+    frameId: frameId,
+    runAt: runAt,
+    file: file
+  });
+}
+
 module.exports = {
   onError,
   getText,
   createTab,
-  dataUriToBlob
+  dataUriToBlob,
+  executeCode,
+  executeFile
 };

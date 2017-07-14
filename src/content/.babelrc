@@ -2,7 +2,7 @@
   'presets': [['env', {'targets': {'firefox': 53}}]],
   'env': {
     'production': {
-      'plugins': ['lodash']
+      'presets': [['babili', {deadcode: false}]]
     }
   }
 }

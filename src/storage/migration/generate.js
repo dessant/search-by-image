@@ -1,3 +1,5 @@
+// $ node src/storage/migration/generate.js -m "Revision description"
+
 var path = require('path');
 var program = require('commander');
 var shortid = require('shortid');

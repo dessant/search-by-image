@@ -129,8 +129,22 @@
     "description": "Title of the option."
   },
 
+  "optionTitle:imgFullParse": {
+    "message": "Look above and below <img> elements",
+    "description": "Title of the option."
+  },
 
-  "error:InvalidPageUrl": {
+  "dialogTitle:imageSelection": {
+    "message": "Select an image to search for",
+    "description": "Title of the dialog."
+  },
+
+  "buttonText:cancel": {
+    "message": "CANCEL",
+    "description": "Text of the button."
+  },
+
+  "error:invalidPageUrl": {
     "message": "The page URL is not valid. Try searching for the image again.",
     "description": "Error message."
   },
@@ -140,7 +154,7 @@
     "description": "Error message."
   },
 
-  "error:InvalidImageUrl:dataUri": {
+  "error:invalidImageUrl:dataUri": {
     "message": "Searching for data URI images is not supported on $ENGINE$.",
     "description": "Error message.",
     "placeholders": {
@@ -149,5 +163,15 @@
         "example" : "Google Images"
       }
     }
+  },
+
+  "error:imageNotFound": {
+    "message": "No image found. Try searching again by placing the cursor above the image.",
+    "description": "Error message."
+  },
+
+  "error:internalError": {
+    "message": "Something went wrong. Reload the page before searching again.",
+    "description": "Error message."
   }
 }

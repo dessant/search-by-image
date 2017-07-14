@@ -40,8 +40,8 @@ export default {
         });
         var tabUrl = rsp.url;
 
-        var options = await storage.get(['localGoogle'], 'sync');
-        if (!options.localGoogle) {
+        var {localGoogle} = await storage.get('localGoogle', 'sync');
+        if (!localGoogle) {
           tabUrl = `${tabUrl}&gws_rd=cr`;
         }
 
@@ -55,7 +55,7 @@ export default {
 
     this.engine = query.get('engine');
     if (!this.engine) {
-      this.error = getText('error:InvalidPageUrl');
+      this.error = getText('error:invalidPageUrl');
       return;
     }
 
@@ -63,7 +63,7 @@ export default {
 
     if (this.engine !== 'google') {
       this.error = getText(
-        'error:InvalidImageUrl:dataUri',
+        'error:invalidImageUrl:dataUri',
         getText(`engineName:${this.engine}:full`)
       );
       return;
@@ -71,13 +71,16 @@ export default {
 
     var dataKey = query.get('dataKey');
     if (!dataKey) {
-      this.error = getText('error:InvalidPageUrl');
+      this.error = getText('error:invalidPageUrl');
       return;
     }
 
     this.showSpinner = true;
 
-    var gettingDataUri = browser.runtime.sendMessage({dataKey: dataKey});
+    var gettingDataUri = browser.runtime.sendMessage({
+      id: 'dataUriRequest',
+      dataKey: dataKey
+    });
     gettingDataUri.then(this.processDataUri, onError);
   }
 };
@@ -108,7 +111,7 @@ body {
 
 .error-text {
   font-size: 20px;
-  font-family: sans-serif;
+  font-family: Roboto, sans-serif;
   color: #34495e;
   max-width: 520px;
   margin-top: 36px;

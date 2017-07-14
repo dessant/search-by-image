@@ -48,26 +48,10 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/select/mdc-select';
 @import '@material/list/mdc-list';
 @import '@material/menu/mdc-menu';
-
-.mdc-select {
-  width: 160px !important;
-}
-
-.mdc-select__menu {
-  width: 184px !important;
-}
-
-.mdc-select__selected-text,
-.mdc-select .mdc-list-item {
-  font-family: sans-serif !important;
-  letter-spacing: normal !important;
-  font-size: 20px !important;
-  color: #444 !important;
-}
 </style>

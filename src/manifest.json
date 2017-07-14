@@ -27,17 +27,32 @@
     "contextMenus",
     "storage",
     "tabs",
+    "activeTab",
+    "notifications",
     "https://www.google.com/*"
   ],
 
-  "content_security_policy": "default-src 'self'; connect-src https://www.google.com/",
-  "content_security_policy": "default-src 'self'; img-src 'self' data:; connect-src https://www.google.com/",
+  "content_security_policy": "default-src 'self'; img-src * data:; connect-src https://www.google.com/",
 
   "options_ui": {
-    "page": "src/options/index.html"
+    "page": "src/options/index.html",
+    "browser_style": false
   },
 
   "background": {
     "page": "src/background/index.html"
-  }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "ftp://*/*"],
+      "all_frames": true,
+      "run_at": "document_start",
+      "js": ["src/content/insert.js"]
+    }
+  ],
+
+  "web_accessible_resources": [
+    "src/select/index.html"
+  ]
 }

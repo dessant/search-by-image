@@ -4,7 +4,8 @@ var optionKeys = [
   'tabInBackgound',
   'localGoogle',
   'searchAllEngines',
-  'searchAllEnginesLocation'
+  'searchAllEnginesLocation',
+  'imgFullParse'
 ];
 
 var engines = {
@@ -12,13 +13,15 @@ var engines = {
     url: 'https://www.google.com/searchbyimage?image_url={imgUrl}'
   },
   bing: {
-    url: 'https://www.bing.com/images/searchbyimage?FORM=IRSBIQ&cbir=sbi&imgurl={imgUrl}'
+    url:
+      'https://www.bing.com/images/searchbyimage?FORM=IRSBIQ&cbir=sbi&imgurl={imgUrl}'
   },
   yandex: {
     url: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview'
   },
   baidu: {
-    url: 'https://image.baidu.com/n/pc_search?queryImageUrl={imgUrl}&fm=index&uptype=paste'
+    url:
+      'https://image.baidu.com/n/pc_search?queryImageUrl={imgUrl}&fm=index&uptype=paste'
   },
   tineye: {
     url: 'https://www.tineye.com/search/?&url={imgUrl}'

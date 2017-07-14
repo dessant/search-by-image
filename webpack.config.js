@@ -4,11 +4,38 @@ const BabiliPlugin = require('babili-webpack-plugin');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+let plugins = [
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
+    },
+    global: {}
+  }),
+  new ExtractTextPlugin('[name]/style.bundle.css'),
+  isProduction ? new LodashModuleReplacementPlugin() : null,
+  new webpack.optimize.CommonsChunkPlugin({
+    names: ['vue', 'manifest'],
+    filename: '[name].bundle.js',
+    minChunks: Infinity
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'commons',
+    filename: '[name].bundle.js',
+    chunks: ['background', 'options', 'upload'],
+    minChunks: 2
+  }),
+  isProduction ? new BabiliPlugin() : null
+];
+plugins = plugins.filter(Boolean);
+
 module.exports = {
   entry: {
     background: './src/background/background.js',
     options: './src/options/main.js',
     upload: './src/upload/main.js',
+    select: './src/select/main.js',
     vue: ['vue']
   },
   output: {
@@ -35,10 +62,7 @@ module.exports = {
                 scss: ExtractTextPlugin.extract({
                   use: [
                     {
-                      loader: 'css-loader',
-                      options: {
-                        minimize: true
-                      }
+                      loader: 'css-loader'
                     },
                     {
                       loader: 'sass-loader',
@@ -70,26 +94,5 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     extensions: ['.js', '.json', '.css', '.scss', '.vue']
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'production')
-      },
-      global: {}
-    }),
-    new ExtractTextPlugin('[name]/style.bundle.css'),
-    new LodashModuleReplacementPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['vue', 'manifest'],
-      filename: '[name].bundle.js',
-      minChunks: Infinity
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons',
-      filename: '[name].bundle.js',
-      chunks: ['background', 'options', 'upload'],
-      minChunks: 2
-    }),
-    new BabiliPlugin()
-  ]
+  plugins: plugins
 };

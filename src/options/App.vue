@@ -7,7 +7,7 @@
     <div class="section-desc" v-once>
       {{ getText('optionSectionDescription:engines') }}
     </div>
-    <draggable class="option-wrap" :list="options.engines">
+    <v-draggable class="option-wrap" :list="options.engines">
       <div class="option" v-for="engine in options.engines" :key="engine.id">
         <v-checkbox :id="engine" :checked="engineEnabled(engine)"
             @change="setEngineState(engine, $event)">
@@ -16,7 +16,7 @@
           {{ getText(`engineName:${engine}:full`) }}
         </label>
       </div>
-    </draggable>
+    </v-draggable>
   </div>
 
   <div class="section">
@@ -24,30 +24,17 @@
       {{ getText('optionSectionTitle:misc') }}
     </div>
     <div class="option-wrap">
-      <div class="option">
-        <v-switch id="sae" v-model="options.searchAllEngines"></v-switch>
-        <label class="option-title" for="sae" v-once
-            @click="options.searchAllEngines = !options.searchAllEngines">
-          {{ getText('optionTitle:searchAllEngines') }}
-        </label>
-        <v-select v-show="options.searchAllEngines"
+      <div class="option" v-for="option in miscOptionKeys" :key="option.id">
+        <v-switch :id="option" v-model="options[option]"></v-switch>
+        <span class="option-title"
+            @click="options[option] = !options[option]" v-once>
+          {{ getText(`optionTitle:${option}`) }}
+        </span>
+        <v-select v-if="option === 'searchAllEngines'"
+            v-show="options.searchAllEngines"
             v-model="options.searchAllEnginesLocation"
             :options="searchAllEnginesLocationOptions">
         </v-select>
-      </div>
-      <div class="option">
-        <v-switch id="tib" v-model="options.tabInBackgound"></v-switch>
-        <label class="option-title" for="tib" v-once
-            @click="options.tabInBackgound = !options.tabInBackgound">
-          {{ getText('optionTitle:tabInBackgound') }}
-        </label>
-      </div>
-      <div class="option">
-        <v-switch id="lg" v-model="options.localGoogle"></v-switch>
-        <label class="option-title" for="lg" v-once
-            @click="options.localGoogle = !options.localGoogle">
-          {{ getText('optionTitle:localGoogle') }}
-        </label>
       </div>
     </div>
   </div>
@@ -69,7 +56,7 @@ import Select from './components/Select';
 
 export default {
   components: {
-    draggable,
+    'v-draggable': draggable,
     [Checkbox.name]: Checkbox,
     [Switch.name]: Switch,
     [Select.name]: Select
@@ -78,14 +65,32 @@ export default {
   data: function() {
     return {
       dataLoaded: false,
-      searchAllEnginesLocationOptions: [],
+
+      miscOptionKeys: [
+        'searchAllEngines',
+        'tabInBackgound',
+        'localGoogle',
+        'imgFullParse'
+      ],
+      searchAllEnginesLocationOptions: [
+        {
+          id: 'menu',
+          label: getText('optionValue:searchAllEnginesLocation:menu')
+        },
+        {
+          id: 'submenu',
+          label: getText('optionValue:searchAllEnginesLocation:submenu')
+        }
+      ],
+
       options: {
         engines: [],
         disabledEngines: [],
         searchAllEngines: false,
         searchAllEnginesLocation: '',
         tabInBackgound: false,
-        localGoogle: false
+        localGoogle: false,
+        imgFullParse: false
       }
     };
   },
@@ -114,25 +119,32 @@ export default {
 
     for (const option of Object.keys(this.options)) {
       this.options[option] = options[option];
-      this.$watch(`options.${option}`, function(value) {
-        storage.set({[option]: value}, 'sync');
+      this.$watch(`options.${option}`, async function(value) {
+        await storage.set({[option]: value}, 'sync');
       });
     }
-
-    this.searchAllEnginesLocationOptions = [
-      {id: 'menu', label: getText('optionValue:searchAllEnginesLocation:menu')},
-      {
-        id: 'submenu',
-        label: getText('optionValue:searchAllEnginesLocation:submenu')
-      }
-    ];
 
     this.dataLoaded = true;
   }
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.mdc-select {
+  width: 180px !important;
+}
+
+.mdc-select__menu {
+  width: 204px !important;
+}
+
+.mdc-select__selected-text,
+.mdc-select .mdc-list-item {
+  letter-spacing: normal !important;
+  font-size: 20px !important;
+  color: #444 !important;
+}
+
 .mdc-checkbox {
   margin-left: 12px;
   margin-right: 12px;
@@ -147,7 +159,7 @@ export default {
 .section-title,
 .option-title {
   color: #444;
-  font-family: sans-serif;
+  font-family: Roboto, sans-serif;
 }
 
 .section-title {

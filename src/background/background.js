@@ -2,7 +2,7 @@ import _ from 'lodash';
 import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
-import {getText, createTab} from 'utils/common';
+import {getText, createTab, executeCode, executeFile} from 'utils/common';
 import {getEnabledEngines} from 'utils/app';
 import {optionKeys, engines} from 'utils/data';
 
@@ -28,7 +28,8 @@ function createMenuItem(id, title, parentId, type = 'normal') {
     {
       id: id,
       title: title,
-      contexts: ['image', 'link'],
+      contexts: ['all'],
+      documentUrlPatterns: ['http://*/*', 'https://*/*', 'ftp://*/*'],
       parentId: parentId,
       type: type
     },
@@ -128,30 +129,102 @@ async function searchImage(imgUrl, menuItemId, tabIndex) {
 }
 
 async function onContextMenuClick(info, tab) {
-  var imgUrl = '';
+  var tabId = tab.id;
 
-  if (info.srcUrl) {
-    imgUrl = info.srcUrl;
+  // Firefox < 55.0
+  if (typeof info.frameId === 'undefined') {
+    var frameId = 0;
   } else {
-    if (info.linkUrl) {
-      imgUrl = info.linkUrl;
+    frameId = info.frameId;
+  }
+  if (!frameId && info.pageUrl != info.frameUrl) {
+    if (info.srcUrl) {
+      await searchImage(info.srcUrl, info.menuItemId, tab.index);
     }
+    return;
   }
 
-  if (imgUrl) {
-    await searchImage(imgUrl, info.menuItemId, tab.index);
+  var [probe] = await executeFile('/src/content/probe.js', tabId, frameId);
+
+  if (info.srcUrl) {
+    var {imgFullParse} = await storage.get('imgFullParse', 'sync');
+    await executeCode(
+      `frameStorage.options.imgFullParse = ${imgFullParse};`,
+      tabId,
+      frameId
+    );
+  }
+
+  if (!probe.modules.parse) {
+    await executeFile('/src/content/parse.js', tabId, frameId);
+    await rememberExecution('parse', tabId, frameId);
+  }
+
+  var [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
+
+  if (!imgUrls) {
+    await browser.notifications.create('sbi-notification', {
+      type: 'basic',
+      title: getText('extensionName'),
+      message: getText('error:InternalError')
+    });
+    return;
+  }
+
+  imgUrls = _.uniq(_.compact(imgUrls));
+
+  if (imgUrls.length === 0) {
+    await browser.notifications.create('sbi-notification', {
+      type: 'basic',
+      title: getText('extensionName'),
+      message: getText('error:imageNotFound')
+    });
+    return;
+  }
+
+  if (imgUrls.length > 1) {
+    var [probe] = await executeFile('/src/content/probe.js', tabId);
+    if (!probe.modules.select) {
+      await browser.tabs.insertCSS(tabId, {
+        runAt: 'document_end',
+        file: '/src/select/frame.css'
+      });
+      await executeFile('/src/content/select.js', tabId);
+      await rememberExecution('select', tabId);
+    }
+
+    await browser.tabs.sendMessage(
+      tabId,
+      {
+        id: 'imageSelectionDialogUpdate',
+        imgUrls: imgUrls,
+        menuItemId: info.menuItemId
+      },
+      {frameId: 0}
+    );
+  } else {
+    await searchImage(imgUrls[0], info.menuItemId, tab.index);
   }
 }
 
-function onDataUriRequest(request, sender, sendResponse) {
-  if (request.hasOwnProperty('dataKey')) {
+function rememberExecution(module, tabId, frameId = 0) {
+  return executeCode(`frameStorage.modules.${module} = true;`, tabId, frameId);
+}
+
+function onMessage(request, sender, sendResponse) {
+  if (request.id === 'dataUriRequest') {
     var dataUri = dataUriStore[request.dataKey];
     if (dataUri) {
       sendResponse({dataUri: dataUri});
-      return;
+    } else {
+      sendResponse({error: 'sessionExpired'});
     }
+    return;
   }
-  sendResponse({error: 'sessionExpired'});
+
+  if (request.id === 'imageSelectionDialogSubmit') {
+    searchImage(request.imgUrl, request.menuItemId, sender.tab.index);
+  }
 }
 
 function addMenuListener(data) {
@@ -166,7 +239,7 @@ function addStorageListener() {
 }
 
 function addMessageListener() {
-  browser.runtime.onMessage.addListener(onDataUriRequest);
+  browser.runtime.onMessage.addListener(onMessage);
 }
 
 async function onLoad() {
