@@ -24,15 +24,20 @@ export default {
   },
 
   methods: {
-    processDataUri: async function(message) {
-      if (message.hasOwnProperty('error')) {
-        this.error = getText(`error_${message.error}`);
-        return;
+    onMessage: async function(request, sender, sendResponse) {
+      if (request.id === 'dataUriResponse') {
+        if (request.hasOwnProperty('error')) {
+          this.error = getText(`error_${request.error}`);
+        } else {
+          await this.processDataUri(request.dataUri);
+        }
       }
+    },
 
+    processDataUri: async function(dataUri) {
       if (this.engine === 'google') {
         var data = new FormData();
-        data.append('encoded_image', dataUriToBlob(message.dataUri));
+        data.append('encoded_image', dataUriToBlob(dataUri));
         var rsp = await fetch('https://www.google.com/searchbyimage/upload', {
           referrer: 'https://www.google.com/',
           mode: 'cors',
@@ -51,7 +56,7 @@ export default {
 
       if (this.engine === 'tineye') {
         var data = new FormData();
-        data.append('image', dataUriToBlob(message.dataUri));
+        data.append('image', dataUriToBlob(dataUri));
         var rsp = await fetch('https://www.tineye.com/search', {
           referrer: 'https://www.tineye.com/',
           mode: 'cors',
@@ -66,6 +71,8 @@ export default {
   },
 
   created: async function() {
+    browser.runtime.onMessage.addListener(this.onMessage);
+
     var query = new URL(window.location.href).searchParams;
 
     this.engine = query.get('engine');
@@ -93,11 +100,10 @@ export default {
 
     this.showSpinner = true;
 
-    var gettingDataUri = browser.runtime.sendMessage({
+    await browser.runtime.sendMessage({
       id: 'dataUriRequest',
       dataKey: dataKey
     });
-    gettingDataUri.then(this.processDataUri, onError);
   }
 };
 </script>

@@ -214,11 +214,13 @@ function rememberExecution(module, tabId, frameId = 0) {
 function onMessage(request, sender, sendResponse) {
   if (request.id === 'dataUriRequest') {
     var dataUri = dataUriStore[request.dataKey];
+    var response = {id: 'dataUriResponse'};
     if (dataUri) {
-      sendResponse({dataUri: dataUri});
+      response['dataUri'] = dataUri;
     } else {
-      sendResponse({error: 'sessionExpired'});
+      response['error'] = 'sessionExpired';
     }
+    browser.tabs.sendMessage(sender.tab.id, response, {frameId: 0});
     return;
   }
 
