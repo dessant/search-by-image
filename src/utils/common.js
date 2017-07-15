@@ -4,8 +4,12 @@ function onError(error) {
   console.log(`Error: ${error}`);
 }
 
-function createTab(url, index, active) {
-  return browser.tabs.create({url: url, index: index, active: active});
+function createTab(url, index, active = true) {
+  const props = {url: url, active: active};
+  if (typeof index !== 'undefined') {
+    props['index'] = index;
+  }
+  return browser.tabs.create(props);
 }
 
 function dataUriToBlob(dataUri) {
