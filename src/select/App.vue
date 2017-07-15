@@ -60,7 +60,7 @@ export default {
 
     onSelection: function(e) {
       this.showDialog = false;
-      var sendingSelection = browser.runtime.sendMessage({
+      browser.runtime.sendMessage({
         id: 'imageSelectionDialogSubmit',
         imgUrl: e.target.dataset.url,
         menuItemId: this.menuItemId
