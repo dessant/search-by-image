@@ -1,5 +1,12 @@
 {
-  'presets': [['env', {'targets': {'firefox': 52}}]],
+  'presets': [
+    [
+    'env', {
+      'targets': {'firefox': 52},
+      'exclude': ['transform-regenerator']
+      }
+    ]
+  ],
   'env': {
     'production': {
       'presets': [['babili', {deadcode: false}]]
