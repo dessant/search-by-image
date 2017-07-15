@@ -90,7 +90,8 @@ async function getTabUrl(imgUrl, dataKey, engineId, options) {
   var tabUrl;
 
   if (dataKey) {
-    if (engineId === 'bing') {
+    const supportedEngines = ['bing'];
+    if (supportedEngines.indexOf(engineId) !== -1) {
       tabUrl = engines[engineId].data;
     } else {
       tabUrl = `${browser.extension.getURL(
