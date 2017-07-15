@@ -29,11 +29,10 @@
     "tabs",
     "activeTab",
     "notifications",
-    "https://www.google.com/*",
-    "https://www.tineye.com/*"
+    "<all_urls>"
   ],
 
-  "content_security_policy": "default-src 'self'; img-src * data:; connect-src https://www.google.com/ https://www.tineye.com/",
+  "content_security_policy": "default-src 'self'; img-src * data:; connect-src *;",
 
   "options_ui": {
     "page": "src/options/index.html",

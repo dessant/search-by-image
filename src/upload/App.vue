@@ -39,7 +39,7 @@ export default {
         var data = new FormData();
         data.append('encoded_image', dataUriToBlob(dataUri));
         var rsp = await fetch('https://www.google.com/searchbyimage/upload', {
-          referrer: 'https://www.google.com/',
+          referrer: '',
           mode: 'cors',
           method: 'POST',
           body: data
@@ -48,7 +48,10 @@ export default {
 
         var {localGoogle} = await storage.get('localGoogle', 'sync');
         if (!localGoogle) {
-          tabUrl = `${tabUrl}&gws_rd=cr`;
+          tabUrl = tabUrl.replace(
+            /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
+            '$1com$2&gws_rd=cr'
+          );
         }
 
         window.location.replace(tabUrl);
@@ -58,7 +61,7 @@ export default {
         var data = new FormData();
         data.append('image', dataUriToBlob(dataUri));
         var rsp = await fetch('https://www.tineye.com/search', {
-          referrer: 'https://www.tineye.com/',
+          referrer: '',
           mode: 'cors',
           method: 'POST',
           body: data
