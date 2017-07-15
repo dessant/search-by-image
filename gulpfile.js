@@ -29,7 +29,7 @@ gulp.task('js:webpack', function(done) {
 
 gulp.task('js:babel', function() {
   return gulp
-    .src(['src/content/*.js'], {base: '.'})
+    .src(['src/content/**/*.js'], {base: '.'})
     .pipe(babel())
     .pipe(gulp.dest('dist'));
 });
@@ -45,7 +45,7 @@ gulp.task('html', function() {
 
 gulp.task('css', function() {
   return gulp
-    .src(['src/select/frame.css'], {base: '.'})
+    .src(['src/select/frame.css', 'src/content/engines/style.css'], {base: '.'})
     .pipe(postcss())
     .pipe(gulp.dest('dist'));
 });

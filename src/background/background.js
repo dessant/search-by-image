@@ -87,10 +87,16 @@ async function createMenu() {
 }
 
 async function getTabUrl(imgUrl, dataKey, engineId, options) {
+  var tabUrl;
+
   if (dataKey) {
-    var tabUrl = `${browser.extension.getURL(
-      '/src/upload/index.html'
-    )}?engine=${engineId}&dataKey=${dataKey}`;
+    if (engineId === 'bing') {
+      tabUrl = engines[engineId].data;
+    } else {
+      tabUrl = `${browser.extension.getURL(
+        '/src/upload/index.html'
+      )}?engine=${engineId}&dataKey=${dataKey}`;
+    }
   } else {
     tabUrl = engines[engineId].url.replace(
       '{imgUrl}',
@@ -104,27 +110,53 @@ async function getTabUrl(imgUrl, dataKey, engineId, options) {
   return tabUrl;
 }
 
-async function searchImage(imgUrl, menuItemId, tabIndex) {
+async function searchImage(imgUrl, menuId, sourceTabIndex) {
   var options = await storage.get(optionKeys, 'sync');
 
-  var newTabActive = !options.tabInBackgound;
-  var newTabIndex = tabIndex + 1;
+  var tabIndex = sourceTabIndex + 1;
+  var tabActive = !options.tabInBackgound;
   if (imgUrl.startsWith('data:')) {
     var dataKey = saveDataUri(imgUrl);
   } else {
     dataKey = null;
   }
 
-  if (menuItemId === 'allEngines') {
-    for (const engineId of await getEnabledEngines(options)) {
-      const tabUrl = await getTabUrl(imgUrl, dataKey, engineId, options);
-      await createTab(tabUrl, newTabIndex, newTabActive);
-      newTabIndex = newTabIndex + 1;
-      newTabActive = false;
+  if (menuId === 'allEngines') {
+    for (const engine of await getEnabledEngines(options)) {
+      await searchEngine(imgUrl, dataKey, engine, options, tabIndex, tabActive);
+      tabIndex = tabIndex + 1;
+      tabActive = false;
     }
   } else {
-    const tabUrl = await getTabUrl(imgUrl, dataKey, menuItemId, options);
-    await createTab(tabUrl, newTabIndex, newTabActive);
+    await searchEngine(imgUrl, dataKey, menuId, options, tabIndex, tabActive);
+  }
+}
+
+async function searchEngine(
+  imgUrl,
+  dataKey,
+  engineId,
+  options,
+  tabIndex,
+  tabActive
+) {
+  const tabUrl = await getTabUrl(imgUrl, dataKey, engineId, options);
+  const tab = await createTab(tabUrl, tabIndex, tabActive);
+  if (dataKey) {
+    const supportedEngines = ['bing'];
+    if (supportedEngines.indexOf(engineId) !== -1) {
+      await browser.tabs.insertCSS(tab.id, {
+        runAt: 'document_start',
+        file: '/src/content/engines/style.css'
+      });
+      await executeCode(`var dataKey = '${dataKey}';`, tab.id);
+      executeFile(
+        `/src/content/engines/${engineId}.js`,
+        tab.id,
+        0,
+        'document_idle'
+      );
+    }
   }
 }
 
