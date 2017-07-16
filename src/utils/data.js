@@ -26,6 +26,9 @@ var engines = {
   },
   tineye: {
     url: 'https://www.tineye.com/search/?&url={imgUrl}'
+  },
+  sogou: {
+    url: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0'
   }
 };
 

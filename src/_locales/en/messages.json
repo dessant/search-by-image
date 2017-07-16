@@ -9,7 +9,6 @@
     "description": "Description of the extension."
   },
 
-
   "engineName_google_short": {
     "message": "Google",
     "description": "Short name of the search engine."
@@ -40,7 +39,6 @@
     "description": "Full name of the search engine."
   },
 
-
   "engineName_baidu_short": {
     "message": "Baidu",
     "description": "Short name of the search engine."
@@ -61,6 +59,15 @@
     "description": "Full name of the search engine."
   },
 
+  "engineName_sogou_short": {
+    "message": "Sogou",
+    "description": "Short name of the search engine."
+  },
+
+  "engineName_sogou_full": {
+    "message": "Sogou Images",
+    "description": "Full name of the search engine."
+  },
 
   "contextMenuItemTitle_allEngines_main": {
     "message": "Search all engines for image",
@@ -76,9 +83,9 @@
     "message": "Search $ENGINE$ for image",
     "description": "Title of the context menu item.",
     "placeholders": {
-      "engine" : {
-        "content" : "$1",
-        "example" : "Google"
+      "engine": {
+        "content": "$1",
+        "example": "Google"
       }
     }
   },
@@ -87,7 +94,6 @@
     "message": "Search image on...",
     "description": "Title of the context menu group."
   },
-
 
   "optionSectionTitle_engines": {
     "message": "Search engines",
@@ -158,9 +164,9 @@
     "message": "Searching for data URI images is not supported on $ENGINE$.",
     "description": "Error message.",
     "placeholders": {
-      "engine" : {
-        "content" : "$1",
-        "example" : "Google Images"
+      "engine": {
+        "content": "$1",
+        "example": "Google Images"
       }
     }
   },
