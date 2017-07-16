@@ -14,7 +14,7 @@ var engines = {
   },
   bing: {
     url:
-      'https://www.bing.com/images/searchbyimage?FORM=IRSBIQ&cbir=sbi&imgurl={imgUrl}',
+      'https://www.bing.com/images/search?q=imgurl:{imgUrl}&view=detailv2&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights',
     data: 'https://www.bing.com/images/discover?form=HDRSC2'
   },
   yandex: {
