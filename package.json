@@ -14,9 +14,7 @@
     "inspect": "webpack --profile --json > report.json; webpack-bundle-analyzer report.json --mode static && sleep 6 && rm report.{json,html}",
     "update": "ncu --upgrade --upgradeAll && yarn upgrade --latest"
   },
-  "browserslist": [
-    "Firefox >= 52"
-  ],
+  "browserslist": ["Firefox >= 52"],
   "dependencies": {
     "@material/button": "^0.3.9",
     "@material/checkbox": "^0.4.0",

@@ -52,7 +52,5 @@
     }
   ],
 
-  "web_accessible_resources": [
-    "src/select/index.html"
-  ]
+  "web_accessible_resources": ["src/select/index.html"]
 }
