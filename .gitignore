@@ -1,3 +1,5 @@
+.assets/
+
 node_modules/
 artifacts/
 dist/
