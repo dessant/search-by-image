@@ -170,7 +170,7 @@ async function onContextMenuClick(info, tab) {
   } else {
     frameId = info.frameId;
   }
-  if (!frameId && info.pageUrl != info.frameUrl) {
+  if (!frameId && info.pageUrl !== info.frameUrl) {
     if (info.srcUrl) {
       await searchImage(info.srcUrl, info.menuItemId, tab.index);
     }
