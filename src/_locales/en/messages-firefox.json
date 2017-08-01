@@ -1,0 +1,32 @@
+{
+  "contextMenuItemTitle_allEngines_main": {
+    "message": "Search All Engines for Image",
+    "description": "Title of the context menu item."
+  },
+
+  "contextMenuItemTitle_allEngines_sub": {
+    "message": "All Engines",
+    "description": "Title of the context menu item."
+  },
+
+  "contextMenuItemTitle_engine_main": {
+    "message": "Search $ENGINE$ for Image",
+    "description": "Title of the context menu item.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "contextMenuGroupTitle_searchImage_main": {
+    "message": "Search Image On...",
+    "description": "Title of the context menu group."
+  },
+
+  "optionSectionTitle_engines": {
+    "message": "Search Engines",
+    "description": "Title of the search engine options section."
+  }
+}
