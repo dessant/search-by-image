@@ -1,3 +1,5 @@
+var path = require('path');
+var {lstatSync, readdirSync} = require('fs');
 var exec = require('child_process').exec;
 var gulp = require('gulp');
 var gulpSeq = require('gulp-sequence');
@@ -8,8 +10,17 @@ var babel = require('gulp-babel');
 var postcss = require('gulp-postcss');
 var gulpif = require('gulp-if');
 var del = require('del');
+var jsonMerge = require('gulp-merge-json');
+var jsBeautify = require('gulp-jsbeautifier');
 
+const targetEnv = process.env.TARGET_ENV;
 const isProduction = process.env.NODE_ENV === 'production';
+
+const jsBeautifyOptions = {
+  indent_size: 2,
+  preserve_newlines: false,
+  end_with_newline: true
+};
 
 gulp.task('clean', function() {
   return del(['dist']);
@@ -57,12 +68,39 @@ gulp.task('svg', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('copy', function() {
-  gulp
-    .src(['src/manifest.json', 'src/_locales*/**/*', 'LICENSE'])
-    .pipe(gulp.dest('dist'));
+gulp.task('locale', function() {
+  const customTargets = ['firefox'];
+  if (customTargets.indexOf(targetEnv) !== -1) {
+    const localesRootDir = path.join(__dirname, 'src/_locales');
+    const localeDirs = readdirSync(localesRootDir).filter(function(file) {
+      return lstatSync(path.join(localesRootDir, file)).isDirectory();
+    });
+    localeDirs.forEach(function(localeDir) {
+      const localePath = path.join(localesRootDir, localeDir);
+      gulp
+        .src([
+          path.join(localePath, 'messages.json'),
+          path.join(localePath, `messages-${targetEnv}.json`)
+        ])
+        .pipe(jsonMerge({fileName: 'messages.json'}))
+        .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
+        .pipe(gulp.dest(path.join('dist/_locales', localeDir)));
+    });
+  } else {
+    gulp
+      .src('src/_locales/**/messages.json')
+      .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
+      .pipe(gulp.dest('dist/_locales'));
+  }
 });
 
-gulp.task('build', gulpSeq('clean', ['js', 'html', 'css', 'svg', 'copy']));
+gulp.task('copy', function() {
+  gulp.src(['src/manifest.json', 'LICENSE']).pipe(gulp.dest('dist'));
+});
+
+gulp.task(
+  'build',
+  gulpSeq('clean', ['js', 'html', 'css', 'svg', 'locale', 'copy'])
+);
 
 gulp.task('default', ['build']);
