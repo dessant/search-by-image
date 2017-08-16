@@ -70,6 +70,16 @@ gulp.task('icons', function() {
     .pipe(gulp.dest('dist'));
 });
 
+gulp.task('fonts', function() {
+  gulp
+    .src('src/fonts/roboto.css', {base: '.'})
+    .pipe(postcss())
+    .pipe(gulp.dest('dist'));
+  gulp
+    .src('node_modules/typeface-roboto/files/roboto-latin-@(400|500).woff2')
+    .pipe(gulp.dest('dist/src/fonts/files'));
+});
+
 gulp.task('locale', function() {
   const customTargets = ['firefox'];
   if (customTargets.indexOf(targetEnv) !== -1) {
@@ -102,7 +112,7 @@ gulp.task('copy', function() {
 
 gulp.task(
   'build',
-  gulpSeq('clean', ['js', 'html', 'css', 'icons', 'locale', 'copy'])
+  gulpSeq('clean', ['js', 'html', 'css', 'icons', 'fonts', 'locale', 'copy'])
 );
 
 gulp.task('default', ['build']);
