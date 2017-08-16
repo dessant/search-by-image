@@ -5,13 +5,14 @@ var gulp = require('gulp');
 var gulpSeq = require('gulp-sequence');
 var webpack = require('webpack');
 var htmlmin = require('gulp-htmlmin');
-var svgmin = require('gulp-svgmin');
 var babel = require('gulp-babel');
 var postcss = require('gulp-postcss');
 var gulpif = require('gulp-if');
 var del = require('del');
 var jsonMerge = require('gulp-merge-json');
 var jsBeautify = require('gulp-jsbeautifier');
+var svg2png = require('gulp-rsvg');
+var imagemin = require('gulp-imagemin');
 
 const targetEnv = process.env.TARGET_ENV;
 const isProduction = process.env.NODE_ENV === 'production';
@@ -61,10 +62,11 @@ gulp.task('css', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('svg', function() {
+gulp.task('icons', function() {
   return gulp
     .src('src/**/*.svg', {base: '.'})
-    .pipe(gulpif(isProduction, svgmin()))
+    .pipe(svg2png())
+    .pipe(gulpif(isProduction, imagemin()))
     .pipe(gulp.dest('dist'));
 });
 
@@ -100,7 +102,7 @@ gulp.task('copy', function() {
 
 gulp.task(
   'build',
-  gulpSeq('clean', ['js', 'html', 'css', 'svg', 'locale', 'copy'])
+  gulpSeq('clean', ['js', 'html', 'css', 'icons', 'locale', 'copy'])
 );
 
 gulp.task('default', ['build']);
