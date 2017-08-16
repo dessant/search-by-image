@@ -15,12 +15,15 @@
   },
 
   "icons": {
-    "16": "src/icons/app-icon-16.svg",
-    "24": "src/icons/app-icon-24.svg",
-    "32": "src/icons/app-icon-32.svg",
-    "48": "src/icons/app-icon-48.svg",
-    "96": "src/icons/app-icon-96.svg",
-    "128": "src/icons/app-icon-128.svg"
+    "16": "src/icons/app-icon-16.png",
+    "24": "src/icons/app-icon-19.png",
+    "24": "src/icons/app-icon-24.png",
+    "32": "src/icons/app-icon-32.png",
+    "32": "src/icons/app-icon-38.png",
+    "48": "src/icons/app-icon-48.png",
+    "96": "src/icons/app-icon-64.png",
+    "96": "src/icons/app-icon-96.png",
+    "128": "src/icons/app-icon-128.png"
   },
 
   "permissions": [
