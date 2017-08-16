@@ -27,6 +27,7 @@
     "@material/grid-list": "^0.2.6",
     "@material/select": "^0.3.10",
     "@material/switch": "^0.1.9",
+    "@material/theme": "^0.1.7",
     "lodash": "^4.17.4",
     "spinkit": "^1.2.5",
     "typeface-roboto": "^0.0.35",
