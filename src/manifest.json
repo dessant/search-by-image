@@ -16,9 +16,12 @@
 
   "icons": {
     "16": "src/icons/app-icon-16.svg",
+    "24": "src/icons/app-icon-19.svg",
     "24": "src/icons/app-icon-24.svg",
     "32": "src/icons/app-icon-32.svg",
+    "32": "src/icons/app-icon-38.svg",
     "48": "src/icons/app-icon-48.svg",
+    "96": "src/icons/app-icon-64.svg",
     "96": "src/icons/app-icon-96.svg",
     "128": "src/icons/app-icon-128.svg"
   },
