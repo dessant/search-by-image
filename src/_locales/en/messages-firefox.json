@@ -1,11 +1,16 @@
 {
-  "contextMenuItemTitle_allEngines_main": {
-    "message": "Search All Engines for Image",
-    "description": "Title of the context menu item."
+  "engineName_allEngines_short": {
+    "message": "All Engines",
+    "description": "Short name of the search engine."
   },
 
-  "contextMenuItemTitle_allEngines_sub": {
-    "message": "All Engines",
+  "engineName_allEngines_full": {
+    "message": "All Search Engines",
+    "description": "Full name of the search engine."
+  },
+
+  "contextMenuItemTitle_allEngines_main": {
+    "message": "Search All Engines for Image",
     "description": "Title of the context menu item."
   },
 

@@ -69,13 +69,18 @@
     "description": "Full name of the search engine."
   },
 
-  "contextMenuItemTitle_allEngines_main": {
-    "message": "Search all engines for image",
-    "description": "Title of the context menu item."
+  "engineName_allEngines_short": {
+    "message": "All engines",
+    "description": "Short name of the search engine."
   },
 
-  "contextMenuItemTitle_allEngines_sub": {
-    "message": "All engines",
+  "engineName_allEngines_full": {
+    "message": "All search engines",
+    "description": "Full name of the search engine."
+  },
+
+  "contextMenuItemTitle_allEngines_main": {
+    "message": "Search all engines for image",
     "description": "Title of the context menu item."
   },
 

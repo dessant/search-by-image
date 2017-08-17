@@ -54,9 +54,9 @@ async function createMenu() {
   }
 
   if (enEngines.length > 1) {
-    const searchAllLocation = options.searchAllEnginesContextMenu;
+    const searchAllEngines = options.searchAllEnginesContextMenu;
 
-    if (searchAllLocation === 'main') {
+    if (searchAllEngines === 'main') {
       createMenuItem(
         'allEngines',
         getText('contextMenuItemTitle_allEngines_main')
@@ -66,10 +66,10 @@ async function createMenu() {
 
     createMenuItem('par-1', getText('contextMenuGroupTitle_searchImage_main'));
 
-    if (searchAllLocation === 'sub') {
+    if (searchAllEngines === 'sub') {
       createMenuItem(
         'allEngines',
-        getText('contextMenuItemTitle_allEngines_sub'),
+        getText('engineName_allEngines_full'),
         'par-1'
       );
       createMenuItem('sep-1', '', 'par-1', 'separator');
