@@ -6,4 +6,7 @@ function saveClickTarget(e) {
   clickTarget.node = e.target;
 }
 
-window.addEventListener('contextmenu', saveClickTarget, true);
+window.addEventListener('contextmenu', saveClickTarget, {
+  capture: true,
+  passive: true
+});
