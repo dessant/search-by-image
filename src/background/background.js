@@ -3,7 +3,7 @@ import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
 import {getText, createTab, executeCode, executeFile} from 'utils/common';
-import {getEnabledEngines} from 'utils/app';
+import {getEnabledEngines, showNotification} from 'utils/app';
 import {optionKeys, engines} from 'utils/data';
 
 var dataUriStore = {};
@@ -195,22 +195,14 @@ async function onContextMenuClick(info, tab) {
   let [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
 
   if (!imgUrls) {
-    await browser.notifications.create('sbi-notification', {
-      type: 'basic',
-      title: getText('extensionName'),
-      message: getText('error_InternalError')
-    });
+    await showNotification('error_InternalError');
     return;
   }
 
   imgUrls = _.uniq(_.compact(imgUrls));
 
   if (imgUrls.length === 0) {
-    await browser.notifications.create('sbi-notification', {
-      type: 'basic',
-      title: getText('extensionName'),
-      message: getText('error_imageNotFound')
-    });
+    await showNotification('error_imageNotFound');
     return;
   }
 
