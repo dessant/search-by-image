@@ -110,18 +110,18 @@
     "description": "Title of the miscellaneous options section."
   },
 
-  "optionTitle_searchAllEngines": {
-    "message": "Search all engines",
-    "description": "Title of the option."
-  },
-
-  "optionValue_searchAllEnginesLocation_menu": {
-    "message": "from menu",
+  "optionValue_searchAllEnginesContextMenu_main": {
+    "message": "Search all engines from context menu",
     "description": "Value of the option."
   },
 
-  "optionValue_searchAllEnginesLocation_submenu": {
-    "message": "from submenu",
+  "optionValue_searchAllEnginesContextMenu_sub": {
+    "message": "Search all engines from submenu of context menu",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchAllEnginesContextMenu_false": {
+    "message": "Do not search all engines from context menu",
     "description": "Value of the option."
   },
 

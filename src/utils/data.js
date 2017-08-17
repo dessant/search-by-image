@@ -3,8 +3,7 @@ const optionKeys = [
   'disabledEngines',
   'tabInBackgound',
   'localGoogle',
-  'searchAllEngines',
-  'searchAllEnginesLocation',
+  'searchAllEnginesContextMenu',
   'imgFullParse'
 ];
 

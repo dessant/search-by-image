@@ -54,10 +54,9 @@ async function createMenu() {
   }
 
   if (_.size(enEngines) > 1) {
-    const searchAllLocation =
-      options.searchAllEngines && options.searchAllEnginesLocation;
+    const searchAllLocation = options.searchAllEnginesContextMenu;
 
-    if (searchAllLocation === 'menu') {
+    if (searchAllLocation === 'main') {
       createMenuItem(
         'allEngines',
         getText('contextMenuItemTitle_allEngines_main')
@@ -67,7 +66,7 @@ async function createMenu() {
 
     createMenuItem('par-1', getText('contextMenuGroupTitle_searchImage_main'));
 
-    if (searchAllLocation === 'submenu') {
+    if (searchAllLocation === 'sub') {
       createMenuItem(
         'allEngines',
         getText('contextMenuItemTitle_allEngines_sub'),

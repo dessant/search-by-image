@@ -24,17 +24,28 @@
       {{ getText('optionSectionTitle_misc') }}
     </div>
     <div class="option-wrap">
-      <div class="option" v-for="option in miscOptionKeys" :key="option.id">
-        <v-form-field :input-id="option"
-            :label="getText(`optionTitle_${option}`)">
-          <v-switch :id="option" v-model="options[option]"></v-switch>
-        </v-form-field>
-        <v-select class="inline-select"
-            v-if="option === 'searchAllEngines'"
-            v-show="options.searchAllEngines"
-            v-model="options.searchAllEnginesLocation"
-            :options="searchAllEnginesLocationOptions">
+      <div class="option">
+        <v-select v-model="options.searchAllEnginesContextMenu"
+            :options="selectOptions.searchAllEnginesContextMenu">
         </v-select>
+      </div>
+      <div class="option">
+        <v-form-field input-id="tib"
+            :label="getText('optionTitle_tabInBackgound')">
+          <v-switch id="tib" v-model="options.tabInBackgound"></v-switch>
+        </v-form-field>
+      </div>
+      <div class="option">
+        <v-form-field input-id="lg"
+            :label="getText('optionTitle_localGoogle')">
+          <v-switch id="lg" v-model="options.localGoogle"></v-switch>
+        </v-form-field>
+      </div>
+      <div class="option">
+        <v-form-field input-id="ifp"
+            :label="getText('optionTitle_imgFullParse')">
+          <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
+        </v-form-field>
       </div>
     </div>
   </div>
@@ -65,36 +76,35 @@ export default {
   },
 
   data: function() {
-    return {
+    const data = {
       dataLoaded: false,
-
-      miscOptionKeys: [
-        'searchAllEngines',
-        'tabInBackgound',
-        'localGoogle',
-        'imgFullParse'
-      ],
-      searchAllEnginesLocationOptions: [
-        {
-          id: 'menu',
-          label: getText('optionValue_searchAllEnginesLocation_menu')
-        },
-        {
-          id: 'submenu',
-          label: getText('optionValue_searchAllEnginesLocation_submenu')
-        }
-      ],
 
       options: {
         engines: [],
         disabledEngines: [],
-        searchAllEngines: false,
-        searchAllEnginesLocation: '',
+        searchAllEnginesContextMenu: '',
         tabInBackgound: false,
         localGoogle: false,
         imgFullParse: false
       }
     };
+
+    const selectOptionsData = {
+      searchAllEnginesContextMenu: ['main', 'sub', 'false']
+    };
+    const selectOptions = {};
+    for (const [option, values] of Object.entries(selectOptionsData)) {
+      selectOptions[option] = [];
+      values.forEach(function(value) {
+        selectOptions[option].push({
+          id: value,
+          label: getText(`optionValue_${option}_${value}`)
+        });
+      });
+    }
+    data.selectOptions = selectOptions;
+
+    return data;
   },
 
   methods: {
@@ -176,10 +186,5 @@ $mdc-theme-primary: #1abc9c;
   display: flex;
   align-items: center;
   height: 36px;
-}
-
-.inline-select {
-  margin-left: 6px;
-  margin-right: 6px;
 }
 </style>
