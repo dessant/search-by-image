@@ -1,4 +1,4 @@
-var optionKeys = [
+const optionKeys = [
   'engines',
   'disabledEngines',
   'tabInBackgound',
@@ -8,7 +8,7 @@ var optionKeys = [
   'imgFullParse'
 ];
 
-var engines = {
+const engines = {
   google: {
     url: 'https://www.google.com/searchbyimage?image_url={imgUrl}'
   },

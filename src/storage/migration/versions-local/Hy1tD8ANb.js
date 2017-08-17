@@ -1,19 +1,19 @@
-var message = 'Add imgFullParse option';
+const message = 'Add imgFullParse option';
 
-var revision = 'Hy1tD8ANb';
-var downRevision = 'ryekyizAg';
+const revision = 'Hy1tD8ANb';
+const downRevision = 'ryekyizAg';
 
-var storage = browser.storage.local;
+const storage = browser.storage.local;
 
 async function upgrade() {
-  var changes = {imgFullParse: false};
+  const changes = {imgFullParse: false};
 
   changes.storageVersion = revision;
   return storage.set(changes);
 }
 
 async function downgrade() {
-  var changes = {};
+  const changes = {};
   await storage.remove('imgFullParse');
 
   changes.storageVersion = downRevision;

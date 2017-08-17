@@ -117,7 +117,7 @@ export default {
   },
 
   created: async function() {
-    var options = await storage.get(optionKeys, 'sync');
+    const options = await storage.get(optionKeys, 'sync');
 
     for (const option of Object.keys(this.options)) {
       this.options[option] = options[option];

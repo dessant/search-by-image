@@ -1,12 +1,12 @@
-var message = 'Initial version';
+const message = 'Initial version';
 
-var revision = 'ryekyizAg';
-var downRevision = null;
+const revision = 'ryekyizAg';
+const downRevision = null;
 
-var storage = browser.storage.sync;
+const storage = browser.storage.sync;
 
 async function upgrade() {
-  var changes = {
+  const changes = {
     engines: ['google', 'bing', 'yandex', 'baidu', 'tineye'],
     disabledEngines: [],
     searchAllEngines: true,

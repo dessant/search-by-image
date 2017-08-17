@@ -1,14 +1,14 @@
 import _ from 'lodash';
 
 async function storageVersion(area = 'local') {
-  var options = await browser.storage[area].get(['storageVersion']);
+  const options = await browser.storage[area].get(['storageVersion']);
   if (!_.isEmpty(options)) {
     return options.storageVersion;
   }
 }
 
 async function latestVersion(area = 'local') {
-  var versions = await getVersions(area);
+  const versions = await getVersions(area);
   return _.last(versions.versions);
 }
 
@@ -21,17 +21,17 @@ async function getVersions(area = 'local') {
 }
 
 async function upgrade(area = 'local', toVer) {
-  var versions = (await getVersions(area)).versions;
+  const versions = (await getVersions(area)).versions;
   if (_.isUndefined(toVer)) {
     toVer = _.last(versions);
   }
-  var fromVer = await storageVersion(area);
+  const fromVer = await storageVersion(area);
 
   if (fromVer === toVer) {
     return;
   }
 
-  var migrationPath = _.slice(
+  const migrationPath = _.slice(
     versions,
     _.indexOf(versions, fromVer) + 1,
     _.indexOf(versions, toVer) + 1
@@ -40,7 +40,7 @@ async function upgrade(area = 'local', toVer) {
   console.log(`Migrating storage (${area}): ${fromVer} => ${toVer}`);
 
   for (const revisionId of migrationPath) {
-    var revision = require(`./versions-${area}/${revisionId}.js`);
+    const revision = require(`./versions-${area}/${revisionId}.js`);
     console.log(
       `Applying revision (${area}): ${revision.revision} - ${revision.message}`
     );

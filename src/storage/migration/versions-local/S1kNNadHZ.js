@@ -1,13 +1,13 @@
-var message = 'Add Sogou engine';
+const message = 'Add Sogou engine';
 
-var revision = 'S1kNNadHZ';
-var downRevision = 'Hy1tD8ANb';
+const revision = 'S1kNNadHZ';
+const downRevision = 'Hy1tD8ANb';
 
-var storage = browser.storage.local;
+const storage = browser.storage.local;
 
 async function upgrade() {
-  var changes = {};
-  var {engines, disabledEngines} = await storage.get([
+  const changes = {};
+  const {engines, disabledEngines} = await storage.get([
     'engines',
     'disabledEngines'
   ]);
@@ -20,8 +20,8 @@ async function upgrade() {
 }
 
 async function downgrade() {
-  var changes = {};
-  var {engines, disabledEngines} = await storage.get([
+  const changes = {};
+  const {engines, disabledEngines} = await storage.get([
     'engines',
     'disabledEngines'
   ]);

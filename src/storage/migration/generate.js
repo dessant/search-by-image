@@ -1,10 +1,10 @@
 // $ node src/storage/migration/generate.js -m "Revision description"
 
-var path = require('path');
-var program = require('commander');
-var shortid = require('shortid');
-var fs = require('fs-extra');
-var _ = require('lodash');
+const path = require('path');
+const program = require('commander');
+const shortid = require('shortid');
+const fs = require('fs-extra');
+const _ = require('lodash');
 
 program
   .description('Saves a new storage revision in the versions folder.')
@@ -21,41 +21,43 @@ if (!process.argv.slice(2).length) {
   program.help();
 }
 
-var message = program.message;
-var storageArea = program.storage;
+const message = program.message;
+const storageArea = program.storage;
 
-var revisionId = shortid.generate();
+const revisionId = shortid.generate();
 
-var versionsDir = path.join(__dirname, `versions-${storageArea}`);
-var versionsFile = path.join(versionsDir, 'versions.json');
+const versionsDir = path.join(__dirname, `versions-${storageArea}`);
+const versionsFile = path.join(versionsDir, 'versions.json');
 
 fs.ensureDirSync(versionsDir);
 
+let versions;
+let downRevisionId;
 try {
-  var versions = fs.readJsonSync(versionsFile);
-  var downRevisionId = `'${_.last(versions.versions)}'`;
+  versions = fs.readJsonSync(versionsFile);
+  downRevisionId = `'${_.last(versions.versions)}'`;
 } catch (err) {
-  var versions = {versions: []};
-  var downRevisionId = null;
+  versions = {versions: []};
+  downRevisionId = null;
 }
 versions.versions.push(revisionId);
 
-revisionCont = `var message = '${message}';
+revisionCont = `const message = '${message}';
 
-var revision = '${revisionId}';
-var downRevision = ${downRevisionId};
+const revision = '${revisionId}';
+const downRevision = ${downRevisionId};
 
-var storage = browser.storage.${storageArea};
+const storage = browser.storage.${storageArea};
 
 async function upgrade() {
-  var changes = {};
+  const changes = {};
 
   changes.storageVersion = revision;
   return storage.set(changes);
 }
 
 async function downgrade() {
-  var changes = {};
+  const changes = {};
 
   changes.storageVersion = downRevision;
   return storage.set(changes);

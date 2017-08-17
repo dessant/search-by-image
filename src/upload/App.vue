@@ -36,17 +36,17 @@ export default {
 
     processDataUri: async function(dataUri) {
       if (this.engine === 'google') {
-        var data = new FormData();
+        const data = new FormData();
         data.append('encoded_image', dataUriToBlob(dataUri));
-        var rsp = await fetch('https://www.google.com/searchbyimage/upload', {
+        const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
           referrer: '',
           mode: 'cors',
           method: 'POST',
           body: data
         });
-        var tabUrl = rsp.url;
+        let tabUrl = rsp.url;
 
-        var {localGoogle} = await storage.get('localGoogle', 'sync');
+        const {localGoogle} = await storage.get('localGoogle', 'sync');
         if (!localGoogle) {
           tabUrl = tabUrl.replace(
             /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
@@ -58,15 +58,15 @@ export default {
       }
 
       if (this.engine === 'tineye') {
-        var data = new FormData();
+        const data = new FormData();
         data.append('image', dataUriToBlob(dataUri));
-        var rsp = await fetch('https://www.tineye.com/search', {
+        const rsp = await fetch('https://www.tineye.com/search', {
           referrer: '',
           mode: 'cors',
           method: 'POST',
           body: data
         });
-        var tabUrl = rsp.url;
+        const tabUrl = rsp.url;
 
         window.location.replace(tabUrl);
       }
@@ -76,7 +76,7 @@ export default {
   created: async function() {
     browser.runtime.onMessage.addListener(this.onMessage);
 
-    var query = new URL(window.location.href).searchParams;
+    const query = new URL(window.location.href).searchParams;
 
     this.engine = query.get('engine');
     if (!this.engine) {
@@ -86,7 +86,7 @@ export default {
 
     document.title = getText(`engineName_${this.engine}_full`);
 
-    var supportedEngines = ['google', 'tineye'];
+    const supportedEngines = ['google', 'tineye'];
     if (supportedEngines.indexOf(this.engine) === -1) {
       this.error = getText(
         'error_invalidImageUrl_dataUri',
@@ -95,7 +95,7 @@ export default {
       return;
     }
 
-    var dataKey = query.get('dataKey');
+    const dataKey = query.get('dataKey');
     if (!dataKey) {
       this.error = getText('error_invalidPageUrl');
       return;

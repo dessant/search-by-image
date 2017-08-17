@@ -9,7 +9,7 @@ import {optionKeys, engines} from 'utils/data';
 var dataUriStore = {};
 
 function saveDataUri(dataUri) {
-  var dataKey = uuidV4();
+  const dataKey = uuidV4();
   dataUriStore[dataKey] = dataUri;
   window.setTimeout(function() {
     delete dataUriStore[dataKey];
@@ -38,8 +38,8 @@ function createMenuItem(id, title, parentId, type = 'normal') {
 }
 
 async function createMenu() {
-  var options = await storage.get(optionKeys, 'sync');
-  var enEngines = await getEnabledEngines(options);
+  const options = await storage.get(optionKeys, 'sync');
+  const enEngines = await getEnabledEngines(options);
 
   if (_.size(enEngines) === 1) {
     const engine = enEngines[0];
@@ -54,7 +54,7 @@ async function createMenu() {
   }
 
   if (_.size(enEngines) > 1) {
-    var searchAllLocation =
+    const searchAllLocation =
       options.searchAllEngines && options.searchAllEnginesLocation;
 
     if (searchAllLocation === 'menu') {
@@ -87,7 +87,7 @@ async function createMenu() {
 }
 
 async function getTabUrl(imgUrl, dataKey, engineId, options) {
-  var tabUrl;
+  let tabUrl;
 
   if (dataKey) {
     const supportedEngines = ['bing'];
@@ -112,14 +112,13 @@ async function getTabUrl(imgUrl, dataKey, engineId, options) {
 }
 
 async function searchImage(imgUrl, menuId, sourceTabIndex) {
-  var options = await storage.get(optionKeys, 'sync');
+  const options = await storage.get(optionKeys, 'sync');
 
-  var tabIndex = sourceTabIndex + 1;
-  var tabActive = !options.tabInBackgound;
+  let tabIndex = sourceTabIndex + 1;
+  let tabActive = !options.tabInBackgound;
+  let dataKey = null;
   if (imgUrl.startsWith('data:')) {
-    var dataKey = saveDataUri(imgUrl);
-  } else {
-    dataKey = null;
+    dataKey = saveDataUri(imgUrl);
   }
 
   if (menuId === 'allEngines') {
@@ -162,7 +161,7 @@ async function searchEngine(
 }
 
 async function onContextMenuClick(info, tab) {
-  var tabId = tab.id;
+  const tabId = tab.id;
 
   // Firefox < 55.0
   if (typeof info.frameId === 'undefined') {
@@ -177,10 +176,10 @@ async function onContextMenuClick(info, tab) {
     return;
   }
 
-  var [probe] = await executeFile('/src/content/probe.js', tabId, frameId);
+  const [probe] = await executeFile('/src/content/probe.js', tabId, frameId);
 
   if (info.srcUrl) {
-    var {imgFullParse} = await storage.get('imgFullParse', 'sync');
+    const {imgFullParse} = await storage.get('imgFullParse', 'sync');
     await executeCode(
       `frameStorage.options.imgFullParse = ${imgFullParse};`,
       tabId,
@@ -193,7 +192,7 @@ async function onContextMenuClick(info, tab) {
     await rememberExecution('parse', tabId, frameId);
   }
 
-  var [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
+  let [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
 
   if (!imgUrls) {
     await browser.notifications.create('sbi-notification', {
@@ -216,7 +215,7 @@ async function onContextMenuClick(info, tab) {
   }
 
   if (imgUrls.length > 1) {
-    var [probe] = await executeFile('/src/content/probe.js', tabId);
+    const [probe] = await executeFile('/src/content/probe.js', tabId);
     if (!probe.modules.select) {
       await browser.tabs.insertCSS(tabId, {
         runAt: 'document_end',
@@ -246,8 +245,8 @@ function rememberExecution(module, tabId, frameId = 0) {
 
 function onMessage(request, sender, sendResponse) {
   if (request.id === 'dataUriRequest') {
-    var dataUri = dataUriStore[request.dataKey];
-    var response = {id: 'dataUriResponse'};
+    const dataUri = dataUriStore[request.dataKey];
+    const response = {id: 'dataUriResponse'};
     if (dataUri) {
       response['dataUri'] = dataUri;
     } else {
@@ -268,7 +267,7 @@ function addMenuListener(data) {
 
 function addStorageListener() {
   browser.storage.onChanged.addListener(function(changes, area) {
-    var removing = browser.contextMenus.removeAll();
+    const removing = browser.contextMenus.removeAll();
     removing.then(createMenu);
   });
 }
