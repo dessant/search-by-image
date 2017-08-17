@@ -116,6 +116,8 @@ $spinkit-size: 36px;
 $spinkit-spinner-color: #e74c3c;
 
 @import 'spinkit/scss/spinners/1-rotating-plane';
+@import '@material/theme/mdc-theme';
+@import '@material/typography/mdc-typography';
 
 html,
 body {
@@ -135,9 +137,8 @@ body {
 }
 
 .error-text {
-  font-size: 20px;
-  font-family: Roboto, sans-serif;
-  color: #34495e;
+  @include mdc-typography('subheading2');
+  @include mdc-theme-prop('color', 'text-primary-on-light');
   max-width: 520px;
   margin-top: 36px;
 }
