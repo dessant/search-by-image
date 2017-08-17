@@ -41,7 +41,7 @@ async function createMenu() {
   const options = await storage.get(optionKeys, 'sync');
   const enEngines = await getEnabledEngines(options);
 
-  if (_.size(enEngines) === 1) {
+  if (enEngines.length === 1) {
     const engine = enEngines[0];
     createMenuItem(
       engine,
@@ -53,7 +53,7 @@ async function createMenu() {
     return;
   }
 
-  if (_.size(enEngines) > 1) {
+  if (enEngines.length > 1) {
     const searchAllLocation = options.searchAllEnginesContextMenu;
 
     if (searchAllLocation === 'main') {
@@ -75,7 +75,7 @@ async function createMenu() {
       createMenuItem('sep-1', '', 'par-1', 'separator');
     }
 
-    _.forEach(enEngines, function(engineId) {
+    enEngines.forEach(function(engineId) {
       createMenuItem(
         engineId,
         getText(`engineName_${engineId}_short`),
