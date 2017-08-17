@@ -2,7 +2,16 @@ import Vue from 'vue';
 
 import App from './App';
 
-var vm = new Vue({
-  el: '#app',
-  render: h => h(App)
-});
+async function init() {
+  try {
+    await document.fonts.load('400 14px Roboto');
+    await document.fonts.load('500 14px Roboto');
+  } catch (e) {}
+
+  const vm = new Vue({
+    el: '#app',
+    render: h => h(App)
+  });
+}
+
+init();

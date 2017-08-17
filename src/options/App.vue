@@ -9,12 +9,12 @@
     </div>
     <v-draggable class="option-wrap" :list="options.engines">
       <div class="option" v-for="engine in options.engines" :key="engine.id">
-        <v-checkbox :id="engine" :checked="engineEnabled(engine)"
-            @change="setEngineState(engine, $event)">
-        </v-checkbox>
-        <label class="option-title" :for="engine">
-          {{ getText(`engineName_${engine}_full`) }}
-        </label>
+        <v-form-field :input-id="engine"
+            :label="getText(`engineName_${engine}_full`)">
+          <v-checkbox :id="engine" :checked="engineEnabled(engine)"
+              @change="setEngineState(engine, $event)">
+          </v-checkbox>
+        </v-form-field>
       </div>
     </v-draggable>
   </div>
@@ -25,12 +25,12 @@
     </div>
     <div class="option-wrap">
       <div class="option" v-for="option in miscOptionKeys" :key="option.id">
-        <v-switch :id="option" v-model="options[option]"></v-switch>
-        <span class="option-title"
-            @click="options[option] = !options[option]" v-once>
-          {{ getText(`optionTitle_${option}`) }}
-        </span>
-        <v-select v-if="option === 'searchAllEngines'"
+        <v-form-field :input-id="option"
+            :label="getText(`optionTitle_${option}`)">
+          <v-switch :id="option" v-model="options[option]"></v-switch>
+        </v-form-field>
+        <v-select class="inline-select"
+            v-if="option === 'searchAllEngines'"
             v-show="options.searchAllEngines"
             v-model="options.searchAllEnginesLocation"
             :options="searchAllEnginesLocationOptions">
@@ -53,13 +53,15 @@ import {optionKeys} from 'utils/data';
 import Checkbox from './components/Checkbox';
 import Switch from './components/Switch';
 import Select from './components/Select';
+import FormField from './components/FormField';
 
 export default {
   components: {
     'v-draggable': draggable,
     [Checkbox.name]: Checkbox,
     [Switch.name]: Switch,
-    [Select.name]: Select
+    [Select.name]: Select,
+    [FormField.name]: FormField
   },
 
   data: function() {
@@ -130,64 +132,54 @@ export default {
 </script>
 
 <style lang="scss">
-.mdc-select {
-  width: 180px !important;
-}
+$mdc-theme-primary: #1abc9c;
 
-.mdc-select__menu {
-  width: 204px !important;
-}
-
-.mdc-select__selected-text,
-.mdc-select .mdc-list-item {
-  letter-spacing: normal !important;
-  font-size: 20px !important;
-  color: #444 !important;
-}
+@import '@material/theme/mdc-theme';
+@import '@material/typography/mdc-typography';
 
 .mdc-checkbox {
-  margin-left: 12px;
-  margin-right: 12px;
+  margin-left: 8px;
 }
 
 .mdc-switch {
-  margin-left: 8px;
-  margin-right: 24px;
+  margin-right: 12px;
 }
 
-.section-desc,
+#app {
+  display: grid;
+  grid-row-gap: 32px;
+  min-width: 600px;
+  padding: 12px;
+}
+
 .section-title,
-.option-title {
-  color: #444;
-  font-family: Roboto, sans-serif;
+.section-desc {
+  @include mdc-theme-prop('color', 'text-primary-on-light');
 }
 
 .section-title {
-  font-size: 28px;
-  padding-top: 24px;
+  @include mdc-typography('title');
 }
 
 .section-desc {
-  opacity: 0.7;
-  font-size: 16px;
+  @include mdc-typography('body1');
   padding-top: 8px;
 }
 
 .option-wrap {
   display: grid;
-  grid-row-gap: 16px;
-  padding-top: 24px;
-  padding-bottom: 24px;
+  grid-row-gap: 12px;
+  padding-top: 16px;
 }
 
 .option {
   display: flex;
   align-items: center;
-  height: 32px;
+  height: 36px;
 }
 
-.option-title {
-  font-size: 20px;
-  padding-right: 8px;
+.inline-select {
+  margin-left: 6px;
+  margin-right: 6px;
 }
 </style>
