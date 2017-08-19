@@ -11,7 +11,7 @@
     "build:prod:firefox": "NODE_ENV=production TARGET_ENV=firefox gulp build",
     "build:ext:prod": "yarn run build:prod && web-ext build -s dist/ -a artifacts/",
     "build:ext:prod:firefox": "yarn run build:prod:firefox && web-ext build -s dist/ -a artifacts/",
-    "start": "web-ext run --bc --url 'about:addons' -s dist/",
+    "start": "web-ext run --bc --url 'about:addons' --url 'about:debugging' -s dist/",
     "exec": "yarn run build && yarn run start",
     "exec:firefox": "yarn run build:firefox && yarn run start",
     "exec:prod": "yarn run build:prod && yarn run start",
