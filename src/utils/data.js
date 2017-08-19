@@ -17,7 +17,8 @@ const engines = {
     data: 'https://www.bing.com/images/discover?form=HDRSC2'
   },
   yandex: {
-    url: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview'
+    url: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview',
+    data: 'https://yandex.com/images/'
   },
   baidu: {
     url:

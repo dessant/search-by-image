@@ -11,7 +11,8 @@
 
 <script>
 import storage from 'storage/storage';
-import {onError, getText, dataUriToBlob} from 'utils/common';
+import {onError, getText} from 'utils/common';
+import {dataUriToBlob} from 'content/common';
 import {optionKeys} from 'utils/data';
 
 export default {

@@ -89,7 +89,7 @@ async function getTabUrl(imgUrl, dataKey, engineId, options) {
   let tabUrl;
 
   if (dataKey) {
-    const supportedEngines = ['bing'];
+    const supportedEngines = ['bing', 'yandex'];
     if (supportedEngines.indexOf(engineId) !== -1) {
       tabUrl = engines[engineId].data;
     } else {
@@ -142,12 +142,21 @@ async function searchEngine(
   const tabUrl = await getTabUrl(imgUrl, dataKey, engineId, options);
   const tab = await createTab(tabUrl, tabIndex, tabActive);
   if (dataKey) {
-    const supportedEngines = ['bing'];
-    if (supportedEngines.indexOf(engineId) !== -1) {
+    const cssNeeded = ['bing'];
+    if (cssNeeded.indexOf(engineId) !== -1) {
       await browser.tabs.insertCSS(tab.id, {
         runAt: 'document_start',
         file: '/src/content/engines/style.css'
       });
+    }
+
+    const commonNeeded = ['yandex'];
+    if (commonNeeded.indexOf(engineId) !== -1) {
+      executeFile(`/src/content/common.js`, tab.id, 0, 'document_idle');
+    }
+
+    const supportedEngines = ['bing', 'yandex'];
+    if (supportedEngines.indexOf(engineId) !== -1) {
       await executeCode(`var dataKey = '${dataKey}';`, tab.id);
       executeFile(
         `/src/content/engines/${engineId}.js`,
