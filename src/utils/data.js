@@ -28,7 +28,8 @@ const engines = {
     url: 'https://www.tineye.com/search/?&url={imgUrl}'
   },
   sogou: {
-    url: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0'
+    url: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0',
+    data: 'http://pic.sogou.com/'
   }
 };
 
