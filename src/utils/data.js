@@ -22,7 +22,8 @@ const engines = {
   },
   baidu: {
     url:
-      'https://image.baidu.com/n/pc_search?queryImageUrl={imgUrl}&fm=index&uptype=paste'
+      'https://image.baidu.com/n/pc_search?queryImageUrl={imgUrl}&fm=index&uptype=paste',
+    data: 'http://image.baidu.com/'
   },
   tineye: {
     url: 'https://www.tineye.com/search/?&url={imgUrl}'
