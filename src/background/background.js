@@ -144,7 +144,7 @@ async function searchEngine(
   if (dataKey) {
     const cssNeeded = ['bing'];
     if (cssNeeded.indexOf(engineId) !== -1) {
-      await browser.tabs.insertCSS(tab.id, {
+      browser.tabs.insertCSS(tab.id, {
         runAt: 'document_start',
         file: '/src/content/engines/style.css'
       });
@@ -157,7 +157,7 @@ async function searchEngine(
 
     const supportedEngines = ['bing', 'yandex', 'baidu', 'sogou'];
     if (supportedEngines.indexOf(engineId) !== -1) {
-      await executeCode(`var dataKey = '${dataKey}';`, tab.id);
+      executeCode(`var dataKey = '${dataKey}';`, tab.id);
       executeFile(
         `/src/content/engines/${engineId}.js`,
         tab.id,
