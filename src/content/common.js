@@ -24,9 +24,29 @@ function getXHR() {
   }
 }
 
+function getRandomString(length) {
+  let text = '';
+  const seed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (let i = 0; i < length; i++) {
+    text += seed.charAt(Math.floor(Math.random() * seed.length));
+  }
+
+  return text;
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomFilename(ext) {
+  return `${getRandomString(getRandomInt(5, 20))}.${ext}`;
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     dataUriToBlob,
-    getXHR
+    getXHR,
+    getRandomFilename
   };
 }

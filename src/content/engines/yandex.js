@@ -32,7 +32,7 @@ async function upload(dataUri) {
   if (subtype === 'x-icon') {
     subtype = 'ico';
   }
-  const filename = `${Math.random().toString(36).substring(7)}.${subtype}`;
+  const filename = getRandomFilename(subtype);
 
   const data = new FormData();
   data.append('upfile', blob, filename);
