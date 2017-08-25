@@ -1,7 +1,8 @@
 const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
 const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['IMG', 'VIDEO', 'IFRAME', 'EMBED'];
-const rx = /url\(['"]?([^'")]+)['"]?\)/gi;
+const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
+const rxSupportedUrls = /^(?:https?:\/\/|ftp:\/\/|data:image\/).*$/i;
 
 function extractCSSImages(cssProps, node, pseudo = null) {
   if (pseudo) {
@@ -17,7 +18,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
   cssProperties.forEach(function(prop) {
     let value = style.getPropertyValue(prop);
     if (value && value !== 'none') {
-      while ((match = rx.exec(value)) !== null) {
+      while ((match = rxCssUrl.exec(value)) !== null) {
         urls.push(match[1]);
       }
     }
@@ -101,5 +102,5 @@ function parseDocument() {
     urls.push(...fullParseUrls.reverse());
   }
 
-  return urls;
+  return urls.filter(url => rxSupportedUrls.test(url));
 }
