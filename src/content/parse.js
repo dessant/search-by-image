@@ -3,6 +3,7 @@ const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['IMG', 'VIDEO', 'IFRAME', 'EMBED'];
 const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
 const rxSupportedUrls = /^(?:https?:\/\/|ftp:\/\/|data:image\/).*$/i;
+const canvas = {cnv: null, ctx: null};
 
 function extractCSSImages(cssProps, node, pseudo = null) {
   if (pseudo) {
@@ -27,7 +28,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
   return urls;
 }
 
-function parseNode(node) {
+function parseNode(node, isLocalDoc) {
   const urls = [];
   const nodeName = node.nodeName;
   let cssProps = cssProperties;
@@ -57,6 +58,34 @@ function parseNode(node) {
     });
   }
 
+  if (isLocalDoc) {
+    const fileUrls = urls.filter(url => url.startsWith('file://'));
+    const {cnv, ctx} = canvas;
+    fileUrls.forEach(function(url) {
+      let img = document.querySelector(`img[src="${url}"]`);
+      if (!img) {
+        img = new Image();
+        img.src = url;
+        const startTime = new Date().getTime();
+        while (true) {
+          if (
+            img.complete ||
+            img.naturalWidth ||
+            new Date().getTime() - startTime > 120000
+          ) {
+            break;
+          }
+        }
+      }
+
+      cnv.width = img.naturalWidth;
+      cnv.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      urls[urls.indexOf(url)] = cnv.toDataURL();
+      ctx.clearRect(0, 0, cnv.width, cnv.height);
+    });
+  }
+
   return urls;
 }
 
@@ -66,9 +95,19 @@ function parseDocument() {
   }
 
   const urls = [];
-  let targetNode = clickTarget.node;
+  const targetNode = clickTarget.node;
+  const isLocalDoc = window.location.href.startsWith('file://');
 
-  urls.push(...parseNode(targetNode));
+  if (!document.querySelector('html')) {
+    return urls;
+  }
+
+  if (isLocalDoc && !canvas.cnv) {
+    canvas.cnv = document.createElement('canvas');
+    canvas.ctx = canvas.cnv.getContext('2d');
+  }
+
+  urls.push(...parseNode(targetNode, isLocalDoc));
 
   if (targetNode.nodeName !== 'IMG' || frameStorage.options.imgFullParse) {
     const fullParseUrls = [];
@@ -95,7 +134,7 @@ function parseDocument() {
       }
 
       if (!currentNode.isSameNode(targetNode)) {
-        fullParseUrls.push(...parseNode(currentNode));
+        fullParseUrls.push(...parseNode(currentNode, isLocalDoc));
       }
     }
 

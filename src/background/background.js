@@ -29,7 +29,12 @@ function createMenuItem(id, title, parentId, type = 'normal') {
       id: id,
       title: title,
       contexts: ['all'],
-      documentUrlPatterns: ['http://*/*', 'https://*/*', 'ftp://*/*'],
+      documentUrlPatterns: [
+        'http://*/*',
+        'https://*/*',
+        'ftp://*/*',
+        'file:///*'
+      ],
       parentId: parentId,
       type: type
     },
