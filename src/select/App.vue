@@ -12,10 +12,10 @@
         <div class="mdc-grid-tile__primary">
           <div class="mdc-grid-tile__primary-content tile-container"
               tabindex="0"
-              :data-url="url"
+              :data-url="JSON.stringify(url)"
               @click="onSelection($event)"
               @keyup.enter="onSelection($event)">
-            <img class="tile" :src="url"/>
+            <img class="tile" :src="url.data"/>
           </div>
         </div>
       </li>
@@ -62,7 +62,7 @@ export default {
       this.showDialog = false;
       browser.runtime.sendMessage({
         id: 'imageSelectionDialogSubmit',
-        imgUrl: e.target.dataset.url,
+        imgUrl: JSON.parse(e.target.dataset.url),
         menuItemId: this.menuItemId
       });
     }

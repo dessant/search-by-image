@@ -11,15 +11,8 @@ function showResults() {
 async function upload(dataUri) {
   const url =
     'http://image.baidu.com/pcdutu/a_upload?fr=html5&target=pcSearchImage&needJson=true';
-  const blob = dataUriToBlob(dataUri);
-  let subtype = blob.type.split('/')[1];
-  if (subtype === 'x-icon') {
-    subtype = 'ico';
-  }
-  const filename = getRandomFilename(subtype);
-
   const data = new FormData();
-  data.append('file', blob, filename);
+  data.append('file', dataUriToBlob(dataUri.data), dataUri.info.fullFilename);
   data.append('pos', 'upload');
   data.append('uptype', 'upload_pc');
   data.append('fm', 'index');

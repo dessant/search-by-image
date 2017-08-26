@@ -27,15 +27,9 @@ async function upload(dataUri) {
   ].serpid;
 
   const url = `https://yandex.com/images/search?serpid=${serpid}&uinfo=${uinfo}&rpt=imageview&format=json&request={"blocks":[{"block":"b-page_type_search-by-image__link"}]}`;
-  const blob = dataUriToBlob(dataUri);
-  let subtype = blob.type.split('/')[1];
-  if (subtype === 'x-icon') {
-    subtype = 'ico';
-  }
-  const filename = getRandomFilename(subtype);
 
   const data = new FormData();
-  data.append('upfile', blob, filename);
+  data.append('upfile', dataUriToBlob(dataUri.data), dataUri.info.fullFilename);
 
   const xhr = getXHR();
   xhr.addEventListener('load', showResults);

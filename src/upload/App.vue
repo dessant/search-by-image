@@ -38,7 +38,11 @@ export default {
     processDataUri: async function(dataUri) {
       if (this.engine === 'google') {
         const data = new FormData();
-        data.append('encoded_image', dataUriToBlob(dataUri));
+        data.append(
+          'encoded_image',
+          dataUriToBlob(dataUri.data),
+          dataUri.info.fullFilename
+        );
         const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
           referrer: '',
           mode: 'cors',
@@ -60,7 +64,11 @@ export default {
 
       if (this.engine === 'tineye') {
         const data = new FormData();
-        data.append('image', dataUriToBlob(dataUri));
+        data.append(
+          'image',
+          dataUriToBlob(dataUri.data),
+          dataUri.info.fullFilename
+        );
         const rsp = await fetch('https://www.tineye.com/search', {
           referrer: '',
           mode: 'cors',

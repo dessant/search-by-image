@@ -28,10 +28,27 @@ function executeFile(file, tabId, frameId = 0, runAt = 'document_start') {
   });
 }
 
+function getRandomString(length) {
+  let text = '';
+  const seed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (let i = 0; i < length; i++) {
+    text += seed.charAt(Math.floor(Math.random() * seed.length));
+  }
+
+  return text;
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 module.exports = {
   onError,
   getText,
   createTab,
   executeCode,
-  executeFile
+  executeFile,
+  getRandomString,
+  getRandomInt
 };

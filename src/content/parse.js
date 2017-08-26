@@ -5,6 +5,20 @@ const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
 const rxSupportedUrls = /^(?:https?:\/\/|ftp:\/\/|data:image\/).*$/i;
 const canvas = {cnv: null, ctx: null};
 
+function getFilename(url) {
+  const file = url.split('/').pop().replace(/(?:#|\?).*?$/, '').split('.');
+  let filename = '';
+  let ext = '';
+  if (file.length === 1) {
+    filename = file[0];
+  } else {
+    ext = file.pop().toLowerCase();
+    filename = file.join('.');
+  }
+
+  return {filename, ext};
+}
+
 function extractCSSImages(cssProps, node, pseudo = null) {
   if (pseudo) {
     cssProps = cssProps.slice();
@@ -20,7 +34,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
     let value = style.getPropertyValue(prop);
     if (value && value !== 'none') {
       while ((match = rxCssUrl.exec(value)) !== null) {
-        urls.push(match[1]);
+        urls.push({data: match[1]});
       }
     }
   });
@@ -36,12 +50,12 @@ function parseNode(node, isLocalDoc) {
   switch (nodeName) {
     case 'IMG':
       if (node.src) {
-        urls.push(node.src);
+        urls.push({data: node.src});
       }
       break;
     case 'VIDEO':
       if (node.poster) {
-        urls.push(node.poster);
+        urls.push({data: node.poster});
       }
       break;
     case 'LI':
@@ -59,9 +73,10 @@ function parseNode(node, isLocalDoc) {
   }
 
   if (isLocalDoc) {
-    const fileUrls = urls.filter(url => url.startsWith('file://'));
+    const fileUrls = urls.filter(item => item.data.startsWith('file://'));
     const {cnv, ctx} = canvas;
-    fileUrls.forEach(function(url) {
+    fileUrls.forEach(function(item) {
+      const url = item.data;
       let img = document.querySelector(`img[src="${url}"]`);
       if (!img) {
         img = new Image();
@@ -81,7 +96,15 @@ function parseNode(node, isLocalDoc) {
       cnv.width = img.naturalWidth;
       cnv.height = img.naturalHeight;
       ctx.drawImage(img, 0, 0);
-      urls[urls.indexOf(url)] = cnv.toDataURL();
+      const info = getFilename(url);
+      let type = 'image/png';
+      if (info.ext === 'jpg' || info.ext === 'jpeg') {
+        type = 'image/jpeg';
+      } else {
+        info.ext = 'png';
+      }
+      const data = cnv.toDataURL(type, 1.0);
+      urls[urls.indexOf(item)] = {data, info};
       ctx.clearRect(0, 0, cnv.width, cnv.height);
     });
   }
@@ -141,5 +164,5 @@ function parseDocument() {
     urls.push(...fullParseUrls.reverse());
   }
 
-  return urls.filter(url => rxSupportedUrls.test(url));
+  return urls.filter(url => rxSupportedUrls.test(url.data));
 }

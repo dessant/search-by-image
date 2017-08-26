@@ -15,7 +15,9 @@ function onMessage(request, sender, sendResponse) {
       input.setAttribute('data-c45ng3u9', '');
       input.name = 'imageBin';
       input.type = 'hidden';
-      input.value = request.dataUri.substring(request.dataUri.indexOf(',') + 1);
+      input.value = request.dataUri.data.substring(
+        request.dataUri.data.indexOf(',') + 1
+      );
       form.appendChild(input);
 
       document.body.appendChild(form);

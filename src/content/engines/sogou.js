@@ -3,16 +3,13 @@ function showResults() {
 }
 
 async function upload(dataUri) {
-  const blob = dataUriToBlob(dataUri);
-  let subtype = blob.type.split('/')[1];
-  if (subtype === 'x-icon') {
-    subtype = 'ico';
-  }
-  const filename = getRandomFilename(subtype);
-
   const data = new FormData();
   data.append('flag', '1');
-  data.append('pic_path', blob, filename);
+  data.append(
+    'pic_path',
+    dataUriToBlob(dataUri.data),
+    dataUri.info.fullFilename
+  );
 
   const xhr = getXHR();
   xhr.addEventListener('load', showResults);

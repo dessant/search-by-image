@@ -2,9 +2,21 @@ import _ from 'lodash';
 import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
-import {getText, createTab, executeCode, executeFile} from 'utils/common';
-import {getEnabledEngines, showNotification} from 'utils/app';
-import {optionKeys, engines} from 'utils/data';
+import {
+  getText,
+  createTab,
+  executeCode,
+  executeFile,
+  getRandomString,
+  getRandomInt
+} from 'utils/common';
+import {getDataUriMimeType} from 'content/common';
+import {
+  getEnabledEngines,
+  showNotification,
+  getRandomFilename
+} from 'utils/app';
+import {optionKeys, engines, imageMimeTypes} from 'utils/data';
 
 var dataUriStore = {};
 
@@ -121,7 +133,15 @@ async function searchImage(imgUrl, menuId, sourceTabIndex) {
   let tabIndex = sourceTabIndex + 1;
   let tabActive = !options.tabInBackgound;
   let dataKey = null;
-  if (imgUrl.startsWith('data:')) {
+  if (imgUrl.data.startsWith('data:')) {
+    if (!_.has(imgUrl, 'info.filename') || !imgUrl.info.filename) {
+      const ext = _.get(imageMimeTypes, getDataUriMimeType(imgUrl.data), '');
+      imgUrl.info = {filename: getRandomString(getRandomInt(5, 20)), ext};
+    }
+    imgUrl.info.fullFilename = imgUrl.info.ext
+      ? `${imgUrl.info.filename}.${imgUrl.info.ext}`
+      : imgUrl.info.filename;
+
     dataKey = saveDataUri(imgUrl);
   }
 
@@ -144,7 +164,7 @@ async function searchEngine(
   tabIndex,
   tabActive
 ) {
-  const tabUrl = await getTabUrl(imgUrl, dataKey, engineId, options);
+  const tabUrl = await getTabUrl(imgUrl.data, dataKey, engineId, options);
   const tab = await createTab(tabUrl, tabIndex, tabActive);
   if (dataKey) {
     const cssNeeded = ['bing'];
@@ -204,7 +224,7 @@ async function onContextMenuClick(info, tab) {
     await executeFile('/src/content/parse.js', tabId, frameId);
     await rememberExecution('parse', tabId, frameId);
   }
-
+  ``;
   let [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
 
   if (!imgUrls) {
@@ -212,12 +232,12 @@ async function onContextMenuClick(info, tab) {
     return;
   }
 
-  imgUrls = _.uniq(_.compact(imgUrls));
-
   if (imgUrls.length === 0) {
     await showNotification('error_imageNotFound');
     return;
   }
+
+  imgUrls = _.uniqBy(imgUrls, 'data');
 
   if (imgUrls.length > 1) {
     const [probe] = await executeFile('/src/content/probe.js', tabId);
