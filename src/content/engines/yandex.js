@@ -42,15 +42,7 @@ async function upload(dataUri) {
   xhr.send(data);
 }
 
-function onMessage(request, sender, sendResponse) {
-  if (request.id === 'dataUriResponse') {
-    if (request.hasOwnProperty('error')) {
-      console.log(request.error);
-    } else {
-      upload(request.dataUri);
-    }
-  }
-}
-
-browser.runtime.onMessage.addListener(onMessage);
+browser.runtime.onMessage.addListener(request => {
+  onDataUriResponse(request, upload);
+});
 browser.runtime.sendMessage({id: 'dataUriRequest', dataKey: dataKey});

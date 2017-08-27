@@ -1,4 +1,4 @@
-function upload(dataUri) {
+async function upload(dataUri) {
   const form = document.createElement('form');
   form.setAttribute('data-c45ng3u9', '');
   form.id = 'sbi-upload-form';
@@ -18,15 +18,7 @@ function upload(dataUri) {
   form.submit();
 }
 
-function onMessage(request, sender, sendResponse) {
-  if (request.id === 'dataUriResponse') {
-    if (request.hasOwnProperty('error')) {
-      console.log(request.error);
-    } else {
-      upload(request.dataUri);
-    }
-  }
-}
-
-browser.runtime.onMessage.addListener(onMessage);
+browser.runtime.onMessage.addListener(request => {
+  onDataUriResponse(request, upload);
+});
 browser.runtime.sendMessage({id: 'dataUriRequest', dataKey: dataKey});

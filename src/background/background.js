@@ -175,7 +175,7 @@ async function searchEngine(
       });
     }
 
-    const commonNeeded = ['yandex', 'baidu', 'sogou'];
+    const commonNeeded = ['bing', 'yandex', 'baidu', 'sogou'];
     if (commonNeeded.indexOf(engineId) !== -1) {
       executeFile(`/src/content/common.js`, tab.id, 0, 'document_idle');
     }
@@ -283,6 +283,11 @@ function onMessage(request, sender, sendResponse) {
 
   if (request.id === 'imageSelectionDialogSubmit') {
     searchImage(request.imgUrl, request.menuItemId, sender.tab.index);
+    return;
+  }
+
+  if (request.id === 'notification') {
+    showNotification(request.messageId);
   }
 }
 
