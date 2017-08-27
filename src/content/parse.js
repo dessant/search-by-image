@@ -98,7 +98,7 @@ function parseNode(node, isLocalDoc) {
       ctx.drawImage(img, 0, 0);
       const info = getFilename(url);
       let type = 'image/png';
-      if (info.ext === 'jpg' || info.ext === 'jpeg') {
+      if (['jpg', 'jpeg', 'jpe'].indexOf(info.ext) !== -1) {
         type = 'image/jpeg';
       } else {
         info.ext = 'png';
