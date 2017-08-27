@@ -35,7 +35,7 @@
     "<all_urls>"
   ],
 
-  "content_security_policy": "default-src 'self'; img-src * data:; connect-src *;",
+  "content_security_policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *;",
 
   "options_ui": {
     "page": "src/options/index.html",
