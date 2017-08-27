@@ -11,5 +11,5 @@ body > iframe#sbi-dialog-frame[data-c45ng3u9] {
 }
 
 body > iframe#sbi-dialog-frame.sbi-dialog-frame-hidden[data-c45ng3u9] {
-  display: none !important;
+  visibility: hidden !important;
 }
