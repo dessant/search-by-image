@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const BabiliPlugin = require('babili-webpack-plugin');
+const MinifyPlugin = require('babel-minify-webpack-plugin');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
@@ -26,7 +26,7 @@ let plugins = [
     chunks: ['background', 'options', 'upload'],
     minChunks: 2
   }),
-  isProduction ? new BabiliPlugin() : null
+  isProduction ? new MinifyPlugin() : null
 ];
 plugins = plugins.filter(Boolean);
 

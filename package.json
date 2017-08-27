@@ -40,10 +40,10 @@
   "devDependencies": {
     "autoprefixer": "^7.1.2",
     "babel-loader": "^7.1.2",
+    "babel-minify-webpack-plugin": "^0.2.0",
     "babel-plugin-lodash": "^3.2.11",
-    "babel-preset-babili": "^0.1.4",
     "babel-preset-env": "^1.6.0",
-    "babili-webpack-plugin": "^0.1.2",
+    "babel-preset-minify": "^0.2.0",
     "commander": "^2.11.0",
     "css-loader": "^0.28.5",
     "cssnano": "^3.10.0",
