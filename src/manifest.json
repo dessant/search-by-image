@@ -14,6 +14,17 @@
     }
   },
 
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "tabs",
+    "activeTab",
+    "notifications",
+    "<all_urls>"
+  ],
+
+  "content_security_policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *;",
+
   "icons": {
     "16": "src/icons/app-icon-16.png",
     "19": "src/icons/app-icon-19.png",
@@ -25,17 +36,6 @@
     "96": "src/icons/app-icon-96.png",
     "128": "src/icons/app-icon-128.png"
   },
-
-  "permissions": [
-    "contextMenus",
-    "storage",
-    "tabs",
-    "activeTab",
-    "notifications",
-    "<all_urls>"
-  ],
-
-  "content_security_policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *;",
 
   "options_ui": {
     "page": "src/options/index.html",
