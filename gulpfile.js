@@ -107,32 +107,25 @@ gulp.task('locale', function() {
 });
 
 gulp.task('manifest', function() {
-  const customTargets = ['chrome', 'opera'];
-  if (customTargets.indexOf(targetEnv) !== -1) {
-    gulp
-      .src('src/manifest.json')
-      .pipe(
-        jsonMerge({
-          fileName: 'manifest.json',
-          jsonSpace: '  ',
-          edit: (parsedJson, file) => {
-            if (['chrome', 'opera'].indexOf(targetEnv) !== -1) {
-              delete parsedJson.applications;
-              delete parsedJson.options_ui.browser_style;
-            }
-
-            return parsedJson;
+  return gulp
+    .src('src/manifest.json')
+    .pipe(
+      jsonMerge({
+        fileName: 'manifest.json',
+        jsonSpace: '  ',
+        edit: (parsedJson, file) => {
+          if (['chrome', 'opera'].indexOf(targetEnv) !== -1) {
+            delete parsedJson.applications;
+            delete parsedJson.options_ui.browser_style;
           }
-        })
-      )
-      .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
-      .pipe(gulp.dest('dist'));
-  } else {
-    gulp
-      .src('src/manifest.json')
-      .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
-      .pipe(gulp.dest('dist'));
-  }
+
+          parsedJson.version = require('./package.json').version;
+          return parsedJson;
+        }
+      })
+    )
+    .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
+    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy', function() {
