@@ -22,9 +22,17 @@ let plugins = [
     minChunks: Infinity
   }),
   new webpack.optimize.CommonsChunkPlugin({
+    name: 'commons-ui',
+    filename: '[name].bundle.js',
+    chunks: ['options', 'upload', 'select'],
+    minChunks: function(module, count) {
+      return module.resource && /@material/.test(module.resource) && count >= 2;
+    }
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
     name: 'commons',
     filename: '[name].bundle.js',
-    chunks: ['background', 'options', 'upload'],
+    chunks: ['background', 'options', 'upload', 'select'],
     minChunks: 2
   }),
   targetEnv === 'firefox'
