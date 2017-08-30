@@ -14,7 +14,7 @@ let plugins = [
     global: {}
   }),
   new ExtractTextPlugin('[name]/style.bundle.css'),
-  isProduction ? new LodashModuleReplacementPlugin() : null,
+  isProduction ? new LodashModuleReplacementPlugin({shorthands: true}) : null,
   new webpack.optimize.CommonsChunkPlugin({
     names: ['vue', 'manifest'],
     filename: '[name].bundle.js',
