@@ -95,7 +95,9 @@ export default {
       return;
     }
 
-    document.title = getText(`engineName_${this.engine}_full`);
+    document.title = `${getText(`engineName_${this.engine}_full`)} - ${getText(
+      'extensionName'
+    )}`;
 
     const supportedEngines = ['google', 'tineye'];
     if (supportedEngines.indexOf(this.engine) === -1) {

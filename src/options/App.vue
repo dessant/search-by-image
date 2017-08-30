@@ -137,6 +137,10 @@ export default {
       });
     }
 
+    document.title = `${getText('pageTitle_options')} - ${getText(
+      'extensionName'
+    )}`;
+
     this.dataLoaded = true;
   }
 };

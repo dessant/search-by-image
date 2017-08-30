@@ -155,6 +155,11 @@
     "description": "Text of the button."
   },
 
+  "pageTitle_options": {
+    "message": "Options",
+    "description": "Title of the page."
+  },
+
   "error_invalidPageUrl": {
     "message": "The page URL is not valid. Try searching for the image again.",
     "description": "Error message."
