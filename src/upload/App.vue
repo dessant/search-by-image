@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import browser from 'webextension-polyfill';
+
 import storage from 'storage/storage';
 import {onError, getText} from 'utils/common';
 import {dataUriToBlob} from 'content/common';

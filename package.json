@@ -20,7 +20,7 @@
     "update": "ncu --upgrade --upgradeAll && yarn upgrade --latest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s"
   },
-  "browserslist": ["Firefox >= 52"],
+  "browserslist": ["Chrome >= 55", "Firefox >= 52", "Opera >= 42"],
   "dependencies": {
     "@material/button": "^0.5.0",
     "@material/checkbox": "^0.4.5",
@@ -36,7 +36,8 @@
     "typeface-roboto": "^0.0.35",
     "uuid": "^3.1.0",
     "vue": "^2.4.2",
-    "vuedraggable": "^2.14.1"
+    "vuedraggable": "^2.14.1",
+    "webextension-polyfill": "^0.1.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

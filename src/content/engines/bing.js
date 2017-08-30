@@ -18,7 +18,7 @@ async function upload(dataUri) {
   form.submit();
 }
 
-browser.runtime.onMessage.addListener(request => {
+chrome.runtime.onMessage.addListener(request => {
   onDataUriResponse(request, upload);
 });
-browser.runtime.sendMessage({id: 'dataUriRequest', dataKey: dataKey});
+chrome.runtime.sendMessage({id: 'dataUriRequest', dataKey: dataKey});

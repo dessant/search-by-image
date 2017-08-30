@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import browser from 'webextension-polyfill';
+
 import {getText} from 'utils/common';
 
 import Dialog from './components/Dialog';

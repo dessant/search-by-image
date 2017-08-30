@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import browser from 'webextension-polyfill';
 import _ from 'lodash';
 import draggable from 'vuedraggable';
 
@@ -155,10 +156,13 @@ $mdc-theme-primary: #1abc9c;
   margin-right: 12px;
 }
 
+body {
+  min-width: 600px;
+}
+
 #app {
   display: grid;
   grid-row-gap: 32px;
-  min-width: 600px;
   padding: 12px;
 }
 

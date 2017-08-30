@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const message = 'Add Sogou engine';
 
 const revision = 'S1kNNadHZ';

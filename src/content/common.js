@@ -29,7 +29,7 @@ function getXHR() {
 async function onDataUriResponse(request, uploadFunc) {
   if (request.id === 'dataUriResponse') {
     if (request.hasOwnProperty('error')) {
-      browser.runtime.sendMessage({
+      chrome.runtime.sendMessage({
         id: 'notification',
         messageId: request.error
       });
@@ -38,7 +38,7 @@ async function onDataUriResponse(request, uploadFunc) {
         await uploadFunc(request.dataUri);
       } catch (e) {
         console.error(e);
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
           id: 'notification',
           messageId: 'error_internalError'
         });

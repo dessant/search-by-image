@@ -1,6 +1,5 @@
 function postFrameMessage(message) {
   dialogFrame.classList.remove('sbi-dialog-frame-hidden');
-  dialogFrame.contentDocument.body.focus();
   dialogFrame.contentWindow.postMessage(message, dialogFrame.src);
 }
 
@@ -39,7 +38,7 @@ function onMessage(e) {
   }
 }
 
-browser.runtime.onMessage.addListener(onExtMessage);
+chrome.runtime.onMessage.addListener(onExtMessage);
 window.addEventListener('message', onMessage);
 
 const dialogFrame = document.createElement('iframe');
@@ -49,7 +48,7 @@ dialogFrame.id = 'sbi-dialog-frame';
 dialogFrame.extMessage = null;
 dialogFrame.isLoaded = false;
 dialogFrame.addEventListener('load', onFrameLoad);
-dialogFrame.src = browser.extension.getURL('/src/select/index.html');
+dialogFrame.src = chrome.extension.getURL('/src/select/index.html');
 document.body.appendChild(dialogFrame);
 
 null;

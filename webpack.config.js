@@ -4,6 +4,7 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
 
 let plugins = [
@@ -26,6 +27,9 @@ let plugins = [
     chunks: ['background', 'options', 'upload'],
     minChunks: 2
   }),
+  targetEnv === 'firefox'
+    ? new webpack.IgnorePlugin(/^webextension-polyfill$/)
+    : null,
   isProduction ? new MinifyPlugin() : null
 ];
 plugins = plugins.filter(Boolean);

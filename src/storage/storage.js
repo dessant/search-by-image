@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 import migrate from './migration/migrate';
 
 // Firefox 52

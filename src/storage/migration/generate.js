@@ -42,7 +42,9 @@ try {
 }
 versions.versions.push(revisionId);
 
-revisionCont = `const message = '${message}';
+revisionCont = `import browser from 'webextension-polyfill';
+
+const message = '${message}';
 
 const revision = '${revisionId}';
 const downRevision = ${downRevisionId};

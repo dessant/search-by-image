@@ -42,7 +42,7 @@ async function upload(dataUri) {
   xhr.send(data);
 }
 
-browser.runtime.onMessage.addListener(request => {
+chrome.runtime.onMessage.addListener(request => {
   onDataUriResponse(request, upload);
 });
-browser.runtime.sendMessage({id: 'dataUriRequest', dataKey: dataKey});
+chrome.runtime.sendMessage({id: 'dataUriRequest', dataKey: dataKey});

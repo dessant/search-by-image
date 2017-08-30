@@ -14,7 +14,7 @@ const jsBeautify = require('gulp-jsbeautifier');
 const svg2png = require('gulp-rsvg');
 const imagemin = require('gulp-imagemin');
 
-const targetEnv = process.env.TARGET_ENV;
+const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
 
 const jsBeautifyOptions = {
@@ -106,13 +106,51 @@ gulp.task('locale', function() {
   }
 });
 
+gulp.task('manifest', function() {
+  const customTargets = ['chrome', 'opera'];
+  if (customTargets.indexOf(targetEnv) !== -1) {
+    gulp
+      .src('src/manifest.json')
+      .pipe(
+        jsonMerge({
+          fileName: 'manifest.json',
+          jsonSpace: '  ',
+          edit: (parsedJson, file) => {
+            if (['chrome', 'opera'].indexOf(targetEnv) !== -1) {
+              delete parsedJson.applications;
+              delete parsedJson.options_ui.browser_style;
+            }
+
+            return parsedJson;
+          }
+        })
+      )
+      .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
+      .pipe(gulp.dest('dist'));
+  } else {
+    gulp
+      .src('src/manifest.json')
+      .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
+      .pipe(gulp.dest('dist'));
+  }
+});
+
 gulp.task('copy', function() {
-  gulp.src(['src/manifest.json', 'LICENSE']).pipe(gulp.dest('dist'));
+  gulp.src(['LICENSE']).pipe(gulp.dest('dist'));
 });
 
 gulp.task(
   'build',
-  gulpSeq('clean', ['js', 'html', 'css', 'icons', 'fonts', 'locale', 'copy'])
+  gulpSeq('clean', [
+    'js',
+    'html',
+    'css',
+    'icons',
+    'fonts',
+    'locale',
+    'manifest',
+    'copy'
+  ])
 );
 
 gulp.task('default', ['build']);

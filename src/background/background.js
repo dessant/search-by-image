@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import _ from 'lodash';
 import uuidV4 from 'uuid/v4';
 
@@ -40,7 +41,16 @@ function createMenuItem(id, title, parentId, type = 'normal') {
     {
       id: id,
       title: title,
-      contexts: ['all'],
+      contexts: [
+        'audio',
+        'editable',
+        'frame',
+        'image',
+        'link',
+        'page',
+        'selection',
+        'video'
+      ],
       documentUrlPatterns: [
         'http://*/*',
         'https://*/*',
@@ -195,16 +205,21 @@ async function searchEngine(
 
 async function onContextMenuClick(info, tab) {
   const tabId = tab.id;
-
-  // Firefox < 55.0
   if (typeof info.frameId === 'undefined') {
     var frameId = 0;
   } else {
     frameId = info.frameId;
   }
-  if (!frameId && info.pageUrl !== info.frameUrl) {
+  // Firefox < 55.0
+  if (
+    !frameId &&
+    typeof info.frameUrl !== 'undefined' &&
+    info.pageUrl !== info.frameUrl
+  ) {
     if (info.srcUrl) {
-      await searchImage(info.srcUrl, info.menuItemId, tab.index);
+      await searchImage({data: info.srcUrl}, info.menuItemId, tab.index);
+    } else {
+      await showNotification('error_imageNotFound');
     }
     return;
   }
@@ -287,7 +302,7 @@ function onMessage(request, sender, sendResponse) {
   }
 
   if (request.id === 'notification') {
-    showNotification(request.messageId);
+    showNotification(request.messageId, request.type);
   }
 }
 

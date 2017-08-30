@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import _ from 'lodash';
 
 async function storageVersion(area = 'local') {

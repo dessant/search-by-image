@@ -176,6 +176,11 @@
     }
   },
 
+  "error_invalidImageUrl_fileUrl": {
+    "message": "Searching for images loaded from local file URLs is not supported.",
+    "description": "Error message."
+  },
+
   "error_imageNotFound": {
     "message": "No image found. Try searching again by placing the cursor above the image.",
     "description": "Error message."

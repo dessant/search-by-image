@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import _ from 'lodash';
 
 import storage from 'storage/storage';
@@ -10,8 +11,8 @@ async function getEnabledEngines(options) {
   return _.difference(options.engines, options.disabledEngines);
 }
 
-function showNotification(messageId) {
-  return browser.notifications.create('sbi-notification', {
+function showNotification(messageId, type = 'info') {
+  return browser.notifications.create(`sbi-notification-${type}`, {
     type: 'basic',
     title: getText('extensionName'),
     message: getText(messageId),

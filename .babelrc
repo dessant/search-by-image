@@ -2,7 +2,7 @@
   'presets': [
     [
     'env', {
-      'targets': {'firefox': 52},
+      'targets': {'chrome': 55, 'firefox': 52, 'opera': 42},
       'exclude': ['transform-regenerator']
       }
     ]

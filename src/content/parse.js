@@ -103,8 +103,17 @@ function parseNode(node, isLocalDoc) {
       } else {
         info.ext = 'png';
       }
-      const data = cnv.toDataURL(type, 1.0);
-      urls[urls.indexOf(item)] = {data, info};
+      try {
+        const data = cnv.toDataURL(type, 1.0);
+        urls[urls.indexOf(item)] = {data, info};
+      } catch (e) {
+        console.error(e);
+        chrome.runtime.sendMessage({
+          id: 'notification',
+          type: 'error',
+          messageId: 'error_invalidImageUrl_fileUrl'
+        });
+      }
       ctx.clearRect(0, 0, cnv.width, cnv.height);
     });
   }
