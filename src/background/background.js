@@ -239,7 +239,7 @@ async function onContextMenuClick(info, tab) {
     await executeFile('/src/content/parse.js', tabId, frameId);
     await rememberExecution('parse', tabId, frameId);
   }
-  ``;
+
   let [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
 
   if (!imgUrls) {
