@@ -30,6 +30,7 @@ let plugins = [
   targetEnv === 'firefox'
     ? new webpack.IgnorePlugin(/^webextension-polyfill$/)
     : null,
+  isProduction ? new webpack.optimize.ModuleConcatenationPlugin() : null,
   isProduction ? new MinifyPlugin() : null
 ];
 plugins = plugins.filter(Boolean);
