@@ -24,6 +24,7 @@ function onExtMessage(request, sender, sendResponse) {
       dialogFrame.extMessage = message;
     }
   }
+  sendResponse(); // prevent Chrome error
 }
 
 function onMessage(e) {

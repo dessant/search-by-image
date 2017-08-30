@@ -47,6 +47,14 @@ async function onDataUriResponse(request, uploadFunc) {
   }
 }
 
+function initUpload(upload, dataKey) {
+  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    onDataUriResponse(request, upload);
+    sendResponse(); // prevent Chrome error
+  });
+  chrome.runtime.sendMessage({id: 'dataUriRequest', dataKey});
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     dataUriToBlob,

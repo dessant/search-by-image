@@ -283,7 +283,7 @@ function rememberExecution(module, tabId, frameId = 0) {
   return executeCode(`frameStorage.modules.${module} = true;`, tabId, frameId);
 }
 
-function onMessage(request, sender, sendResponse) {
+async function onMessage(request, sender, sendResponse) {
   if (request.id === 'dataUriRequest') {
     const dataUri = dataUriStore[request.dataKey];
     const response = {id: 'dataUriResponse'};
