@@ -1,5 +1,7 @@
 const path = require('path');
-const {lstatSync, readdirSync} = require('fs');
+const {lstatSync, readdirSync, readFileSync, writeFileSync} = require('fs');
+const {ensureDirSync} = require('fs-extra');
+const recursiveReadDir = require('recursive-readdir');
 const exec = require('child_process').exec;
 const gulp = require('gulp');
 const gulpSeq = require('gulp-sequence');
@@ -11,11 +13,13 @@ const gulpif = require('gulp-if');
 const del = require('del');
 const jsonMerge = require('gulp-merge-json');
 const jsBeautify = require('gulp-jsbeautifier');
-const svg2png = require('gulp-rsvg');
+const svg2png = require('svg2png');
+const rsvg = require('gulp-rsvg');
 const imagemin = require('gulp-imagemin');
 
 const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
+const sysDeps = process.env.SYS_DEPS || 'true';
 
 const jsBeautifyOptions = {
   indent_size: 2,
@@ -62,13 +66,36 @@ gulp.task('css', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('icons', function() {
+gulp.task('iconsPhantomJs', async function() {
+  ensureDirSync('dist/src/icons');
+  const svgPaths = await recursiveReadDir('src/icons', [
+    file => !file.endsWith('.svg')
+  ]);
+  for (svgPath of svgPaths) {
+    const pngBuffer = await svg2png(readFileSync(svgPath));
+    writeFileSync(
+      path.join('dist', svgPath.replace(/^(.*)\.svg$/i, '$1.png')),
+      pngBuffer
+    );
+  }
+
+  if (isProduction) {
+    gulp
+      .src('dist/src/**/*.png', {base: '.'})
+      .pipe(imagemin())
+      .pipe(gulp.dest(''));
+  }
+});
+
+gulp.task('iconsRsvg', function() {
   return gulp
     .src('src/**/*.svg', {base: '.'})
-    .pipe(svg2png())
+    .pipe(rsvg())
     .pipe(gulpif(isProduction, imagemin()))
     .pipe(gulp.dest('dist'));
 });
+
+gulp.task('icons', [sysDeps === 'true' ? 'iconsRsvg' : 'iconsPhantomJs']);
 
 gulp.task('fonts', function() {
   gulp
