@@ -13,6 +13,8 @@
       "strict_min_version": "52.0"
     }
   },
+  "minimum_chrome_version": "55.0",
+  "minimum_opera_version": "42.0",
 
   "permissions": [
     "contextMenus",

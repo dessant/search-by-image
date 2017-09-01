@@ -146,6 +146,14 @@ gulp.task('manifest', function() {
             delete parsedJson.options_ui.browser_style;
           }
 
+          if (['firefox', 'chrome'].indexOf(targetEnv) !== -1) {
+            delete parsedJson.minimum_opera_version;
+          }
+
+          if (['firefox', 'opera'].indexOf(targetEnv) !== -1) {
+            delete parsedJson.minimum_chrome_version;
+          }
+
           parsedJson.version = require('./package.json').version;
           return parsedJson;
         }
