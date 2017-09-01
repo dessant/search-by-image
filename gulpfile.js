@@ -17,7 +17,7 @@ const svg2png = require('svg2png');
 const rsvg = require('gulp-rsvg');
 const imagemin = require('gulp-imagemin');
 
-const targetEnv = process.env.TARGET_ENV || 'chrome';
+const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 const sysDeps = process.env.SYS_DEPS || 'true';
 
