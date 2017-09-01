@@ -154,6 +154,10 @@ gulp.task('manifest', function() {
             delete parsedJson.minimum_chrome_version;
           }
 
+          if (targetEnv === 'firefox') {
+            delete parsedJson.options_ui.chrome_style;
+          }
+
           parsedJson.version = require('./package.json').version;
           return parsedJson;
         }
