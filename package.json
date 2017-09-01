@@ -6,11 +6,15 @@
   "license": "MIT",
   "scripts": {
     "build": "NODE_ENV=development gulp build",
+    "build:opera": "NODE_ENV=development TARGET_ENV=opera gulp build",
     "build:firefox": "NODE_ENV=development TARGET_ENV=firefox gulp build",
     "build:prod": "NODE_ENV=production gulp build",
+    "build:prod:opera": "NODE_ENV=production TARGET_ENV=opera gulp build",
     "build:prod:firefox": "NODE_ENV=production TARGET_ENV=firefox gulp build",
     "build:ext:prod":
       "NODE_ENV=production SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
+    "build:ext:prod:opera":
+      "NODE_ENV=production TARGET_ENV=opera SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
     "build:ext:prod:firefox":
       "NODE_ENV=production TARGET_ENV=firefox SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
     "start":
