@@ -23,7 +23,8 @@
     "<all_urls>"
   ],
 
-  "content_security_policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *; object-src 'none';",
+  "content_security_policy":
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *; object-src 'none';",
 
   "icons": {
     "16": "src/icons/app-icon-16.png",
