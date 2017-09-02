@@ -17,6 +17,6 @@ Supported search engines:
 
 ## Screenshots
 
-<img src="https://i.imgur.com/ooDgyGV.png">
-<img src="https://i.imgur.com/iDWXwH9.png">
-<img src="https://i.imgur.com/7jDMTSK.png">
+<img src="https://i.imgur.com/p7iFFx4.png">
+<img src="https://i.imgur.com/zjWoMtK.png">
+<img src="https://i.imgur.com/28oEr8c.png">
