@@ -49,9 +49,9 @@ Supported search engines:
 ## Screenshots
 
 <p>
-  <img width="260" src="https://i.imgur.com/p7iFFx4.png">
-  <img width="260" src="https://i.imgur.com/zjWoMtK.png">
-  <img width="260" src="https://i.imgur.com/28oEr8c.png">
+  <img width="280" src="https://i.imgur.com/p7iFFx4.png">
+  <img width="280" src="https://i.imgur.com/zjWoMtK.png">
+  <img width="280" src="https://i.imgur.com/28oEr8c.png">
 </p>
 
 ## License
