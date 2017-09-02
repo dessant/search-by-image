@@ -19,7 +19,7 @@
 
 Search by Image is an MIT-licensed open source project. Its ongoing
 development is made possible thanks to the support of awesome backers.
-If you'd like to join them, check out [PayPal.Me](https://goo.gl/BfygYx).
+If you'd like to join them, check out [PayPal.Me](https://goo.gl/5FnBaw).
 
 ## Description
 
