@@ -66,7 +66,7 @@ gulp.task('css', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('iconsPhantomJs', async function() {
+gulp.task('icons:phantomJs', async function() {
   ensureDirSync('dist/src/icons');
   const svgPaths = await recursiveReadDir('src/icons', ['*.!(svg)']);
   for (svgPath of svgPaths) {
@@ -85,7 +85,7 @@ gulp.task('iconsPhantomJs', async function() {
   }
 });
 
-gulp.task('iconsRsvg', function() {
+gulp.task('icons:rsvg', function() {
   return gulp
     .src('src/**/*.svg', {base: '.'})
     .pipe(rsvg())
@@ -93,7 +93,7 @@ gulp.task('iconsRsvg', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('icons', [sysDeps === 'true' ? 'iconsRsvg' : 'iconsPhantomJs']);
+gulp.task('icons', [sysDeps === 'true' ? 'icons:rsvg' : 'icons:phantomJs']);
 
 gulp.task('fonts', function() {
   gulp
