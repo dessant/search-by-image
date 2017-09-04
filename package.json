@@ -18,7 +18,7 @@
     "build:ext:prod:chrome":
       "NODE_ENV=production TARGET_ENV=chrome SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
     "start":
-      "web-ext run --bc --url 'about:addons' --url 'about:debugging' -s dist/",
+      "web-ext run --bc --url 'about:debugging' --url 'about:addons' -s dist/",
     "exec": "yarn run build && yarn run start",
     "exec:prod": "yarn run build:prod && yarn run start",
     "inspect":
