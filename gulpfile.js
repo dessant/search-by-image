@@ -68,9 +68,7 @@ gulp.task('css', function() {
 
 gulp.task('iconsPhantomJs', async function() {
   ensureDirSync('dist/src/icons');
-  const svgPaths = await recursiveReadDir('src/icons', [
-    file => !file.endsWith('.svg')
-  ]);
+  const svgPaths = await recursiveReadDir('src/icons', ['*.!(svg)']);
   for (svgPath of svgPaths) {
     const pngBuffer = await svg2png(readFileSync(svgPath));
     writeFileSync(
