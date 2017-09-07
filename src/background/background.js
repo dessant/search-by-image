@@ -205,6 +205,9 @@ async function searchEngine(
 }
 
 async function onContextMenuClick(info, tab) {
+  const tabId = tab.id;
+  const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
+
   const pageUrl = info.pageUrl;
   if (
     (pageUrl.startsWith('https://chrome.google.com') &&
@@ -221,12 +224,6 @@ async function onContextMenuClick(info, tab) {
     return;
   }
 
-  const tabId = tab.id;
-  if (typeof info.frameId === 'undefined') {
-    var frameId = 0;
-  } else {
-    frameId = info.frameId;
-  }
   // Firefox < 55.0
   if (
     !frameId &&
