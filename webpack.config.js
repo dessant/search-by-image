@@ -4,12 +4,14 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 
 let plugins = [
   new webpack.DefinePlugin({
     'process.env': {
-      NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
+      NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+      TARGET_ENV: JSON.stringify(targetEnv)
     },
     global: {}
   }),

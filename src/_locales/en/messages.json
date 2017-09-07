@@ -5,7 +5,8 @@
   },
 
   "extensionDescription": {
-    "message": "Reverse image search using the most popular search engines, such as Google, Bing, Yandex, Baidu and TinEye.",
+    "message":
+      "Reverse image search using the most popular search engines, such as Google, Bing, Yandex, Baidu and TinEye.",
     "description": "Description of the extension."
   },
 
@@ -106,7 +107,8 @@
   },
 
   "optionSectionDescription_engines": {
-    "message": "Toggle search engines and customize their order (drag and drop)",
+    "message":
+      "Toggle search engines and customize their order (drag and drop)",
     "description": "Description of the search engine options section."
   },
 
@@ -182,12 +184,19 @@
   },
 
   "error_invalidImageUrl_fileUrl": {
-    "message": "Searching for images loaded from local file URLs is not supported.",
+    "message":
+      "Searching for images loaded from local file URLs is not supported.",
+    "description": "Error message."
+  },
+
+  "error_scriptsNotAllowed": {
+    "message": "No image found. Content scripts are not allowed on this page.",
     "description": "Error message."
   },
 
   "error_imageNotFound": {
-    "message": "No image found. Try searching again by placing the cursor above the image.",
+    "message":
+      "No image found. Try searching again by placing the cursor above the image.",
     "description": "Error message."
   },
 

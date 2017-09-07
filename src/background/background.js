@@ -18,6 +18,7 @@ import {
   getRandomFilename
 } from 'utils/app';
 import {optionKeys, engines, imageMimeTypes} from 'utils/data';
+import {targetEnv} from 'utils/config';
 
 var dataUriStore = {};
 
@@ -204,6 +205,26 @@ async function searchEngine(
 }
 
 async function onContextMenuClick(info, tab) {
+  const pageUrl = info.pageUrl;
+  let scriptsAllowed = true;
+  if (
+    (pageUrl.startsWith('https://chrome.google.com') &&
+      targetEnv === 'chrome') ||
+    (pageUrl.startsWith('https://addons.mozilla.org') &&
+      targetEnv === 'firefox') ||
+    (pageUrl.startsWith('https://addons.opera.com') && targetEnv === 'opera')
+  ) {
+    scriptsAllowed = false;
+  }
+  if (!scriptsAllowed) {
+    if (info.srcUrl) {
+      await searchImage({data: info.srcUrl}, info.menuItemId, tab.index);
+    } else {
+      await showNotification('error_scriptsNotAllowed');
+    }
+    return;
+  }
+
   const tabId = tab.id;
   if (typeof info.frameId === 'undefined') {
     var frameId = 0;
