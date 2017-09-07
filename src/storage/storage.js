@@ -2,59 +2,43 @@ import browser from 'webextension-polyfill';
 
 import migrate from './migration/migrate';
 
-// Firefox 52
-var syncArea;
-async function detectSyncSupport() {
-  try {
-    await browser.storage.sync.get('');
-    syncArea = true;
-  } catch (e) {
-    syncArea = false;
+// Firefox <= 52
+let syncArea;
+async function getSupportedArea(requestedArea) {
+  if (typeof syncArea === 'undefined') {
+    try {
+      await browser.storage.sync.get('');
+      syncArea = true;
+    } catch (e) {
+      syncArea = false;
+    }
   }
+
+  return syncArea ? requestedArea : 'local';
 }
 
 async function init(area = 'local') {
-  if (typeof syncArea === 'undefined') {
-    await detectSyncSupport();
-  }
-  area = syncArea ? area : 'local';
-
+  area = await getSupportedArea(area);
   return migrate.reconcile(area);
 }
 
 async function get(keys = null, area = 'local') {
-  if (typeof syncArea === 'undefined') {
-    await detectSyncSupport();
-  }
-  area = syncArea ? area : 'local';
-
+  area = await getSupportedArea(area);
   return browser.storage[area].get(keys);
 }
 
 async function set(obj, area = 'local') {
-  if (typeof syncArea === 'undefined') {
-    await detectSyncSupport();
-  }
-  area = syncArea ? area : 'local';
-
+  area = await getSupportedArea(area);
   return browser.storage[area].set(obj);
 }
 
 async function remove(keys, area = 'local') {
-  if (typeof syncArea === 'undefined') {
-    await detectSyncSupport();
-  }
-  area = syncArea ? area : 'local';
-
+  area = await getSupportedArea(area);
   return browser.storage[area].remove(keys);
 }
 
 async function clear(area = 'local') {
-  if (typeof syncArea === 'undefined') {
-    await detectSyncSupport();
-  }
-  area = syncArea ? area : 'local';
-
+  area = await getSupportedArea(area);
   return browser.storage[area].clear();
 }
 
