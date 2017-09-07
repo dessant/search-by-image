@@ -85,8 +85,15 @@ const imageMimeTypes = {
   'image/x-xwindowdump': 'xwd'
 };
 
+const extensionStores = {
+  chrome: 'https://chrome.google.com/webstore/',
+  firefox: 'https://addons.mozilla.org',
+  opera: 'https://addons.opera.com'
+};
+
 module.exports = {
   optionKeys,
   engines,
-  imageMimeTypes
+  imageMimeTypes,
+  extensionStores
 };

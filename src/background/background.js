@@ -17,7 +17,7 @@ import {
   showNotification,
   getRandomFilename
 } from 'utils/app';
-import {optionKeys, engines, imageMimeTypes} from 'utils/data';
+import {optionKeys, engines, imageMimeTypes, extensionStores} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
 var dataUriStore = {};
@@ -208,14 +208,7 @@ async function onContextMenuClick(info, tab) {
   const tabId = tab.id;
   const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
 
-  const pageUrl = info.pageUrl;
-  if (
-    (pageUrl.startsWith('https://chrome.google.com') &&
-      targetEnv === 'chrome') ||
-    (pageUrl.startsWith('https://addons.mozilla.org') &&
-      targetEnv === 'firefox') ||
-    (pageUrl.startsWith('https://addons.opera.com') && targetEnv === 'opera')
-  ) {
+  if (info.pageUrl.startsWith(extensionStores[targetEnv])) {
     if (info.srcUrl) {
       await searchImage({data: info.srcUrl}, info.menuItemId, tab.index);
     } else {
