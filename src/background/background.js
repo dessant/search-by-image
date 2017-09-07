@@ -206,7 +206,6 @@ async function searchEngine(
 
 async function onContextMenuClick(info, tab) {
   const pageUrl = info.pageUrl;
-  let scriptsAllowed = true;
   if (
     (pageUrl.startsWith('https://chrome.google.com') &&
       targetEnv === 'chrome') ||
@@ -214,9 +213,6 @@ async function onContextMenuClick(info, tab) {
       targetEnv === 'firefox') ||
     (pageUrl.startsWith('https://addons.opera.com') && targetEnv === 'opera')
   ) {
-    scriptsAllowed = false;
-  }
-  if (!scriptsAllowed) {
     if (info.srcUrl) {
       await searchImage({data: info.srcUrl}, info.menuItemId, tab.index);
     } else {
