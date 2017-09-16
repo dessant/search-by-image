@@ -12,11 +12,11 @@
     "build:prod:opera": "NODE_ENV=production TARGET_ENV=opera gulp build",
     "build:prod:chrome": "NODE_ENV=production TARGET_ENV=chrome gulp build",
     "build:ext:prod":
-      "NODE_ENV=production SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
+      "NODE_ENV=production gulp build && web-ext build -s dist/ -a artifacts/",
     "build:ext:prod:opera":
-      "NODE_ENV=production TARGET_ENV=opera SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
+      "NODE_ENV=production TARGET_ENV=opera gulp build && web-ext build -s dist/ -a artifacts/",
     "build:ext:prod:chrome":
-      "NODE_ENV=production TARGET_ENV=chrome SYS_DEPS=false gulp build && web-ext build -s dist/ -a artifacts/",
+      "NODE_ENV=production TARGET_ENV=chrome gulp build && web-ext build -s dist/ -a artifacts/",
     "start":
       "web-ext run --bc --url 'about:debugging' --url 'about:addons' -s dist/",
     "exec": "yarn run build && yarn run start",
@@ -68,7 +68,6 @@
     "gulp-jsbeautifier": "^2.1.1",
     "gulp-merge-json": "^1.1.0",
     "gulp-postcss": "^7.0.0",
-    "gulp-rsvg": "^1.0.2",
     "gulp-sequence": "^0.4.6",
     "lodash-webpack-plugin": "^0.11.4",
     "node-sass": "^4.5.3",
