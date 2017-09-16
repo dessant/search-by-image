@@ -1,15 +1,16 @@
 {
-  'presets': [
+  "presets": [
     [
-    'env', {
-      'targets': {'chrome': 55, 'firefox': 52, 'opera': 42},
-      'exclude': ['transform-regenerator']
+      "env",
+      {
+        "targets": {"chrome": 55, "firefox": 52, "opera": 42},
+        "exclude": ["transform-regenerator"]
       }
     ]
   ],
-  'env': {
-    'production': {
-      'presets': [['minify', {deadcode: false}]]
+  "env": {
+    "production": {
+      "presets": [["minify", {"deadcode": false}]]
     }
   }
 }
