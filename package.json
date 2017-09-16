@@ -11,16 +11,14 @@
     "build:prod": "NODE_ENV=production gulp build",
     "build:prod:opera": "NODE_ENV=production TARGET_ENV=opera gulp build",
     "build:prod:chrome": "NODE_ENV=production TARGET_ENV=chrome gulp build",
-    "build:ext:prod":
-      "NODE_ENV=production gulp build && web-ext build -s dist/ -a artifacts/",
-    "build:ext:prod:opera":
-      "NODE_ENV=production TARGET_ENV=opera gulp build && web-ext build -s dist/ -a artifacts/",
-    "build:ext:prod:chrome":
-      "NODE_ENV=production TARGET_ENV=chrome gulp build && web-ext build -s dist/ -a artifacts/",
-    "start":
-      "web-ext run --bc --url 'about:debugging' --url 'about:addons' -s dist/",
+    "build:prod:zip": "yarn run build:prod && yarn run zip",
+    "build:prod:zip:opera": "yarn run build:prod:opera && yarn run zip",
+    "build:prod:zip:chrome": "yarn run build:prod:chrome && yarn run zip",
     "exec": "yarn run build && yarn run start",
     "exec:prod": "yarn run build:prod && yarn run start",
+    "zip": "web-ext build -s dist/ -a artifacts/",
+    "start":
+      "web-ext run --bc --url 'about:debugging' --url 'about:addons' -s dist/",
     "inspect":
       "webpack --profile --json > report.json; webpack-bundle-analyzer report.json --mode static && sleep 6 && rm report.{json,html}",
     "update": "ncu --upgrade --upgradeAll && yarn upgrade --latest",
