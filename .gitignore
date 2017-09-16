@@ -3,3 +3,8 @@
 node_modules/
 artifacts/
 dist/
+
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.yarn-integrity
