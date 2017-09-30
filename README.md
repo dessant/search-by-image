@@ -4,14 +4,11 @@
 <p align="center">
   </br></br>
   <a href="https://goo.gl/RRhFWb">
-    <img src="https://i.imgur.com/THWsAVX.png" alt="Chrome Web Store">
-  </a>
+    <img src="https://i.imgur.com/q6E8SOD.png" alt="Chrome Web Store"></a>
   <a href="https://goo.gl/bUZqLG">
-    <img src="https://i.imgur.com/LkA07IB.png" alt="Firefox add-ons">
-  </a>
+    <img src="https://i.imgur.com/IuvTttN.png" alt="Firefox add-ons"></a>
   <a href="">
-    <img src="https://i.imgur.com/wK10qEV.png" alt="Opera add-ons">
-  </a>
+    <img src="https://i.imgur.com/wK10qEV.png" alt="Opera add-ons"></a>
   </br></br>
 </p>
 
@@ -19,7 +16,8 @@
 
 Search by Image is an MIT-licensed open source project. Its ongoing
 development is made possible thanks to the support of awesome backers.
-If you'd like to join them, check out [PayPal.Me](https://goo.gl/BfygYx).
+If you'd like to join them, check out [Patreon](https://goo.gl/UtCEg4)
+or [PayPal.Me](https://goo.gl/BfygYx).
 
 ## Description
 
