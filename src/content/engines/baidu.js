@@ -8,11 +8,11 @@ function showResults() {
   window.location.replace(url);
 }
 
-async function upload(dataUri) {
+async function upload({blob, imgData}) {
   const url =
     'http://image.baidu.com/pcdutu/a_upload?fr=html5&target=pcSearchImage&needJson=true';
   const data = new FormData();
-  data.append('file', dataUriToBlob(dataUri.data), dataUri.info.fullFilename);
+  data.append('file', blob, imgData.filename);
   data.append('pos', 'upload');
   data.append('uptype', 'upload_pc');
   data.append('fm', 'index');

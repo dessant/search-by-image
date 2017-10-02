@@ -6,14 +6,18 @@ const rxSupportedUrls = /^(?:https?:\/\/|ftp:\/\/|data:image\/).*$/i;
 const canvas = {cnv: null, ctx: null};
 
 function getFilename(url) {
-  const file = url.split('/').pop().replace(/(?:#|\?).*?$/, '').split('.');
+  const file = url
+    .split('/')
+    .pop()
+    .replace(/(?:#|\?).*?$/, '')
+    .split('.');
   let filename = '';
   let ext = '';
   if (file.length === 1) {
     filename = file[0];
   } else {
-    ext = file.pop().toLowerCase();
     filename = file.join('.');
+    ext = file.pop().toLowerCase();
   }
 
   return {filename, ext};
@@ -97,14 +101,14 @@ function parseNode(node, isLocalDoc) {
       cnv.height = img.naturalHeight;
       ctx.drawImage(img, 0, 0);
       const info = getFilename(url);
-      let type = 'image/png';
       if (['jpg', 'jpeg', 'jpe'].indexOf(info.ext) !== -1) {
-        type = 'image/jpeg';
+        info.type = 'image/jpeg';
       } else {
+        info.type = 'image/png';
         info.ext = 'png';
       }
       try {
-        const data = cnv.toDataURL(type, 1.0);
+        const data = cnv.toDataURL(info.type, 1.0);
         urls[urls.indexOf(item)] = {data, info};
       } catch (e) {
         console.error(e);

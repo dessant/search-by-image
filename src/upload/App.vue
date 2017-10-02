@@ -14,7 +14,6 @@ import browser from 'webextension-polyfill';
 
 import storage from 'storage/storage';
 import {onError, getText} from 'utils/common';
-import {dataUriToBlob} from 'content/common';
 import {optionKeys} from 'utils/data';
 
 export default {
@@ -28,23 +27,24 @@ export default {
 
   methods: {
     onMessage: async function(request, sender, sendResponse) {
-      if (request.id === 'dataUriResponse') {
+      if (request.id === 'imgDataResponse') {
         if (request.hasOwnProperty('error')) {
           this.error = getText(`error_${request.error}`);
         } else {
-          await this.processDataUri(request.dataUri);
+          const params = {imgData: request.imgData};
+          if (request.imgData.isBlob) {
+            const rsp = await fetch(request.imgData.objectUrl);
+            params.blob = await rsp.blob();
+          }
+          await this.processImgData(params);
         }
       }
     },
 
-    processDataUri: async function(dataUri) {
+    processImgData: async function({blob, imgData}) {
       if (this.engine === 'google') {
         const data = new FormData();
-        data.append(
-          'encoded_image',
-          dataUriToBlob(dataUri.data),
-          dataUri.info.fullFilename
-        );
+        data.append('encoded_image', blob, imgData.filename);
         const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
           referrer: '',
           mode: 'cors',
@@ -66,11 +66,7 @@ export default {
 
       if (this.engine === 'tineye') {
         const data = new FormData();
-        data.append(
-          'image',
-          dataUriToBlob(dataUri.data),
-          dataUri.info.fullFilename
-        );
+        data.append('image', blob, imgData.filename);
         const rsp = await fetch('https://www.tineye.com/search', {
           referrer: '',
           mode: 'cors',
@@ -117,7 +113,7 @@ export default {
     this.showSpinner = true;
 
     await browser.runtime.sendMessage({
-      id: 'dataUriRequest',
+      id: 'imgDataRequest',
       dataKey: dataKey
     });
   }

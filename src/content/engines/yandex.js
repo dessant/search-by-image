@@ -13,7 +13,7 @@ function showResults() {
   }
 }
 
-async function upload(dataUri) {
+async function upload({blob, imgData}) {
   const sw = screen.width;
   const sh = screen.height;
   const r = gcd(sw, sh);
@@ -29,7 +29,7 @@ async function upload(dataUri) {
   const url = `https://yandex.com/images/search?serpid=${serpid}&uinfo=${uinfo}&rpt=imageview&format=json&request={"blocks":[{"block":"b-page_type_search-by-image__link"}]}`;
 
   const data = new FormData();
-  data.append('upfile', dataUriToBlob(dataUri.data), dataUri.info.fullFilename);
+  data.append('upfile', blob, imgData.filename);
 
   const xhr = getXHR();
   xhr.addEventListener('load', showResults);

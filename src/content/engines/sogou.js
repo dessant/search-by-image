@@ -2,14 +2,10 @@ function showResults() {
   window.location.replace(this.responseURL);
 }
 
-async function upload(dataUri) {
+async function upload({blob, imgData}) {
   const data = new FormData();
   data.append('flag', '1');
-  data.append(
-    'pic_path',
-    dataUriToBlob(dataUri.data),
-    dataUri.info.fullFilename
-  );
+  data.append('pic_path', blob, imgData.filename);
 
   const xhr = getXHR();
   xhr.addEventListener('load', showResults);

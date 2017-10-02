@@ -9,9 +9,10 @@ import {
   executeCode,
   executeFile,
   getRandomString,
-  getRandomInt
+  getRandomInt,
+  dataUriToBlob,
+  getDataUriMimeType
 } from 'utils/common';
-import {getDataUriMimeType} from 'content/common';
 import {
   getEnabledEngines,
   showNotification,
@@ -20,13 +21,17 @@ import {
 import {optionKeys, engines, imageMimeTypes, extensionStores} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
-var dataUriStore = {};
+const imgDataStore = {};
 
-function saveDataUri(dataUri) {
+function storeImgData(data) {
+  data = _.cloneDeep(data);
   const dataKey = uuidV4();
-  dataUriStore[dataKey] = dataUri;
+  imgDataStore[dataKey] = data;
   window.setTimeout(function() {
-    delete dataUriStore[dataKey];
+    delete imgDataStore[dataKey];
+    if (data.isBlob) {
+      URL.revokeObjectURL(data.objectUrl);
+    }
   }, 120000); // 2 minutes
   return dataKey;
 }
@@ -113,22 +118,22 @@ async function createMenu() {
   }
 }
 
-async function getTabUrl(imgUrl, dataKey, engineId, options) {
+async function getTabUrl(imgData, engineId, options) {
   let tabUrl;
 
-  if (dataKey) {
+  if (imgData.isBlob) {
     const supportedEngines = ['bing', 'yandex', 'baidu', 'sogou'];
     if (supportedEngines.indexOf(engineId) !== -1) {
       tabUrl = engines[engineId].data;
     } else {
       tabUrl = `${browser.extension.getURL(
         '/src/upload/index.html'
-      )}?engine=${engineId}&dataKey=${dataKey}`;
+      )}?engine=${engineId}&dataKey=${imgData.dataKey}`;
     }
   } else {
     tabUrl = engines[engineId].url.replace(
       '{imgUrl}',
-      encodeURIComponent(imgUrl)
+      encodeURIComponent(imgData.url)
     );
     if (engineId === 'google' && !options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr`;
@@ -138,46 +143,46 @@ async function getTabUrl(imgUrl, dataKey, engineId, options) {
   return tabUrl;
 }
 
-async function searchImage(imgUrl, menuId, sourceTabIndex) {
+async function searchImage(img, menuId, sourceTabIndex) {
   const options = await storage.get(optionKeys, 'sync');
 
   let tabIndex = sourceTabIndex + 1;
   let tabActive = !options.tabInBackgound;
-  let dataKey = null;
-  if (imgUrl.data.startsWith('data:')) {
-    if (!_.has(imgUrl, 'info.filename') || !imgUrl.info.filename) {
-      const ext = _.get(imageMimeTypes, getDataUriMimeType(imgUrl.data), '');
-      imgUrl.info = {filename: getRandomString(getRandomInt(5, 20)), ext};
-    }
-    imgUrl.info.fullFilename = imgUrl.info.ext
-      ? `${imgUrl.info.filename}.${imgUrl.info.ext}`
-      : imgUrl.info.filename;
+  let dataKey = '';
+  const imgData = {
+    isBlob: img.data.startsWith('data:')
+  };
 
-    dataKey = saveDataUri(imgUrl);
+  if (imgData.isBlob) {
+    if (!_.has(img, 'info.filename') || !img.info.filename) {
+      const ext = _.get(imageMimeTypes, getDataUriMimeType(img.data), '');
+      const filename = getRandomString(getRandomInt(5, 20));
+      imgData.filename = ext ? `${filename}.${ext}` : filename;
+    } else {
+      imgData.filename = img.info.filename;
+    }
+    imgData.objectUrl = URL.createObjectURL(dataUriToBlob(img.data));
+    imgData.dataKey = storeImgData(imgData);
+  } else {
+    imgData.url = img.data;
   }
 
   if (menuId === 'allEngines') {
     for (const engine of await getEnabledEngines(options)) {
-      await searchEngine(imgUrl, dataKey, engine, options, tabIndex, tabActive);
+      await searchEngine(imgData, engine, options, tabIndex, tabActive);
       tabIndex = tabIndex + 1;
       tabActive = false;
     }
   } else {
-    await searchEngine(imgUrl, dataKey, menuId, options, tabIndex, tabActive);
+    await searchEngine(imgData, menuId, options, tabIndex, tabActive);
   }
 }
 
-async function searchEngine(
-  imgUrl,
-  dataKey,
-  engineId,
-  options,
-  tabIndex,
-  tabActive
-) {
-  const tabUrl = await getTabUrl(imgUrl.data, dataKey, engineId, options);
+async function searchEngine(imgData, engineId, options, tabIndex, tabActive) {
+  const tabUrl = await getTabUrl(imgData, engineId, options);
   const tab = await createTab(tabUrl, tabIndex, tabActive);
-  if (dataKey) {
+
+  if (imgData.dataKey) {
     const cssNeeded = ['bing'];
     if (cssNeeded.indexOf(engineId) !== -1) {
       browser.tabs.insertCSS(tab.id, {
@@ -193,7 +198,7 @@ async function searchEngine(
 
     const supportedEngines = ['bing', 'yandex', 'baidu', 'sogou'];
     if (supportedEngines.indexOf(engineId) !== -1) {
-      executeCode(`var dataKey = '${dataKey}';`, tab.id);
+      executeCode(`var dataKey = '${imgData.dataKey}';`, tab.id);
       executeFile(
         `/src/content/engines/${engineId}.js`,
         tab.id,
@@ -291,11 +296,11 @@ function rememberExecution(module, tabId, frameId = 0) {
 }
 
 async function onMessage(request, sender, sendResponse) {
-  if (request.id === 'dataUriRequest') {
-    const dataUri = dataUriStore[request.dataKey];
-    const response = {id: 'dataUriResponse'};
-    if (dataUri) {
-      response['dataUri'] = dataUri;
+  if (request.id === 'imgDataRequest') {
+    const imgData = imgDataStore[request.dataKey];
+    const response = {id: 'imgDataResponse'};
+    if (imgData) {
+      response['imgData'] = imgData;
     } else {
       response['error'] = 'sessionExpired';
     }
