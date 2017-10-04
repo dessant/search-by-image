@@ -8,7 +8,7 @@
     <header class="mdc-dialog__header">
       <slot name="header">
         <h2 :id="labelId"
-            class="mdc-dialog__header__title mdc-theme--text-primary-on-light">
+            class="mdc-dialog__header__title header-title">
           {{ title }}
         </h2>
       </slot>
@@ -125,7 +125,11 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/dialog/mdc-dialog';
-@import '@material/theme/mdc-theme';
+@import '@material/theme/mixins';
+
+.header-title {
+  @include mdc-theme-prop('color', 'text-primary-on-light');
+}
 
 /* tablets */
 @media (min-width: 768px) {

@@ -149,8 +149,8 @@ export default {
 <style lang="scss">
 $mdc-theme-primary: #1abc9c;
 
-@import '@material/theme/mdc-theme';
-@import '@material/typography/mdc-typography';
+@import '@material/theme/mixins';
+@import '@material/typography/mixins';
 
 .mdc-checkbox {
   margin-left: 8px;

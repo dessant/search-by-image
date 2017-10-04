@@ -123,10 +123,11 @@ export default {
 <style lang="scss">
 $spinkit-size: 36px;
 $spinkit-spinner-color: #e74c3c;
+$mdc-theme-primary: #1abc9c;
 
 @import 'spinkit/scss/spinners/1-rotating-plane';
-@import '@material/theme/mdc-theme';
-@import '@material/typography/mdc-typography';
+@import '@material/theme/mixins';
+@import '@material/typography/mixins';
 
 html,
 body {
