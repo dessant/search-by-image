@@ -65,7 +65,7 @@ gulp.task('css', function() {
 });
 
 gulp.task('icons', async function() {
-  ensureDirSync('dist/src/icons');
+  ensureDirSync('dist/src/icons/app');
   const svgPaths = await recursiveReadDir('src/icons', ['*.!(svg)']);
   for (svgPath of svgPaths) {
     const pngBuffer = await svg2png(readFileSync(svgPath));
@@ -77,7 +77,7 @@ gulp.task('icons', async function() {
 
   if (isProduction) {
     gulp
-      .src('dist/src/**/*.png', {base: '.'})
+      .src('dist/src/icons/**/*.png', {base: '.'})
       .pipe(imagemin())
       .pipe(gulp.dest(''));
   }
