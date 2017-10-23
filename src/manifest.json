@@ -22,11 +22,12 @@
     "tabs",
     "activeTab",
     "notifications",
+    "webNavigation",
     "<all_urls>"
   ],
 
   "content_security_policy":
-    "default-src 'self'; img-src * data:; connect-src *; object-src 'none';",
+    "default-src 'self'; img-src * data:; connect-src * blob:; object-src 'none';",
 
   "icons": {
     "16": "src/icons/app/app-icon-16.png",
@@ -38,6 +39,21 @@
     "64": "src/icons/app/app-icon-64.png",
     "96": "src/icons/app/app-icon-96.png",
     "128": "src/icons/app/app-icon-128.png"
+  },
+
+  "browser_action": {
+    "default_icon": {
+      "16": "src/icons/app/app-icon-16.png",
+      "19": "src/icons/app/app-icon-19.png",
+      "24": "src/icons/app/app-icon-24.png",
+      "32": "src/icons/app/app-icon-32.png",
+      "38": "src/icons/app/app-icon-38.png",
+      "48": "src/icons/app/app-icon-48.png",
+      "64": "src/icons/app/app-icon-64.png",
+      "96": "src/icons/app/app-icon-96.png",
+      "128": "src/icons/app/app-icon-128.png"
+    },
+    "browser_style": false
   },
 
   "options_ui": {
@@ -59,5 +75,9 @@
     }
   ],
 
-  "web_accessible_resources": ["src/select/index.html"]
+  "web_accessible_resources": [
+    "src/select/index.html",
+    "src/select/pointer.css",
+    "src/confirm/index.html"
+  ]
 }

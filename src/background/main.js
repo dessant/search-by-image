@@ -8,6 +8,8 @@ import {
   createTab,
   executeCode,
   executeFile,
+  scriptsAllowed,
+  onComplete,
   getRandomString,
   getRandomInt,
   dataUriToBlob,
@@ -18,71 +20,74 @@ import {
   showNotification,
   getRandomFilename
 } from 'utils/app';
-import {optionKeys, engines, imageMimeTypes, extensionStores} from 'utils/data';
+import {optionKeys, engines, imageMimeTypes} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
-const imgDataStore = {};
+const dataStore = {};
 
-function storeImgData(data) {
+function storeData(data) {
   data = _.cloneDeep(data);
   const dataKey = uuidV4();
-  imgDataStore[dataKey] = data;
-  window.setTimeout(function() {
-    delete imgDataStore[dataKey];
-    if (data.isBlob) {
-      URL.revokeObjectURL(data.objectUrl);
-    }
-  }, 120000); // 2 minutes
+  dataStore[dataKey] = data;
   return dataKey;
 }
 
-function onCreated(n) {
-  if (browser.runtime.lastError) {
-    console.log(`Error: ${browser.runtime.lastError}`);
+function deleteData(dataKey) {
+  if (dataStore.hasOwnProperty(dataKey)) {
+    delete dataStore[dataKey];
+    return true;
   }
 }
 
-function createMenuItem(id, title, parentId, type = 'normal') {
+function createMenuItem({
+  id,
+  title = '',
+  contexts,
+  parent,
+  type = 'normal',
+  urlPatterns
+}) {
   browser.contextMenus.create(
     {
-      id: id,
-      title: title,
-      contexts: [
-        'audio',
-        'editable',
-        'frame',
-        'image',
-        'link',
-        'page',
-        'selection',
-        'video'
-      ],
-      documentUrlPatterns: [
-        'http://*/*',
-        'https://*/*',
-        'ftp://*/*',
-        'file:///*'
-      ],
-      parentId: parentId,
-      type: type
+      id,
+      title,
+      contexts,
+      documentUrlPatterns: urlPatterns,
+      parentId: parent,
+      type
     },
-    onCreated
+    onComplete
   );
 }
 
-async function createMenu() {
-  const options = await storage.get(optionKeys, 'sync');
+async function createMenu(options) {
   const enEngines = await getEnabledEngines(options);
+  const contexts = [
+    'audio',
+    'editable',
+    'frame',
+    'image',
+    'link',
+    'page',
+    'selection',
+    'video'
+  ];
+  const urlPatterns = ['http://*/*', 'https://*/*', 'ftp://*/*'];
+  if (targetEnv === 'firefox') {
+    urlPatterns.push('file:///*');
+  }
 
   if (enEngines.length === 1) {
     const engine = enEngines[0];
-    createMenuItem(
-      engine,
-      getText(
-        'contextMenuItemTitle_engine_main',
-        getText(`engineName_${engine}_short`)
-      )
-    );
+    createMenuItem({
+      id: engine,
+      title: getText(
+        'mainMenuItemTitle_engine',
+        getText(`menuItemTitle_${engine}`)
+      ),
+      contexts,
+      urlPatterns
+    });
     return;
   }
 
@@ -90,52 +95,65 @@ async function createMenu() {
     const searchAllEngines = options.searchAllEnginesContextMenu;
 
     if (searchAllEngines === 'main') {
-      createMenuItem(
-        'allEngines',
-        getText('contextMenuItemTitle_allEngines_main')
-      );
+      createMenuItem({
+        id: 'allEngines',
+        title: getText('mainMenuItemTitle_allEngines'),
+        contexts,
+        urlPatterns
+      });
       return;
     }
 
-    createMenuItem('par-1', getText('contextMenuGroupTitle_searchImage_main'));
+    createMenuItem({
+      id: 'par-1',
+      title: getText('mainMenuGroupTitle_searchImage'),
+      contexts,
+      urlPatterns
+    });
 
     if (searchAllEngines === 'sub') {
-      createMenuItem(
-        'allEngines',
-        getText('engineName_allEngines_full'),
-        'par-1'
-      );
-      createMenuItem('sep-1', '', 'par-1', 'separator');
+      createMenuItem({
+        id: 'allEngines',
+        title: getText('menuItemTitle_allEngines'),
+        contexts,
+        parent: 'par-1',
+        urlPatterns
+      });
+      createMenuItem({
+        id: 'sep-1',
+        contexts,
+        parent: 'par-1',
+        type: 'separator',
+        urlPatterns
+      });
     }
 
-    enEngines.forEach(function(engineId) {
-      createMenuItem(
-        engineId,
-        getText(`engineName_${engineId}_short`),
-        'par-1'
-      );
+    enEngines.forEach(function(engine) {
+      createMenuItem({
+        id: engine,
+        title: getText(`menuItemTitle_${engine}`),
+        contexts,
+        parent: 'par-1',
+        urlPatterns
+      });
     });
   }
 }
 
-async function getTabUrl(imgData, engineId, options) {
+async function getTabUrl(imgData, engine, options) {
   let tabUrl;
 
   if (imgData.isBlob) {
-    const supportedEngines = ['bing', 'yandex', 'baidu', 'sogou'];
-    if (supportedEngines.indexOf(engineId) !== -1) {
-      tabUrl = engines[engineId].data;
-    } else {
-      tabUrl = `${browser.extension.getURL(
-        '/src/upload/index.html'
-      )}?engine=${engineId}&dataKey=${imgData.dataKey}`;
+    tabUrl = engines[engine].upload;
+    if (['google', 'tineye'].includes(engine)) {
+      tabUrl = tabUrl.replace('{dataKey}', imgData.dataKey);
     }
   } else {
-    tabUrl = engines[engineId].url.replace(
+    tabUrl = engines[engine].url.replace(
       '{imgUrl}',
       encodeURIComponent(imgData.url)
     );
-    if (engineId === 'google' && !options.localGoogle) {
+    if (engine === 'google' && !options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr`;
     }
   }
@@ -143,14 +161,14 @@ async function getTabUrl(imgData, engineId, options) {
   return tabUrl;
 }
 
-async function searchImage(img, menuId, sourceTabIndex) {
+async function searchImage(img, engine, sourceTabIndex, receiptKey = null) {
   const options = await storage.get(optionKeys, 'sync');
 
   let tabIndex = sourceTabIndex + 1;
   let tabActive = !options.tabInBackgound;
   let dataKey = '';
   const imgData = {
-    isBlob: img.data.startsWith('data:')
+    isBlob: _.has(img, 'objectUrl') || img.data.startsWith('data:')
   };
 
   if (imgData.isBlob) {
@@ -161,30 +179,41 @@ async function searchImage(img, menuId, sourceTabIndex) {
     } else {
       imgData.filename = img.info.filename;
     }
-    imgData.objectUrl = URL.createObjectURL(dataUriToBlob(img.data));
-    imgData.dataKey = storeImgData(imgData);
+    if (!_.has(img, 'objectUrl')) {
+      imgData.objectUrl = URL.createObjectURL(dataUriToBlob(img.data));
+    } else {
+      imgData.objectUrl = img.objectUrl;
+    }
+    imgData.receiptKey = receiptKey;
+    imgData.dataKey = storeData(imgData);
+    window.setTimeout(function() {
+      const newDelete = deleteData(imgData.dataKey);
+      if (newDelete && imgData.isBlob && !imgData.receiptKey) {
+        URL.revokeObjectURL(imgData.objectUrl);
+      }
+    }, 120000); // 2 minutes
   } else {
     imgData.url = img.data;
   }
 
-  if (menuId === 'allEngines') {
+  if (engine === 'allEngines') {
     for (const engine of await getEnabledEngines(options)) {
       await searchEngine(imgData, engine, options, tabIndex, tabActive);
       tabIndex = tabIndex + 1;
       tabActive = false;
     }
   } else {
-    await searchEngine(imgData, menuId, options, tabIndex, tabActive);
+    await searchEngine(imgData, engine, options, tabIndex, tabActive);
   }
 }
 
-async function searchEngine(imgData, engineId, options, tabIndex, tabActive) {
-  const tabUrl = await getTabUrl(imgData, engineId, options);
+async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
+  const tabUrl = await getTabUrl(imgData, engine, options);
   const tab = await createTab(tabUrl, tabIndex, tabActive);
 
   if (imgData.dataKey) {
     const cssNeeded = ['bing'];
-    if (cssNeeded.indexOf(engineId) !== -1) {
+    if (cssNeeded.includes(engine)) {
       browser.tabs.insertCSS(tab.id, {
         runAt: 'document_start',
         file: '/src/content/engines/style.css'
@@ -192,15 +221,15 @@ async function searchEngine(imgData, engineId, options, tabIndex, tabActive) {
     }
 
     const commonNeeded = ['bing', 'yandex', 'baidu', 'sogou'];
-    if (commonNeeded.indexOf(engineId) !== -1) {
+    if (commonNeeded.includes(engine)) {
       executeFile(`/src/content/common.js`, tab.id, 0, 'document_idle');
     }
 
     const supportedEngines = ['bing', 'yandex', 'baidu', 'sogou'];
-    if (supportedEngines.indexOf(engineId) !== -1) {
+    if (supportedEngines.includes(engine)) {
       executeCode(`var dataKey = '${imgData.dataKey}';`, tab.id);
       executeFile(
-        `/src/content/engines/${engineId}.js`,
+        `/src/content/engines/${engine}.js`,
         tab.id,
         0,
         'document_idle'
@@ -209,13 +238,71 @@ async function searchEngine(imgData, engineId, options, tabIndex, tabActive) {
   }
 }
 
-async function onContextMenuClick(info, tab) {
-  const tabId = tab.id;
-  const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
+async function searchClickTarget(engine, tabId, tabIndex, frameId) {
+  const [probe] = await executeCode('frameStore;', tabId, frameId);
 
-  if (info.pageUrl.startsWith(extensionStores[targetEnv])) {
+  const {imgFullParse} = await storage.get('imgFullParse', 'sync');
+  await executeCode(
+    `frameStore.options.imgFullParse = ${imgFullParse};`,
+    tabId,
+    frameId
+  );
+
+  if (!probe.modules.parse) {
+    await executeFile('/src/content/parse.js', tabId, frameId);
+    await rememberExecution('parse', tabId, frameId);
+  }
+
+  let [images] = await executeCode('parseDocument();', tabId, frameId);
+
+  if (!images) {
+    await showNotification('error_InternalError');
+    return;
+  }
+
+  if (images.length === 0) {
+    await showNotification('error_imageNotFound');
+    return;
+  }
+
+  images = _.uniqBy(images, 'data');
+
+  if (images.length > 1) {
+    const [probe] = await executeCode('frameStore;', tabId);
+    if (!probe.modules.confirm) {
+      await rememberExecution('confirm', tabId);
+
+      await browser.tabs.insertCSS(tabId, {
+        runAt: 'document_start',
+        file: '/src/confirm/frame.css'
+      });
+
+      await executeFile('/src/content/confirm.js', tabId);
+    }
+
+    await browser.tabs.sendMessage(
+      tabId,
+      {
+        id: 'imageConfirmationOpen',
+        images,
+        engine
+      },
+      {frameId: 0}
+    );
+  } else {
+    await searchImage(images[0], engine, tabIndex);
+  }
+}
+
+async function onContextMenuItemClick(info, tab) {
+  const tabId = tab.id;
+  const tabIndex = tab.index;
+  const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
+  const engine = info.menuItemId;
+
+  if (!await scriptsAllowed(tabId, frameId)) {
     if (info.srcUrl) {
-      await searchImage({data: info.srcUrl}, info.menuItemId, tab.index);
+      await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
       await showNotification('error_scriptsNotAllowed');
     }
@@ -229,76 +316,126 @@ async function onContextMenuClick(info, tab) {
     info.pageUrl !== info.frameUrl
   ) {
     if (info.srcUrl) {
-      await searchImage({data: info.srcUrl}, info.menuItemId, tab.index);
+      await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
       await showNotification('error_imageNotFound');
     }
     return;
   }
 
-  const [probe] = await executeFile('/src/content/probe.js', tabId, frameId);
+  await searchClickTarget(engine, tabId, tabIndex, frameId);
+}
 
-  if (info.srcUrl) {
-    const {imgFullParse} = await storage.get('imgFullParse', 'sync');
-    await executeCode(
-      `frameStorage.options.imgFullParse = ${imgFullParse};`,
-      tabId,
-      frameId
-    );
-  }
+function rememberExecution(module, tabId, frameId = 0) {
+  return executeCode(`frameStore.modules.${module} = true;`, tabId, frameId);
+}
 
-  if (!probe.modules.parse) {
-    await executeFile('/src/content/parse.js', tabId, frameId);
-    await rememberExecution('parse', tabId, frameId);
-  }
-
-  let [imgUrls] = await executeCode('parseDocument();', tabId, frameId);
-
-  if (!imgUrls) {
-    await showNotification('error_InternalError');
+async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
+  if (searchMode === 'upload') {
+    const browseUrl = browser.extension.getURL('/src/browse/index.html');
+    await createTab(`${browseUrl}?engine=${engine}`, tabIndex + 1, true, tabId);
     return;
   }
 
-  if (imgUrls.length === 0) {
-    await showNotification('error_imageNotFound');
-    return;
-  }
+  if (searchMode === 'select') {
+    if (tabUrl.startsWith('file:') && targetEnv !== 'firefox') {
+      await showNotification('error_invalidImageUrl_fileUrl');
+      return;
+    }
 
-  imgUrls = _.uniqBy(imgUrls, 'data');
+    if (!await scriptsAllowed(tabId)) {
+      await showNotification('error_scriptsNotAllowed');
+      return;
+    }
 
-  if (imgUrls.length > 1) {
-    const [probe] = await executeFile('/src/content/probe.js', tabId);
+    const [probe] = await executeCode('frameStore;', tabId);
     if (!probe.modules.select) {
+      await rememberExecution('select', tabId);
+
       await browser.tabs.insertCSS(tabId, {
-        runAt: 'document_end',
+        runAt: 'document_start',
         file: '/src/select/frame.css'
       });
+
       await executeFile('/src/content/select.js', tabId);
-      await rememberExecution('select', tabId);
     }
+
+    await browser.tabs.executeScript(tabId, {
+      allFrames: true,
+      runAt: 'document_start',
+      code: `
+        addClickListener();
+        showPointer();
+        frameStore.data.engine = '${engine}';
+      `
+    });
 
     await browser.tabs.sendMessage(
       tabId,
       {
-        id: 'imageSelectionDialogUpdate',
-        imgUrls: imgUrls,
-        menuItemId: info.menuItemId
+        id: 'imageSelectionOpen'
       },
       {frameId: 0}
     );
-  } else {
-    await searchImage(imgUrls[0], info.menuItemId, tab.index);
+
+    return;
   }
 }
 
-function rememberExecution(module, tabId, frameId = 0) {
-  return executeCode(`frameStorage.modules.${module} = true;`, tabId, frameId);
+async function onActionButtonClick(tab) {
+  const options = await storage.get(
+    [
+      'engines',
+      'disabledEngines',
+      'searchAllEnginesAction',
+      'searchModeAction'
+    ],
+    'sync'
+  );
+
+  if (options.searchModeAction === 'url' && targetEnv !== 'firefox') {
+    await showNotification('error_invalidSearchMode_url');
+    return;
+  }
+
+  const enEngines = await getEnabledEngines(options);
+
+  if (enEngines.length === 0) {
+    await showNotification('error_allEnginesDisabled');
+    return;
+  }
+
+  let engine = null;
+  if (options.searchAllEnginesAction === 'main' && enEngines.length > 1) {
+    engine = 'allEngines';
+  } else {
+    engine = enEngines[0];
+  }
+
+  onActionClick(tab.index, tab.id, tab.url, engine, options.searchModeAction);
+}
+
+async function onActionPopupClick(engine, imageUrl) {
+  const {searchModeAction} = await storage.get('searchModeAction', 'sync');
+
+  const [tab, ...rest] = await browser.tabs.query({
+    lastFocusedWindow: true,
+    active: true
+  });
+  const tabIndex = tab.index;
+
+  if (searchModeAction === 'url') {
+    await searchImage({data: imageUrl}, engine, tabIndex);
+    return;
+  }
+
+  onActionClick(tabIndex, tab.id, tab.url, engine, searchModeAction);
 }
 
 async function onMessage(request, sender, sendResponse) {
-  if (request.id === 'imgDataRequest') {
-    const imgData = imgDataStore[request.dataKey];
-    const response = {id: 'imgDataResponse'};
+  if (request.id === 'imageDataRequest') {
+    const imgData = dataStore[request.dataKey];
+    const response = {id: 'imageDataResponse'};
     if (imgData) {
       response['imgData'] = imgData;
     } else {
@@ -308,25 +445,204 @@ async function onMessage(request, sender, sendResponse) {
     return;
   }
 
-  if (request.id === 'imageSelectionDialogSubmit') {
-    searchImage(request.imgUrl, request.menuItemId, sender.tab.index);
+  if (request.id === 'actionPopupSubmit') {
+    onActionPopupClick(request.engine, request.imageUrl);
+    return;
+  }
+
+  if (request.id === 'imageUploadSubmit') {
+    const tabId = sender.tab.id;
+    const receiptKey = storeData({
+      total: request.searchCount,
+      receipts: 0,
+      tabId
+    });
+    window.setTimeout(function() {
+      const newDelete = deleteData(receiptKey);
+      if (newDelete) {
+        browser.tabs.remove(tabId);
+      }
+    }, 120000); // 2 minutes
+    for (let img of request.images) {
+      await searchImage(img, request.engine, sender.tab.index, receiptKey);
+    }
+    return;
+  }
+
+  if (request.id === 'imageUploadReceipt') {
+    const receiptData = dataStore[request.receiptKey];
+    if (receiptData) {
+      receiptData.receipts += 1;
+      if (receiptData.receipts === receiptData.total) {
+        deleteData(request.receiptKey);
+        browser.tabs.remove(receiptData.tabId);
+      }
+    }
+    return;
+  }
+
+  if (request.id === 'imageSelectionSubmit') {
+    browser.tabs.executeScript(sender.tab.id, {
+      allFrames: true,
+      runAt: 'document_start',
+      code: `
+        removeClickListener();
+        hidePointer();
+      `
+    });
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: 'imageSelectionClose', messageFrame: true},
+      {frameId: 0}
+    );
+    searchClickTarget(
+      request.engine,
+      sender.tab.id,
+      sender.tab.index,
+      sender.frameId
+    );
+    return;
+  }
+
+  if (request.id === 'imageSelectionCancel') {
+    browser.tabs.executeScript(sender.tab.id, {
+      allFrames: true,
+      runAt: 'document_start',
+      code: `
+        removeClickListener();
+        hidePointer();
+      `
+    });
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: 'imageSelectionClose'},
+      {frameId: 0}
+    );
+    return;
+  }
+
+  if (request.id === 'imageConfirmationSubmit') {
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: 'imageConfirmationClose'},
+      {frameId: 0}
+    );
+    searchImage(request.img, request.engine, sender.tab.index);
+    return;
+  }
+
+  if (request.id === 'imageConfirmationCancel') {
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: 'imageConfirmationClose'},
+      {frameId: 0}
+    );
+    return;
+  }
+
+  if (request.id.endsWith('FrameId')) {
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: request.id, frameId: sender.frameId},
+      {frameId: 0}
+    );
     return;
   }
 
   if (request.id === 'notification') {
     showNotification(request.messageId, request.type);
+    return;
+  }
+
+  if (request.id === 'routeMessage') {
+    const params = [
+      request.hasOwnProperty('tabId') ? request.tabId : sender.tab.id,
+      request.data
+    ];
+    if (request.hasOwnProperty('frameId')) {
+      params.push({frameId: request.frameId});
+    }
+    browser.tabs.sendMessage(...params);
+    return;
   }
 }
 
-function addMenuListener(data) {
-  browser.contextMenus.onClicked.addListener(onContextMenuClick);
+async function onStorageChange(changes, area) {
+  await setContextMenu({removeFirst: true});
+  await setBrowserAction();
+}
+
+async function setContextMenu({removeFirst = false} = {}) {
+  if (removeFirst) {
+    await browser.contextMenus.removeAll();
+  }
+  const options = await storage.get(optionKeys, 'sync');
+  const hasListener = browser.contextMenus.onClicked.hasListener(
+    onContextMenuItemClick
+  );
+  if (options.showInContextMenu === true) {
+    if (!hasListener) {
+      browser.contextMenus.onClicked.addListener(onContextMenuItemClick);
+    }
+    await createMenu(options);
+  } else {
+    if (hasListener) {
+      browser.contextMenus.onClicked.removeListener(onContextMenuItemClick);
+    }
+  }
+}
+
+async function setBrowserAction() {
+  const options = await storage.get(
+    ['engines', 'disabledEngines', 'searchAllEnginesAction'],
+    'sync'
+  );
+  const enEngines = await getEnabledEngines(options);
+  const hasListener = browser.browserAction.onClicked.hasListener(
+    onActionButtonClick
+  );
+
+  if (enEngines.length === 1) {
+    if (!hasListener) {
+      browser.browserAction.onClicked.addListener(onActionButtonClick);
+    }
+    browser.browserAction.setTitle({
+      title: getText(
+        'actionTitle_engine',
+        getText(`menuItemTitle_${enEngines[0]}`)
+      )
+    });
+    browser.browserAction.setPopup({popup: ''});
+    return;
+  }
+
+  if (options.searchAllEnginesAction === 'main' && enEngines.length > 1) {
+    if (!hasListener) {
+      browser.browserAction.onClicked.addListener(onActionButtonClick);
+    }
+    browser.browserAction.setTitle({
+      title: getText('actionTitle_allEngines')
+    });
+    browser.browserAction.setPopup({popup: ''});
+    return;
+  }
+
+  browser.browserAction.setTitle({title: getText('extensionName')});
+  if (enEngines.length === 0) {
+    if (!hasListener) {
+      browser.browserAction.onClicked.addListener(onActionButtonClick);
+    }
+    browser.browserAction.setPopup({popup: ''});
+  } else {
+    if (hasListener) {
+      browser.browserAction.onClicked.removeListener(onActionButtonClick);
+    }
+    browser.browserAction.setPopup({popup: '/src/action/index.html'});
+  }
 }
 
 function addStorageListener() {
-  browser.storage.onChanged.addListener(function(changes, area) {
-    const removing = browser.contextMenus.removeAll();
-    removing.then(createMenu);
-  });
+  browser.storage.onChanged.addListener(onStorageChange);
 }
 
 function addMessageListener() {
@@ -334,12 +650,11 @@ function addMessageListener() {
 }
 
 async function onLoad() {
-  storage
-    .init('sync')
-    .then(createMenu)
-    .then(addMenuListener)
-    .then(addStorageListener)
-    .then(addMessageListener);
+  await storage.init('sync');
+  await setContextMenu();
+  await setBrowserAction();
+  addStorageListener();
+  addMessageListener();
 }
 
 document.addEventListener('DOMContentLoaded', onLoad);

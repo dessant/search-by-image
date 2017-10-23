@@ -10,84 +10,14 @@
     "description": "Description of the extension."
   },
 
-  "engineName_google_short": {
-    "message": "Google",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_google_full": {
-    "message": "Google Images",
-    "description": "Full name of the search engine."
-  },
-
-  "engineName_bing_short": {
-    "message": "Bing",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_bing_full": {
-    "message": "Bing Images",
-    "description": "Full name of the search engine."
-  },
-
-  "engineName_yandex_short": {
-    "message": "Yandex",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_yandex_full": {
-    "message": "Yandex.Images",
-    "description": "Full name of the search engine."
-  },
-
-  "engineName_baidu_short": {
-    "message": "Baidu",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_baidu_full": {
-    "message": "Baidu Image Search",
-    "description": "Full name of the search engine."
-  },
-
-  "engineName_tineye_short": {
-    "message": "TinEye",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_tineye_full": {
-    "message": "TinEye Reverse Image Search",
-    "description": "Full name of the search engine."
-  },
-
-  "engineName_sogou_short": {
-    "message": "Sogou",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_sogou_full": {
-    "message": "Sogou Images",
-    "description": "Full name of the search engine."
-  },
-
-  "engineName_allEngines_short": {
-    "message": "All engines",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_allEngines_full": {
-    "message": "All search engines",
-    "description": "Full name of the search engine."
-  },
-
-  "contextMenuItemTitle_allEngines_main": {
+  "actionTitle_allEngines": {
     "message": "Search all engines for image",
-    "description": "Title of the context menu item."
+    "description": "Title of the action."
   },
 
-  "contextMenuItemTitle_engine_main": {
+  "actionTitle_engine": {
     "message": "Search $ENGINE$ for image",
-    "description": "Title of the context menu item.",
+    "description": "Title of the action.",
     "placeholders": {
       "engine": {
         "content": "$1",
@@ -96,25 +26,156 @@
     }
   },
 
-  "contextMenuGroupTitle_searchImage_main": {
+  "menuItemTitle_google": {
+    "message": "Google",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_bing": {
+    "message": "Bing",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_yandex": {
+    "message": "Yandex",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_baidu": {
+    "message": "Baidu",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_tineye": {
+    "message": "TinEye",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_sogou": {
+    "message": "Sogou",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_allEngines": {
+    "message": "All search engines",
+    "description": "Title of the menu item."
+  },
+
+  "mainMenuItemTitle_allEngines": {
+    "message": "Search all engines for image",
+    "description": "Title of the menu item."
+  },
+
+  "mainMenuItemTitle_engine": {
+    "message": "Search $ENGINE$ for image",
+    "description": "Title of the menu item.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "mainMenuGroupTitle_searchImage": {
     "message": "Search image on...",
-    "description": "Title of the context menu group."
+    "description": "Title of the menu group."
   },
 
   "optionSectionTitle_engines": {
     "message": "Search engines",
-    "description": "Title of the search engine options section."
+    "description": "Title of the options section."
   },
 
   "optionSectionDescription_engines": {
     "message":
       "Toggle search engines and customize their order (drag and drop)",
-    "description": "Description of the search engine options section."
+    "description": "Description of the options section."
   },
 
-  "optionSectionTitle_misc": {
-    "message": "Miscellaneous",
-    "description": "Title of the miscellaneous options section."
+  "optionTitle_google": {
+    "message": "Google Images",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_bing": {
+    "message": "Bing Images",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_yandex": {
+    "message": "Yandex.Images",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_baidu": {
+    "message": "Baidu Image Search",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_tineye": {
+    "message": "TinEye Reverse Image Search",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_sogou": {
+    "message": "Sogou Images",
+    "description": "Title of the option."
+  },
+
+  "optionSectionTitle_toolbar": {
+    "message": "Browser toolbar",
+    "description": "Title of the options section."
+  },
+
+  "optionValue_searchAllEnginesAction_main": {
+    "message": "Search all engines from browser toolbar",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchAllEnginesAction_sub": {
+    "message": "Search all engines from browser toolbar popup",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchAllEnginesAction_false": {
+    "message": "Do not search all engines from browser toolbar",
+    "description": "Value of the option."
+  },
+
+  "optionValue_action_searchModeAction_select": {
+    "message": "Select",
+    "description": "Value of the option."
+  },
+
+  "optionValue_action_searchModeAction_upload": {
+    "message": "Upload",
+    "description": "Value of the option."
+  },
+
+  "optionValue_action_searchModeAction_url": {
+    "message": "URL",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchModeAction_select": {
+    "message": "Browser toolbar search mode: Select",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchModeAction_upload": {
+    "message": "Browser toolbar search mode: Upload",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchModeAction_url": {
+    "message": "Browser toolbar search mode: URL",
+    "description": "Value of the option."
+  },
+
+  "optionSectionTitle_contextmenu": {
+    "message": "Context menu",
+    "description": "Title of the options section."
   },
 
   "optionValue_searchAllEnginesContextMenu_main": {
@@ -132,6 +193,16 @@
     "description": "Value of the option."
   },
 
+  "optionTitle_showInContextMenu": {
+    "message": "Show in context menu",
+    "description": "Title of the option."
+  },
+
+  "optionSectionTitle_misc": {
+    "message": "Miscellaneous",
+    "description": "Title of the options section."
+  },
+
   "optionTitle_tabInBackgound": {
     "message": "Open new tabs in the background",
     "description": "Title of the option."
@@ -147,18 +218,63 @@
     "description": "Title of the option."
   },
 
-  "dialogTitle_imageSelection": {
+  "dialogTitle_imageConfirmation": {
     "message": "Select an image to search for",
     "description": "Title of the dialog."
   },
 
+  "snackbarMessage_imageSelection": {
+    "message": "Select an image to search for",
+    "description": "Text of the snackbar."
+  },
+
   "buttonText_cancel": {
-    "message": "CANCEL",
+    "message": "Cancel",
     "description": "Text of the button."
+  },
+
+  "buttonText_browse": {
+    "message": "Browse",
+    "description": "Text of the button."
+  },
+
+  "pageContent_browse_drag": {
+    "message": "or drag images here.",
+    "description": "Page content."
+  },
+
+  "pageContent_browse_drop": {
+    "message": "Drop images here",
+    "description": "Page content."
+  },
+
+  "inputPlaceholder_imageUrl": {
+    "message": "Image URL",
+    "description": "Placeholder of the input."
+  },
+
+  "pageTitle": {
+    "message": "$PAGETITLE$ - $EXTENSIONNAME$",
+    "description": "Title of the page.",
+    "placeholders": {
+      "pageTitle": {
+        "content": "$1",
+        "example": "Options"
+      },
+      "extensionName": {
+        "content": "$2",
+        "example": "Extension Name"
+      }
+    }
   },
 
   "pageTitle_options": {
     "message": "Options",
+    "description": "Title of the page."
+  },
+
+  "pageTitle_browse": {
+    "message": "Browse",
     "description": "Title of the page."
   },
 
@@ -169,6 +285,11 @@
 
   "error_sessionExpired": {
     "message": "The session has expired. Try searching for the image again.",
+    "description": "Error message."
+  },
+
+  "error_invalidImageUrl": {
+    "message": "The image URL is not valid.",
     "description": "Error message."
   },
 
@@ -189,8 +310,19 @@
     "description": "Error message."
   },
 
+  "error_invalidSearchMode_url": {
+    "message":
+      "Searching for image URLs is supported only from the browser toolbar popup. Visit the options page to select a different search mode.",
+    "description": "Error message."
+  },
+
+  "error_invalidImageFile": {
+    "message": "The selected files are not images.",
+    "description": "Error message."
+  },
+
   "error_scriptsNotAllowed": {
-    "message": "No image found. Content scripts are not allowed on this page.",
+    "message": "Content scripts are not allowed on this page.",
     "description": "Error message."
   },
 

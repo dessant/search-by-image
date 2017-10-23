@@ -16,7 +16,9 @@ let plugins = [
     global: {}
   }),
   new ExtractTextPlugin('[name]/style.bundle.css'),
-  isProduction ? new LodashModuleReplacementPlugin({shorthands: true}) : null,
+  isProduction
+    ? new LodashModuleReplacementPlugin({shorthands: true, paths: true})
+    : null,
   new webpack.optimize.CommonsChunkPlugin({
     names: ['vue', 'manifest'],
     filename: '[name].bundle.js',
@@ -24,16 +26,25 @@ let plugins = [
   }),
   new webpack.optimize.CommonsChunkPlugin({
     name: 'commons-ui',
-    filename: '[name].bundle.js',
-    chunks: ['options', 'upload', 'select'],
+    filename: '[name]/commons.bundle.js',
+    chunks: ['options', 'action', 'browse', 'select', 'upload', 'confirm'],
     minChunks: function(module, count) {
-      return module.resource && /@material/.test(module.resource) && count >= 2;
+      const rxResource = /\/(@material|(css|vue)-loader|src\/(options|action|browse|select|upload|confirm|components))\//;
+      return module.resource && rxResource.test(module.resource) && count >= 2;
     }
   }),
   new webpack.optimize.CommonsChunkPlugin({
     name: 'commons',
     filename: '[name].bundle.js',
-    chunks: ['background', 'options', 'upload', 'select'],
+    chunks: [
+      'background',
+      'options',
+      'action',
+      'browse',
+      'select',
+      'upload',
+      'confirm'
+    ],
     minChunks: 2
   }),
   isProduction ? new webpack.optimize.ModuleConcatenationPlugin() : null,
@@ -45,7 +56,10 @@ module.exports = {
   entry: {
     background: './src/background/main.js',
     options: './src/options/main.js',
+    action: './src/action/main.js',
     upload: './src/upload/main.js',
+    confirm: './src/confirm/main.js',
+    browse: './src/browse/main.js',
     select: './src/select/main.js',
     vue: ['vue']
   },

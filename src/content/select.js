@@ -1,55 +1,61 @@
-function postFrameMessage(message) {
-  dialogFrame.classList.remove('sbi-dialog-frame-hidden');
-  dialogFrame.contentWindow.postMessage(message, dialogFrame.src);
-}
-
-function onFrameLoad() {
-  dialogFrame.isLoaded = true;
-  if (dialogFrame.extMessage) {
-    postFrameMessage(dialogFrame.extMessage);
-    dialogFrame.extMessage = null;
+function messageSelectFrame(message) {
+  if (frameStore.data.selectFrameId) {
+    chrome.runtime.sendMessage({
+      id: 'routeMessage',
+      frameId: frameStore.data.selectFrameId,
+      data: message
+    });
+  } else {
+    selectFrame.queuedMessage = message;
   }
 }
 
-function onExtMessage(request, sender, sendResponse) {
-  if (request.id === 'imageSelectionDialogUpdate') {
-    const message = {
-      id: request.id,
-      imgUrls: request.imgUrls,
-      menuItemId: request.menuItemId
-    };
-    if (dialogFrame.isLoaded) {
-      postFrameMessage(message);
-    } else {
-      dialogFrame.extMessage = message;
-    }
-  }
-  sendResponse(); // prevent Chrome error
+function showSelectFrame() {
+  selectFrame.classList.remove('sbi-frame-hidden');
 }
 
-function onMessage(e) {
-  if (e.source !== dialogFrame.contentWindow) {
+function hideSelectFrame(delay = 300) {
+  window.setTimeout(function() {
+    selectFrame.classList.add('sbi-frame-hidden');
+    document.body.focus();
+  }, delay);
+}
+
+function onSelectMessage(request, sender, sendResponse) {
+  if (request.id === 'imageSelectionOpen') {
+    messageSelectFrame({id: request.id});
+    showSelectFrame();
     return;
   }
-  if (e.data.id === 'imageSelectionDialogClose') {
-    window.setTimeout(function() {
-      dialogFrame.classList.add('sbi-dialog-frame-hidden');
-      document.body.focus();
-    }, 300);
+
+  if (request.id === 'imageSelectionClose') {
+    if (request.hasOwnProperty('messageFrame') && request.messageFrame) {
+      messageSelectFrame({id: request.id});
+    }
+    hideSelectFrame();
+    return;
+  }
+
+  if (request.id === 'selectFrameId') {
+    if (!frameStore.data.selectFrameId) {
+      frameStore.data.selectFrameId = request.frameId;
+      if (selectFrame.queuedMessage) {
+        messageSelectFrame(selectFrame.queuedMessage);
+        selectFrame.queuedMessage = null;
+      }
+    }
+    return;
   }
 }
 
-chrome.runtime.onMessage.addListener(onExtMessage);
-window.addEventListener('message', onMessage);
+chrome.runtime.onMessage.addListener(onSelectMessage);
 
-const dialogFrame = document.createElement('iframe');
-dialogFrame.setAttribute('data-c45ng3u9', '');
-dialogFrame.classList.add('sbi-dialog-frame-hidden');
-dialogFrame.id = 'sbi-dialog-frame';
-dialogFrame.extMessage = null;
-dialogFrame.isLoaded = false;
-dialogFrame.addEventListener('load', onFrameLoad);
-dialogFrame.src = chrome.extension.getURL('/src/select/index.html');
-document.body.appendChild(dialogFrame);
+const selectFrame = document.createElement('iframe');
+selectFrame.setAttribute('data-c45ng3u9', '');
+selectFrame.classList.add('sbi-frame-hidden');
+selectFrame.id = 'sbi-select-frame';
+selectFrame.queuedMessage = null;
+selectFrame.src = chrome.extension.getURL('/src/select/index.html');
+document.body.appendChild(selectFrame);
 
 null;

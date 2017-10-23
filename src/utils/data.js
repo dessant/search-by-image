@@ -1,36 +1,47 @@
+import browser from 'webextension-polyfill';
+
 const optionKeys = [
   'engines',
   'disabledEngines',
+  'showInContextMenu',
+  'searchAllEnginesContextMenu',
+  'searchAllEnginesAction',
   'tabInBackgound',
   'localGoogle',
-  'searchAllEnginesContextMenu',
-  'imgFullParse'
+  'imgFullParse',
+  'searchModeAction'
 ];
 
 const engines = {
   google: {
-    url: 'https://www.google.com/searchbyimage?image_url={imgUrl}'
+    url: 'https://www.google.com/searchbyimage?image_url={imgUrl}',
+    upload: `${browser.extension.getURL(
+      '/src/upload/index.html'
+    )}?engine=google&dataKey={dataKey}`
   },
   bing: {
     url:
       'https://www.bing.com/images/search?q=imgurl:{imgUrl}&view=detailv2&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights',
-    data: 'https://www.bing.com/images/discover?form=HDRSC2'
+    upload: 'https://www.bing.com/images/discover?form=HDRSC2'
   },
   yandex: {
     url: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview',
-    data: 'https://yandex.com/images/'
+    upload: 'https://yandex.com/images/'
   },
   baidu: {
     url:
       'https://image.baidu.com/n/pc_search?queryImageUrl={imgUrl}&fm=index&uptype=paste',
-    data: 'http://image.baidu.com/'
+    upload: 'http://image.baidu.com/'
   },
   tineye: {
-    url: 'https://www.tineye.com/search/?&url={imgUrl}'
+    url: 'https://www.tineye.com/search/?&url={imgUrl}',
+    upload: `${browser.extension.getURL(
+      '/src/upload/index.html'
+    )}?engine=tineye&dataKey={dataKey}`
   },
   sogou: {
     url: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0',
-    data: 'http://pic.sogou.com/'
+    upload: 'http://pic.sogou.com/'
   }
 };
 
@@ -85,15 +96,8 @@ const imageMimeTypes = {
   'image/x-xwindowdump': 'xwd'
 };
 
-const extensionStores = {
-  chrome: 'https://chrome.google.com/webstore/',
-  firefox: 'https://addons.mozilla.org',
-  opera: 'https://addons.opera.com'
-};
-
 module.exports = {
   optionKeys,
   engines,
-  imageMimeTypes,
-  extensionStores
+  imageMimeTypes
 };

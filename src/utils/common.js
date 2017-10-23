@@ -1,15 +1,29 @@
 import browser from 'webextension-polyfill';
 
+import {targetEnv} from 'utils/config';
+
 const getText = browser.i18n.getMessage;
 
 function onError(error) {
   console.log(`Error: ${error}`);
 }
 
-function createTab(url, index, active = true) {
-  const props = {url: url, active: active};
+function onComplete() {
+  if (browser.runtime.lastError) {
+    console.log(`Error: ${browser.runtime.lastError}`);
+  }
+}
+
+function createTab(url, index, active = true, openerTabId) {
+  const props = {url, active};
   if (typeof index !== 'undefined') {
-    props['index'] = index;
+    props.index = index;
+  }
+  if (
+    typeof openerTabId !== 'undefined' &&
+    ['chrome', 'opera'].includes(targetEnv)
+  ) {
+    props.openerTabId = openerTabId;
   }
   return browser.tabs.create(props);
 }
@@ -28,6 +42,17 @@ function executeFile(file, tabId, frameId = 0, runAt = 'document_start') {
     runAt: runAt,
     file: file
   });
+}
+
+async function scriptsAllowed(tabId, frameId = 0) {
+  try {
+    await browser.tabs.executeScript(tabId, {
+      frameId: frameId,
+      runAt: 'document_start',
+      code: 'true;'
+    });
+    return true;
+  } catch (e) {}
 }
 
 function getRandomString(length) {
@@ -71,10 +96,12 @@ function dataUriToBlob(dataUri) {
 
 module.exports = {
   onError,
+  onComplete,
   getText,
   createTab,
   executeCode,
   executeFile,
+  scriptsAllowed,
   getRandomString,
   getRandomInt,
   dataUriToBlob,

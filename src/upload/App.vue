@@ -1,5 +1,5 @@
 <template>
-<div id="app">
+<div id="app" v-show="dataLoaded">
   <div v-show="showSpinner && !error" class="sk-rotating-plane"></div>
   <div v-show="error">
     <div class="error-icon">:/</div>
@@ -19,6 +19,8 @@ import {optionKeys} from 'utils/data';
 export default {
   data: function() {
     return {
+      dataLoaded: false,
+
       error: '',
       showSpinner: false,
       engine: ''
@@ -27,7 +29,7 @@ export default {
 
   methods: {
     onMessage: async function(request, sender, sendResponse) {
-      if (request.id === 'imgDataResponse') {
+      if (request.id === 'imageDataResponse') {
         if (request.hasOwnProperty('error')) {
           this.error = getText(`error_${request.error}`);
         } else {
@@ -36,6 +38,13 @@ export default {
             const rsp = await fetch(request.imgData.objectUrl);
             params.blob = await rsp.blob();
           }
+          if (request.imgData.receiptKey) {
+            browser.runtime.sendMessage({
+              id: 'imageUploadReceipt',
+              receiptKey: request.imgData.receiptKey
+            });
+          }
+
           await this.processImgData(params);
         }
       }
@@ -88,32 +97,37 @@ export default {
     this.engine = query.get('engine');
     if (!this.engine) {
       this.error = getText('error_invalidPageUrl');
+      this.dataLoaded = true;
       return;
     }
 
-    document.title = `${getText(`engineName_${this.engine}_full`)} - ${getText(
-      'extensionName'
-    )}`;
+    document.title = getText('pageTitle', [
+      getText(`optionTitle_${this.engine}`),
+      getText('extensionName')
+    ]);
 
     const supportedEngines = ['google', 'tineye'];
-    if (supportedEngines.indexOf(this.engine) === -1) {
+    if (!supportedEngines.includes(this.engine)) {
       this.error = getText(
         'error_invalidImageUrl_dataUri',
-        getText(`engineName_${this.engine}_full`)
+        getText(`optionTitle_${this.engine}`)
       );
+      this.dataLoaded = true;
       return;
     }
 
     const dataKey = query.get('dataKey');
     if (!dataKey) {
       this.error = getText('error_invalidPageUrl');
+      this.dataLoaded = true;
       return;
     }
 
     this.showSpinner = true;
+    this.dataLoaded = true;
 
     await browser.runtime.sendMessage({
-      id: 'imgDataRequest',
+      id: 'imageDataRequest',
       dataKey: dataKey
     });
   }
@@ -131,7 +145,11 @@ $mdc-theme-primary: #1abc9c;
 
 html,
 body {
-  height: 80%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
 }
 
 #app {

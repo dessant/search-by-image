@@ -1,22 +1,17 @@
 {
-  "engineName_allEngines_short": {
-    "message": "All Engines",
-    "description": "Short name of the search engine."
-  },
-
-  "engineName_allEngines_full": {
+  "menuItemTitle_allEngines": {
     "message": "All Search Engines",
-    "description": "Full name of the search engine."
+    "description": "Title of the menu item."
   },
 
-  "contextMenuItemTitle_allEngines_main": {
+  "mainMenuItemTitle_allEngines": {
     "message": "Search All Engines for Image",
-    "description": "Title of the context menu item."
+    "description": "Title of the menu item."
   },
 
-  "contextMenuItemTitle_engine_main": {
+  "mainMenuItemTitle_engine": {
     "message": "Search $ENGINE$ for Image",
-    "description": "Title of the context menu item.",
+    "description": "Title of the menu item.",
     "placeholders": {
       "engine": {
         "content": "$1",
@@ -25,13 +20,23 @@
     }
   },
 
-  "contextMenuGroupTitle_searchImage_main": {
+  "mainMenuGroupTitle_searchImage": {
     "message": "Search Image On...",
-    "description": "Title of the context menu group."
+    "description": "Title of the menu group."
   },
 
   "optionSectionTitle_engines": {
     "message": "Search Engines",
-    "description": "Title of the search engine options section."
+    "description": "Title of the options section."
+  },
+
+  "optionSectionTitle_contextmenu": {
+    "message": "Context Menu",
+    "description": "Title of the options section."
+  },
+
+  "optionSectionTitle_toolbar": {
+    "message": "Browser Toolbar",
+    "description": "Title of the options section."
   }
 }

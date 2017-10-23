@@ -21,13 +21,13 @@
       <slot name="footer">
         <v-button
             class="mdc-dialog__footer__button mdc-dialog__footer__button--cancel"
-            :primary="true"
+            :ripple="false"
             v-if="cancelText">
           {{ cancelText }}
         </v-button>
         <v-button
             class="mdc-dialog__footer__button mdc-dialog__footer__button--accept"
-            :primary="true"
+            :ripple="false"
             v-if="acceptText">
           {{ acceptText }}
         </v-button>

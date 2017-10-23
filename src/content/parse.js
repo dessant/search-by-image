@@ -70,7 +70,7 @@ function parseNode(node, isLocalDoc) {
 
   urls.push(...extractCSSImages(cssProps, node));
 
-  if (replacedElements.indexOf(nodeName) === -1) {
+  if (!replacedElements.includes(nodeName)) {
     pseudoSelectors.forEach(function(pseudo) {
       urls.push(...extractCSSImages(cssProps, node, pseudo));
     });
@@ -101,24 +101,17 @@ function parseNode(node, isLocalDoc) {
       cnv.height = img.naturalHeight;
       ctx.drawImage(img, 0, 0);
       const info = getFilename(url);
-      if (['jpg', 'jpeg', 'jpe'].indexOf(info.ext) !== -1) {
+      if (['jpg', 'jpeg', 'jpe'].includes(info.ext)) {
         info.type = 'image/jpeg';
       } else {
         info.type = 'image/png';
         info.ext = 'png';
       }
-      try {
-        const data = cnv.toDataURL(info.type, 1.0);
-        urls[urls.indexOf(item)] = {data, info};
-      } catch (e) {
-        console.error(e);
-        chrome.runtime.sendMessage({
-          id: 'notification',
-          type: 'error',
-          messageId: 'error_invalidImageUrl_fileUrl'
-        });
-      }
+
+      const data = cnv.toDataURL(info.type, 1.0);
       ctx.clearRect(0, 0, cnv.width, cnv.height);
+
+      urls[urls.indexOf(item)] = {data, info};
     });
   }
 
@@ -145,13 +138,13 @@ function parseDocument() {
 
   urls.push(...parseNode(targetNode, isLocalDoc));
 
-  if (targetNode.nodeName !== 'IMG' || frameStorage.options.imgFullParse) {
+  if (targetNode.nodeName !== 'IMG' || frameStore.options.imgFullParse) {
     const fullParseUrls = [];
 
-    const clickRectBottom = clickTarget.y + 50;
-    const clickRectTop = clickTarget.y - 50;
-    const clickRectLeft = clickTarget.x - 50;
-    const clickRectRight = clickTarget.x + 50;
+    const clickRectBottom = clickTarget.uy + 24;
+    const clickRectTop = clickTarget.uy - 24;
+    const clickRectLeft = clickTarget.ux - 24;
+    const clickRectRight = clickTarget.ux + 24;
 
     const nodes = document.getElementsByTagName('*');
     const nodeCount = nodes.length;

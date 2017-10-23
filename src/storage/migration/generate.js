@@ -24,15 +24,26 @@ if (!process.argv.slice(2).length) {
 const message = program.message;
 const storageArea = program.storage;
 
-const revisionId = shortid.generate();
-
 const versionsDir = path.join(__dirname, `versions-${storageArea}`);
 const versionsFile = path.join(versionsDir, 'versions.json');
 
 fs.ensureDirSync(versionsDir);
 
+let revisionId;
+while (true) {
+  revisionId = shortid.generate();
+  if (
+    !revisionId.includes('-') &&
+    !revisionId.includes('_') &&
+    !'0123456789'.includes(revisionId.charAt(0))
+  ) {
+    break;
+  }
+}
+
 let versions;
 let downRevisionId;
+
 try {
   versions = fs.readJsonSync(versionsFile);
   downRevisionId = `'${_.last(versions.versions)}'`;
@@ -42,7 +53,7 @@ try {
 }
 versions.versions.push(revisionId);
 
-revisionCont = `import browser from 'webextension-polyfill';
+const revisionCont = `import browser from 'webextension-polyfill';
 
 const message = '${message}';
 

@@ -1,15 +1,15 @@
-body > iframe#sbi-dialog-frame[data-c45ng3u9] {
+body > iframe#sbi-select-frame[data-c45ng3u9] {
   all: initial !important;
   position: fixed !important;
-  top: 0 !important;
-  right: 0 !important;
   bottom: 0 !important;
-  left: 0 !important;
+  left: 50% !important;
   width: 100% !important;
-  height: 100% !important;
+  max-width: 602px !important;
+  height: 48px !important;
+  transform: translateX(-50%) !important;
   z-index: 2147483647 !important;
 }
 
-body > iframe#sbi-dialog-frame.sbi-dialog-frame-hidden[data-c45ng3u9] {
+body > iframe#sbi-select-frame.sbi-frame-hidden[data-c45ng3u9] {
   visibility: hidden !important;
 }

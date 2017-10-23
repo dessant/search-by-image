@@ -7,6 +7,7 @@ const gulp = require('gulp');
 const gulpSeq = require('gulp-sequence');
 const webpack = require('webpack');
 const htmlmin = require('gulp-htmlmin');
+const svgmin = require('gulp-svgmin');
 const babel = require('gulp-babel');
 const postcss = require('gulp-postcss');
 const gulpif = require('gulp-if');
@@ -59,14 +60,28 @@ gulp.task('html', function() {
 
 gulp.task('css', function() {
   return gulp
-    .src(['src/select/frame.css', 'src/content/engines/style.css'], {base: '.'})
+    .src(
+      [
+        'src/select/frame.css',
+        'src/select/pointer.css',
+        'src/confirm/frame.css',
+        'src/content/engines/style.css'
+      ],
+      {
+        base: '.'
+      }
+    )
     .pipe(postcss())
     .pipe(gulp.dest('dist'));
 });
 
 gulp.task('icons', async function() {
   ensureDirSync('dist/src/icons/app');
-  const svgPaths = await recursiveReadDir('src/icons', ['*.!(svg)']);
+  ensureDirSync('dist/src/icons/engines');
+  const svgPaths = await recursiveReadDir('src/icons', [
+    'src/icons/@(modes|browse)/*',
+    '*.!(svg)'
+  ]);
   for (svgPath of svgPaths) {
     const pngBuffer = await svg2png(readFileSync(svgPath));
     writeFileSync(
@@ -81,6 +96,11 @@ gulp.task('icons', async function() {
       .pipe(imagemin())
       .pipe(gulp.dest(''));
   }
+
+  gulp
+    .src('src/icons/@(modes|browse)/*.svg', {base: '.'})
+    .pipe(gulpif(isProduction, svgmin()))
+    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('fonts', function() {
@@ -95,7 +115,7 @@ gulp.task('fonts', function() {
 
 gulp.task('locale', function() {
   const customTargets = ['firefox'];
-  if (customTargets.indexOf(targetEnv) !== -1) {
+  if (customTargets.includes(targetEnv)) {
     const localesRootDir = path.join(__dirname, 'src/_locales');
     const localeDirs = readdirSync(localesRootDir).filter(function(file) {
       return lstatSync(path.join(localesRootDir, file)).isDirectory();
@@ -127,16 +147,21 @@ gulp.task('manifest', function() {
         fileName: 'manifest.json',
         jsonSpace: '  ',
         edit: (parsedJson, file) => {
-          if (['chrome', 'opera'].indexOf(targetEnv) !== -1) {
+          if (['chrome', 'opera'].includes(targetEnv)) {
             delete parsedJson.applications;
+            delete parsedJson.browser_action.browser_style;
             delete parsedJson.options_ui.browser_style;
+            const urlPatterns = parsedJson.content_scripts[0].matches;
+            parsedJson.content_scripts[0].matches = urlPatterns.filter(
+              item => item !== 'file:///*'
+            );
           }
 
-          if (['firefox', 'chrome'].indexOf(targetEnv) !== -1) {
+          if (['chrome', 'firefox'].includes(targetEnv)) {
             delete parsedJson.minimum_opera_version;
           }
 
-          if (['firefox', 'opera'].indexOf(targetEnv) !== -1) {
+          if (['firefox', 'opera'].includes(targetEnv)) {
             delete parsedJson.minimum_chrome_version;
           }
 
@@ -154,7 +179,7 @@ gulp.task('manifest', function() {
 });
 
 gulp.task('copy', function() {
-  gulp.src(['LICENSE']).pipe(gulp.dest('dist'));
+  gulp.src(['LICENSE', 'src*/icons/**/*.png']).pipe(gulp.dest('dist'));
 });
 
 gulp.task(

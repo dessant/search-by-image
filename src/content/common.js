@@ -7,7 +7,7 @@ function getXHR() {
 }
 
 async function onMessage(request, uploadFunc) {
-  if (request.id === 'imgDataResponse') {
+  if (request.id === 'imageDataResponse') {
     if (request.hasOwnProperty('error')) {
       chrome.runtime.sendMessage({
         id: 'notification',
@@ -19,6 +19,12 @@ async function onMessage(request, uploadFunc) {
         if (request.imgData.isBlob) {
           const rsp = await fetch(request.imgData.objectUrl);
           params.blob = await rsp.blob();
+        }
+        if (request.imgData.receiptKey) {
+          chrome.runtime.sendMessage({
+            id: 'imageUploadReceipt',
+            receiptKey: request.imgData.receiptKey
+          });
         }
         await uploadFunc(params);
       } catch (e) {
@@ -35,7 +41,6 @@ async function onMessage(request, uploadFunc) {
 function initUpload(upload, dataKey) {
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     onMessage(request, upload);
-    sendResponse(); // prevent Chrome error
   });
-  chrome.runtime.sendMessage({id: 'imgDataRequest', dataKey});
+  chrome.runtime.sendMessage({id: 'imageDataRequest', dataKey});
 }

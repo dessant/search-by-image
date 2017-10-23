@@ -1,85 +1,66 @@
 <template>
-<v-dialog id="sbi-dialog-select"
-    :title="getText('dialogTitle_imageSelection')"
-    :cancel-text="getText('buttonText_cancel')"
-    :scrollable="scrollableDialog"
-    :show-dialog="showDialog"
-    @cancel="showDialog = false">
-
-  <div class="mdc-grid-list">
-    <ul class="mdc-grid-list__tiles">
-      <li class="mdc-grid-tile" v-for="url in imgUrls">
-        <div class="mdc-grid-tile__primary">
-          <div class="mdc-grid-tile__primary-content tile-container"
-              tabindex="0"
-              :data-index="imgUrls.indexOf(url)"
-              @click="onSelection($event)"
-              @keyup.enter="onSelection($event)">
-            <img class="tile" :src="url.data"/>
-          </div>
-        </div>
-      </li>
-    </ul>
+<div id="app">
+  <div ref="snackbar" class="mdc-snackbar" :class="classes"
+       aria-live="assertive"
+       aria-atomic="true"
+       aria-hidden="showSelect">
+    <div class="mdc-snackbar__text">
+      {{ getText('snackbarMessage_imageSelection') }}
+    </div>
+    <div class="mdc-snackbar__action-wrapper">
+      <button type="button" class="mdc-snackbar__action-button"
+          @click="onCancel">
+        {{ getText('buttonText_cancel') }}
+      </button>
+    </div>
   </div>
-</v-dialog>
+</div>
 </template>
 
 <script>
 import browser from 'webextension-polyfill';
+import {MDCSnackbar} from '@material/snackbar';
 
 import {getText} from 'utils/common';
 
-import Dialog from './components/Dialog';
-
 export default {
-  components: {
-    [Dialog.name]: Dialog
-  },
-
   data: function() {
     return {
-      showDialog: false,
-      scrollableDialog: false,
-      imgUrls: [],
-      menuItemId: ''
+      showSelect: false
     };
+  },
+
+  computed: {
+    classes: function() {
+      return {
+        'mdc-snackbar--active': this.showSelect
+      };
+    }
   },
 
   methods: {
     getText: getText,
 
-    onMessage: function(e) {
-      if (e.source !== window.parent) {
+    onMessage: function(request, sender, sendResponse) {
+      if (request.id === 'imageSelectionOpen') {
+        this.showSelect = true;
         return;
       }
-      if (e.data.id === 'imageSelectionDialogUpdate') {
-        this.imgUrls = e.data.imgUrls;
-        this.menuItemId = e.data.menuItemId;
-        this.scrollableDialog = this.imgUrls.length > 3;
-        this.showDialog = true;
+      if (request.id === 'imageSelectionClose') {
+        this.showSelect = false;
+        return;
       }
     },
 
-    onSelection: function(e) {
-      this.showDialog = false;
-      browser.runtime.sendMessage({
-        id: 'imageSelectionDialogSubmit',
-        imgUrl: this.imgUrls[e.target.dataset.index],
-        menuItemId: this.menuItemId
-      });
+    onCancel: function() {
+      this.showSelect = false;
+      browser.runtime.sendMessage({id: 'imageSelectionCancel'});
     }
   },
 
   created: function() {
-    window.addEventListener('message', this.onMessage);
-  },
-
-  watch: {
-    showDialog: function(show) {
-      if (!show) {
-        window.parent.postMessage({id: 'imageSelectionDialogClose'}, '*');
-      }
-    }
+    browser.runtime.onMessage.addListener(this.onMessage);
+    browser.runtime.sendMessage({id: 'selectFrameId'});
   }
 };
 </script>
@@ -87,41 +68,24 @@ export default {
 <style lang="scss">
 $mdc-theme-primary: #1abc9c;
 
-@import "@material/grid-list/mdc-grid-list";
+@import '@material/snackbar/mdc-snackbar';
+@import '@material/theme/mixins';
 
-.tile-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-}
-
-.tile-container:focus {
-  outline: 0;
-}
-
-.tile-container::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+html,
+body {
   width: 100%;
   height: 100%;
-  opacity: 0;
-  background-color: #bdc3c7;
-  transition: all .3s ease;
 }
 
-.tile-container:focus::after,
-.tile-container:hover::after {
-  opacity: .16;
+body {
+  margin: 0;
 }
 
-.tile {
-  max-width: 94%;
-  max-height: 94%;
-  object-fit: scale-down;
+#app {
+  height: 100%;
+}
+
+.mdc-snackbar__action-button {
+  @include mdc-theme-prop(color, primary);
 }
 </style>

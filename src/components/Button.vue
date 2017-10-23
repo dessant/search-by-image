@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import {MDCRipple} from '@material/ripple';
+
 export default {
   name: 'v-button',
   props: {
@@ -15,11 +17,15 @@ export default {
       type: Boolean,
       default: false
     },
-    primary: {
+    raised: {
       type: Boolean,
       default: false
     },
-    accent: {
+    unelevated: {
+      type: Boolean,
+      default: false
+    },
+    stroked: {
       type: Boolean,
       default: false
     },
@@ -27,26 +33,32 @@ export default {
       type: Boolean,
       default: false
     },
-    raised: {
-      type: Boolean,
-      default: false
-    },
     compact: {
       type: Boolean,
       default: false
+    },
+    ripple: {
+      type: Boolean,
+      default: true
     }
   },
 
   data: function() {
     return {
       classes: {
-        'mdc-button--primary': this.primary,
-        'mdc-button--accent': this.accent,
-        'mdc-button--dense': this.dense,
         'mdc-button--raised': this.raised,
+        'mdc-button--unelevated': this.unelevated,
+        'mdc-button--stroked': this.stroked,
+        'mdc-button--dense': this.dense,
         'mdc-button--compact': this.compact
       }
     };
+  },
+
+  mounted: function() {
+    if (this.ripple) {
+      MDCRipple.attachTo(this.$el);
+    }
   }
 };
 </script>

@@ -16,11 +16,46 @@ function showNotification(messageId, type = 'info') {
     type: 'basic',
     title: getText('extensionName'),
     message: getText(messageId),
-    iconUrl: '/src/icons/app-icon-48.png'
+    iconUrl: '/src/icons/app/app-icon-48.png'
   });
+}
+
+function getOptionLabels(data, scope = 'optionValue') {
+  const labels = {};
+  for (const [group, items] of Object.entries(data)) {
+    labels[group] = [];
+    items.forEach(function(value) {
+      labels[group].push({
+        id: value,
+        label: getText(`${scope}_${group}_${value}`)
+      });
+    });
+  }
+  return labels;
+}
+
+function validateUrl(url) {
+  if (url.length > 2048) {
+    return;
+  }
+
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch (e) {
+    return;
+  }
+
+  if (!/^(?:https?|ftp):$/i.test(parsedUrl.protocol)) {
+    return;
+  }
+
+  return true;
 }
 
 module.exports = {
   getEnabledEngines,
-  showNotification
+  showNotification,
+  getOptionLabels,
+  validateUrl
 };

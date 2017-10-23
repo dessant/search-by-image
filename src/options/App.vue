@@ -10,7 +10,7 @@
     <v-draggable class="option-wrap" :list="options.engines">
       <div class="option" v-for="engine in options.engines" :key="engine.id">
         <v-form-field :input-id="engine"
-            :label="getText(`engineName_${engine}_full`)">
+            :label="getText(`optionTitle_${engine}`)">
           <v-checkbox :id="engine" :checked="engineEnabled(engine)"
               @change="setEngineState(engine, $event)">
           </v-checkbox>
@@ -21,14 +21,46 @@
 
   <div class="section">
     <div class="section-title" v-once>
-      {{ getText('optionSectionTitle_misc') }}
+      {{ getText('optionSectionTitle_contextmenu') }}
     </div>
     <div class="option-wrap">
+      <div class="option">
+        <v-form-field input-id="sic"
+            :label="getText('optionTitle_showInContextMenu')">
+          <v-switch id="sic" v-model="options.showInContextMenu"></v-switch>
+        </v-form-field>
+      </div>
       <div class="option">
         <v-select v-model="options.searchAllEnginesContextMenu"
             :options="selectOptions.searchAllEnginesContextMenu">
         </v-select>
       </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title" v-once>
+      {{ getText('optionSectionTitle_toolbar') }}
+    </div>
+    <div class="option-wrap">
+      <div class="option">
+        <v-select v-model="options.searchModeAction"
+            :options="selectOptions.searchModeAction">
+        </v-select>
+      </div>
+      <div class="option">
+        <v-select v-model="options.searchAllEnginesAction"
+            :options="selectOptions.searchAllEnginesAction">
+        </v-select>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title" v-once>
+      {{ getText('optionSectionTitle_misc') }}
+    </div>
+    <div class="option-wrap">
       <div class="option">
         <v-form-field input-id="tib"
             :label="getText('optionTitle_tabInBackgound')">
@@ -36,15 +68,15 @@
         </v-form-field>
       </div>
       <div class="option">
-        <v-form-field input-id="lg"
-            :label="getText('optionTitle_localGoogle')">
-          <v-switch id="lg" v-model="options.localGoogle"></v-switch>
-        </v-form-field>
-      </div>
-      <div class="option">
         <v-form-field input-id="ifp"
             :label="getText('optionTitle_imgFullParse')">
           <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
+        </v-form-field>
+      </div>
+      <div class="option">
+        <v-form-field input-id="lg"
+            :label="getText('optionTitle_localGoogle')">
+          <v-switch id="lg" v-model="options.localGoogle"></v-switch>
         </v-form-field>
       </div>
     </div>
@@ -59,13 +91,13 @@ import _ from 'lodash';
 import draggable from 'vuedraggable';
 
 import storage from 'storage/storage';
+import {getOptionLabels} from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
-
-import Checkbox from './components/Checkbox';
-import Switch from './components/Switch';
-import Select from './components/Select';
-import FormField from './components/FormField';
+import Checkbox from 'components/Checkbox';
+import Switch from 'components/Switch';
+import Select from 'components/Select';
+import FormField from 'components/FormField';
 
 export default {
   components: {
@@ -77,35 +109,27 @@ export default {
   },
 
   data: function() {
-    const data = {
+    return {
       dataLoaded: false,
+
+      selectOptions: getOptionLabels({
+        searchAllEnginesContextMenu: ['main', 'sub', 'false'],
+        searchAllEnginesAction: ['main', 'sub', 'false'],
+        searchModeAction: ['select', 'upload', 'url']
+      }),
 
       options: {
         engines: [],
         disabledEngines: [],
+        showInContextMenu: false,
         searchAllEnginesContextMenu: '',
+        searchAllEnginesAction: '',
         tabInBackgound: false,
         localGoogle: false,
-        imgFullParse: false
+        imgFullParse: false,
+        searchModeAction: ''
       }
     };
-
-    const selectOptionsData = {
-      searchAllEnginesContextMenu: ['main', 'sub', 'false']
-    };
-    const selectOptions = {};
-    for (const [option, values] of Object.entries(selectOptionsData)) {
-      selectOptions[option] = [];
-      values.forEach(function(value) {
-        selectOptions[option].push({
-          id: value,
-          label: getText(`optionValue_${option}_${value}`)
-        });
-      });
-    }
-    data.selectOptions = selectOptions;
-
-    return data;
   },
 
   methods: {
@@ -137,9 +161,10 @@ export default {
       });
     }
 
-    document.title = `${getText('pageTitle_options')} - ${getText(
-      'extensionName'
-    )}`;
+    document.title = getText('pageTitle', [
+      getText('pageTitle_options'),
+      getText('extensionName')
+    ]);
 
     this.dataLoaded = true;
   }
