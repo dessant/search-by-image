@@ -76,6 +76,7 @@ export default {
 
   created: function() {
     browser.runtime.onMessage.addListener(this.onMessage);
+    browser.runtime.sendMessage({id: 'confirmFrameId'});
   }
 };
 </script>
