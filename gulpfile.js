@@ -13,18 +13,12 @@ const postcss = require('gulp-postcss');
 const gulpif = require('gulp-if');
 const del = require('del');
 const jsonMerge = require('gulp-merge-json');
-const jsBeautify = require('gulp-jsbeautifier');
+const jsonmin = require('gulp-jsonmin');
 const svg2png = require('svg2png');
 const imagemin = require('gulp-imagemin');
 
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
-
-const jsBeautifyOptions = {
-  indent_size: 2,
-  preserve_newlines: false,
-  end_with_newline: true
-};
 
 gulp.task('clean', function() {
   return del(['dist']);
@@ -114,29 +108,35 @@ gulp.task('fonts', function() {
 });
 
 gulp.task('locale', function() {
-  const customTargets = ['firefox'];
-  if (customTargets.includes(targetEnv)) {
-    const localesRootDir = path.join(__dirname, 'src/_locales');
-    const localeDirs = readdirSync(localesRootDir).filter(function(file) {
-      return lstatSync(path.join(localesRootDir, file)).isDirectory();
-    });
-    localeDirs.forEach(function(localeDir) {
-      const localePath = path.join(localesRootDir, localeDir);
-      gulp
-        .src([
-          path.join(localePath, 'messages.json'),
-          path.join(localePath, `messages-${targetEnv}.json`)
-        ])
-        .pipe(jsonMerge({fileName: 'messages.json'}))
-        .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
-        .pipe(gulp.dest(path.join('dist/_locales', localeDir)));
-    });
-  } else {
+  const localesRootDir = path.join(__dirname, 'src/_locales');
+  const localeDirs = readdirSync(localesRootDir).filter(function(file) {
+    return lstatSync(path.join(localesRootDir, file)).isDirectory();
+  });
+  localeDirs.forEach(function(localeDir) {
+    const localePath = path.join(localesRootDir, localeDir);
     gulp
-      .src('src/_locales/**/messages.json')
-      .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
-      .pipe(gulp.dest('dist/_locales'));
-  }
+      .src([
+        path.join(localePath, 'messages.json'),
+        path.join(localePath, `messages-${targetEnv}.json`)
+      ])
+      .pipe(
+        jsonMerge({
+          fileName: 'messages.json',
+          edit: (parsedJson, file) => {
+            if (isProduction) {
+              for (let [key, value] of Object.entries(parsedJson)) {
+                if (value.hasOwnProperty('description')) {
+                  delete parsedJson[key].description;
+                }
+              }
+            }
+            return parsedJson;
+          }
+        })
+      )
+      .pipe(gulpif(isProduction, jsonmin()))
+      .pipe(gulp.dest(path.join('dist/_locales', localeDir)));
+  });
 });
 
 gulp.task('manifest', function() {
@@ -145,7 +145,6 @@ gulp.task('manifest', function() {
     .pipe(
       jsonMerge({
         fileName: 'manifest.json',
-        jsonSpace: '  ',
         edit: (parsedJson, file) => {
           if (['chrome', 'opera'].includes(targetEnv)) {
             delete parsedJson.applications;
@@ -174,7 +173,7 @@ gulp.task('manifest', function() {
         }
       })
     )
-    .pipe(gulpif(isProduction, jsBeautify(jsBeautifyOptions)))
+    .pipe(gulpif(isProduction, jsonmin()))
     .pipe(gulp.dest('dist'));
 });
 

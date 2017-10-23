@@ -65,7 +65,7 @@
     "gulp-htmlmin": "^3.0.0",
     "gulp-if": "^2.0.2",
     "gulp-imagemin": "^3.4.0",
-    "gulp-jsbeautifier": "^2.1.1",
+    "gulp-jsonmin": "^1.1.0",
     "gulp-merge-json": "^1.2.0",
     "gulp-postcss": "^7.0.0",
     "gulp-sequence": "^0.4.6",
