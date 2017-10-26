@@ -209,38 +209,82 @@ async function searchImage(img, engine, sourceTabIndex, receiptKey = null) {
 
 async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
   const tabUrl = await getTabUrl(imgData, engine, options);
-  const tab = await createTab(tabUrl, tabIndex, tabActive);
 
-  if (imgData.dataKey) {
-    const cssNeeded = ['bing'];
-    if (cssNeeded.includes(engine)) {
-      browser.tabs.insertCSS(tab.id, {
-        runAt: 'document_start',
-        file: '/src/content/engines/style.css'
-      });
-    }
+  let tabId;
+  let loadedBingUrl;
+  let bingRemoveCallbacks;
+  const execEngines = ['bing', 'yandex', 'baidu', 'sogou'];
+  if (imgData.dataKey && execEngines.includes(engine)) {
+    const tabUpdateCallback = async function(eventTabId, changes, tab) {
+      if (eventTabId === tabId && tab.status === 'complete') {
+        if (engine === 'bing') {
+          if (loadedBingUrl) {
+            if (loadedBingUrl !== tab.url) {
+              removeCallbacks();
+              bingRemoveCallbacks();
+            }
+            return;
+          }
+          loadedBingUrl = tab.url;
+        } else {
+          removeCallbacks();
+        }
 
-    const commonNeeded = ['bing', 'yandex', 'baidu', 'sogou'];
-    if (commonNeeded.includes(engine)) {
-      executeFile(`/src/content/common.js`, tab.id, 0, 'document_idle');
-    }
+        execEngine(tabId, engine, imgData.dataKey);
+      }
+    };
+    const removeCallbacks = function() {
+      window.clearTimeout(timeoutId);
+      browser.tabs.onUpdated.removeListener(tabUpdateCallback);
+    };
+    const timeoutId = window.setTimeout(removeCallbacks, 120000); // 2 minutes
 
-    const supportedEngines = ['bing', 'yandex', 'baidu', 'sogou'];
-    if (supportedEngines.includes(engine)) {
-      executeCode(`var dataKey = '${imgData.dataKey}';`, tab.id);
-      executeFile(
-        `/src/content/engines/${engine}.js`,
-        tab.id,
-        0,
-        'document_idle'
+    browser.tabs.onUpdated.addListener(tabUpdateCallback);
+
+    // Bing may reload itself right after the page has finished loading,
+    // breaking the injected scripts. Requests to the current URL
+    // are blocked for a short period to prevent this.
+    if (engine === 'bing') {
+      const bingRequestCallback = function(details) {
+        if (details.tabId === tabId && details.url === loadedBingUrl) {
+          return {cancel: true};
+        }
+      };
+      bingRemoveCallbacks = function() {
+        window.clearTimeout(bingTimeoutId);
+        browser.webRequest.onBeforeRequest.removeListener(bingRequestCallback);
+      };
+      const bingTimeoutId = window.setTimeout(bingRemoveCallbacks, 180000); // 3 minutes
+
+      browser.webRequest.onBeforeRequest.addListener(
+        bingRequestCallback,
+        {
+          types: ['main_frame'],
+          urls: ['https://www.bing.com/*']
+        },
+        ['blocking']
       );
     }
   }
+
+  const tab = await createTab(tabUrl, tabIndex, tabActive);
+  tabId = tab.id;
+}
+
+async function execEngine(tabId, engine, dataKey) {
+  if (['bing'].includes(engine)) {
+    browser.tabs.insertCSS(tabId, {
+      runAt: 'document_start',
+      file: '/src/content/engines/style.css'
+    });
+  }
+
+  executeCode(`var dataKey = '${dataKey}';`, tabId);
+  executeFile(`/src/content/common.js`, tabId);
+  executeFile(`/src/content/engines/${engine}.js`, tabId, 0, 'document_idle');
 }
 
 async function searchClickTarget(engine, tabId, tabIndex, frameId) {
-  const [probe] = await executeCode('frameStore;', tabId, frameId);
-
   const {imgFullParse} = await storage.get('imgFullParse', 'sync');
   await executeCode(
     `frameStore.options.imgFullParse = ${imgFullParse};`,
@@ -248,9 +292,10 @@ async function searchClickTarget(engine, tabId, tabIndex, frameId) {
     frameId
   );
 
+  const [probe] = await executeCode('frameStore;', tabId, frameId);
   if (!probe.modules.parse) {
-    await executeFile('/src/content/parse.js', tabId, frameId);
     await rememberExecution('parse', tabId, frameId);
+    await executeFile('/src/content/parse.js', tabId, frameId);
   }
 
   let [images] = await executeCode('parseDocument();', tabId, frameId);
