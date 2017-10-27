@@ -161,11 +161,16 @@ async function getTabUrl(imgData, engine, options) {
   return tabUrl;
 }
 
-async function searchImage(img, engine, sourceTabIndex, receiptKey = null) {
+async function searchImage(
+  img,
+  engine,
+  tabIndex,
+  tabActive = true,
+  receiptKey = null
+) {
   const options = await storage.get(optionKeys, 'sync');
 
-  let tabIndex = sourceTabIndex + 1;
-  let tabActive = !options.tabInBackgound;
+  tabActive = !options.tabInBackgound && tabActive;
   let dataKey = '';
   const imgData = {
     isBlob: _.has(img, 'objectUrl') || img.data.startsWith('data:')
@@ -198,13 +203,16 @@ async function searchImage(img, engine, sourceTabIndex, receiptKey = null) {
 
   if (engine === 'allEngines') {
     for (const engine of await getEnabledEngines(options)) {
-      await searchEngine(imgData, engine, options, tabIndex, tabActive);
       tabIndex = tabIndex + 1;
+      await searchEngine(imgData, engine, options, tabIndex, tabActive);
       tabActive = false;
     }
   } else {
+    tabIndex = tabIndex + 1;
     await searchEngine(imgData, engine, options, tabIndex, tabActive);
   }
+
+  return tabIndex;
 }
 
 async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
@@ -508,8 +516,17 @@ async function onMessage(request, sender, sendResponse) {
         browser.tabs.remove(tabId);
       }
     }, 120000); // 2 minutes
+    let tabIndex = sender.tab.index;
+    let tabActive = true;
     for (let img of request.images) {
-      await searchImage(img, request.engine, sender.tab.index, receiptKey);
+      tabIndex = await searchImage(
+        img,
+        request.engine,
+        tabIndex,
+        tabActive,
+        receiptKey
+      );
+      tabActive = false;
     }
     return;
   }
