@@ -171,6 +171,8 @@ async function searchImage(
   const options = await storage.get(optionKeys, 'sync');
 
   tabActive = !options.tabInBackgound && tabActive;
+  let engines =
+    engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
   let dataKey = '';
   const imgData = {
     isBlob: _.has(img, 'objectUrl') || img.data.startsWith('data:')
@@ -186,30 +188,35 @@ async function searchImage(
     }
     if (!_.has(img, 'objectUrl')) {
       imgData.objectUrl = URL.createObjectURL(dataUriToBlob(img.data));
+      imgData.receiptKey = storeData({
+        total: engines.length,
+        receipts: 0,
+        objectUrl: imgData.objectUrl
+      });
+
+      window.setTimeout(function() {
+        const newDelete = deleteData(imgData.receiptKey);
+        if (newDelete) {
+          URL.revokeObjectURL(imgData.objectUrl);
+        }
+      }, 600000); // 10 minutes
     } else {
       imgData.objectUrl = img.objectUrl;
+      imgData.receiptKey = receiptKey;
     }
-    imgData.receiptKey = receiptKey;
+
     imgData.dataKey = storeData(imgData);
     window.setTimeout(function() {
-      const newDelete = deleteData(imgData.dataKey);
-      if (newDelete && imgData.isBlob && !imgData.receiptKey) {
-        URL.revokeObjectURL(imgData.objectUrl);
-      }
-    }, 120000); // 2 minutes
+      deleteData(imgData.dataKey);
+    }, 600000); // 10 minutes
   } else {
     imgData.url = img.data;
   }
 
-  if (engine === 'allEngines') {
-    for (const engine of await getEnabledEngines(options)) {
-      tabIndex = tabIndex + 1;
-      await searchEngine(imgData, engine, options, tabIndex, tabActive);
-      tabActive = false;
-    }
-  } else {
+  for (const engine of engines) {
     tabIndex = tabIndex + 1;
     await searchEngine(imgData, engine, options, tabIndex, tabActive);
+    tabActive = false;
   }
 
   return tabIndex;
@@ -511,11 +518,8 @@ async function onMessage(request, sender, sendResponse) {
       tabId
     });
     window.setTimeout(function() {
-      const newDelete = deleteData(receiptKey);
-      if (newDelete) {
-        browser.tabs.remove(tabId);
-      }
-    }, 120000); // 2 minutes
+      deleteData(receiptKey);
+    }, 600000); // 10 minutes
     let tabIndex = sender.tab.index;
     let tabActive = true;
     for (let img of request.images) {
@@ -537,7 +541,11 @@ async function onMessage(request, sender, sendResponse) {
       receiptData.receipts += 1;
       if (receiptData.receipts === receiptData.total) {
         deleteData(request.receiptKey);
-        browser.tabs.remove(receiptData.tabId);
+        if (receiptData.hasOwnProperty('tabId')) {
+          browser.tabs.remove(receiptData.tabId);
+        } else {
+          URL.revokeObjectURL(receiptData.objectUrl);
+        }
       }
     }
     return;
