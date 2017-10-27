@@ -61,6 +61,15 @@ export default {
       const images = [];
       const files = source === 'input' ? e.target.files : e.dataTransfer.files;
 
+      if (files.length > 3) {
+        browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_invalidImageCount'
+        });
+        this.dropState = false;
+        return;
+      }
+
       for (let file of files) {
         if (file.type.startsWith('image/')) {
           images.push({
@@ -89,9 +98,7 @@ export default {
         });
       }
 
-      if (source === 'drop') {
-        this.dropState = false;
-      }
+      this.dropState = false;
     }
   },
 
