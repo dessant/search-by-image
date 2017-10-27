@@ -28,7 +28,7 @@ async function onMessage(request, uploadFunc) {
         }
         await uploadFunc(params);
       } catch (e) {
-        console.error(e);
+        console.error(e.message);
         chrome.runtime.sendMessage({
           id: 'notification',
           messageId: 'error_internalError'
