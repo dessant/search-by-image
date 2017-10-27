@@ -273,15 +273,15 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
 
 async function execEngine(tabId, engine, dataKey) {
   if (['bing'].includes(engine)) {
-    browser.tabs.insertCSS(tabId, {
+    await browser.tabs.insertCSS(tabId, {
       runAt: 'document_start',
       file: '/src/content/engines/style.css'
     });
   }
 
-  executeCode(`var dataKey = '${dataKey}';`, tabId);
-  executeFile(`/src/content/common.js`, tabId);
-  executeFile(`/src/content/engines/${engine}.js`, tabId, 0, 'document_idle');
+  await executeCode(`var dataKey = '${dataKey}';`, tabId);
+  await executeFile(`/src/content/common.js`, tabId);
+  await executeFile(`/src/content/engines/${engine}.js`, tabId);
 }
 
 async function searchClickTarget(engine, tabId, tabIndex, frameId) {
