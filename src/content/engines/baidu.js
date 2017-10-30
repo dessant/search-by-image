@@ -1,8 +1,5 @@
-function showResults() {
-  const rsp = JSON.parse(this.responseText);
-  if (rsp.errno !== 0) {
-    return;
-  }
+function showResults(xhr) {
+  const rsp = JSON.parse(xhr.responseText);
   const url = `http://image.baidu.com/pcdutu?queryImageUrl=${rsp.url}&querySign=${rsp.querySign}&fm=index&uptype=upload_pc&result=result_camera`;
 
   window.location.replace(url);
@@ -18,10 +15,12 @@ async function upload({blob, imgData}) {
   data.append('fm', 'index');
 
   const xhr = getXHR();
-  xhr.addEventListener('load', showResults);
+  xhr.addEventListener('load', function() {
+    uploadCallback(this, showResults, 'baidu');
+  });
   xhr.open('POST', url);
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
   xhr.send(data);
 }
 
-initUpload(upload, dataKey);
+initUpload(upload, dataKey, 'baidu');

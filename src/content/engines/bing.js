@@ -63,4 +63,4 @@ async function upload({blob, imgData}) {
   }
 }
 
-initUpload(upload, dataKey);
+initUpload(upload, dataKey, 'bing');

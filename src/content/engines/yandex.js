@@ -2,15 +2,13 @@ function gcd(a, b) {
   return b == 0 ? a : gcd(b, a % b);
 }
 
-function showResults() {
+function showResults(xhr) {
   const match = /(?:.*&)?cbir_id=([^&]*)(?:&.*)?/.exec(
-    JSON.parse(this.responseText).blocks[0].params.url
+    JSON.parse(xhr.responseText).blocks[0].params.url
   );
-  if (match) {
-    window.location.replace(
-      `https://yandex.com/images/search?cbir_id=${match[1]}&rpt=imageview&from=`
-    );
-  }
+  window.location.replace(
+    `https://yandex.com/images/search?cbir_id=${match[1]}&rpt=imageview&from=`
+  );
 }
 
 async function upload({blob, imgData}) {
@@ -32,7 +30,9 @@ async function upload({blob, imgData}) {
   data.append('upfile', blob, imgData.filename);
 
   const xhr = getXHR();
-  xhr.addEventListener('load', showResults);
+  xhr.addEventListener('load', function() {
+    uploadCallback(this, showResults, 'yandex');
+  });
   xhr.open('POST', url);
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
   xhr.setRequestHeader(
@@ -42,4 +42,4 @@ async function upload({blob, imgData}) {
   xhr.send(data);
 }
 
-initUpload(upload, dataKey);
+initUpload(upload, dataKey, 'yandex');

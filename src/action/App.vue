@@ -109,7 +109,7 @@ export default {
       if (this.searchModeAction === 'url') {
         imageUrl = this.imageUrl.trim();
         if (!imageUrl || !validateUrl(imageUrl)) {
-          showNotification('error_invalidImageUrl');
+          showNotification({messageId: 'error_invalidImageUrl'});
           return;
         }
       }

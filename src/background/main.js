@@ -316,12 +316,12 @@ async function searchClickTarget(engine, tabId, tabIndex, frameId) {
   let [images] = await executeCode('parseDocument();', tabId, frameId);
 
   if (!images) {
-    await showNotification('error_InternalError');
+    await showNotification({messageId: 'error_InternalError'});
     return;
   }
 
   if (images.length === 0) {
-    await showNotification('error_imageNotFound');
+    await showNotification({messageId: 'error_imageNotFound'});
     return;
   }
 
@@ -364,7 +364,7 @@ async function onContextMenuItemClick(info, tab) {
     if (info.srcUrl) {
       await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
-      await showNotification('error_scriptsNotAllowed');
+      await showNotification({messageId: 'error_scriptsNotAllowed'});
     }
     return;
   }
@@ -378,7 +378,7 @@ async function onContextMenuItemClick(info, tab) {
     if (info.srcUrl) {
       await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
-      await showNotification('error_imageNotFound');
+      await showNotification({messageId: 'error_imageNotFound'});
     }
     return;
   }
@@ -399,12 +399,12 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
 
   if (searchMode === 'select') {
     if (tabUrl.startsWith('file:') && targetEnv !== 'firefox') {
-      await showNotification('error_invalidImageUrl_fileUrl');
+      await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
       return;
     }
 
     if (!await scriptsAllowed(tabId)) {
-      await showNotification('error_scriptsNotAllowed');
+      await showNotification({messageId: 'error_scriptsNotAllowed'});
       return;
     }
 
@@ -454,14 +454,14 @@ async function onActionButtonClick(tab) {
   );
 
   if (options.searchModeAction === 'url' && targetEnv !== 'firefox') {
-    await showNotification('error_invalidSearchMode_url');
+    await showNotification({messageId: 'error_invalidSearchMode_url'});
     return;
   }
 
   const enEngines = await getEnabledEngines(options);
 
   if (enEngines.length === 0) {
-    await showNotification('error_allEnginesDisabled');
+    await showNotification({messageId: 'error_allEnginesDisabled'});
     return;
   }
 
@@ -620,7 +620,12 @@ async function onMessage(request, sender, sendResponse) {
   }
 
   if (request.id === 'notification') {
-    showNotification(request.messageId, request.type);
+    showNotification({
+      message: request.message,
+      messageId: request.messageId,
+      title: request.title,
+      type: request.type
+    });
     return;
   }
 

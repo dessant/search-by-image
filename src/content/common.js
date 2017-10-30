@@ -6,21 +6,41 @@ function getXHR() {
   }
 }
 
-async function onMessage(request, uploadFunc) {
+function uploadCallback(xhr, callback, engine) {
+  try {
+    callback(xhr);
+  } catch (e) {
+    chrome.runtime.sendMessage({
+      id: 'notification',
+      message: chrome.i18n.getMessage(
+        'error_engine',
+        chrome.i18n.getMessage(`engineName_${engine}`)
+      ),
+      type: `${engine}Error`
+    });
+    throw e;
+  }
+}
+
+async function onMessage(request, uploadFunc, engine) {
   if (request.id === 'imageDataResponse') {
     if (request.hasOwnProperty('error')) {
-      chrome.runtime.sendMessage({
-        id: 'notification',
-        messageId: request.error
-      });
+      if (error === 'sessionExpired') {
+        chrome.runtime.sendMessage({
+          id: 'notification',
+          message: hrome.i18n.getMessage(
+            'error_sessionExpired',
+            chrome.i18n.getMessage(`engineName_${engine}`)
+          ),
+          type: `${engine}Error`
+        });
+      }
     } else {
       try {
         const params = {imgData: request.imgData};
         if (request.imgData.isBlob) {
           const rsp = await fetch(request.imgData.objectUrl);
           params.blob = await rsp.blob();
-        }
-        if (request.imgData.receiptKey) {
           chrome.runtime.sendMessage({
             id: 'imageUploadReceipt',
             receiptKey: request.imgData.receiptKey
@@ -28,19 +48,23 @@ async function onMessage(request, uploadFunc) {
         }
         await uploadFunc(params);
       } catch (e) {
-        console.error(e.message);
         chrome.runtime.sendMessage({
           id: 'notification',
-          messageId: 'error_internalError'
+          message: chrome.i18n.getMessage(
+            'error_engine',
+            chrome.i18n.getMessage(`engineName_${engine}`)
+          ),
+          type: `${engine}Error`
         });
+        throw e;
       }
     }
   }
 }
 
-function initUpload(upload, dataKey) {
+function initUpload(upload, dataKey, engine) {
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    onMessage(request, upload);
+    onMessage(request, upload, engine);
   });
   chrome.runtime.sendMessage({id: 'imageDataRequest', dataKey});
 }

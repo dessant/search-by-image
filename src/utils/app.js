@@ -11,11 +11,17 @@ async function getEnabledEngines(options) {
   return _.difference(options.engines, options.disabledEngines);
 }
 
-function showNotification(messageId, type = 'info') {
+function showNotification({message, messageId, title, type = 'info'}) {
+  if (!title) {
+    title = getText('extensionName');
+  }
+  if (messageId) {
+    message = getText(messageId);
+  }
   return browser.notifications.create(`sbi-notification-${type}`, {
     type: 'basic',
-    title: getText('extensionName'),
-    message: getText(messageId),
+    title: title,
+    message: message,
     iconUrl: '/src/icons/app/icon-48.png'
   });
 }

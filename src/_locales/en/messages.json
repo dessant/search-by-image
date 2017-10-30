@@ -10,6 +10,41 @@
     "description": "Description of the extension."
   },
 
+  "engineName_google": {
+    "message": "Google",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_bing": {
+    "message": "Bing",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_yandex": {
+    "message": "Yandex",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_baidu": {
+    "message": "Baidu",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_tineye": {
+    "message": "TinEye",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_sogou": {
+    "message": "Sogou",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_allEngines": {
+    "message": "all search engines",
+    "description": "Name of the search engine."
+  },
+
   "actionTitle_allEngines": {
     "message": "Search all engines for image",
     "description": "Title of the action."
@@ -284,8 +319,15 @@
   },
 
   "error_sessionExpired": {
-    "message": "The session has expired. Try searching for the image again.",
-    "description": "Error message."
+    "message":
+      "The session has expired. Try searching for the image on $ENGINE$ again.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
   },
 
   "error_invalidImageUrl": {
@@ -325,6 +367,17 @@
     "message":
       "Select fewer images. Up to three images can be uploaded at once.",
     "description": "Error message."
+  },
+
+  "error_engine": {
+    "message": "Something went wrong. Searching on $ENGINE$ has failed.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
   },
 
   "error_scriptsNotAllowed": {
