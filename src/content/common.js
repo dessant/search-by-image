@@ -6,6 +6,17 @@ function getXHR() {
   }
 }
 
+function largeImageNotify(engine, maxSize) {
+  chrome.runtime.sendMessage({
+    id: 'notification',
+    message: chrome.i18n.getMessage('error_invalidImageSize', [
+      chrome.i18n.getMessage(`engineName_${engine}`),
+      chrome.i18n.getMessage('unit_mb', maxSize)
+    ]),
+    type: `${engine}Error`
+  });
+}
+
 function uploadCallback(xhr, callback, engine) {
   try {
     callback(xhr);
@@ -38,15 +49,31 @@ async function onMessage(request, uploadFunc, engine) {
     } else {
       try {
         const params = {imgData: request.imgData};
+        let getImage = true;
         if (request.imgData.isBlob) {
-          const rsp = await fetch(request.imgData.objectUrl);
-          params.blob = await rsp.blob();
+          const size = request.imgData.size;
+          if (['baidu', 'sogou'].includes(engine) && size > 10 * 1024 * 1024) {
+            largeImageNotify(engine, '10');
+            getImage = false;
+          }
+          if (engine === 'yandex' && size > 8 * 1024 * 1024) {
+            largeImageNotify(engine, '8');
+            getImage = false;
+          }
+
+          if (getImage) {
+            const rsp = await fetch(request.imgData.objectUrl);
+            params.blob = await rsp.blob();
+          }
+
           chrome.runtime.sendMessage({
             id: 'imageUploadReceipt',
             receiptKey: request.imgData.receiptKey
           });
         }
-        await uploadFunc(params);
+        if (getImage) {
+          await uploadFunc(params);
+        }
       } catch (e) {
         chrome.runtime.sendMessage({
           id: 'notification',

@@ -3,6 +3,11 @@ function gcd(a, b) {
 }
 
 function showResults(xhr) {
+  if (xhr.status === 413) {
+    largeImageNotify('yandex', '8');
+    return;
+  }
+
   const match = /(?:.*&)?cbir_id=([^&]*)(?:&.*)?/.exec(
     JSON.parse(xhr.responseText).blocks[0].params.url
   );

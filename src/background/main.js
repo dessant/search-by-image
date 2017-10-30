@@ -161,13 +161,7 @@ async function getTabUrl(imgData, engine, options) {
   return tabUrl;
 }
 
-async function searchImage(
-  img,
-  engine,
-  tabIndex,
-  tabActive = true,
-  receiptKey = null
-) {
+async function searchImage(img, engine, tabIndex, tabActive = true) {
   const options = await storage.get(optionKeys, 'sync');
 
   tabActive = !options.tabInBackgound && tabActive;
@@ -175,19 +169,25 @@ async function searchImage(
     engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
   let dataKey = '';
   const imgData = {
-    isBlob: _.has(img, 'objectUrl') || img.data.startsWith('data:')
+    isBlob: img.hasOwnProperty('objectUrl') || img.data.startsWith('data:')
   };
 
   if (imgData.isBlob) {
-    if (!_.has(img, 'info.filename') || !img.info.filename) {
+    if (!img.hasOwnProperty('filename') || !img.filename) {
       const ext = _.get(imageMimeTypes, getDataUriMimeType(img.data), '');
       const filename = getRandomString(getRandomInt(5, 20));
       imgData.filename = ext ? `${filename}.${ext}` : filename;
     } else {
-      imgData.filename = img.info.filename;
+      imgData.filename = img.filename;
     }
-    if (!_.has(img, 'objectUrl')) {
-      imgData.objectUrl = URL.createObjectURL(dataUriToBlob(img.data));
+    if (img.hasOwnProperty('objectUrl')) {
+      imgData.size = img.size;
+      imgData.objectUrl = img.objectUrl;
+      imgData.receiptKey = img.receiptKey;
+    } else {
+      const blob = dataUriToBlob(img.data);
+      imgData.size = blob.size;
+      imgData.objectUrl = URL.createObjectURL(blob);
       imgData.receiptKey = storeData({
         total: engines.length,
         receipts: 0,
@@ -200,9 +200,6 @@ async function searchImage(
           URL.revokeObjectURL(imgData.objectUrl);
         }
       }, 600000); // 10 minutes
-    } else {
-      imgData.objectUrl = img.objectUrl;
-      imgData.receiptKey = receiptKey;
     }
 
     imgData.dataKey = storeData(imgData);
@@ -523,13 +520,8 @@ async function onMessage(request, sender, sendResponse) {
     let tabIndex = sender.tab.index;
     let tabActive = true;
     for (let img of request.images) {
-      tabIndex = await searchImage(
-        img,
-        request.engine,
-        tabIndex,
-        tabActive,
-        receiptKey
-      );
+      img.receiptKey = receiptKey;
+      tabIndex = await searchImage(img, request.engine, tabIndex, tabActive);
       tabActive = false;
     }
     return;

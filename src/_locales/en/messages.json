@@ -330,6 +330,33 @@
     }
   },
 
+  "error_invalidImageSize": {
+    "message":
+      "The uploaded image is too large. $ENGINE$ accepts images up to $SIZE$ in size.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "size": {
+        "content": "$2",
+        "example": "10 MB"
+      }
+    }
+  },
+
+  "unit_mb": {
+    "message": "$VALUE$ MB",
+    "description": "Unit notation.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+
   "error_invalidImageUrl": {
     "message": "The image URL is not valid.",
     "description": "Error message."

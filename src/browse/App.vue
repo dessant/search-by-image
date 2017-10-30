@@ -74,7 +74,8 @@ export default {
         if (file.type.startsWith('image/')) {
           images.push({
             objectUrl: URL.createObjectURL(file),
-            info: {filename: file.name}
+            filename: file.name,
+            size: file.size
           });
         }
       }

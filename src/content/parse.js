@@ -97,21 +97,18 @@ function parseNode(node, isLocalDoc) {
         }
       }
 
+      const {filename, ext} = getFilename(url);
+      const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
+        ? 'image/jpeg'
+        : 'image/png';
+
       cnv.width = img.naturalWidth;
       cnv.height = img.naturalHeight;
       ctx.drawImage(img, 0, 0);
-      const info = getFilename(url);
-      if (['jpg', 'jpeg', 'jpe'].includes(info.ext)) {
-        info.type = 'image/jpeg';
-      } else {
-        info.type = 'image/png';
-        info.ext = 'png';
-      }
-
-      const data = cnv.toDataURL(info.type, 1.0);
+      const data = cnv.toDataURL(type, 1.0);
       ctx.clearRect(0, 0, cnv.width, cnv.height);
 
-      urls[urls.indexOf(item)] = {data, info};
+      urls[urls.indexOf(item)] = {data, filename};
     });
   }
 

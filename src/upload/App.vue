@@ -34,18 +34,38 @@ export default {
           this.error = getText(`error_${request.error}`);
         } else {
           const params = {imgData: request.imgData};
+          let getImage = true;
           if (request.imgData.isBlob) {
-            const rsp = await fetch(request.imgData.objectUrl);
-            params.blob = await rsp.blob();
-          }
-          if (request.imgData.receiptKey) {
-            browser.runtime.sendMessage({
+            const size = request.imgData.size;
+            if (this.engine === 'google' && size > 20 * 1024 * 1024) {
+              this.error = getText('error_invalidImageSize', [
+                getText('engineName_google'),
+                getText('unit_mb', '20')
+              ]);
+              getImage = false;
+            }
+            if (this.engine === 'tineye' && size > 10 * 1024 * 1024) {
+              this.error = getText('error_invalidImageSize', [
+                getText('engineName_tineye'),
+                getText('unit_mb', '10')
+              ]);
+              getImage = false;
+            }
+
+            if (getImage) {
+              const rsp = await fetch(request.imgData.objectUrl);
+              params.blob = await rsp.blob();
+            }
+
+            await browser.runtime.sendMessage({
               id: 'imageUploadReceipt',
               receiptKey: request.imgData.receiptKey
             });
           }
 
-          await this.processImgData(params);
+          if (getImage) {
+            await this.processImgData(params);
+          }
         }
       }
     },
@@ -60,8 +80,16 @@ export default {
           method: 'POST',
           body: data
         });
-        let tabUrl = rsp.url;
 
+        if (rsp.status === 413) {
+          this.error = getText('error_invalidImageSize', [
+            getText('engineName_google'),
+            getText('unit_mb', '20')
+          ]);
+          return;
+        }
+
+        let tabUrl = rsp.url;
         const {localGoogle} = await storage.get('localGoogle', 'sync');
         if (!localGoogle) {
           tabUrl = tabUrl.replace(

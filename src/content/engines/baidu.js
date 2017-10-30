@@ -1,4 +1,9 @@
 function showResults(xhr) {
+  if (xhr.status === 413) {
+    largeImageNotify('baidu', '10');
+    return;
+  }
+
   const rsp = JSON.parse(xhr.responseText);
   const url = `http://image.baidu.com/pcdutu?queryImageUrl=${rsp.url}&querySign=${rsp.querySign}&fm=index&uptype=upload_pc&result=result_camera`;
 
