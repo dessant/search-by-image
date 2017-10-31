@@ -239,10 +239,12 @@ body {
 }
 
 .ripple-surface {
-  @include mdc-ripple-base;
-  @include mdc-ripple-bg((pseudo: "::before"));
-  @include mdc-ripple-fg((pseudo: "::after"));
+  @include mdc-ripple-surface;
+  @include mdc-ripple-radius;
+  @include mdc-ripple-color;
 
+  position: relative;
+  outline: none;
   overflow: hidden;
 }
 </style>
