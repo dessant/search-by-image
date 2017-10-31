@@ -194,17 +194,17 @@
   },
 
   "optionValue_searchModeAction_select": {
-    "message": "Browser toolbar search mode: Select",
+    "message": "Select image from browser toolbar",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeAction_upload": {
-    "message": "Browser toolbar search mode: Upload",
+    "message": "Upload image from browser toolbar",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeAction_url": {
-    "message": "Browser toolbar search mode: URL",
+    "message": "Search image URL from browser toolbar",
     "description": "Value of the option."
   },
 
