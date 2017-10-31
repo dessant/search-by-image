@@ -44,7 +44,7 @@ export default {
 </script>
 
 <style lang="scss">
-$mdc-theme-primary: #1abc9c;
+$mdc-theme-secondary: #1abc9c;
 
 @import '@material/switch/mdc-switch';
 </style>
