@@ -85,7 +85,12 @@ body {
   height: 100%;
 }
 
+.mdc-snackbar {
+  min-width: 348px !important;
+}
+
 .mdc-snackbar__action-button {
   @include mdc-theme-prop(color, primary);
+  padding-left: 24px;
 }
 </style>
