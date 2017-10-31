@@ -162,6 +162,7 @@ gulp.task('manifest', function() {
 
           if (['firefox', 'opera'].includes(targetEnv)) {
             delete parsedJson.minimum_chrome_version;
+            delete parsedJson.options_ui.open_in_tab;
           }
 
           if (targetEnv === 'firefox') {

@@ -60,7 +60,8 @@
   "options_ui": {
     "page": "src/options/index.html",
     "browser_style": false,
-    "chrome_style": false
+    "chrome_style": false,
+    "open_in_tab": true
   },
 
   "background": {
