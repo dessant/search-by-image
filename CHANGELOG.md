@@ -1,3 +1,41 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="1.4.0"></a>
+# [1.4.0](https://github.com/dessant/search-by-image/compare/v1.3.0...v1.4.0) (2017-10-31)
+
+
+### Bug Fixes
+
+* add padding between select toolbar button and text ([1a74694](https://github.com/dessant/search-by-image/commit/1a74694))
+* do not attempt to parse the page when not allowed ([84eabef](https://github.com/dessant/search-by-image/commit/84eabef))
+* do not use browser style for options on Chrome and Opera ([ce7270d](https://github.com/dessant/search-by-image/commit/ce7270d))
+* downscale large images before uploading to Bing ([0992c48](https://github.com/dessant/search-by-image/commit/0992c48))
+* ensure upload scripts get executed in order ([3225cbc](https://github.com/dessant/search-by-image/commit/3225cbc))
+* hide menu scrollbar ([dccd877](https://github.com/dessant/search-by-image/commit/dccd877))
+* import theme and typography mixins instead of CSS ([ad4893d](https://github.com/dessant/search-by-image/commit/ad4893d))
+* inject upload scripts only when the search page has finished loading ([66f4ee9](https://github.com/dessant/search-by-image/commit/66f4ee9))
+* inline CSS not needed anymore, upstream fix ([6c40c3c](https://github.com/dessant/search-by-image/commit/6c40c3c))
+* limit concurrent uploads to 3 images ([bf94a8f](https://github.com/dessant/search-by-image/commit/bf94a8f))
+* open options in new tab on Chrome ([3b2c1f0](https://github.com/dessant/search-by-image/commit/3b2c1f0))
+* revoke object URL as soon as possible and increase storage timeouts ([2654538](https://github.com/dessant/search-by-image/commit/2654538))
+* **engines:** retrieve images using object URLs ([7da65e3](https://github.com/dessant/search-by-image/commit/7da65e3))
+* set checkbox color and relay confirmFrameId ([58cdc86](https://github.com/dessant/search-by-image/commit/58cdc86))
+* set minimum browser version in manifest for Chrome and Opera ([eddd6fc](https://github.com/dessant/search-by-image/commit/eddd6fc))
+* set switch color ([87c3278](https://github.com/dessant/search-by-image/commit/87c3278))
+* set tab index and active state correctly when uploading multiple files ([b1f4b33](https://github.com/dessant/search-by-image/commit/b1f4b33))
+
+
+### Features
+
+* filter and minimize locale messages and manifest in production ([79b806e](https://github.com/dessant/search-by-image/commit/79b806e))
+* implement new search modes ([d634dcc](https://github.com/dessant/search-by-image/commit/d634dcc)), closes [#9](https://github.com/dessant/search-by-image/issues/9)
+* notify on large images, avoid copying and uploading them ([a0bb3bd](https://github.com/dessant/search-by-image/commit/a0bb3bd))
+* update search mode option labels ([17603af](https://github.com/dessant/search-by-image/commit/17603af))
+
+
+
 <a name="1.3.0"></a>
 # 1.3.0 (2017-08-31)
 
@@ -100,6 +138,3 @@
 
 * Add content ([3cb3096](https://github.com/dessant/search-by-image/commit/3cb3096))
 * Prepare 1.0.0 release ([146837d](https://github.com/dessant/search-by-image/commit/146837d))
-
-
-
