@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import migrate from './migration/migrate';
+import migrate from 'storage-versions';
 
 // Firefox <= 52
 let syncArea;
@@ -19,7 +19,8 @@ async function getSupportedArea(requestedArea) {
 
 async function init(area = 'local') {
   area = await getSupportedArea(area);
-  return migrate.reconcile(area);
+  const context = require.context('storage/versions', true, /\.(?:js|json)$/i);
+  return migrate.reconcile({context, area});
 }
 
 async function get(keys = null, area = 'local') {
