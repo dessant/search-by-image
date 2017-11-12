@@ -94,7 +94,7 @@ export default {
         if (!localGoogle) {
           tabUrl = tabUrl.replace(
             /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
-            '$1com$2&gws_rd=cr'
+            '$1com$2&gl=US'
           );
         }
 

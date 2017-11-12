@@ -154,7 +154,7 @@ async function getTabUrl(imgData, engine, options) {
       encodeURIComponent(imgData.url)
     );
     if (engine === 'google' && !options.localGoogle) {
-      tabUrl = `${tabUrl}&gws_rd=cr`;
+      tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
     }
   }
 
