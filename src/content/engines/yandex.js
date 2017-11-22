@@ -12,7 +12,8 @@ function showResults(xhr) {
     JSON.parse(xhr.responseText).blocks[0].params.url
   );
   window.location.replace(
-    `https://yandex.com/images/search?cbir_id=${match[1]}&rpt=imageview&from=`
+    `https://${window.location.hostname}/images/search?` +
+      `cbir_id=${match[1]}&rpt=imageview&from=`
   );
 }
 
@@ -43,9 +44,10 @@ async function upload({blob, imgData}) {
     'i-global'
   ].serpid;
 
-  const url = `https://${hostname}/images/search?serpid=${serpid}&uinfo=${
-    uinfo
-  }&rpt=imageview&format=json&request={"blocks":[{"block":"b-page_type_search-by-image__link"}]}`;
+  const url =
+    `https://${hostname}/images/search?serpid=${serpid}&uinfo=${uinfo}` +
+    `&rpt=imageview&format=json` +
+    `&request={"blocks":[{"block":"b-page_type_search-by-image__link"}]}`;
 
   const data = new FormData();
   data.append('upfile', blob, imgData.filename);
