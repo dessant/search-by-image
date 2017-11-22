@@ -2,6 +2,18 @@ function gcd(a, b) {
   return b == 0 ? a : gcd(b, a % b);
 }
 
+function getHostname() {
+  const hostnames = [
+    'yandex.com',
+    'yandex.ru',
+    'yandex.ua',
+    'yandex.by',
+    'yandex.kz',
+    'yandex.com.tr'
+  ];
+  return getValidHostname(hostnames, 'yandex');
+}
+
 function showResults(xhr) {
   if (xhr.status === 413) {
     largeImageNotify('yandex', '8');
@@ -12,26 +24,13 @@ function showResults(xhr) {
     JSON.parse(xhr.responseText).blocks[0].params.url
   );
   window.location.replace(
-    `https://${window.location.hostname}/images/search?` +
+    `https://${getHostname()}/images/search?` +
       `cbir_id=${match[1]}&rpt=imageview&from=`
   );
 }
 
 async function upload({blob, imgData}) {
-  const hostname = window.location.hostname;
-  if (
-    ![
-      'yandex.com',
-      'yandex.ru',
-      'yandex.ua',
-      'yandex.by',
-      'yandex.kz',
-      'yandex.com.tr'
-    ].includes(hostname)
-  ) {
-    throw new Error(`Invalid hostname: ${hostname}`);
-  }
-
+  const hostname = getHostname();
   const sw = screen.width;
   const sh = screen.height;
   const r = gcd(sw, sh);

@@ -6,6 +6,14 @@ function getXHR() {
   }
 }
 
+function getValidHostname(validHostnames, engine) {
+  const hostname = window.location.hostname;
+  if (!validHostnames.includes(hostname)) {
+    throw new Error(`Invalid ${engine} hostname: ${hostname}`);
+  }
+  return hostname;
+}
+
 function largeImageNotify(engine, maxSize) {
   chrome.runtime.sendMessage({
     id: 'notification',
