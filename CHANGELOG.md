@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.4.1"></a>
+## [1.4.1](https://github.com/dessant/search-by-image/compare/v1.4.0...v1.4.1) (2017-11-22)
+
+
+### Bug Fixes
+
+* always validate Yandex hostname ([687b872](https://github.com/dessant/search-by-image/commit/687b872))
+* handle country specific Yandex redirection ([610bdd1](https://github.com/dessant/search-by-image/commit/610bdd1)), closes [#13](https://github.com/dessant/search-by-image/issues/13)
+* set US locale for google.com ([d9762ec](https://github.com/dessant/search-by-image/commit/d9762ec))
+* use country specific domain for Yandex search results ([709c34e](https://github.com/dessant/search-by-image/commit/709c34e))
+
+
+
 <a name="1.4.0"></a>
 # [1.4.0](https://github.com/dessant/search-by-image/compare/v1.3.0...v1.4.0) (2017-10-31)
 
