@@ -17,6 +17,20 @@ function showResults(xhr) {
 }
 
 async function upload({blob, imgData}) {
+  const hostname = window.location.hostname;
+  if (
+    ![
+      'yandex.com',
+      'yandex.ru',
+      'yandex.ua',
+      'yandex.by',
+      'yandex.kz',
+      'yandex.com.tr'
+    ].includes(hostname)
+  ) {
+    throw new Error(`Invalid hostname: ${hostname}`);
+  }
+
   const sw = screen.width;
   const sh = screen.height;
   const r = gcd(sw, sh);
@@ -29,7 +43,9 @@ async function upload({blob, imgData}) {
     'i-global'
   ].serpid;
 
-  const url = `https://yandex.com/images/search?serpid=${serpid}&uinfo=${uinfo}&rpt=imageview&format=json&request={"blocks":[{"block":"b-page_type_search-by-image__link"}]}`;
+  const url = `https://${hostname}/images/search?serpid=${serpid}&uinfo=${
+    uinfo
+  }&rpt=imageview&format=json&request={"blocks":[{"block":"b-page_type_search-by-image__link"}]}`;
 
   const data = new FormData();
   data.append('upfile', blob, imgData.filename);
