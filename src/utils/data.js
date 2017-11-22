@@ -21,7 +21,9 @@ const engines = {
   },
   bing: {
     url:
-      'https://www.bing.com/images/search?q=imgurl:{imgUrl}&view=detailv2&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights',
+      'https://www.bing.com/images/search?q=imgurl:{imgUrl}&view=detailv2' +
+      '&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com' +
+      '%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights',
     upload: 'https://www.bing.com/images/discover?form=HDRSC2'
   },
   yandex: {
@@ -30,7 +32,8 @@ const engines = {
   },
   baidu: {
     url:
-      'https://image.baidu.com/n/pc_search?queryImageUrl={imgUrl}&fm=index&uptype=paste',
+      'https://image.baidu.com/n/pc_search' +
+      '?queryImageUrl={imgUrl}&fm=index&uptype=paste',
     upload: 'http://image.baidu.com/'
   },
   tineye: {

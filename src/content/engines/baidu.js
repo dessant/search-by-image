@@ -5,14 +5,18 @@ function showResults(xhr) {
   }
 
   const rsp = JSON.parse(xhr.responseText);
-  const url = `http://image.baidu.com/pcdutu?queryImageUrl=${rsp.url}&querySign=${rsp.querySign}&fm=index&uptype=upload_pc&result=result_camera`;
+  const url =
+    `http://image.baidu.com/pcdutu?queryImageUrl=${rsp.url}` +
+    `&querySign=${rsp.querySign}&fm=index&uptype=upload_pc` +
+    `&result=result_camera`;
 
   window.location.replace(url);
 }
 
 async function upload({blob, imgData}) {
   const url =
-    'http://image.baidu.com/pcdutu/a_upload?fr=html5&target=pcSearchImage&needJson=true';
+    'http://image.baidu.com/pcdutu/a_upload?fr=html5' +
+    '&target=pcSearchImage&needJson=true';
   const data = new FormData();
   data.append('file', blob, imgData.filename);
   data.append('pos', 'upload');

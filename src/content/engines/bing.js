@@ -4,7 +4,10 @@ async function upload({blob, imgData}) {
   form.id = 'sbi-upload-form';
   form.method = 'POST';
   form.enctype = 'multipart/form-data';
-  form.action = `https://www.bing.com/images/search?q=&view=detailv2&iss=sbiupload&FORM=IRSBIQ&sbifnm=${imgData.filename}&redirecturl=https%3A%2F%2Fwww.bing.com%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights`;
+  form.action =
+    `https://www.bing.com/images/search?q=&view=detailv2&iss=sbiupload` +
+    `&FORM=IRSBIQ&sbifnm=${imgData.filename}&redirecturl=https%3A%2F%2F` +
+    `www.bing.com%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights`;
 
   const input = document.createElement('input');
   input.setAttribute('data-c45ng3u9', '');
