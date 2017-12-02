@@ -1,9 +1,9 @@
 <template>
-<div ref="root" class="mdc-textfield" :class="textfieldClasses">
+<div ref="root" class="mdc-text-field" :class="textFieldClasses">
   <textarea v-if="multiline"
       :id="`${id}__textarea-native`"
       ref="textarea"
-      class="mdc-textfield__input"
+      class="mdc-text-field__input"
       :value="value"
       @focus="onFocus"
       @blur="onBlur"
@@ -14,7 +14,7 @@
   </textarea>
 
   <input v-else
-      class="mdc-textfield__input"
+      class="mdc-text-field__input"
       ref="input"
       :id="`${id}__input-native`"
       type="text"
@@ -25,14 +25,14 @@
       :placeholder="placeholder"
       :aria-label="placeholder" required>
   <label v-if="label && !fullwidth" :for="`${id}__input-native`"
-      class="mdc-textfield__label">
+      class="mdc-text-field__label">
     {{ label }}
   </label>
 </div>
 </template>
 
 <script>
-import {MDCTextfield} from '@material/textfield';
+import {MDCTextField} from '@material/textfield';
 
 export default {
   name: 'v-textfield',
@@ -71,7 +71,7 @@ export default {
 
   data: function() {
     return {
-      textfield: null
+      textField: null
     };
   },
 
@@ -90,16 +90,16 @@ export default {
   },
 
   computed: {
-    textfieldClasses: function() {
+    textFieldClasses: function() {
       return {
-        'mdc-textfield--multiline': this.multiline,
-        'mdc-textfield--fullwidth': this.fullwidth
+        'mdc-text-field--multiline': this.multiline,
+        'mdc-text-field--fullwidth': this.fullwidth
       };
     }
   },
 
   mounted: function() {
-    this.textfield = new MDCTextfield(this.$refs.root);
+    this.textField = new MDCTextField(this.$refs.root);
   }
 };
 </script>
@@ -107,9 +107,9 @@ export default {
 <style lang="scss">
 $mdc-theme-primary: #1abc9c;
 
-@import '@material/textfield/mdc-textfield';
+@import '@material/textfield/mdc-text-field';
 
-.mdc-textfield__input {
+.mdc-text-field__input {
   font-size: 1rem;
 }
 </style>

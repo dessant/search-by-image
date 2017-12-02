@@ -94,6 +94,11 @@ function dataUriToBlob(dataUri) {
   return new Blob([ia], {type: getDataUriMimeType(dataUri)});
 }
 
+async function isAndroid() {
+  const {os} = await browser.runtime.getPlatformInfo();
+  return os === 'android';
+}
+
 module.exports = {
   onError,
   onComplete,
@@ -105,5 +110,6 @@ module.exports = {
   getRandomString,
   getRandomInt,
   dataUriToBlob,
-  getDataUriMimeType
+  getDataUriMimeType,
+  isAndroid
 };

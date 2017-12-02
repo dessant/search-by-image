@@ -46,17 +46,15 @@
     <li role="separator" class="mdc-list-divider"
         v-if="searchAllEngines || engines.length > 8">
     </li>
-    <div class="items-wrap">
-      <div class="items">
-        <li class="mdc-list-item item ripple-surface"
-            v-for="engine in engines"
-            :key="engine.id"
-            @click="selectItem(engine)">
-          <img class="mdc-list-item__start-detail item-icon"
-              :src="`/src/icons/engines/${engine}.png`">
-          {{ getText(`menuItemTitle_${engine}`) }}
-        </li>
-      </div>
+    <div class="items">
+      <li class="mdc-list-item item ripple-surface"
+          v-for="engine in engines"
+          :key="engine.id"
+          @click="selectItem(engine)">
+        <img class="mdc-list-item__start-detail item-icon"
+            :src="`/src/icons/engines/${engine}.png`">
+        {{ getText(`menuItemTitle_${engine}`) }}
+      </li>
     </div>
   </ul>
 </div>
@@ -72,15 +70,16 @@ import {
   showNotification,
   validateUrl
 } from 'utils/app';
-import {getText} from 'utils/common';
+import {getText, isAndroid} from 'utils/common';
 import {optionKeys} from 'utils/data';
+import {targetEnv} from 'utils/config';
 import Select from 'components/Select';
-import Textfield from 'components/Textfield';
+import TextField from 'components/TextField';
 
 export default {
   components: {
     [Select.name]: Select,
-    [Textfield.name]: Textfield
+    [TextField.name]: TextField
   },
 
   data: function() {
@@ -104,7 +103,7 @@ export default {
   methods: {
     getText: getText,
 
-    selectItem: function(engine) {
+    selectItem: async function(engine) {
       let imageUrl;
       if (this.searchModeAction === 'url') {
         imageUrl = this.imageUrl.trim();
@@ -119,13 +118,28 @@ export default {
         engine,
         imageUrl
       });
-      window.close();
+
+      if (targetEnv === 'firefox' && (await isAndroid())) {
+        browser.tabs.remove((await browser.tabs.getCurrent()).id);
+      } else {
+        window.close();
+      }
     }
   },
 
   created: async function() {
     const options = await storage.get(optionKeys, 'sync');
     const enEngines = await getEnabledEngines(options);
+
+    if (
+      targetEnv === 'firefox' &&
+      (await isAndroid()) &&
+      (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
+    ) {
+      // Removing the action popup has no effect on Android
+      showNotification({messageId: 'error_optionsNotApplied'});
+      return;
+    }
 
     this.engines = enEngines;
     this.searchAllEngines = options.searchAllEnginesAction === 'sub';
@@ -213,13 +227,9 @@ body {
   opacity: 0;
 }
 
-.items-wrap {
+.items {
   max-height: 392px;
   overflow-y: auto;
-}
-
-.items {
-  margin-bottom: 8px;
 }
 
 .list {

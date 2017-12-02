@@ -59,8 +59,4 @@ $mdc-theme-primary: #1abc9c;
 @import '@material/select/mdc-select';
 @import '@material/list/mdc-list';
 @import '@material/menu/mdc-menu';
-
-.mdc-simple-menu {
-  overflow-y: hidden !important;
-}
 </style>

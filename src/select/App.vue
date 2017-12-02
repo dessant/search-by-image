@@ -85,12 +85,21 @@ body {
   height: 100%;
 }
 
-.mdc-snackbar {
-  min-width: 348px !important;
-}
-
 .mdc-snackbar__action-button {
   @include mdc-theme-prop(color, primary);
-  padding-left: 24px;
+}
+
+/* xs phones */
+@media (max-width: 372px) {
+  .mdc-snackbar {
+    height: 80px !important;
+  }
+}
+
+/* tablets */
+@media (min-width: 601px) {
+  .mdc-snackbar {
+    min-width: 372px !important;
+  }
 }
 </style>

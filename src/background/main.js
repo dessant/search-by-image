@@ -13,14 +13,15 @@ import {
   getRandomString,
   getRandomInt,
   dataUriToBlob,
-  getDataUriMimeType
+  getDataUriMimeType,
+  isAndroid
 } from 'utils/common';
 import {
   getEnabledEngines,
   showNotification,
   getRandomFilename
 } from 'utils/app';
-import {optionKeys, engines, imageMimeTypes} from 'utils/data';
+import {optionKeys, engines, imageMimeTypes, chromeUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
 const dataStore = {};
@@ -281,6 +282,28 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
 
   const tab = await createTab(tabUrl, tabIndex, tabActive);
   tabId = tab.id;
+
+  // Google only works with a WebKit user agent on Android.
+  if (targetEnv === 'firefox' && engine === 'google' && (await isAndroid())) {
+    const googleRequestCallback = function(details) {
+      for (const header of details.requestHeaders) {
+        if (header.name.toLowerCase() === 'user-agent') {
+          header.value = chromeUA;
+          break;
+        }
+      }
+      return {requestHeaders: details.requestHeaders};
+    };
+
+    browser.webRequest.onBeforeSendHeaders.addListener(
+      googleRequestCallback,
+      {
+        urls: ['http://*/*', 'https://*/*'],
+        tabId
+      },
+      ['blocking', 'requestHeaders']
+    );
+  }
 }
 
 async function execEngine(tabId, engine, dataKey) {
@@ -640,6 +663,9 @@ async function onStorageChange(changes, area) {
 }
 
 async function setContextMenu({removeFirst = false} = {}) {
+  if (targetEnv === 'firefox' && (await isAndroid())) {
+    return;
+  }
   if (removeFirst) {
     await browser.contextMenus.removeAll();
   }

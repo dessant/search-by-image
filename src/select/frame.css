@@ -10,6 +10,13 @@ body > iframe#sbi-select-frame[data-c45ng3u9] {
   z-index: 2147483647 !important;
 }
 
+/* xs phones */
+@media (max-width: 372px) {
+  body > iframe#sbi-select-frame[data-c45ng3u9] {
+    height: 80px !important;
+  }
+}
+
 body > iframe#sbi-select-frame.sbi-frame-hidden[data-c45ng3u9] {
   visibility: hidden !important;
 }

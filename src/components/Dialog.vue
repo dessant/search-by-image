@@ -14,7 +14,7 @@
       </slot>
     </header>
     <section :id="descriptionId" :class="bodyClasses"
-        class="mdc-dialog__body">
+        class="mdc-dialog__body scrollable-body">
       <slot></slot>
     </section>
     <footer class="mdc-dialog__footer">
@@ -82,7 +82,7 @@ export default {
     },
     surfaceClasses: function() {
       return {
-        scrollable: this.scrollable
+        'scrollable-surface': this.scrollable
       };
     },
     labelId: function() {
@@ -131,6 +131,18 @@ $mdc-theme-primary: #1abc9c;
   @include mdc-theme-prop('color', 'text-primary-on-light');
 }
 
+/* phones */
+@media (max-width: 767px) {
+  .scrollable-body {
+    max-height: 195px;
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    overflow-x: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* tablets */
 @media (min-width: 768px) {
   .mdc-dialog__surface {
@@ -139,7 +151,7 @@ $mdc-theme-primary: #1abc9c;
     max-width: 660px;
   }
 
-  .scrollable {
+  .scrollable-surface {
     min-width: calc(456px + 30px);
     max-width: calc(660px + 30px);
   }

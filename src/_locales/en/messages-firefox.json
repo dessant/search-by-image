@@ -38,5 +38,10 @@
   "optionSectionTitle_toolbar": {
     "message": "Browser Toolbar",
     "description": "Title of the options section."
+  },
+
+  "error_optionsNotApplied": {
+    "message": "Restart the browser for changes to take effect.",
+    "description": "Error message."
   }
 }
