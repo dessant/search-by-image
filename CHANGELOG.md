@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.0"></a>
+# [1.5.0](https://github.com/dessant/search-by-image/compare/v1.4.1...v1.5.0) (2017-12-03)
+
+
+### Features
+
+* support Firefox for Android ([52c7ead](https://github.com/dessant/search-by-image/commit/52c7ead))
+
+
+
 <a name="1.4.1"></a>
 ## [1.4.1](https://github.com/dessant/search-by-image/compare/v1.4.0...v1.4.1) (2017-11-22)
 
