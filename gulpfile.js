@@ -1,8 +1,9 @@
 const path = require('path');
+const {exec} = require('child_process');
 const {lstatSync, readdirSync, readFileSync, writeFileSync} = require('fs');
+
 const {ensureDirSync} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
-const exec = require('child_process').exec;
 const gulp = require('gulp');
 const gulpSeq = require('gulp-sequence');
 const webpack = require('webpack');
