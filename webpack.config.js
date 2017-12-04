@@ -1,4 +1,5 @@
 const path = require('path');
+
 const webpack = require('webpack');
 const MinifyPlugin = require('babel-minify-webpack-plugin');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
@@ -7,6 +8,14 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 
+const uiModules = [
+  'options',
+  'action',
+  'browse',
+  'select',
+  'upload',
+  'confirm'
+];
 let plugins = [
   new webpack.DefinePlugin({
     'process.env': {
@@ -25,7 +34,7 @@ let plugins = [
   new webpack.optimize.CommonsChunkPlugin({
     name: 'commons-ui',
     filename: '[name]/commons.bundle.js',
-    chunks: ['options', 'action', 'browse', 'select', 'upload', 'confirm'],
+    chunks: uiModules,
     minChunks: function(module, count) {
       const rxResource = /\/(@material|(css|vue)-loader|src\/(options|action|browse|select|upload|confirm|components))\//;
       return module.resource && rxResource.test(module.resource) && count >= 2;
@@ -34,15 +43,7 @@ let plugins = [
   new webpack.optimize.CommonsChunkPlugin({
     name: 'commons',
     filename: '[name].bundle.js',
-    chunks: [
-      'background',
-      'options',
-      'action',
-      'browse',
-      'select',
-      'upload',
-      'confirm'
-    ],
+    chunks: ['background', ...uiModules],
     minChunks: 2
   }),
   isProduction ? new webpack.optimize.ModuleConcatenationPlugin() : null,
