@@ -13,3 +13,11 @@
   src: local('Roboto Medium'), local('Roboto-Medium'),
     url('./files/roboto-latin-500.woff2') format('woff2');
 }
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Bold'), local('Roboto-Bold'),
+    url('./files/roboto-latin-700.woff2') format('woff2');
+}

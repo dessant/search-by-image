@@ -4,26 +4,31 @@
     <div class="title">
       {{ getText('extensionName') }}
     </div>
-    <v-select class="search-mode" v-if="dataLoaded"
-        v-model="searchModeAction"
-        :options="selectOptions.searchModeAction">
-      <template slot="selection" scope="data">
-        <img class="mdc-list-item__start-detail item-icon-selected"
-            :src="`/src/icons/modes/${data.selection}.svg`">
-        <span class="mdc-select__selected-text"></span>
-      </template>
-      <template slot="options" scope="data">
-        <li class="mdc-list-item" role="option" tabindex="0"
-            v-for="option in data.options"
-            :key="option.id"
-            :id="option.id"
-            :aria-selected="data.selection === option.id">
-          <img class="mdc-list-item__start-detail item-icon"
-              :src="`/src/icons/modes/${option.id}.svg`">
-          {{ option.label }}
-        </li>
-      </template>
-    </v-select>
+    <div>
+      <img class="contribute-icon"
+          src="/src/icons/misc/contribute.svg"
+          @click="showContribute">
+      <v-select class="search-mode" v-if="dataLoaded"
+          v-model="searchModeAction"
+          :options="selectOptions.searchModeAction">
+        <template slot="selection" scope="data">
+          <img class="mdc-list-item__start-detail item-icon-selected"
+              :src="`/src/icons/modes/${data.selection}.svg`">
+          <span class="mdc-select__selected-text"></span>
+        </template>
+        <template slot="options" scope="data">
+          <li class="mdc-list-item" role="option" tabindex="0"
+              v-for="option in data.options"
+              :key="option.id"
+              :id="option.id"
+              :aria-selected="data.selection === option.id">
+            <img class="mdc-list-item__start-detail item-icon"
+                :src="`/src/icons/modes/${option.id}.svg`">
+            {{ option.label }}
+          </li>
+        </template>
+      </v-select>
+    </div>
   </div>
 
   <transition name="settings" v-if="dataLoaded" @after-leave="imageUrl = ''">
@@ -68,7 +73,8 @@ import {
   getEnabledEngines,
   getOptionLabels,
   showNotification,
-  validateUrl
+  validateUrl,
+  showContributePage
 } from 'utils/app';
 import {getText, isAndroid} from 'utils/common';
 import {optionKeys} from 'utils/data';
@@ -101,9 +107,9 @@ export default {
   },
 
   methods: {
-    getText: getText,
+    getText,
 
-    selectItem: async function(engine) {
+    selectItem: function(engine) {
       let imageUrl;
       if (this.searchModeAction === 'url') {
         imageUrl = this.imageUrl.trim();
@@ -119,6 +125,15 @@ export default {
         imageUrl
       });
 
+      this.closeAction();
+    },
+
+    showContribute: async function() {
+      await showContributePage();
+      this.closeAction();
+    },
+
+    closeAction: async function() {
       if (targetEnv === 'firefox' && (await isAndroid())) {
         browser.tabs.remove((await browser.tabs.getCurrent()).id);
       } else {
@@ -164,7 +179,7 @@ $mdc-theme-primary: #1abc9c;
 
 body {
   margin: 0;
-  min-width: 300px;
+  min-width: 324px;
   min-height: 232px;
   overflow: hidden;
 }
@@ -183,6 +198,11 @@ body {
   white-space: nowrap;
   @include mdc-typography('title');
   @include mdc-theme-prop('color', 'text-primary-on-light');
+}
+
+.contribute-icon {
+  margin-right: 16px;
+  cursor: pointer;
 }
 
 .settings {

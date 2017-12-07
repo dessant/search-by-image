@@ -99,6 +99,14 @@ async function isAndroid() {
   return os === 'android';
 }
 
+async function getActiveTab() {
+  const [tab] = await browser.tabs.query({
+    lastFocusedWindow: true,
+    active: true
+  });
+  return tab;
+}
+
 module.exports = {
   onError,
   onComplete,
@@ -111,5 +119,6 @@ module.exports = {
   getRandomInt,
   dataUriToBlob,
   getDataUriMimeType,
-  isAndroid
+  isAndroid,
+  getActiveTab
 };

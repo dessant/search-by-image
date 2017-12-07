@@ -14,7 +14,8 @@ const uiModules = [
   'browse',
   'select',
   'upload',
-  'confirm'
+  'confirm',
+  'contribute'
 ];
 let plugins = [
   new webpack.DefinePlugin({
@@ -36,7 +37,7 @@ let plugins = [
     filename: '[name]/commons.bundle.js',
     chunks: uiModules,
     minChunks: function(module, count) {
-      const rxResource = /\/(@material|(css|vue)-loader|src\/(options|action|browse|select|upload|confirm|components))\//;
+      const rxResource = /\/(@material|(css|vue)-loader|src\/(options|action|browse|select|upload|confirm|contribute|components))\//;
       return module.resource && rxResource.test(module.resource) && count >= 2;
     }
   }),
@@ -60,6 +61,7 @@ module.exports = {
     confirm: './src/confirm/main.js',
     browse: './src/browse/main.js',
     select: './src/select/main.js',
+    contribute: './src/contribute/main.js',
     vue: ['vue']
   },
   output: {

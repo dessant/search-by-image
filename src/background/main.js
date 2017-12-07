@@ -14,12 +14,14 @@ import {
   getRandomInt,
   dataUriToBlob,
   getDataUriMimeType,
-  isAndroid
+  isAndroid,
+  getActiveTab
 } from 'utils/common';
 import {
   getEnabledEngines,
   showNotification,
-  getRandomFilename
+  getRandomFilename,
+  showContributePage
 } from 'utils/app';
 import {optionKeys, engines, imageMimeTypes, chromeUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
@@ -498,10 +500,7 @@ async function onActionButtonClick(tab) {
 async function onActionPopupClick(engine, imageUrl) {
   const {searchModeAction} = await storage.get('searchModeAction', 'sync');
 
-  const [tab, ...rest] = await browser.tabs.query({
-    lastFocusedWindow: true,
-    active: true
-  });
+  const tab = await getActiveTab();
   const tabIndex = tab.index;
 
   if (searchModeAction === 'url') {
@@ -743,11 +742,21 @@ function addMessageListener() {
 }
 
 async function onLoad() {
+  const firstRun = !(await storage.get('storageVersion', 'sync'))
+    .storageVersion;
   await storage.init('sync');
   await setContextMenu();
   await setBrowserAction();
   addStorageListener();
   addMessageListener();
+
+  const {contribPageLastOpen} = await storage.get(
+    'contribPageLastOpen',
+    'sync'
+  );
+  if (!firstRun && !contribPageLastOpen) {
+    await showContributePage();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', onLoad);

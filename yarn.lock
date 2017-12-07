@@ -69,6 +69,14 @@
     "@material/theme" "^0.25.0"
     "@material/typography" "^0.3.0"
 
+"@material/linear-progress@^0.25.0":
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/@material/linear-progress/-/linear-progress-0.25.0.tgz#58028ce36b10c685ed1cafa379899f19aa51cddd"
+  dependencies:
+    "@material/animation" "^0.25.0"
+    "@material/base" "^0.24.0"
+    "@material/theme" "^0.25.0"
+
 "@material/list@^0.26.0":
   version "0.26.0"
   resolved "https://registry.yarnpkg.com/@material/list/-/list-0.26.0.tgz#87cc8ce765a4d27425e07e97f991deeb0597b115"

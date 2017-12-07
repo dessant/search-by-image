@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import _ from 'lodash';
 
 import storage from 'storage/storage';
-import {getText} from 'utils/common';
+import {getText, createTab, getActiveTab} from 'utils/common';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
@@ -59,9 +59,16 @@ function validateUrl(url) {
   return true;
 }
 
+async function showContributePage() {
+  const activeTab = await getActiveTab();
+  const url = browser.extension.getURL('/src/contribute/index.html');
+  await createTab(url, activeTab.index + 1);
+}
+
 module.exports = {
   getEnabledEngines,
   showNotification,
   getOptionLabels,
-  validateUrl
+  validateUrl,
+  showContributePage
 };

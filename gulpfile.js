@@ -74,7 +74,7 @@ gulp.task('icons', async function() {
   ensureDirSync('dist/src/icons/app');
   ensureDirSync('dist/src/icons/engines');
   const svgPaths = await recursiveReadDir('src/icons', [
-    'src/icons/@(modes|browse)/*',
+    'src/icons/@(modes|browse|misc)/*',
     '*.!(svg)'
   ]);
   for (svgPath of svgPaths) {
@@ -93,7 +93,7 @@ gulp.task('icons', async function() {
   }
 
   gulp
-    .src('src/icons/@(modes|browse)/*.svg', {base: '.'})
+    .src('src/icons/@(modes|browse|misc)/*.svg', {base: '.'})
     .pipe(gulpif(isProduction, svgmin()))
     .pipe(gulp.dest('dist'));
 });
@@ -104,7 +104,7 @@ gulp.task('fonts', function() {
     .pipe(postcss())
     .pipe(gulp.dest('dist'));
   gulp
-    .src('node_modules/typeface-roboto/files/roboto-latin-@(400|500).woff2')
+    .src('node_modules/typeface-roboto/files/roboto-latin-@(400|500|700).woff2')
     .pipe(gulp.dest('dist/src/fonts/files'));
 });
 
@@ -179,7 +179,7 @@ gulp.task('manifest', function() {
 });
 
 gulp.task('copy', function() {
-  gulp.src(['LICENSE', 'src*/icons/**/*.png']).pipe(gulp.dest('dist'));
+  gulp.src(['LICENSE', 'src*/icons/**/*.@(jpg|png)']).pipe(gulp.dest('dist'));
 });
 
 gulp.task(
