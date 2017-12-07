@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/dessant/search-by-image/compare/v1.5.0...v1.6.0) (2017-12-07)
+
+
+### Bug Fixes
+
+* detect image when src is not set ([20f68d9](https://github.com/dessant/search-by-image/commit/20f68d9))
+
+
+### Features
+
+* add contribution page ([0a5a0b9](https://github.com/dessant/search-by-image/commit/0a5a0b9))
+
+
+
 <a name="1.5.0"></a>
 # [1.5.0](https://github.com/dessant/search-by-image/compare/v1.4.1...v1.5.0) (2017-12-03)
 
