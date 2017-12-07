@@ -55,6 +55,10 @@ function parseNode(node, isLocalDoc) {
     case 'IMG':
       if (node.src) {
         urls.push({data: node.src});
+      } else {
+        if (node.currentSrc) {
+          urls.push({data: node.currentSrc});
+        }
       }
       break;
     case 'VIDEO':
