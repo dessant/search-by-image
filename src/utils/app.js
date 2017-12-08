@@ -60,6 +60,7 @@ function validateUrl(url) {
 }
 
 async function showContributePage() {
+  await storage.set({contribPageLastOpen: new Date().getTime()}, 'sync');
   const activeTab = await getActiveTab();
   const url = browser.extension.getURL('/src/contribute/index.html');
   await createTab(url, activeTab.index + 1);

@@ -107,13 +107,11 @@ export default {
     }
   },
 
-  created: async function() {
+  created: function() {
     document.title = getText('pageTitle', [
       getText('pageTitle_contribute'),
       getText('extensionName')
     ]);
-
-    await storage.set({contribPageLastOpen: new Date().getTime()}, 'sync');
   },
 
   mounted: async function() {
