@@ -745,6 +745,10 @@ async function onLoad() {
   const firstRun = !(await storage.get('storageVersion', 'sync'))
     .storageVersion;
   await storage.init('sync');
+  if (firstRun) {
+    await storage.set({contribPageLastOpen: 1000}, 'sync');
+  }
+
   await setContextMenu();
   await setBrowserAction();
   addStorageListener();
@@ -754,7 +758,11 @@ async function onLoad() {
     'contribPageLastOpen',
     'sync'
   );
-  if (!firstRun && !contribPageLastOpen) {
+  if (
+    !firstRun &&
+    !contribPageLastOpen &&
+    !browser.i18n.getUILanguage().startsWith('ru')
+  ) {
     await showContributePage();
   }
 }
