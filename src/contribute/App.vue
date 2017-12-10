@@ -1,14 +1,19 @@
 <template>
 <div id="app">
+  <div class="notice" v-if="showNotice">
+    This page is shown during your 10th and 100th search,
+    the search results can be found next to the current tab.
+  </div>
+
   <div class="title">
-    Help Us Make Some Avocado Toast!
+    Thank you for using Search by Image!
   </div>
 
   <div class="desc">
     <div class="desc-text">
       <p>
         <span class="ext-name">Search by Image</span> is a project fueled by
-        love and crunchy toast, created for everyone to freely use and improve.
+        love and avocado toast, created for everyone to freely use and improve.
       </p>
       <p>
         You can support our goals and make a difference by sharing some avocados
@@ -90,6 +95,7 @@ export default {
 
   data: function() {
     return {
+      showNotice: false,
       goals: null,
       apiHost: 'https://extensions.rmn.space'
     };
@@ -112,6 +118,11 @@ export default {
       getText('pageTitle_contribute'),
       getText('extensionName')
     ]);
+
+    const query = new URL(window.location.href).searchParams;
+    if (query.get('action') === 'search') {
+      this.showNotice = true;
+    }
   },
 
   mounted: async function() {
@@ -146,6 +157,16 @@ body {
   flex-direction: column;
   align-items: center;
   max-width: 856px;
+}
+
+.notice {
+  @include mdc-typography(body1);
+  @include mdc-theme-prop(color, text-primary-on-light);
+  margin-top: 12px;
+  max-width: 90vw;
+  padding: 12px 24px;
+  background-color: #ecf0f1;
+  border-radius: 3px;
 }
 
 .title {

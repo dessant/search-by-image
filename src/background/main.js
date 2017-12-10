@@ -164,7 +164,32 @@ async function getTabUrl(imgData, engine, options) {
   return tabUrl;
 }
 
-async function searchImage(img, engine, tabIndex, tabActive = true) {
+async function searchImage(
+  img,
+  engine,
+  tabIndex,
+  tabActive = true,
+  firstBatchItem = true
+) {
+  if (firstBatchItem) {
+    let {searchCount, contribPageLastOpen} = await storage.get(
+      ['searchCount', 'contribPageLastOpen'],
+      'sync'
+    );
+    searchCount += 1;
+    await storage.set({searchCount}, 'sync');
+    if (
+      [10, 100].includes(searchCount) &&
+      (!contribPageLastOpen ||
+        contribPageLastOpen === 1000 ||
+        contribPageLastOpen > 1512892800000)
+    ) {
+      await showContributePage('search');
+      tabIndex += 1;
+      tabActive = false;
+    }
+  }
+
   const options = await storage.get(optionKeys, 'sync');
 
   tabActive = !options.tabInBackgound && tabActive;
@@ -541,10 +566,18 @@ async function onMessage(request, sender, sendResponse) {
     }, 600000); // 10 minutes
     let tabIndex = sender.tab.index;
     let tabActive = true;
+    let firstBatchItem = true;
     for (let img of request.images) {
       img.receiptKey = receiptKey;
-      tabIndex = await searchImage(img, request.engine, tabIndex, tabActive);
+      tabIndex = await searchImage(
+        img,
+        request.engine,
+        tabIndex,
+        tabActive,
+        firstBatchItem
+      );
       tabActive = false;
+      firstBatchItem = false;
     }
     return;
   }
@@ -742,29 +775,11 @@ function addMessageListener() {
 }
 
 async function onLoad() {
-  const firstRun = !(await storage.get('storageVersion', 'sync'))
-    .storageVersion;
   await storage.init('sync');
-  if (firstRun) {
-    await storage.set({contribPageLastOpen: 1000}, 'sync');
-  }
-
   await setContextMenu();
   await setBrowserAction();
   addStorageListener();
   addMessageListener();
-
-  const {contribPageLastOpen} = await storage.get(
-    'contribPageLastOpen',
-    'sync'
-  );
-  if (
-    !firstRun &&
-    !contribPageLastOpen &&
-    !browser.i18n.getUILanguage().startsWith('ru')
-  ) {
-    await showContributePage();
-  }
 }
 
 document.addEventListener('DOMContentLoaded', onLoad);
