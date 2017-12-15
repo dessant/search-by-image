@@ -26,9 +26,9 @@
 
 <script>
 import browser from 'webextension-polyfill';
+import {Dialog} from 'ext-components';
 
 import {getText} from 'utils/common';
-import Dialog from 'components/Dialog';
 
 export default {
   components: {

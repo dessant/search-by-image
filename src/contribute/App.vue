@@ -81,11 +81,10 @@
 
 <script>
 import browser from 'webextension-polyfill';
+import {Button, LinearProgress} from 'ext-components';
 
 import storage from 'storage/storage';
 import {getText, getActiveTab, createTab} from 'utils/common';
-import Button from 'components/Button';
-import LinearProgress from 'components/LinearProgress';
 
 export default {
   components: {

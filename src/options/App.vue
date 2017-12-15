@@ -89,16 +89,13 @@
 import browser from 'webextension-polyfill';
 import _ from 'lodash';
 import draggable from 'vuedraggable';
+import {Checkbox, FormField, Switch, Select} from 'ext-components';
 
 import storage from 'storage/storage';
 import {getOptionLabels} from 'utils/app';
 import {getText, isAndroid} from 'utils/common';
 import {optionKeys} from 'utils/data';
 import {targetEnv} from 'utils/config';
-import Checkbox from 'components/Checkbox';
-import Switch from 'components/Switch';
-import Select from 'components/Select';
-import FormField from 'components/FormField';
 
 export default {
   components: {

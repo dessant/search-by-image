@@ -3373,6 +3373,24 @@ express@^4.15.2:
     utils-merge "1.0.1"
     vary "~1.1.2"
 
+ext-components@dessant/ext-components#^0.1.0:
+  version "0.1.0"
+  resolved "https://codeload.github.com/dessant/ext-components/tar.gz/6d451981b298c44df34e2ab966d7b97e7ad75093"
+  dependencies:
+    "@material/button" "^0.26.0"
+    "@material/checkbox" "^0.26.0"
+    "@material/dialog" "^0.26.0"
+    "@material/form-field" "^0.26.0"
+    "@material/linear-progress" "^0.25.0"
+    "@material/list" "^0.26.0"
+    "@material/menu" "^0.25.0"
+    "@material/select" "^0.26.0"
+    "@material/switch" "^0.25.0"
+    "@material/textfield" "^0.26.0"
+    "@material/theme" "^0.25.0"
+    typeface-roboto "^0.0.45"
+    vue "^2.5.9"
+
 extend-shallow@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/extend-shallow/-/extend-shallow-2.0.1.tgz#51af7d614ad9a9f610ea1bafbb989d6b1c56890f"
@@ -3650,8 +3668,8 @@ flatten@^1.0.2:
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
 focus-trap@^2.3.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/focus-trap/-/focus-trap-2.3.1.tgz#f4fb86cfe6da38dc652b373e9f42ba476eab1c14"
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/focus-trap/-/focus-trap-2.4.2.tgz#44ea1c55a9c22c2b6529dcebbde6390eb2ee4c88"
   dependencies:
     tabbable "^1.0.3"
 

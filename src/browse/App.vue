@@ -33,10 +33,10 @@
 
 <script>
 import browser from 'webextension-polyfill';
+import {Button} from 'ext-components';
 
 import {getEnabledEngines} from 'utils/app';
 import {getText} from 'utils/common';
-import Button from 'components/Button';
 
 export default {
   components: {

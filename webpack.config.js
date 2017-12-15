@@ -37,7 +37,7 @@ let plugins = [
     filename: '[name]/commons.bundle.js',
     chunks: uiModules,
     minChunks: function(module, count) {
-      const rxResource = /\/(@material|(css|vue)-loader|src\/(options|action|browse|select|upload|confirm|contribute|components))\//;
+      const rxResource = /\/(@material|(css|vue)-loader|ext-components|src\/(options|action|browse|select|upload|confirm|contribute))\//;
       return module.resource && rxResource.test(module.resource) && count >= 2;
     }
   }),

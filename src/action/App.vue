@@ -67,6 +67,7 @@
 
 <script>
 import browser from 'webextension-polyfill';
+import {Select, TextField} from 'ext-components';
 
 import storage from 'storage/storage';
 import {
@@ -79,8 +80,6 @@ import {
 import {getText, isAndroid} from 'utils/common';
 import {optionKeys} from 'utils/data';
 import {targetEnv} from 'utils/config';
-import Select from 'components/Select';
-import TextField from 'components/TextField';
 
 export default {
   components: {
