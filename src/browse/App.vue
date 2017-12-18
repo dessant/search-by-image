@@ -1,24 +1,33 @@
 <template>
 <div id="app" v-show="dataLoaded">
-  <div class="drop-zone" v-show="!showSpinner && !error"
+  <input readonly class="drop-zone"
+      ref="dropZone"
+      v-show="!showSpinner && !error"
+      @cut.prevent
+      @copy.prevent
+      @paste.prevent="handleFiles($event, 'paste')"
       @drop.prevent="handleFiles($event, 'drop')"
       @dragenter.prevent="dropState = true"
       @dragexit.prevent="dropState = false"
       @dragend.prevent="dropState = false"
       @dragover.prevent>
+
+  <div class="drop-zone-content" v-show="!showSpinner && !error">
     <img class="drop-zone-icon"
         :src="`/src/icons/browse/drop-zone-${dropState ? 'drop' : 'drag'}.svg`">
-    <div class="drop-zone-content">
+
+    <div class="drop-zone-text">
+      {{ getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`) }}
+    </div>
+
+    <div class="browse-button-wrap">
       <input ref="input" class="image-input" type="file"
-          accept="image/*" multiple @change="handleFiles">
+          accept="image/*" multiple @change="handleFiles($event, 'input')">
       <v-button class="browse-button" v-show="!dropState"
-          :compact="true" :stroked="true"
+          :stroked="true"
           @click="$refs.input.click()">
         {{ getText('buttonText_browse') }}
       </v-button>
-      <div class="drop-zone-text">
-        {{ getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`) }}
-      </div>
     </div>
   </div>
 
@@ -57,19 +66,30 @@ export default {
   methods: {
     getText: getText,
 
-    handleFiles: async function(e, source = 'input') {
-      const images = [];
-      const files = source === 'input' ? e.target.files : e.dataTransfer.files;
+    handleFiles: async function(e, source) {
+      let files;
+      if (source === 'input') {
+        files = e.target.files;
+      }
+      if (source === 'drop') {
+        files = e.dataTransfer.files;
+      }
+      if (source === 'paste') {
+        files = e.clipboardData.files;
+      }
 
       if (files.length > 3) {
         browser.runtime.sendMessage({
           id: 'notification',
           messageId: 'error_invalidImageCount'
         });
-        this.dropState = false;
+        if (source === 'drop') {
+          this.dropState = false;
+        }
         return;
       }
 
+      const images = [];
       for (let file of files) {
         if (file.type.startsWith('image/')) {
           images.push({
@@ -99,16 +119,20 @@ export default {
         });
       }
 
-      this.dropState = false;
+      if (source === 'drop') {
+        this.dropState = false;
+      }
     }
   },
 
-  created: async function() {
+  created: function() {
     document.title = getText('pageTitle', [
       getText('pageTitle_browse'),
       getText('extensionName')
     ]);
+  },
 
+  mounted: async function() {
     const engine = new URL(window.location.href).searchParams.get('engine');
     if (
       engine &&
@@ -120,8 +144,9 @@ export default {
       this.dataLoaded = true;
       return;
     }
-
     this.dataLoaded = true;
+
+    this.$nextTick(() => this.$refs.dropZone.focus());
   }
 };
 </script>
@@ -144,8 +169,7 @@ body {
   margin: 0;
 }
 
-#app,
-.drop-zone {
+#app {
   width: 100%;
   height: 100%;
   display: flex;
@@ -153,15 +177,35 @@ body {
   justify-content: center;
 }
 
+.drop-zone,
+.drop-zone-content {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .drop-zone {
-  flex-direction: column;
+  border: none;
+  color: transparent;
+  cursor: default;
+  user-select: none;
 }
 
 .drop-zone-content {
-  height: 48px;
-  margin-top: 24px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  pointer-events: none;
+  background-color: #fff;
+}
+
+.drop-zone-text {
+  margin-top: 12px;
 }
 
 .drop-zone-icon {
@@ -170,12 +214,17 @@ body {
   opacity: .5;
 }
 
+.browse-button-wrap {
+  height: 36px;
+  margin-top: 56px;
+}
+
 .image-input {
   display: none;
 }
 
 .browse-button {
-  margin-right: 8px;
+  pointer-events: auto;
 }
 
 .error-text,

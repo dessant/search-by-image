@@ -274,7 +274,7 @@
   },
 
   "pageContent_browse_drag": {
-    "message": "or drag images here.",
+    "message": "Drag or paste images here",
     "description": "Page content."
   },
 
@@ -391,7 +391,7 @@
   },
 
   "error_invalidImageFile": {
-    "message": "The selected files are not images.",
+    "message": "The selected items are not images.",
     "description": "Error message."
   },
 
