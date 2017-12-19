@@ -6,14 +6,14 @@
   </div>
 
   <div class="title">
-    Thank you for using Search by Image!
+    Help Us Make Some Avocado Toast!
   </div>
 
   <div class="desc">
     <div class="desc-text">
       <p>
         <span class="ext-name">Search by Image</span> is a project fueled by
-        love and avocado toast, created for everyone to freely use and improve.
+        love and crunchy toast, created for everyone to freely use and improve.
       </p>
       <p>
         You can support our goals and make a difference by sharing some avocados
