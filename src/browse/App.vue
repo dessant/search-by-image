@@ -1,6 +1,6 @@
 <template>
 <div id="app" v-show="dataLoaded">
-  <input readonly class="drop-zone"
+  <input class="drop-zone"
       ref="dropZone"
       v-show="!showSpinner && !error"
       @cut.prevent
