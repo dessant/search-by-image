@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/dessant/search-by-image/compare/v1.6.3...v1.7.0) (2017-12-19)
+
+
+### Bug Fixes
+
+* enable pasting image from context menu on Chrome ([261e2c6](https://github.com/dessant/search-by-image/commit/261e2c6))
+* minimize draggable surface for search engine options ([ef4db93](https://github.com/dessant/search-by-image/commit/ef4db93))
+* prevent action popup header from overflowing ([aa7f928](https://github.com/dessant/search-by-image/commit/aa7f928))
+
+
+### Features
+
+* paste images from clipboard ([6bc52e4](https://github.com/dessant/search-by-image/commit/6bc52e4)), closes [#16](https://github.com/dessant/search-by-image/issues/16)
+
+
+
 <a name="1.6.3"></a>
 ## [1.6.3](https://github.com/dessant/search-by-image/compare/v1.6.2...v1.6.3) (2017-12-10)
 
