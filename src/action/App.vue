@@ -176,6 +176,12 @@ $mdc-theme-primary: #1abc9c;
 @import '@material/typography/mixins';
 @import "@material/ripple/mixins";
 
+@media (max-width: 323px) {
+  body {
+    min-width: initial;
+  }
+}
+
 body {
   margin: 0;
   min-width: 324px;
@@ -187,6 +193,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  white-space: nowrap;
   padding-top: 16px;
   padding-left: 16px;
   padding-right: 16px;
@@ -194,7 +201,8 @@ body {
 
 .title {
   padding-right: 48px;
-  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   @include mdc-typography('title');
   @include mdc-theme-prop('color', 'text-primary-on-light');
 }
@@ -259,7 +267,6 @@ body {
 .item {
   padding-left: 16px;
   padding-right: 48px;
-  white-space: nowrap;
   cursor: pointer;
 }
 
