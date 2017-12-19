@@ -217,6 +217,7 @@ $mdc-theme-primary: #1abc9c;
   display: grid;
   grid-row-gap: 12px;
   padding-top: 16px;
+  grid-auto-columns: min-content;
 }
 
 .option {

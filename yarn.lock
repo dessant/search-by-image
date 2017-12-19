@@ -3373,9 +3373,9 @@ express@^4.15.2:
     utils-merge "1.0.1"
     vary "~1.1.2"
 
-ext-components@dessant/ext-components#^0.1.0:
-  version "0.1.0"
-  resolved "https://codeload.github.com/dessant/ext-components/tar.gz/6d451981b298c44df34e2ab966d7b97e7ad75093"
+ext-components@dessant/ext-components#^0.1.1:
+  version "0.1.1"
+  resolved "https://codeload.github.com/dessant/ext-components/tar.gz/d776a18e22e8a3c13ef7f301ff8b156dc351f52d"
   dependencies:
     "@material/button" "^0.26.0"
     "@material/checkbox" "^0.26.0"
