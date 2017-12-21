@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.8.1"></a>
+## [1.8.1](https://github.com/dessant/search-by-image/compare/v1.8.0...v1.8.1) (2017-12-21)
+
+
+### Bug Fixes
+
+* remove progress buffer in contribution page ([e4074fe](https://github.com/dessant/search-by-image/commit/e4074fe))
+
+
+
 <a name="1.8.0"></a>
 # [1.8.0](https://github.com/dessant/search-by-image/compare/v1.7.0...v1.8.0) (2017-12-21)
 
