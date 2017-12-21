@@ -34,8 +34,7 @@
           {{ goal }}
         </div>
       </div>
-      <v-linear-progress :progress="goals.progress.value / goals.progress.goal"
-          :buffer="0.8">
+      <v-linear-progress :progress="goals.progress.value / goals.progress.goal">
       </v-linear-progress>
       <div class="progress-details">
         <div>
