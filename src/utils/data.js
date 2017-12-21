@@ -45,6 +45,12 @@ const engines = {
   sogou: {
     url: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0',
     upload: 'http://pic.sogou.com/'
+  },
+  karmaDecay: {
+    url: 'http://karmadecay.com/search?q={imgUrl}',
+    upload: `${browser.extension.getURL(
+      '/src/upload/index.html'
+    )}?engine=karmaDecay&dataKey={dataKey}`
   }
 };
 

@@ -40,6 +40,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_karmaDecay": {
+    "message": "Karma Decay",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -88,6 +93,11 @@
 
   "menuItemTitle_sogou": {
     "message": "Sogou",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_karmaDecay": {
+    "message": "Karma Decay",
     "description": "Title of the menu item."
   },
 
@@ -155,6 +165,11 @@
 
   "optionTitle_sogou": {
     "message": "Sogou Images",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_karmaDecay": {
+    "message": "Karma Decay",
     "description": "Title of the option."
   },
 

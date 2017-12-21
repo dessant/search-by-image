@@ -52,6 +52,14 @@ export default {
               getImage = false;
             }
 
+            if (this.engine === 'karmaDecay' && size > 9 * 1024 * 1024) {
+              this.error = getText('error_invalidImageSize', [
+                getText('engineName_karmaDecay'),
+                getText('unit_mb', '9')
+              ]);
+              getImage = false;
+            }
+
             if (getImage) {
               const rsp = await fetch(request.imgData.objectUrl);
               params.blob = await rsp.blob();
@@ -114,6 +122,20 @@ export default {
 
         window.location.replace(tabUrl);
       }
+
+      if (this.engine === 'karmaDecay') {
+        const data = new FormData();
+        data.append('image', blob, imgData.filename);
+        const rsp = await fetch('http://karmadecay.com/index/', {
+          referrer: '',
+          mode: 'cors',
+          method: 'POST',
+          body: data
+        });
+        const tabUrl = rsp.url;
+
+        window.location.replace(tabUrl);
+      }
     }
   },
 
@@ -134,7 +156,7 @@ export default {
       getText('extensionName')
     ]);
 
-    const supportedEngines = ['google', 'tineye'];
+    const supportedEngines = ['google', 'tineye', 'karmaDecay'];
     if (!supportedEngines.includes(this.engine)) {
       this.error = getText(
         'error_invalidImageUrl_dataUri',

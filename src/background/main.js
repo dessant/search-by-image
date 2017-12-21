@@ -148,7 +148,7 @@ async function getTabUrl(imgData, engine, options) {
 
   if (imgData.isBlob) {
     tabUrl = engines[engine].upload;
-    if (['google', 'tineye'].includes(engine)) {
+    if (['google', 'tineye', 'karmaDecay'].includes(engine)) {
       tabUrl = tabUrl.replace('{dataKey}', imgData.dataKey);
     }
   } else {
