@@ -46,6 +46,7 @@ Supported search engines:
 * Baidu Image Search
 * TinEye Reverse Image Search
 * Sogou Images
+* Karma Decay
 
 ## Screenshots
 
