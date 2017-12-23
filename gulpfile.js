@@ -72,9 +72,16 @@ gulp.task('css', function() {
 
 gulp.task('icons', async function() {
   ensureDirSync('dist/src/icons/app');
+  const iconSvg = readFileSync('src/icons/app/icon.svg');
+  const iconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
+  for (const size of iconSizes) {
+    const pngBuffer = await svg2png(iconSvg, {width: size, height: size});
+    writeFileSync(`dist/src/icons/app/icon-${size}.png`, pngBuffer);
+  }
+
   ensureDirSync('dist/src/icons/engines');
   const svgPaths = await recursiveReadDir('src/icons', [
-    'src/icons/@(modes|browse)/*',
+    'src/icons/@(app|modes|browse)/*',
     '*.!(svg)'
   ]);
   for (svgPath of svgPaths) {
