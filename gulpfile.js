@@ -74,7 +74,7 @@ gulp.task('icons', async function() {
   ensureDirSync('dist/src/icons/app');
   ensureDirSync('dist/src/icons/engines');
   const svgPaths = await recursiveReadDir('src/icons', [
-    'src/icons/@(modes|browse|misc)/*',
+    'src/icons/@(modes|browse)/*',
     '*.!(svg)'
   ]);
   for (svgPath of svgPaths) {
@@ -93,9 +93,13 @@ gulp.task('icons', async function() {
   }
 
   gulp
-    .src('src/icons/@(modes|browse|misc)/*.svg', {base: '.'})
+    .src('src/icons/@(modes|browse)/*.svg', {base: '.'})
     .pipe(gulpif(isProduction, svgmin()))
     .pipe(gulp.dest('dist'));
+  gulp
+    .src('node_modules/ext-contribute/src/assets/*.svg')
+    .pipe(gulpif(isProduction, svgmin()))
+    .pipe(gulp.dest('dist/src/contribute/assets'));
 });
 
 gulp.task('fonts', function() {
@@ -179,6 +183,9 @@ gulp.task('manifest', function() {
 });
 
 gulp.task('copy', function() {
+  gulp
+    .src('node_modules/ext-contribute/src/assets/*.@(jpg|png)')
+    .pipe(gulp.dest('dist/src/contribute/assets'));
   gulp.src(['LICENSE', 'src*/icons/**/*.@(jpg|png)']).pipe(gulp.dest('dist'));
 });
 

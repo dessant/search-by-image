@@ -6,7 +6,7 @@
     </div>
     <div>
       <img class="contribute-icon"
-          src="/src/icons/misc/contribute.svg"
+          src="/src/contribute/assets/heart.svg"
           @click="showContribute">
       <v-select class="search-mode" v-if="dataLoaded"
           v-model="searchModeAction"

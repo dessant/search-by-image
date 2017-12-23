@@ -98,7 +98,8 @@ module.exports = {
                     }
                   ]
                 })
-              }
+              },
+              transformToRequire: {img: ''}
             }
           }
         ]
