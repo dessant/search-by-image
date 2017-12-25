@@ -4,7 +4,7 @@
     <div class="title">
       {{ getText('extensionName') }}
     </div>
-    <div>
+    <div class="header-buttons">
       <img class="contribute-icon"
           src="/src/contribute/assets/heart.svg"
           @click="showContribute">
@@ -165,9 +165,9 @@ export default {
 
     this.dataLoaded = true;
 
-    const mq = window.matchMedia('(min-width: 324px)');
+    const mq = window.matchMedia('(min-width: 323px)');
     const widthChange = function(mq) {
-      document.body.style.minWidth = mq.matches ? '324px' : 'initial';
+      document.body.style.minWidth = mq.matches ? '323px' : 'initial';
     };
     mq.addListener(widthChange);
     widthChange(mq);
@@ -185,7 +185,7 @@ $mdc-theme-primary: #1abc9c;
 
 body {
   margin: 0;
-  min-width: 324px;
+  min-width: 323px;
   min-height: 232px;
   overflow: hidden;
 }
@@ -201,11 +201,19 @@ body {
 }
 
 .title {
-  padding-right: 48px;
   overflow: hidden;
   text-overflow: ellipsis;
   @include mdc-typography('title');
   @include mdc-theme-prop('color', 'text-primary-on-light');
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  margin-left: 32px;
+  @media (min-width: 323px) {
+    margin-left: 56px;
+  }
 }
 
 .contribute-icon {
