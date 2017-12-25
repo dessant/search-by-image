@@ -164,6 +164,13 @@ export default {
     });
 
     this.dataLoaded = true;
+
+    const mq = window.matchMedia('(min-width: 324px)');
+    const widthChange = function(mq) {
+      document.body.style.minWidth = mq.matches ? '324px' : 'initial';
+    };
+    mq.addListener(widthChange);
+    widthChange(mq);
   }
 };
 </script>
@@ -175,12 +182,6 @@ $mdc-theme-primary: #1abc9c;
 @import '@material/theme/mixins';
 @import '@material/typography/mixins';
 @import "@material/ripple/mixins";
-
-@media (max-width: 323px) {
-  body {
-    min-width: initial;
-  }
-}
 
 body {
   margin: 0;
