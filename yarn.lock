@@ -19,15 +19,6 @@
     "@material/theme" "^0.25.0"
     "@material/typography" "^0.3.0"
 
-"@material/button@^0.27.0":
-  version "0.27.0"
-  resolved "https://registry.yarnpkg.com/@material/button/-/button-0.27.0.tgz#546e1887324043b2607ecd3ba661b029ef6c909b"
-  dependencies:
-    "@material/elevation" "^0.25.0"
-    "@material/ripple" "^0.27.0"
-    "@material/theme" "^0.27.0"
-    "@material/typography" "^0.3.0"
-
 "@material/checkbox@^0.26.0":
   version "0.26.0"
   resolved "https://registry.yarnpkg.com/@material/checkbox/-/checkbox-0.26.0.tgz#ca32292d279890f8cd8a4fbb0f235e1c7b7df1e0"
