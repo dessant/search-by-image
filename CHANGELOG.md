@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.8.2"></a>
+## [1.8.2](https://github.com/dessant/search-by-image/compare/v1.8.1...v1.8.2) (2018-01-03)
+
+
+### Bug Fixes
+
+* do not set min-width for small screens ([a7528cc](https://github.com/dessant/search-by-image/commit/a7528cc))
+* improve action popup layout on small screens ([31cfe2b](https://github.com/dessant/search-by-image/commit/31cfe2b))
+* reduce size of imported background code ([6cd0085](https://github.com/dessant/search-by-image/commit/6cd0085))
+* show notification on Firefox for invalid search mode ([64b2773](https://github.com/dessant/search-by-image/commit/64b2773))
+* vertically center popup buttons ([9cc7cd7](https://github.com/dessant/search-by-image/commit/9cc7cd7))
+* workaround for popup rendering issue on Firefox ([5b76645](https://github.com/dessant/search-by-image/commit/5b76645))
+
+
+
 <a name="1.8.1"></a>
 ## [1.8.1](https://github.com/dessant/search-by-image/compare/v1.8.0...v1.8.1) (2017-12-21)
 
