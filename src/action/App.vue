@@ -31,7 +31,9 @@
     </div>
   </div>
 
-  <transition name="settings" v-if="dataLoaded" @after-leave="imageUrl = ''">
+  <transition name="settings" v-if="dataLoaded"
+      @after-enter="handleSizeChange"
+      @after-leave="settingsAfterLeave">
     <div class="settings" v-if="searchModeAction === 'url'">
       <v-textfield v-model="imageUrl"
           :placeholder="getText('inputPlaceholder_imageUrl')"
@@ -40,33 +42,38 @@
     </div>
   </transition>
 
-  <ul class="mdc-list list">
-    <li class="mdc-list-item item ripple-surface"
-        v-if="searchAllEngines"
+  <div class="list-padding-top"></div>
+  <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
+    <li class="mdc-list-item list-item ripple-surface"
         @click="selectItem('allEngines')">
-      <img class="mdc-list-item__start-detail item-icon"
+      <img class="mdc-list-item__start-detail list-item-icon"
           src="/src/icons/engines/allEngines.png">
       {{ getText('menuItemTitle_allEngines') }}
     </li>
-    <li role="separator" class="mdc-list-divider"
-        v-if="searchAllEngines || engines.length > 8">
-    </li>
-    <div class="items">
-      <li class="mdc-list-item item ripple-surface"
+  </ul>
+  <ul class="mdc-list list list-separator"
+      v-if="searchAllEngines || hasScrollBar">
+    <li role="separator" class="mdc-list-divider"></li>
+  </ul>
+  <div class="list-items-wrap" ref="items" :class="listClasses">
+    <resize-observer @notify="handleSizeChange"></resize-observer>
+    <ul class="mdc-list list list-items">
+      <li class="mdc-list-item list-item ripple-surface"
           v-for="engine in engines"
           :key="engine.id"
           @click="selectItem(engine)">
-        <img class="mdc-list-item__start-detail item-icon"
+        <img class="mdc-list-item__start-detail list-item-icon"
             :src="`/src/icons/engines/${engine}.png`">
         {{ getText(`menuItemTitle_${engine}`) }}
       </li>
-    </div>
-  </ul>
+    </ul>
+  </div>
 </div>
 </template>
 
 <script>
 import browser from 'webextension-polyfill';
+import {ResizeObserver} from 'vue-resize';
 import {Select, TextField} from 'ext-components';
 
 import storage from 'storage/storage';
@@ -84,7 +91,8 @@ import {targetEnv} from 'utils/config';
 export default {
   components: {
     [Select.name]: Select,
-    [TextField.name]: TextField
+    [TextField.name]: TextField,
+    [ResizeObserver.name]: ResizeObserver
   },
 
   data: function() {
@@ -99,10 +107,20 @@ export default {
         },
         'optionValue_action'
       ),
+      hasScrollBar: false,
+      isPopup: false,
 
       engines: [],
       searchAllEngines: false
     };
+  },
+
+  computed: {
+    listClasses: function() {
+      return {
+        'list-items-max-height': this.isPopup
+      };
+    }
   },
 
   methods: {
@@ -133,15 +151,32 @@ export default {
     },
 
     closeAction: async function() {
-      if (targetEnv === 'firefox' && (await isAndroid())) {
+      if (!this.isPopup) {
         browser.tabs.remove((await browser.tabs.getCurrent()).id);
       } else {
         window.close();
       }
+    },
+
+    handleSizeChange: function() {
+      const items = this.$refs.items;
+      this.hasScrollBar = items.scrollHeight > items.clientHeight;
+    },
+
+    settingsAfterLeave: function() {
+      this.handleSizeChange();
+      this.imageUrl = '';
     }
   },
 
   created: async function() {
+    const currentTab = await browser.tabs.getCurrent();
+    this.isPopup = !currentTab || currentTab instanceof Array;
+    if (!this.isPopup) {
+      document.documentElement.style.height = '100%';
+      document.body.style.minWidth = 'initial';
+    }
+
     const options = await storage.get(optionKeys, 'sync');
     const enEngines = await getEnabledEngines(options);
 
@@ -164,13 +199,6 @@ export default {
     });
 
     this.dataLoaded = true;
-
-    const mq = window.matchMedia('(min-width: 323px)');
-    const widthChange = function(mq) {
-      document.body.style.minWidth = mq.matches ? '323px' : 'initial';
-    };
-    mq.addListener(widthChange);
-    widthChange(mq);
   }
 };
 </script>
@@ -183,10 +211,21 @@ $mdc-theme-primary: #1abc9c;
 @import '@material/typography/mixins';
 @import "@material/ripple/mixins";
 
+@import 'vue-resize/dist/vue-resize';
+
+body,
+#app {
+  height: 100%;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
 body {
   margin: 0;
   min-width: 323px;
-  min-height: 232px;
   overflow: hidden;
 }
 
@@ -210,9 +249,9 @@ body {
 .header-buttons {
   display: flex;
   align-items: center;
-  margin-left: 32px;
-  @media (min-width: 323px) {
-    margin-left: 56px;
+  margin-left: 56px;
+  @media (max-width: 322px) {
+    margin-left: 32px;
   }
 }
 
@@ -263,23 +302,41 @@ body {
   opacity: 0;
 }
 
-.items {
-  max-height: 392px;
+.list {
+  padding: 0 !important;
+}
+
+.list-padding-top {
+  margin-bottom: 8px;
+}
+
+.list-bulk-button {
+  height: 48px;
+}
+
+.list-separator {
+  height: 1px;
+}
+
+.list-items-wrap {
   overflow-y: auto;
 }
 
-.list {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+.list-items-max-height {
+  max-height: 392px;
 }
 
-.item {
+.list-items {
+  padding-bottom: 8px !important;
+}
+
+.list-item {
   padding-left: 16px;
   padding-right: 48px;
   cursor: pointer;
 }
 
-.item-icon {
+.list-item-icon {
   margin-right: 16px !important;
 }
 
@@ -288,7 +345,7 @@ body {
   @include mdc-ripple-radius;
   @include mdc-ripple-color;
 
-  position: relative;
+  position: sticky;
   outline: none;
   overflow: hidden;
 }
