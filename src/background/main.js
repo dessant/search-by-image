@@ -500,7 +500,7 @@ async function onActionButtonClick(tab) {
     'sync'
   );
 
-  if (options.searchModeAction === 'url' && targetEnv !== 'firefox') {
+  if (options.searchModeAction === 'url') {
     await showNotification({messageId: 'error_invalidSearchMode_url'});
     return;
   }
