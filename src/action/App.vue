@@ -311,10 +311,12 @@ body {
 }
 
 .list-bulk-button {
+  position: relative;
   height: 48px;
 }
 
 .list-separator {
+  position: relative;
   height: 1px;
 }
 
