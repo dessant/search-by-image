@@ -342,8 +342,8 @@ body {
 
 .ripple-surface {
   @include mdc-ripple-surface;
+  @include mdc-states;
   @include mdc-ripple-radius;
-  @include mdc-ripple-color;
 
   position: sticky;
   outline: none;
