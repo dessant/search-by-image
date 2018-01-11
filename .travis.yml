@@ -1,0 +1,7 @@
+language: node_js
+
+cache:
+  yarn: true
+
+script:
+  - yarn run build:ext:prod
