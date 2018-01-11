@@ -4,4 +4,4 @@ cache:
   yarn: true
 
 script:
-  - yarn run build:ext:prod
+  - yarn run build:prod:zip
