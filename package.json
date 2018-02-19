@@ -1,6 +1,6 @@
 {
   "name": "search-by-image",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "author": "Armin Sebastian",
   "repository": "https://github.com/dessant/search-by-image",
   "license": "MIT",
@@ -18,13 +18,16 @@
     "exec:prod": "yarn run build:prod && yarn run start",
     "zip": "web-ext build -s dist/ -a artifacts/",
     "start": "web-ext run -s dist/",
-    "inspect":
-      "webpack --profile --json > report.json; webpack-bundle-analyzer report.json --mode static && sleep 6 && rm report.{json,html}",
+    "inspect": "webpack --profile --json > report.json; webpack-bundle-analyzer report.json --mode static && sleep 6 && rm report.{json,html}",
     "update": "ncu --upgrade --upgradeAll && yarn",
     "push": "git push --follow-tags origin master",
     "release": "standard-version && yarn run push"
   },
-  "browserslist": ["Chrome >= 55", "Firefox >= 52", "Opera >= 42"],
+  "browserslist": [
+    "Chrome >= 55",
+    "Firefox >= 52",
+    "Opera >= 42"
+  ],
   "dependencies": {
     "@material/grid-list": "^0.27.0",
     "@material/list": "^0.27.0",
