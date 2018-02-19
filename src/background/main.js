@@ -471,9 +471,11 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
       allFrames: true,
       runAt: 'document_start',
       code: `
-        addClickListener();
-        showPointer();
-        frameStore.data.engine = '${engine}';
+        if (typeof addClickListener !== 'undefined') {
+          addClickListener();
+          showPointer();
+          frameStore.data.engine = '${engine}';
+        }
       `
     });
 
@@ -603,8 +605,10 @@ async function onMessage(request, sender, sendResponse) {
       allFrames: true,
       runAt: 'document_start',
       code: `
-        removeClickListener();
-        hidePointer();
+        if (typeof removeClickListener !== 'undefined') {
+          removeClickListener();
+          hidePointer();
+        }
       `
     });
     browser.tabs.sendMessage(
@@ -626,8 +630,10 @@ async function onMessage(request, sender, sendResponse) {
       allFrames: true,
       runAt: 'document_start',
       code: `
-        removeClickListener();
-        hidePointer();
+        if (typeof removeClickListener !== 'undefined') {
+          removeClickListener();
+          hidePointer();
+        }
       `
     });
     browser.tabs.sendMessage(
