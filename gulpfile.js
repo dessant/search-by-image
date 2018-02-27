@@ -6,7 +6,6 @@ const {ensureDirSync} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
 const gulp = require('gulp');
 const gulpSeq = require('gulp-sequence');
-const webpack = require('webpack');
 const htmlmin = require('gulp-htmlmin');
 const svgmin = require('gulp-svgmin');
 const babel = require('gulp-babel');

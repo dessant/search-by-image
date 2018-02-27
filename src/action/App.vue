@@ -12,9 +12,11 @@
           v-model="searchModeAction"
           :options="selectOptions.searchModeAction">
         <template slot="selection" scope="data">
-          <img class="mdc-list-item__start-detail item-icon-selected"
+          <img class="mdc-list-item__graphic item-icon-selected"
               :src="`/src/icons/modes/${data.selection}.svg`">
-          <span class="mdc-select__selected-text"></span>
+          <div class="mdc-select__label"></div>
+          <div class="mdc-select__selected-text"></div>
+          <div class="mdc-select__bottom-line"></div>
         </template>
         <template slot="options" scope="data">
           <li class="mdc-list-item" role="option" tabindex="0"
@@ -22,7 +24,7 @@
               :key="option.id"
               :id="option.id"
               :aria-selected="data.selection === option.id">
-            <img class="mdc-list-item__start-detail item-icon"
+            <img class="mdc-list-item__graphic item-icon"
                 :src="`/src/icons/modes/${option.id}.svg`">
             {{ option.label }}
           </li>
@@ -46,7 +48,7 @@
   <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
     <li class="mdc-list-item list-item ripple-surface"
         @click="selectItem('allEngines')">
-      <img class="mdc-list-item__start-detail list-item-icon"
+      <img class="mdc-list-item__graphic list-item-icon"
           src="/src/icons/engines/allEngines.png">
       {{ getText('menuItemTitle_allEngines') }}
     </li>
@@ -62,7 +64,7 @@
           v-for="engine in engines"
           :key="engine.id"
           @click="selectItem(engine)">
-        <img class="mdc-list-item__start-detail list-item-icon"
+        <img class="mdc-list-item__graphic list-item-icon"
             :src="`/src/icons/engines/${engine}.png`">
         {{ getText(`menuItemTitle_${engine}`) }}
       </li>
@@ -265,24 +267,31 @@ body {
 }
 
 .search-mode {
-  width: auto !important;
-  border: 0 !important;
-  padding-right: 16px !important;
-  background-color: transparent !important;
+  height: auto !important;
+  background-position: 100% !important;
 }
 
-.search-mode .mdc-select__menu {
-  left: auto !important;
-  right: 16px !important;
-  transform-origin: top right !important;
-}
-
-.search-mode .mdc-select__selected-text {
+.search-mode .mdc-select__selected-text,
+.search-mode .mdc-select__bottom-line {
   width: 0 !important;
+}
+
+.search-mode .mdc-select__surface {
+  width: auto !important;
+  height: auto !important;
+  padding-right: 16px !important;
+  padding-bottom: 0 !important;
 }
 
 .search-mode .item-icon-selected {
   margin-right: 0 !important;
+}
+
+.search-mode .mdc-select__menu {
+  left: auto !important;
+  top: 0 !important;
+  right: 0 !important;
+  transform-origin: top right !important;
 }
 
 .settings-enter-active, .settings-leave-active {
@@ -344,8 +353,8 @@ body {
 
 .ripple-surface {
   @include mdc-ripple-surface;
+  @include mdc-ripple-radius-bounded;
   @include mdc-states;
-  @include mdc-ripple-radius;
 
   position: sticky;
   outline: none;
