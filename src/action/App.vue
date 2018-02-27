@@ -11,14 +11,14 @@
       <v-select class="search-mode" v-if="dataLoaded"
           v-model="searchModeAction"
           :options="selectOptions.searchModeAction">
-        <template slot="selection" scope="data">
+        <template slot="selection" slot-scope="data">
           <img class="mdc-list-item__graphic item-icon-selected"
               :src="`/src/icons/modes/${data.selection}.svg`">
           <div class="mdc-select__label"></div>
           <div class="mdc-select__selected-text"></div>
           <div class="mdc-select__bottom-line"></div>
         </template>
-        <template slot="options" scope="data">
+        <template slot="options" slot-scope="data">
           <li class="mdc-list-item" role="option" tabindex="0"
               v-for="option in data.options"
               :key="option.id"
