@@ -51,6 +51,10 @@ const engines = {
     upload: `${browser.extension.getURL(
       '/src/upload/index.html'
     )}?engine=karmaDecay&dataKey={dataKey}`
+  },
+  whatanime: {
+    url: 'https://whatanime.ga/?url={imgUrl}',
+    upload: 'https://whatanime.ga/'
   }
 };
 

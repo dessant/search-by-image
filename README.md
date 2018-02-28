@@ -47,6 +47,7 @@ Supported search engines:
 * TinEye Reverse Image Search
 * Sogou Images
 * Karma Decay
+* WhatAnime
 
 ## Screenshots
 

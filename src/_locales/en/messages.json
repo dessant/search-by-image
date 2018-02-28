@@ -45,6 +45,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_whatanime": {
+    "message": "WhatAnime",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -98,6 +103,11 @@
 
   "menuItemTitle_karmaDecay": {
     "message": "Karma Decay",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_whatanime": {
+    "message": "WhatAnime",
     "description": "Title of the menu item."
   },
 
@@ -170,6 +180,11 @@
 
   "optionTitle_karmaDecay": {
     "message": "Karma Decay",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_whatanime": {
+    "message": "WhatAnime",
     "description": "Title of the option."
   },
 

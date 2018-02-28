@@ -253,7 +253,7 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
   let tabId;
   let loadedBingUrl;
   let bingRemoveCallbacks;
-  const execEngines = ['bing', 'yandex', 'baidu', 'sogou'];
+  const execEngines = ['bing', 'yandex', 'baidu', 'sogou', 'whatanime'];
   if (imgData.dataKey && execEngines.includes(engine)) {
     const tabUpdateCallback = async function(eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {
