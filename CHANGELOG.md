@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.9.0"></a>
+# [1.9.0](https://github.com/dessant/search-by-image/compare/v1.8.3...v1.9.0) (2018-02-28)
+
+
+### Bug Fixes
+
+* replace scope attribute with slot-scope ([9bc58e6](https://github.com/dessant/search-by-image/commit/9bc58e6))
+* set basic typography properties ([b75b811](https://github.com/dessant/search-by-image/commit/b75b811))
+* update dependencies ([107f751](https://github.com/dessant/search-by-image/commit/107f751))
+
+
+### Features
+
+* search with WhatAnime ([b2847fc](https://github.com/dessant/search-by-image/commit/b2847fc))
+
+
+
 <a name="1.8.3"></a>
 ## [1.8.3](https://github.com/dessant/search-by-image/compare/v1.8.2...v1.8.3) (2018-02-19)
 
