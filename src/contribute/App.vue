@@ -39,10 +39,14 @@ export default {
 </script>
 
 <style lang="scss">
+@import '@material/typography/mixins';
+
 body {
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
+  @include mdc-typography-base;
+  font-size: 100%;
 }
 </style>

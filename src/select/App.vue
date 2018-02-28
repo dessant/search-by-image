@@ -70,6 +70,7 @@ $mdc-theme-primary: #1abc9c;
 
 @import '@material/snackbar/mdc-snackbar';
 @import '@material/theme/mixins';
+@import '@material/typography/mixins';
 
 html,
 body {
@@ -79,6 +80,8 @@ body {
 
 body {
   margin: 0;
+  @include mdc-typography-base;
+  font-size: 100%;
 }
 
 #app {

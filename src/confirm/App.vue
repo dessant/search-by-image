@@ -84,7 +84,13 @@ export default {
 <style lang="scss">
 $mdc-theme-primary: #1abc9c;
 
-@import "@material/grid-list/mdc-grid-list";
+@import '@material/grid-list/mdc-grid-list';
+@import '@material/typography/mixins';
+
+body {
+  @include mdc-typography-base;
+  font-size: 100%;
+}
 
 .tile-container {
   display: flex;
@@ -98,7 +104,7 @@ $mdc-theme-primary: #1abc9c;
 }
 
 .tile-container::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   right: 0;
@@ -108,12 +114,12 @@ $mdc-theme-primary: #1abc9c;
   height: 100%;
   opacity: 0;
   background-color: #bdc3c7;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .tile-container:focus::after,
 .tile-container:hover::after {
-  opacity: .16;
+  opacity: 0.16;
 }
 
 .tile {

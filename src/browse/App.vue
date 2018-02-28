@@ -167,6 +167,8 @@ body {
 
 body {
   margin: 0;
+  @include mdc-typography-base;
+  font-size: 100%;
 }
 
 #app {
@@ -211,7 +213,7 @@ body {
 .drop-zone-icon {
   width: 128px;
   height: 128px;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .browse-button-wrap {

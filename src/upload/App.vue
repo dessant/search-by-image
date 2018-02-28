@@ -200,6 +200,8 @@ body {
 
 body {
   margin: 0;
+  @include mdc-typography-base;
+  font-size: 100%;
 }
 
 #app {

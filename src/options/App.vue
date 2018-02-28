@@ -180,6 +180,11 @@ $mdc-theme-primary: #1abc9c;
 @import '@material/theme/mixins';
 @import '@material/typography/mixins';
 
+body {
+  @include mdc-typography-base;
+  font-size: 100%;
+}
+
 .mdc-select__menu {
   top: inherit !important;
   left: inherit !important;
