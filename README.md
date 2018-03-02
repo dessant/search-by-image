@@ -6,7 +6,7 @@
   <a href="https://goo.gl/RRhFWb">
     <img src="https://i.imgur.com/q6E8SOD.png" alt="Chrome Web Store"></a>
   <a href="https://goo.gl/bUZqLG">
-    <img src="https://i.imgur.com/IuvTttN.png" alt="Firefox add-ons"></a>
+    <img src="https://i.imgur.com/dvof8rG.png" alt="Firefox add-ons"></a>
   <a href="">
     <img src="https://i.imgur.com/wK10qEV.png" alt="Opera add-ons"></a>
   </br></br>
