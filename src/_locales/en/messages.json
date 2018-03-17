@@ -55,6 +55,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_iqdb": {
+    "message": "Iqdb",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -118,6 +123,11 @@
 
   "menuItemTitle_saucenao": {
     "message": "SauceNAO",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_iqdb": {
+    "message": "Iqdb",
     "description": "Title of the menu item."
   },
 
@@ -200,6 +210,11 @@
 
   "optionTitle_saucenao": {
     "message": "SauceNAO",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_iqdb": {
+    "message": "Iqdb",
     "description": "Title of the option."
   },
 

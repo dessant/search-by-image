@@ -64,7 +64,7 @@ async function onMessage(request, uploadFunc, engine) {
             largeImageNotify(engine, '10');
             getImage = false;
           }
-          if (engine === 'yandex' && size > 8 * 1024 * 1024) {
+          if (['yandex', 'iqdb'].includes(engine) && size > 8 * 1024 * 1024) {
             largeImageNotify(engine, '8');
             getImage = false;
           }

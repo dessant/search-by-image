@@ -49,6 +49,7 @@ Supported search engines:
 * Karma Decay
 * WhatAnime
 * SauceNAO
+* Iqdb
 
 ## Screenshots
 

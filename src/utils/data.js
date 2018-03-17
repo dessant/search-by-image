@@ -61,6 +61,10 @@ const engines = {
     upload: `${browser.extension.getURL(
       '/src/upload/index.html'
     )}?engine=saucenao&dataKey={dataKey}`
+  },
+  iqdb: {
+    url: 'https://iqdb.org/?url={imgUrl}',
+    upload: 'https://iqdb.org/'
   }
 };
 
