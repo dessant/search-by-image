@@ -55,6 +55,12 @@ const engines = {
   whatanime: {
     url: 'https://whatanime.ga/?url={imgUrl}',
     upload: 'https://whatanime.ga/'
+  },
+  saucenao: {
+    url: 'https://saucenao.com/search.php?url={imgUrl}',
+    upload: `${browser.extension.getURL(
+      '/src/upload/index.html'
+    )}?engine=saucenao&dataKey={dataKey}`
   }
 };
 

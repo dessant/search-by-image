@@ -14,7 +14,7 @@ import browser from 'webextension-polyfill';
 
 import storage from 'storage/storage';
 import {onError, getText} from 'utils/common';
-import {optionKeys} from 'utils/data';
+import {optionKeys, engines} from 'utils/data';
 
 export default {
   data: function() {
@@ -56,6 +56,14 @@ export default {
               this.error = getText('error_invalidImageSize', [
                 getText('engineName_karmaDecay'),
                 getText('unit_mb', '9')
+              ]);
+              getImage = false;
+            }
+
+            if (this.engine === 'saucenao' && size > 5 * 1024 * 1024) {
+              this.error = getText('error_invalidImageSize', [
+                getText('engineName_saucenao'),
+                getText('unit_mb', '5')
               ]);
               getImage = false;
             }
@@ -136,6 +144,24 @@ export default {
 
         window.location.replace(tabUrl);
       }
+
+      if (this.engine === 'saucenao') {
+        const data = new FormData();
+        data.append('file', blob, 'Image');
+        const rsp = await fetch('https://tmp.saucenao.com', {
+          referrer: '',
+          mode: 'cors',
+          method: 'POST',
+          body: data
+        });
+        const imgUrl = (await rsp.json()).url;
+        const tabUrl = engines.saucenao.url.replace(
+          '{imgUrl}',
+          encodeURIComponent(imgUrl)
+        );
+
+        window.location.replace(tabUrl);
+      }
     }
   },
 
@@ -156,7 +182,7 @@ export default {
       getText('extensionName')
     ]);
 
-    const supportedEngines = ['google', 'tineye', 'karmaDecay'];
+    const supportedEngines = ['google', 'tineye', 'karmaDecay', 'saucenao'];
     if (!supportedEngines.includes(this.engine)) {
       this.error = getText(
         'error_invalidImageUrl_dataUri',

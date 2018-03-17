@@ -50,6 +50,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_saucenao": {
+    "message": "SauceNAO",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -108,6 +113,11 @@
 
   "menuItemTitle_whatanime": {
     "message": "WhatAnime",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_saucenao": {
+    "message": "SauceNAO",
     "description": "Title of the menu item."
   },
 
@@ -185,6 +195,11 @@
 
   "optionTitle_whatanime": {
     "message": "WhatAnime",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_saucenao": {
+    "message": "SauceNAO",
     "description": "Title of the option."
   },
 
