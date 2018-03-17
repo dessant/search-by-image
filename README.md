@@ -48,6 +48,7 @@ Supported search engines:
 * Sogou Images
 * Karma Decay
 * WhatAnime
+* SauceNAO
 
 ## Screenshots
 
