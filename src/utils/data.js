@@ -65,6 +65,10 @@ const engines = {
   iqdb: {
     url: 'https://iqdb.org/?url={imgUrl}',
     upload: 'https://iqdb.org/'
+  },
+  ascii2d: {
+    url: 'https://ascii2d.net/search/url/{imgUrl}',
+    upload: 'https://ascii2d.net/'
   }
 };
 

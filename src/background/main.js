@@ -152,10 +152,11 @@ async function getTabUrl(imgData, engine, options) {
       tabUrl = tabUrl.replace('{dataKey}', imgData.dataKey);
     }
   } else {
-    tabUrl = engines[engine].url.replace(
-      '{imgUrl}',
-      encodeURIComponent(imgData.url)
-    );
+    let imgUrl = imgData.url;
+    if (engine !== 'ascii2d') {
+      imgUrl = encodeURIComponent(imgUrl);
+    }
+    tabUrl = engines[engine].url.replace('{imgUrl}', imgUrl);
     if (engine === 'google' && !options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
     }
@@ -253,7 +254,15 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
   let tabId;
   let loadedBingUrl;
   let bingRemoveCallbacks;
-  const execEngines = ['bing', 'yandex', 'baidu', 'sogou', 'whatanime', 'iqdb'];
+  const execEngines = [
+    'bing',
+    'yandex',
+    'baidu',
+    'sogou',
+    'whatanime',
+    'iqdb',
+    'ascii2d'
+  ];
   if (imgData.dataKey && execEngines.includes(engine)) {
     const tabUpdateCallback = async function(eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {

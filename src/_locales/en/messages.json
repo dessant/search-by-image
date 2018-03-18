@@ -60,6 +60,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_ascii2d": {
+    "message": "Ascii2d",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -128,6 +133,11 @@
 
   "menuItemTitle_iqdb": {
     "message": "Iqdb",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_ascii2d": {
+    "message": "Ascii2d",
     "description": "Title of the menu item."
   },
 
@@ -215,6 +225,11 @@
 
   "optionTitle_iqdb": {
     "message": "Iqdb",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_ascii2d": {
+    "message": "Ascii2d",
     "description": "Title of the option."
   },
 

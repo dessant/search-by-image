@@ -68,6 +68,10 @@ async function onMessage(request, uploadFunc, engine) {
             largeImageNotify(engine, '8');
             getImage = false;
           }
+          if (engine === 'ascii2d' && size > 5 * 1024 * 1024) {
+            largeImageNotify(engine, '5');
+            getImage = false;
+          }
 
           if (getImage) {
             const rsp = await fetch(request.imgData.objectUrl);

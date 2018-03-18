@@ -50,6 +50,7 @@ Supported search engines:
 * WhatAnime
 * SauceNAO
 * Iqdb
+* Ascii2d
 
 ## Screenshots
 
