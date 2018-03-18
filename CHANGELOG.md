@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.10.0"></a>
+# [1.10.0](https://github.com/dessant/search-by-image/compare/v1.9.0...v1.10.0) (2018-03-18)
+
+
+### Features
+
+* search with Ascii2d ([5aba20a](https://github.com/dessant/search-by-image/commit/5aba20a))
+* search with Iqdb ([3cdd9b4](https://github.com/dessant/search-by-image/commit/3cdd9b4)), closes [#18](https://github.com/dessant/search-by-image/issues/18)
+* search with SauceNAO ([3af286c](https://github.com/dessant/search-by-image/commit/3af286c)), closes [#17](https://github.com/dessant/search-by-image/issues/17)
+
+
+
 <a name="1.9.0"></a>
 # [1.9.0](https://github.com/dessant/search-by-image/compare/v1.8.3...v1.9.0) (2018-02-28)
 
