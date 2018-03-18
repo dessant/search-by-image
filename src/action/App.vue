@@ -49,7 +49,7 @@
     <li class="mdc-list-item list-item ripple-surface"
         @click="selectItem('allEngines')">
       <img class="mdc-list-item__graphic list-item-icon"
-          src="/src/icons/engines/allEngines.png">
+          :src="getEngineIcon('allEngines')">
       {{ getText('menuItemTitle_allEngines') }}
     </li>
   </ul>
@@ -65,7 +65,7 @@
           :key="engine.id"
           @click="selectItem(engine)">
         <img class="mdc-list-item__graphic list-item-icon"
-            :src="`/src/icons/engines/${engine}.png`">
+            :src="getEngineIcon(engine)">
         {{ getText(`menuItemTitle_${engine}`) }}
       </li>
     </ul>
@@ -127,6 +127,14 @@ export default {
 
   methods: {
     getText,
+
+    getEngineIcon: function(engine) {
+      let ext = 'svg';
+      if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
+        ext = 'png';
+      }
+      return `/src/icons/engines/${engine}.${ext}`;
+    },
 
     selectItem: function(engine) {
       let imageUrl;

@@ -16,6 +16,7 @@ const jsonMerge = require('gulp-merge-json');
 const jsonmin = require('gulp-jsonmin');
 const svg2png = require('svg2png');
 const imagemin = require('gulp-imagemin');
+const sharp = require('sharp');
 
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -72,23 +73,21 @@ gulp.task('css', function() {
 gulp.task('icons', async function() {
   ensureDirSync('dist/src/icons/app');
   const iconSvg = readFileSync('src/icons/app/icon.svg');
-  const iconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
-  for (const size of iconSizes) {
+  const appIconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
+  for (const size of appIconSizes) {
     const pngBuffer = await svg2png(iconSvg, {width: size, height: size});
     writeFileSync(`dist/src/icons/app/icon-${size}.png`, pngBuffer);
   }
 
   ensureDirSync('dist/src/icons/engines');
-  const svgPaths = await recursiveReadDir('src/icons', [
-    'src/icons/@(app|modes|browse)/*',
-    '*.!(svg)'
-  ]);
-  for (svgPath of svgPaths) {
-    const pngBuffer = await svg2png(readFileSync(svgPath));
-    writeFileSync(
-      path.join('dist', svgPath.replace(/^(.*)\.svg$/i, '$1.png')),
-      pngBuffer
-    );
+  const pngPaths = await recursiveReadDir('src/icons/engines', ['*.!(png)']);
+  const menuIconSizes = [16, 32];
+  for (const pngPath of pngPaths) {
+    for (const size of menuIconSizes) {
+      await sharp(pngPath)
+        .resize(size)
+        .toFile(path.join('dist', `${pngPath.slice(0, -4)}-${size}.png`));
+    }
   }
 
   if (isProduction) {
@@ -99,7 +98,7 @@ gulp.task('icons', async function() {
   }
 
   gulp
-    .src('src/icons/@(modes|browse)/*.svg', {base: '.'})
+    .src('src/icons/@(browse|engines|modes)/*.svg', {base: '.'})
     .pipe(gulpif(isProduction, svgmin()))
     .pipe(gulp.dest('dist'));
   gulp
@@ -197,16 +196,11 @@ gulp.task('copy', function() {
 
 gulp.task(
   'build',
-  gulpSeq('clean', [
-    'js',
-    'html',
-    'css',
-    'icons',
-    'fonts',
-    'locale',
-    'manifest',
+  gulpSeq(
+    'clean',
+    ['js', 'html', 'css', 'icons', 'fonts', 'locale', 'manifest'],
     'copy'
-  ])
+  )
 );
 
 gulp.task('default', ['build']);

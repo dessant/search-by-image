@@ -42,25 +42,40 @@ function deleteData(dataKey) {
   }
 }
 
+function getEngineMenuIcons(engine) {
+  if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
+    return {
+      '16': `src/icons/engines/${engine}-16.png`,
+      '32': `src/icons/engines/${engine}-32.png`
+    };
+  } else {
+    return {
+      '16': `src/icons/engines/${engine}.svg`
+    };
+  }
+}
+
 function createMenuItem({
   id,
   title = '',
   contexts,
   parent,
   type = 'normal',
-  urlPatterns
+  urlPatterns,
+  icons = null
 }) {
-  browser.contextMenus.create(
-    {
-      id,
-      title,
-      contexts,
-      documentUrlPatterns: urlPatterns,
-      parentId: parent,
-      type
-    },
-    onComplete
-  );
+  const params = {
+    id,
+    title,
+    contexts,
+    documentUrlPatterns: urlPatterns,
+    parentId: parent,
+    type
+  };
+  if (icons) {
+    params.icons = icons;
+  }
+  browser.contextMenus.create(params, onComplete);
 }
 
 async function createMenu(options) {
@@ -76,8 +91,13 @@ async function createMenu(options) {
     'video'
   ];
   const urlPatterns = ['http://*/*', 'https://*/*', 'ftp://*/*'];
+  let setIcons = false;
   if (targetEnv === 'firefox') {
     urlPatterns.push('file:///*');
+    const {version} = await browser.runtime.getBrowserInfo();
+    if (parseInt(version.slice(0, 2), 10) >= 56) {
+      setIcons = true;
+    }
   }
 
   if (enEngines.length === 1) {
@@ -120,7 +140,8 @@ async function createMenu(options) {
         title: getText('menuItemTitle_allEngines'),
         contexts,
         parent: 'par-1',
-        urlPatterns
+        urlPatterns,
+        icons: setIcons && getEngineMenuIcons('allEngines')
       });
       createMenuItem({
         id: 'sep-1',
@@ -137,7 +158,8 @@ async function createMenu(options) {
         title: getText(`menuItemTitle_${engine}`),
         contexts,
         parent: 'par-1',
-        urlPatterns
+        urlPatterns,
+        icons: setIcons && getEngineMenuIcons(engine)
       });
     });
   }
