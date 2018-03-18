@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.10.1"></a>
+## [1.10.1](https://github.com/dessant/search-by-image/compare/v1.10.0...v1.10.1) (2018-03-18)
+
+
+### Bug Fixes
+
+* image upload on Yandex ([28c7cd7](https://github.com/dessant/search-by-image/commit/28c7cd7))
+
+
+
 <a name="1.10.0"></a>
 # [1.10.0](https://github.com/dessant/search-by-image/compare/v1.9.0...v1.10.0) (2018-03-18)
 
