@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.11.0"></a>
+# [1.11.0](https://github.com/dessant/search-by-image/compare/v1.10.1...v1.11.0) (2018-03-19)
+
+
+### Features
+
+* show search engine icons in context menu ([fa9cdd3](https://github.com/dessant/search-by-image/commit/fa9cdd3)), closes [#28](https://github.com/dessant/search-by-image/issues/28)
+
+
+
 <a name="1.10.1"></a>
 ## [1.10.1](https://github.com/dessant/search-by-image/compare/v1.10.0...v1.10.1) (2018-03-18)
 
