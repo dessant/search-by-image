@@ -377,10 +377,13 @@ async function execEngine(tabId, engine, dataKey) {
   await executeFile(`/src/content/engines/${engine}.js`, tabId);
 }
 
-async function searchClickTarget(engine, tabId, tabIndex, frameId) {
+async function searchClickTarget(engine, tabId, frameId) {
   const {imgFullParse} = await storage.get('imgFullParse', 'sync');
   await executeCode(
-    `frameStore.options.imgFullParse = ${imgFullParse};`,
+    `
+      frameStore.options.imgFullParse = ${imgFullParse};
+      frameStore.data.engine = '${engine}';
+    `,
     tabId,
     frameId
   );
@@ -391,13 +394,10 @@ async function searchClickTarget(engine, tabId, tabIndex, frameId) {
     await executeFile('/src/content/parse.js', tabId, frameId);
   }
 
-  let [images] = await executeCode('parseDocument();', tabId, frameId);
+  await executeCode('initParse();', tabId, frameId);
+}
 
-  if (!images) {
-    await showNotification({messageId: 'error_InternalError'});
-    return;
-  }
-
+async function handleParseResults(images, engine, tabId, tabIndex) {
   if (images.length === 0) {
     await showNotification({messageId: 'error_imageNotFound'});
     return;
@@ -461,7 +461,7 @@ async function onContextMenuItemClick(info, tab) {
     return;
   }
 
-  await searchClickTarget(engine, tabId, tabIndex, frameId);
+  await searchClickTarget(engine, tabId, frameId);
 }
 
 function rememberExecution(module, tabId, frameId = 0) {
@@ -647,12 +647,7 @@ async function onMessage(request, sender, sendResponse) {
       {id: 'imageSelectionClose', messageFrame: true},
       {frameId: 0}
     );
-    searchClickTarget(
-      request.engine,
-      sender.tab.id,
-      sender.tab.index,
-      sender.frameId
-    );
+    searchClickTarget(request.engine, sender.tab.id, sender.frameId);
     return;
   }
 
@@ -691,6 +686,21 @@ async function onMessage(request, sender, sendResponse) {
       {id: 'imageConfirmationClose'},
       {frameId: 0}
     );
+    return;
+  }
+
+  if (request.id === 'pageParseSubmit') {
+    handleParseResults(
+      request.images,
+      request.engine,
+      sender.tab.id,
+      sender.tab.index
+    );
+    return;
+  }
+
+  if (request.id === 'pageParseError') {
+    showNotification({messageId: 'error_internalError'});
     return;
   }
 

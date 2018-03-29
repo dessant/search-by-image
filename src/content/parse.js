@@ -23,6 +23,23 @@ function getFilename(url) {
   return {filename, ext};
 }
 
+function getImageElement(url) {
+  return new Promise(resolve => {
+    let img = document.querySelector(`img[src="${url}"]`);
+    if (img && img.complete && img.naturalWidth) {
+      resolve(img);
+    }
+    img = new Image();
+    img.onload = () => {
+      resolve(img);
+    };
+    img.onerror = () => {
+      resolve();
+    };
+    img.src = url;
+  });
+}
+
 function extractCSSImages(cssProps, node, pseudo = null) {
   if (pseudo) {
     cssProps = cssProps.slice();
@@ -46,7 +63,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
   return urls;
 }
 
-function parseNode(node, isLocalDoc) {
+async function parseNode(node, isLocalDoc) {
   const urls = [];
   const nodeName = node.nodeName;
   let cssProps = cssProperties;
@@ -83,45 +100,31 @@ function parseNode(node, isLocalDoc) {
   if (isLocalDoc) {
     const fileUrls = urls.filter(item => item.data.startsWith('file://'));
     const {cnv, ctx} = canvas;
-    fileUrls.forEach(function(item) {
+    for (const item of fileUrls) {
       const url = item.data;
-      let img = document.querySelector(`img[src="${url}"]`);
-      if (!img) {
-        img = new Image();
-        img.src = url;
-        const startTime = new Date().getTime();
-        while (true) {
-          if (
-            img.complete ||
-            img.naturalWidth ||
-            new Date().getTime() - startTime > 120000
-          ) {
-            break;
-          }
-        }
+      const img = await getImageElement(url);
+      if (img) {
+        const {filename, ext} = getFilename(url);
+        const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
+          ? 'image/jpeg'
+          : 'image/png';
+        cnv.width = img.naturalWidth;
+        cnv.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+        const data = cnv.toDataURL(type, 0.8);
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+
+        urls[urls.indexOf(item)] = {data, filename};
       }
-
-      const {filename, ext} = getFilename(url);
-      const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
-        ? 'image/jpeg'
-        : 'image/png';
-
-      cnv.width = img.naturalWidth;
-      cnv.height = img.naturalHeight;
-      ctx.drawImage(img, 0, 0);
-      const data = cnv.toDataURL(type, 1.0);
-      ctx.clearRect(0, 0, cnv.width, cnv.height);
-
-      urls[urls.indexOf(item)] = {data, filename};
-    });
+    }
   }
 
   return urls;
 }
 
-function parseDocument() {
+async function parseDocument() {
   if (typeof clickTarget === 'undefined' || !clickTarget.node) {
-    return null;
+    throw new Error('');
   }
 
   const urls = [];
@@ -137,7 +140,7 @@ function parseDocument() {
     canvas.ctx = canvas.cnv.getContext('2d');
   }
 
-  urls.push(...parseNode(targetNode, isLocalDoc));
+  urls.push(...(await parseNode(targetNode, isLocalDoc)));
 
   if (targetNode.nodeName !== 'IMG' || frameStore.options.imgFullParse) {
     const fullParseUrls = [];
@@ -164,7 +167,7 @@ function parseDocument() {
       }
 
       if (!currentNode.isSameNode(targetNode)) {
-        fullParseUrls.push(...parseNode(currentNode, isLocalDoc));
+        fullParseUrls.push(...(await parseNode(currentNode, isLocalDoc)));
       }
     }
 
@@ -172,4 +175,20 @@ function parseDocument() {
   }
 
   return urls.filter(url => rxSupportedUrls.test(url.data));
+}
+
+async function initParse() {
+  const images = await parseDocument().catch(err => {
+    console.log(err);
+    chrome.runtime.sendMessage({
+      id: 'pageParseError'
+    });
+  });
+  if (images) {
+    chrome.runtime.sendMessage({
+      id: 'pageParseSubmit',
+      engine: frameStore.data.engine,
+      images
+    });
+  }
 }
