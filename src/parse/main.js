@@ -154,23 +154,43 @@ async function parseDocument() {
   const isLocalDoc = window.location.href.startsWith('file://');
   if (isLocalDoc) {
     const fileUrls = urls.filter(item => item.data.startsWith('file://'));
+    if (fileUrls.length) {
+      const cnv = document.createElement('canvas');
+      const ctx = cnv.getContext('2d');
+      for (const item of fileUrls) {
+        const url = item.data;
+        const img = await getImageElement(url);
+        if (img) {
+          const {filename, ext} = getFilename(url);
+          const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
+            ? 'image/jpeg'
+            : 'image/png';
+          cnv.width = img.naturalWidth;
+          cnv.height = img.naturalHeight;
+          ctx.drawImage(img, 0, 0);
+          const data = cnv.toDataURL(type, 0.8);
+          ctx.clearRect(0, 0, cnv.width, cnv.height);
+
+          urls[urls.indexOf(item)] = {data, filename};
+        }
+      }
+    }
+  }
+
+  const blobUrls = urls.filter(item => item.data.startsWith('blob:'));
+  if (blobUrls.length) {
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
-    for (const item of fileUrls) {
-      const url = item.data;
-      const img = await getImageElement(url);
+    for (const item of blobUrls) {
+      const img = await getImageElement(item.data);
       if (img) {
-        const {filename, ext} = getFilename(url);
-        const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
-          ? 'image/jpeg'
-          : 'image/png';
         cnv.width = img.naturalWidth;
         cnv.height = img.naturalHeight;
         ctx.drawImage(img, 0, 0);
-        const data = cnv.toDataURL(type, 0.8);
+        const data = cnv.toDataURL('image/png');
         ctx.clearRect(0, 0, cnv.width, cnv.height);
 
-        urls[urls.indexOf(item)] = {data, filename};
+        urls[urls.indexOf(item)] = {data};
       }
     }
   }
