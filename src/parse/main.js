@@ -1,9 +1,12 @@
+import browser from 'webextension-polyfill';
+import _ from 'lodash';
+
+import {validateUrl} from 'utils/app';
+
 const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
 const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['IMG', 'VIDEO', 'IFRAME', 'EMBED'];
 const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
-const rxSupportedUrls = /^(?:https?:\/\/|ftp:\/\/|data:image\/).*$/i;
-const canvas = {cnv: null, ctx: null};
 
 function getFilename(url) {
   const file = url
@@ -63,7 +66,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
   return urls;
 }
 
-async function parseNode(node, isLocalDoc) {
+async function parseNode(node) {
   const urls = [];
   const nodeName = node.nodeName;
   let cssProps = cssProperties;
@@ -97,28 +100,6 @@ async function parseNode(node, isLocalDoc) {
     });
   }
 
-  if (isLocalDoc) {
-    const fileUrls = urls.filter(item => item.data.startsWith('file://'));
-    const {cnv, ctx} = canvas;
-    for (const item of fileUrls) {
-      const url = item.data;
-      const img = await getImageElement(url);
-      if (img) {
-        const {filename, ext} = getFilename(url);
-        const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
-          ? 'image/jpeg'
-          : 'image/png';
-        cnv.width = img.naturalWidth;
-        cnv.height = img.naturalHeight;
-        ctx.drawImage(img, 0, 0);
-        const data = cnv.toDataURL(type, 0.8);
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
-
-        urls[urls.indexOf(item)] = {data, filename};
-      }
-    }
-  }
-
   return urls;
 }
 
@@ -127,20 +108,14 @@ async function parseDocument() {
     throw new Error('');
   }
 
-  const urls = [];
+  let urls = [];
   const targetNode = clickTarget.node;
-  const isLocalDoc = window.location.href.startsWith('file://');
 
   if (!document.querySelector('html')) {
     return urls;
   }
 
-  if (isLocalDoc && !canvas.cnv) {
-    canvas.cnv = document.createElement('canvas');
-    canvas.ctx = canvas.cnv.getContext('2d');
-  }
-
-  urls.push(...(await parseNode(targetNode, isLocalDoc)));
+  urls.push(...(await parseNode(targetNode)));
 
   if (targetNode.nodeName !== 'IMG' || frameStore.options.imgFullParse) {
     const fullParseUrls = [];
@@ -167,28 +142,56 @@ async function parseDocument() {
       }
 
       if (!currentNode.isSameNode(targetNode)) {
-        fullParseUrls.push(...(await parseNode(currentNode, isLocalDoc)));
+        fullParseUrls.push(...(await parseNode(currentNode)));
       }
     }
 
     urls.push(...fullParseUrls.reverse());
   }
 
-  return urls.filter(url => rxSupportedUrls.test(url.data));
+  urls = _.uniqBy(urls, 'data');
+
+  const isLocalDoc = window.location.href.startsWith('file://');
+  if (isLocalDoc) {
+    const fileUrls = urls.filter(item => item.data.startsWith('file://'));
+    const cnv = document.createElement('canvas');
+    const ctx = cnv.getContext('2d');
+    for (const item of fileUrls) {
+      const url = item.data;
+      const img = await getImageElement(url);
+      if (img) {
+        const {filename, ext} = getFilename(url);
+        const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
+          ? 'image/jpeg'
+          : 'image/png';
+        cnv.width = img.naturalWidth;
+        cnv.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+        const data = cnv.toDataURL(type, 0.8);
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+
+        urls[urls.indexOf(item)] = {data, filename};
+      }
+    }
+  }
+
+  return urls.filter(
+    item => item.data.startsWith('data:image/') || validateUrl(item.data)
+  );
 }
 
-async function initParse() {
+self.initParse = async function initParse() {
   const images = await parseDocument().catch(err => {
     console.log(err);
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       id: 'pageParseError'
     });
   });
   if (images) {
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       id: 'pageParseSubmit',
       engine: frameStore.data.engine,
       images
     });
   }
-}
+};

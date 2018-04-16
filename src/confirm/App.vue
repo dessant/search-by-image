@@ -45,7 +45,7 @@ export default {
   },
 
   methods: {
-    getText: getText,
+    getText,
 
     onMessage: function(request, sender, sendResponse) {
       if (request.id === 'imageConfirmationOpen') {

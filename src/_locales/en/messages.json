@@ -442,7 +442,7 @@
     "description": "Error message."
   },
 
-  "error_invalidImageUrl_dataUri": {
+  "error_invalidImageUrl_dataUrl": {
     "message": "Searching for data URI images is not supported on $ENGINE$.",
     "description": "Error message.",
     "placeholders": {

@@ -41,7 +41,7 @@ function getOptionLabels(data, scope = 'optionValue') {
 }
 
 function validateUrl(url) {
-  if (url.length > 2048) {
+  if (!_.isString(url) || url.length > 2048) {
     return;
   }
 

@@ -1,5 +1,5 @@
 var frameStore = {
-  modules: {parse: false, confirm: false, select: false},
+  modules: {manifest: false, parse: false, confirm: false, select: false},
   options: {imgFullParse: false},
   data: {engine: '', selectFrameId: 0, confirmFrameId: 0}
 };

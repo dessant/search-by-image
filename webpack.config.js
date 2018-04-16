@@ -52,6 +52,7 @@ module.exports = {
     browse: './src/browse/main.js',
     select: './src/select/main.js',
     contribute: './src/contribute/main.js',
+    parse: './src/parse/main.js',
     vue: ['vue']
   },
   output: {

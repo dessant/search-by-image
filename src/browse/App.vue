@@ -45,7 +45,7 @@ import browser from 'webextension-polyfill';
 import {Button} from 'ext-components';
 
 import {getEnabledEngines} from 'utils/app';
-import {getText} from 'utils/common';
+import {getText, blobToDataUrl} from 'utils/common';
 
 export default {
   components: {
@@ -64,7 +64,7 @@ export default {
   },
 
   methods: {
-    getText: getText,
+    getText,
 
     handleFiles: async function(e, source) {
       let files;
@@ -92,23 +92,16 @@ export default {
       const images = [];
       for (let file of files) {
         if (file.type.startsWith('image/')) {
-          images.push({
-            objectUrl: URL.createObjectURL(file),
-            filename: file.name,
-            size: file.size
-          });
+          const data = await blobToDataUrl(file);
+          if (data) {
+            images.push({data, filename: file.name});
+          }
         }
       }
-      let searchCount = images.length;
-      if (searchCount > 0) {
-        if (this.engine === 'allEngines') {
-          searchCount = (await getEnabledEngines()).length * searchCount;
-        }
-
+      if (images.length > 0) {
         browser.runtime.sendMessage({
           id: 'imageUploadSubmit',
           engine: this.engine,
-          searchCount,
           images
         });
         this.showSpinner = true;

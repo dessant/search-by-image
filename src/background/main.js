@@ -12,15 +12,14 @@ import {
   onComplete,
   getRandomString,
   getRandomInt,
-  dataUriToBlob,
-  getDataUriMimeType,
+  dataUrlToBlob,
+  getDataUrlMimeType,
   isAndroid,
   getActiveTab
 } from 'utils/common';
 import {
   getEnabledEngines,
   showNotification,
-  getRandomFilename,
   showContributePage
 } from 'utils/app';
 import {optionKeys, engines, imageMimeTypes, chromeUA} from 'utils/data';
@@ -31,14 +30,16 @@ const dataStore = {};
 function storeData(data) {
   data = _.cloneDeep(data);
   const dataKey = uuidV4();
+  data.dataKey = dataKey;
   dataStore[dataKey] = data;
   return dataKey;
 }
 
 function deleteData(dataKey) {
-  if (dataStore.hasOwnProperty(dataKey)) {
+  const data = dataStore[dataKey];
+  if (data) {
     delete dataStore[dataKey];
-    return true;
+    return data;
   }
 }
 
@@ -218,53 +219,51 @@ async function searchImage(
   tabActive = !options.tabInBackgound && tabActive;
   let engines =
     engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
-  let dataKey = '';
-  const imgData = {
-    isBlob: img.hasOwnProperty('objectUrl') || img.data.startsWith('data:')
-  };
+
+  const imgData = {isBlob: img.data.startsWith('data:')};
 
   if (imgData.isBlob) {
-    if (!img.hasOwnProperty('filename') || !img.filename) {
-      const ext = _.get(imageMimeTypes, getDataUriMimeType(img.data), '');
+    if (img.filename) {
+      imgData.filename = img.filename;
+    } else {
+      const ext = _.get(imageMimeTypes, getDataUrlMimeType(img.data), '');
       const filename = getRandomString(getRandomInt(5, 20));
       imgData.filename = ext ? `${filename}.${ext}` : filename;
-    } else {
-      imgData.filename = img.filename;
     }
-    if (img.hasOwnProperty('objectUrl')) {
-      imgData.size = img.size;
-      imgData.objectUrl = img.objectUrl;
-      imgData.receiptKey = img.receiptKey;
-    } else {
-      const blob = dataUriToBlob(img.data);
-      imgData.size = blob.size;
-      imgData.objectUrl = URL.createObjectURL(blob);
-      imgData.receiptKey = storeData({
-        total: engines.length,
-        receipts: 0,
-        objectUrl: imgData.objectUrl
-      });
 
-      window.setTimeout(function() {
-        const newDelete = deleteData(imgData.receiptKey);
-        if (newDelete) {
-          URL.revokeObjectURL(imgData.objectUrl);
+    const blob = dataUrlToBlob(img.data);
+    imgData.objectUrl = URL.createObjectURL(blob);
+    imgData.size = blob.size;
+
+    imgData.dataKey = storeData(
+      Object.assign({}, imgData, {
+        receipts: {
+          expected: engines.length,
+          received: 0
         }
-      }, 600000); // 10 minutes
-    }
-
-    imgData.dataKey = storeData(imgData);
+      })
+    );
     window.setTimeout(function() {
-      deleteData(imgData.dataKey);
+      const data = deleteData(imgData.dataKey);
+      if (data) {
+        URL.revokeObjectURL(data.objectUrl);
+      }
     }, 600000); // 10 minutes
   } else {
     imgData.url = img.data;
   }
 
+  let firstEngine = firstBatchItem;
   for (const engine of engines) {
-    tabIndex = tabIndex + 1;
+    tabIndex += 1;
     await searchEngine(imgData, engine, options, tabIndex, tabActive);
+
+    if (firstEngine && img.origin && img.origin.context === 'browse') {
+      await browser.tabs.remove(img.origin.tabId);
+      tabIndex -= 1;
+    }
     tabActive = false;
+    firstEngine = false;
   }
 
   return tabIndex;
@@ -341,7 +340,7 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
   const tab = await createTab(tabUrl, tabIndex, tabActive);
   tabId = tab.id;
 
-  // Google only works with a WebKit user agent on Android.
+  // Google only works with a Blink/WebKit user agent on Android.
   if (targetEnv === 'firefox' && engine === 'google' && (await isAndroid())) {
     const googleRequestCallback = function(details) {
       for (const header of details.requestHeaders) {
@@ -389,9 +388,13 @@ async function searchClickTarget(engine, tabId, frameId) {
   );
 
   const [probe] = await executeCode('frameStore;', tabId, frameId);
+  if (!probe.modules.manifest) {
+    await rememberExecution('manifest', tabId, frameId);
+    await executeFile('/src/manifest.bundle.js', tabId, frameId);
+  }
   if (!probe.modules.parse) {
     await rememberExecution('parse', tabId, frameId);
-    await executeFile('/src/content/parse.js', tabId, frameId);
+    await executeFile('/src/parse/parse.bundle.js', tabId, frameId);
   }
 
   await executeCode('initParse();', tabId, frameId);
@@ -402,8 +405,6 @@ async function handleParseResults(images, engine, tabId, tabIndex) {
     await showNotification({messageId: 'error_imageNotFound'});
     return;
   }
-
-  images = _.uniqBy(images, 'data');
 
   if (images.length > 1) {
     const [probe] = await executeCode('frameStore;', tabId);
@@ -476,7 +477,7 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
   }
 
   if (searchMode === 'select') {
-    if (tabUrl.startsWith('file:') && targetEnv !== 'firefox') {
+    if (tabUrl.startsWith('file://') && targetEnv !== 'firefox') {
       await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
       return;
     }
@@ -588,20 +589,11 @@ async function onMessage(request, sender, sendResponse) {
   }
 
   if (request.id === 'imageUploadSubmit') {
-    const tabId = sender.tab.id;
-    const receiptKey = storeData({
-      total: request.searchCount,
-      receipts: 0,
-      tabId
-    });
-    window.setTimeout(function() {
-      deleteData(receiptKey);
-    }, 600000); // 10 minutes
     let tabIndex = sender.tab.index;
     let tabActive = true;
     let firstBatchItem = true;
     for (let img of request.images) {
-      img.receiptKey = receiptKey;
+      img.origin = {context: 'browse', tabId: sender.tab.id};
       tabIndex = await searchImage(
         img,
         request.engine,
@@ -615,16 +607,14 @@ async function onMessage(request, sender, sendResponse) {
     return;
   }
 
-  if (request.id === 'imageUploadReceipt') {
-    const receiptData = dataStore[request.receiptKey];
-    if (receiptData) {
-      receiptData.receipts += 1;
-      if (receiptData.receipts === receiptData.total) {
-        deleteData(request.receiptKey);
-        if (receiptData.hasOwnProperty('tabId')) {
-          browser.tabs.remove(receiptData.tabId);
-        } else {
-          URL.revokeObjectURL(receiptData.objectUrl);
+  if (request.id === 'dataReceipt') {
+    const data = dataStore[request.dataKey];
+    if (data) {
+      data.receipts.received += 1;
+      if (data.receipts.received === data.receipts.expected) {
+        deleteData(data.dataKey);
+        if (data.objectUrl) {
+          URL.revokeObjectURL(data.objectUrl);
         }
       }
     }

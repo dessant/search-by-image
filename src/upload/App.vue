@@ -74,8 +74,8 @@ export default {
             }
 
             await browser.runtime.sendMessage({
-              id: 'imageUploadReceipt',
-              receiptKey: request.imgData.receiptKey
+              id: 'dataReceipt',
+              dataKey: request.imgData.dataKey
             });
           }
 
@@ -185,7 +185,7 @@ export default {
     const supportedEngines = ['google', 'tineye', 'karmaDecay', 'saucenao'];
     if (!supportedEngines.includes(this.engine)) {
       this.error = getText(
-        'error_invalidImageUrl_dataUri',
+        'error_invalidImageUrl_dataUrl',
         getText(`optionTitle_${this.engine}`)
       );
       this.dataLoaded = true;
@@ -204,7 +204,7 @@ export default {
 
     await browser.runtime.sendMessage({
       id: 'imageDataRequest',
-      dataKey: dataKey
+      dataKey
     });
   }
 };

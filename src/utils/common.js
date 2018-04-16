@@ -70,20 +70,20 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getDataUriMimeType(dataUri) {
-  return dataUri
+function getDataUrlMimeType(dataUrl) {
+  return dataUrl
     .split(',')[0]
     .split(':')[1]
     .split(';')[0]
     .toLowerCase();
 }
 
-function dataUriToBlob(dataUri) {
+function dataUrlToBlob(dataUrl) {
   let byteString;
-  if (dataUri.split(',')[0].indexOf('base64') >= 0) {
-    byteString = atob(dataUri.split(',')[1]);
+  if (dataUrl.split(',')[0].indexOf('base64') >= 0) {
+    byteString = atob(dataUrl.split(',')[1]);
   } else {
-    byteString = unescape(dataUri.split(',')[1]);
+    byteString = unescape(dataUrl.split(',')[1]);
   }
 
   const ia = new Uint8Array(byteString.length);
@@ -91,7 +91,23 @@ function dataUriToBlob(dataUri) {
     ia[i] = byteString.charCodeAt(i);
   }
 
-  return new Blob([ia], {type: getDataUriMimeType(dataUri)});
+  return new Blob([ia], {type: getDataUrlMimeType(dataUrl)});
+}
+
+function blobToDataUrl(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      resolve(e.target.result);
+    };
+    reader.onerror = () => {
+      resolve();
+    };
+    reader.onabort = () => {
+      resolve();
+    };
+    reader.readAsDataURL(blob);
+  });
 }
 
 async function isAndroid() {
@@ -117,8 +133,9 @@ module.exports = {
   scriptsAllowed,
   getRandomString,
   getRandomInt,
-  dataUriToBlob,
-  getDataUriMimeType,
+  dataUrlToBlob,
+  blobToDataUrl,
+  getDataUrlMimeType,
   isAndroid,
   getActiveTab
 };

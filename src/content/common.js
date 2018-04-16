@@ -79,8 +79,8 @@ async function onMessage(request, uploadFunc, engine) {
           }
 
           chrome.runtime.sendMessage({
-            id: 'imageUploadReceipt',
-            receiptKey: request.imgData.receiptKey
+            id: 'dataReceipt',
+            dataKey: request.imgData.dataKey
           });
         }
         if (getImage) {

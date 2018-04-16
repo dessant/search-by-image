@@ -132,7 +132,7 @@ export default {
   },
 
   methods: {
-    getText: getText,
+    getText,
 
     engineEnabled: function(engine) {
       return !_.includes(this.options.disabledEngines, engine);
