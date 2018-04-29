@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.12.0"></a>
+# [1.12.0](https://github.com/dessant/search-by-image/compare/v1.11.0...v1.12.0) (2018-04-29)
+
+
+### Bug Fixes
+
+* add labels to select components and adjust layout ([ca6c5f9](https://github.com/dessant/search-by-image/commit/ca6c5f9))
+* decrease menu item icon margin ([2511bac](https://github.com/dessant/search-by-image/commit/2511bac))
+* rework blob handling ([37519e2](https://github.com/dessant/search-by-image/commit/37519e2))
+
+
+### Features
+
+* add support for blob: URLs ([517e6ad](https://github.com/dessant/search-by-image/commit/517e6ad))
+* search mode for selecting and uploading images ([18c9c61](https://github.com/dessant/search-by-image/commit/18c9c61)), closes [#11](https://github.com/dessant/search-by-image/issues/11)
+
+
+
 <a name="1.11.0"></a>
 # [1.11.0](https://github.com/dessant/search-by-image/compare/v1.10.1...v1.11.0) (2018-03-19)
 
