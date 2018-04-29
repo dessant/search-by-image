@@ -1,7 +1,6 @@
 var frameStore = {
   modules: {manifest: false, parse: false, confirm: false, select: false},
-  options: {imgFullParse: false},
-  data: {engine: '', selectFrameId: 0, confirmFrameId: 0}
+  data: {engine: '', eventOrigin: '', selectFrameId: 0, confirmFrameId: 0}
 };
 
 var clickTarget = {

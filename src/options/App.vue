@@ -31,6 +31,11 @@
         </v-form-field>
       </div>
       <div class="option">
+        <v-select v-model="options.searchModeContextMenu"
+            :options="selectOptions.searchModeContextMenu">
+        </v-select>
+      </div>
+      <div class="option">
         <v-select v-model="options.searchAllEnginesContextMenu"
             :options="selectOptions.searchAllEnginesContextMenu">
         </v-select>
@@ -112,8 +117,9 @@ export default {
 
       selectOptions: getOptionLabels({
         searchAllEnginesContextMenu: ['main', 'sub', 'false'],
+        searchModeContextMenu: ['select', 'selectUpload'],
         searchAllEnginesAction: ['main', 'sub', 'false'],
-        searchModeAction: ['select', 'upload', 'url']
+        searchModeAction: ['select', 'selectUpload', 'upload', 'url']
       }),
       contextMenuEnabled: true,
 
@@ -126,7 +132,8 @@ export default {
         tabInBackgound: false,
         localGoogle: false,
         imgFullParse: false,
-        searchModeAction: ''
+        searchModeAction: '',
+        searchModeContextMenu: ''
       }
     };
   },

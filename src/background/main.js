@@ -226,7 +226,7 @@ async function searchImage(
     if (img.filename) {
       imgData.filename = img.filename;
     } else {
-      const ext = _.get(imageMimeTypes, getDataUrlMimeType(img.data), '');
+      const ext = imageMimeTypes[getDataUrlMimeType(img.data)];
       const filename = getRandomString(getRandomInt(5, 20));
       imgData.filename = ext ? `${filename}.${ext}` : filename;
     }
@@ -376,13 +376,12 @@ async function execEngine(tabId, engine, dataKey) {
   await executeFile(`/src/content/engines/${engine}.js`, tabId);
 }
 
-async function searchClickTarget(engine, tabId, frameId) {
-  const {imgFullParse} = await storage.get('imgFullParse', 'sync');
+async function searchClickTarget(tabId, frameId, engine, eventOrigin) {
   await executeCode(
     `
-      frameStore.options.imgFullParse = ${imgFullParse};
-      frameStore.data.engine = '${engine}';
-    `,
+    frameStore.data.engine = '${engine}';
+    frameStore.data.eventOrigin = '${eventOrigin}';
+  `,
     tabId,
     frameId
   );
@@ -462,7 +461,7 @@ async function onContextMenuItemClick(info, tab) {
     return;
   }
 
-  await searchClickTarget(engine, tabId, frameId);
+  await searchClickTarget(tabId, frameId, engine, 'contextMenu');
 }
 
 function rememberExecution(module, tabId, frameId = 0) {
@@ -476,7 +475,7 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
     return;
   }
 
-  if (searchMode === 'select') {
+  if (['select', 'selectUpload'].includes(searchMode)) {
     if (tabUrl.startsWith('file://') && targetEnv !== 'firefox') {
       await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
       return;
@@ -570,6 +569,41 @@ async function onActionPopupClick(engine, imageUrl) {
   onActionClick(tabIndex, tab.id, tab.url, engine, searchModeAction);
 }
 
+function setRequestReferrer(url, referrer, token) {
+  const requestCallback = function(details) {
+    const headers = details.requestHeaders;
+    for (const header of headers) {
+      if (
+        header.name.toLowerCase() === 'x-sbi-token' &&
+        header.value === token
+      ) {
+        headers.splice(headers.indexOf(header), 1);
+        headers.push({
+          name: 'Referer',
+          value: referrer
+        });
+        removeCallbacks();
+        return {requestHeaders: headers};
+      }
+    }
+  };
+
+  const removeCallbacks = function() {
+    window.clearTimeout(timeoutId);
+    browser.webRequest.onBeforeSendHeaders.removeListener(requestCallback);
+  };
+  const timeoutId = window.setTimeout(removeCallbacks, 10000); // 10 seconds
+
+  browser.webRequest.onBeforeSendHeaders.addListener(
+    requestCallback,
+    {
+      urls: [url],
+      types: ['xmlhttprequest']
+    },
+    ['blocking', 'requestHeaders']
+  );
+}
+
 async function onMessage(request, sender, sendResponse) {
   if (request.id === 'imageDataRequest') {
     const imgData = dataStore[request.dataKey];
@@ -637,7 +671,7 @@ async function onMessage(request, sender, sendResponse) {
       {id: 'imageSelectionClose', messageFrame: true},
       {frameId: 0}
     );
-    searchClickTarget(request.engine, sender.tab.id, sender.frameId);
+    searchClickTarget(sender.tab.id, sender.frameId, request.engine, 'action');
     return;
   }
 
@@ -691,6 +725,11 @@ async function onMessage(request, sender, sendResponse) {
 
   if (request.id === 'pageParseError') {
     showNotification({messageId: 'error_internalError'});
+    return;
+  }
+
+  if (request.id === 'setRequestReferrer') {
+    setRequestReferrer(request.url, request.referrer, request.token);
     return;
   }
 

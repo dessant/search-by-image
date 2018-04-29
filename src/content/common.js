@@ -1,8 +1,13 @@
 function getXHR() {
   try {
-    return XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
+    return new content.XMLHttpRequest();
   } catch (e) {
-    return new XMLHttpRequest();
+    try {
+      // Firefox <= 57
+      return XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
+    } catch (e) {
+      return new XMLHttpRequest();
+    }
   }
 }
 

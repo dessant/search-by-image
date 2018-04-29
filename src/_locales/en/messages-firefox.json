@@ -4,6 +4,11 @@
     "description": "Title of the menu item."
   },
 
+  "optionValue_action_searchModeAction_selectUpload": {
+    "message": "Select & Upload",
+    "description": "Value of the option."
+  },
+
   "mainMenuItemTitle_allEngines": {
     "message": "Search All Engines for Image",
     "description": "Title of the menu item."

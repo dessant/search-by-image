@@ -9,7 +9,8 @@ const optionKeys = [
   'tabInBackgound',
   'localGoogle',
   'imgFullParse',
-  'searchModeAction'
+  'searchModeAction',
+  'searchModeContextMenu'
 ];
 
 const engines = {

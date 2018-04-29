@@ -258,6 +258,11 @@
     "description": "Value of the option."
   },
 
+  "optionValue_action_searchModeAction_selectUpload": {
+    "message": "Select & upload",
+    "description": "Value of the option."
+  },
+
   "optionValue_action_searchModeAction_upload": {
     "message": "Upload",
     "description": "Value of the option."
@@ -270,6 +275,11 @@
 
   "optionValue_searchModeAction_select": {
     "message": "Select image from browser toolbar",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchModeAction_selectUpload": {
+    "message": "Select and upload image from browser toolbar",
     "description": "Value of the option."
   },
 
@@ -306,6 +316,16 @@
   "optionTitle_showInContextMenu": {
     "message": "Show in context menu",
     "description": "Title of the option."
+  },
+
+  "optionValue_searchModeContextMenu_select": {
+    "message": "Select image from context menu",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchModeContextMenu_selectUpload": {
+    "message": "Select and upload image from context menu",
+    "description": "Value of the option."
   },
 
   "optionSectionTitle_misc": {

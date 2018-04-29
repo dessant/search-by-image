@@ -105,7 +105,7 @@ export default {
       imageUrl: '',
       selectOptions: getOptionLabels(
         {
-          searchModeAction: ['select', 'upload', 'url']
+          searchModeAction: ['select', 'selectUpload', 'upload', 'url']
         },
         'optionValue_action'
       ),
@@ -137,10 +137,8 @@ export default {
     },
 
     selectItem: function(engine) {
-      let imageUrl;
       if (this.searchModeAction === 'url') {
-        imageUrl = this.imageUrl.trim();
-        if (!imageUrl || !validateUrl(imageUrl)) {
+        if (!validateUrl(this.imageUrl)) {
           showNotification({messageId: 'error_invalidImageUrl'});
           return;
         }
@@ -149,7 +147,7 @@ export default {
       browser.runtime.sendMessage({
         id: 'actionPopupSubmit',
         engine,
-        imageUrl
+        imageUrl: this.imageUrl.trim()
       });
 
       this.closeAction();

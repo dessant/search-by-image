@@ -1,14 +1,18 @@
 import browser from 'webextension-polyfill';
 import _ from 'lodash';
+import uuidV4 from 'uuid/v4';
 
+import storage from 'storage/storage';
 import {validateUrl} from 'utils/app';
+import {blobToDataUrl} from 'utils/common';
+import {targetEnv} from 'utils/config';
 
 const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
 const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['IMG', 'VIDEO', 'IFRAME', 'EMBED'];
 const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
 
-function getFilename(url) {
+function getFilenameExtFromUrl(url) {
   const file = url
     .split('/')
     .pop()
@@ -24,6 +28,33 @@ function getFilename(url) {
   }
 
   return {filename, ext};
+}
+
+function fetchImage(url, {credentials = true, token = ''} = {}) {
+  return new Promise(resolve => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.timeout = 1200000; // 2 minutes
+    xhr.responseType = 'blob';
+    if (credentials) {
+      xhr.withCredentials = true;
+    }
+    if (token) {
+      xhr.setRequestHeader('x-sbi-token', token);
+    }
+
+    xhr.onload = () => {
+      resolve(xhr);
+    };
+    xhr.onerror = () => {
+      resolve();
+    };
+    xhr.ontimeout = () => {
+      resolve();
+    };
+
+    xhr.send();
+  });
 }
 
 function getImageElement(url) {
@@ -117,7 +148,12 @@ async function parseDocument() {
 
   urls.push(...(await parseNode(targetNode)));
 
-  if (targetNode.nodeName !== 'IMG' || frameStore.options.imgFullParse) {
+  const options = await storage.get(
+    ['imgFullParse', 'searchModeAction', 'searchModeContextMenu'],
+    'sync'
+  );
+
+  if (targetNode.nodeName !== 'IMG' || options.imgFullParse) {
     const fullParseUrls = [];
 
     const clickRectBottom = clickTarget.uy + 24;
@@ -161,7 +197,7 @@ async function parseDocument() {
         const url = item.data;
         const img = await getImageElement(url);
         if (img) {
-          const {filename, ext} = getFilename(url);
+          const {filename, ext} = getFilenameExtFromUrl(url);
           const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
             ? 'image/jpeg'
             : 'image/png';
@@ -195,9 +231,50 @@ async function parseDocument() {
     }
   }
 
-  return urls.filter(
-    item => item.data.startsWith('data:image/') || validateUrl(item.data)
-  );
+  const searchMode =
+    frameStore.data.eventOrigin === 'action'
+      ? options.searchModeAction
+      : options.searchModeContextMenu;
+
+  if (searchMode === 'selectUpload') {
+    const httpUrls = urls.filter(item => validateUrl(item.data));
+    if (httpUrls.length) {
+      for (const item of httpUrls) {
+        const url = item.data;
+        let rsp;
+        if (targetEnv === 'firefox') {
+          const token = uuidV4();
+          await browser.runtime.sendMessage({
+            id: 'setRequestReferrer',
+            referrer: window.location.href,
+            token,
+            url
+          });
+          rsp = await fetchImage(url, {token});
+        } else {
+          rsp = await fetchImage(url);
+        }
+
+        if (!rsp || !rsp.response || rsp.response.type.startsWith('text/')) {
+          continue;
+        }
+        const data = await blobToDataUrl(rsp.response);
+        urls[urls.indexOf(item)] = {data};
+      }
+    }
+  }
+
+  return urls.filter(item => validateSearchItem(item, searchMode));
+}
+
+function validateSearchItem(item, searchMode) {
+  if (item.data.startsWith('data:')) {
+    return true;
+  }
+
+  if (searchMode === 'select' && validateUrl(item.data)) {
+    return true;
+  }
 }
 
 self.initParse = async function initParse() {
