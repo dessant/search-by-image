@@ -30,13 +30,15 @@
           <v-switch id="sic" v-model="options.showInContextMenu"></v-switch>
         </v-form-field>
       </div>
-      <div class="option">
-        <v-select v-model="options.searchModeContextMenu"
+      <div class="option select">
+        <v-select :label="getText('optionTitle_searchMode')"
+            v-model="options.searchModeContextMenu"
             :options="selectOptions.searchModeContextMenu">
         </v-select>
       </div>
-      <div class="option">
-        <v-select v-model="options.searchAllEnginesContextMenu"
+      <div class="option select">
+        <v-select :label="getText('optionTitle_searchAllEngines')"
+            v-model="options.searchAllEnginesContextMenu"
             :options="selectOptions.searchAllEnginesContextMenu">
         </v-select>
       </div>
@@ -48,13 +50,15 @@
       {{ getText('optionSectionTitle_toolbar') }}
     </div>
     <div class="option-wrap">
-      <div class="option">
-        <v-select v-model="options.searchModeAction"
+      <div class="option select">
+        <v-select :label="getText('optionTitle_searchMode')"
+            v-model="options.searchModeAction"
             :options="selectOptions.searchModeAction">
         </v-select>
       </div>
-      <div class="option">
-        <v-select v-model="options.searchAllEnginesAction"
+      <div class="option select">
+        <v-select :label="getText('optionTitle_searchAllEngines')"
+            v-model="options.searchAllEnginesAction"
             :options="selectOptions.searchAllEnginesAction">
         </v-select>
       </div>
@@ -190,6 +194,7 @@ $mdc-theme-primary: #1abc9c;
 body {
   @include mdc-typography-base;
   font-size: 100%;
+  overflow: visible !important;
 }
 
 .mdc-select__menu {
@@ -236,5 +241,9 @@ body {
   display: flex;
   align-items: center;
   height: 36px;
+}
+
+.option.select {
+  height: 56px;
 }
 </style>

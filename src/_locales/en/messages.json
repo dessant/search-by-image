@@ -233,23 +233,33 @@
     "description": "Title of the option."
   },
 
+  "optionTitle_searchMode": {
+    "message": "Search mode",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_searchAllEngines": {
+    "message": "Search all engines",
+    "description": "Title of the option."
+  },
+
   "optionSectionTitle_toolbar": {
     "message": "Browser toolbar",
     "description": "Title of the options section."
   },
 
   "optionValue_searchAllEnginesAction_main": {
-    "message": "Search all engines from browser toolbar",
+    "message": "From browser toolbar",
     "description": "Value of the option."
   },
 
   "optionValue_searchAllEnginesAction_sub": {
-    "message": "Search all engines from browser toolbar popup",
+    "message": "From browser toolbar popup",
     "description": "Value of the option."
   },
 
   "optionValue_searchAllEnginesAction_false": {
-    "message": "Do not search all engines from browser toolbar",
+    "message": "Disable",
     "description": "Value of the option."
   },
 
@@ -274,22 +284,22 @@
   },
 
   "optionValue_searchModeAction_select": {
-    "message": "Select image from browser toolbar",
+    "message": "Select",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeAction_selectUpload": {
-    "message": "Select and upload image from browser toolbar",
+    "message": "Select & upload",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeAction_upload": {
-    "message": "Upload image from browser toolbar",
+    "message": "Upload",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeAction_url": {
-    "message": "Search image URL from browser toolbar",
+    "message": "URL",
     "description": "Value of the option."
   },
 
@@ -299,17 +309,17 @@
   },
 
   "optionValue_searchAllEnginesContextMenu_main": {
-    "message": "Search all engines from context menu",
+    "message": "From context menu",
     "description": "Value of the option."
   },
 
   "optionValue_searchAllEnginesContextMenu_sub": {
-    "message": "Search all engines from submenu of context menu",
+    "message": "From submenu of context menu",
     "description": "Value of the option."
   },
 
   "optionValue_searchAllEnginesContextMenu_false": {
-    "message": "Do not search all engines from context menu",
+    "message": "Disable",
     "description": "Value of the option."
   },
 
@@ -319,12 +329,12 @@
   },
 
   "optionValue_searchModeContextMenu_select": {
-    "message": "Select image from context menu",
+    "message": "Select",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeContextMenu_selectUpload": {
-    "message": "Select and upload image from context menu",
+    "message": "Select & upload",
     "description": "Value of the option."
   },
 
