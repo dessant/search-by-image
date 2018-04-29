@@ -295,6 +295,10 @@ body {
   margin-right: 0 !important;
 }
 
+.search-mode .item-icon {
+  margin-right: 16px !important;
+}
+
 .search-mode .mdc-select__menu {
   left: auto !important;
   top: 0 !important;
