@@ -194,6 +194,7 @@ $mdc-theme-primary: #1abc9c;
 body {
   @include mdc-typography-base;
   font-size: 100%;
+  background-color: #ffffff;
   overflow: visible !important;
 }
 

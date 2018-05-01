@@ -228,6 +228,7 @@ body {
   margin: 0;
   @include mdc-typography-base;
   font-size: 100%;
+  background-color: #ffffff;
 }
 
 #app {

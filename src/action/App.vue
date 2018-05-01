@@ -237,6 +237,7 @@ body {
   overflow: hidden;
   @include mdc-typography-base;
   font-size: 100%;
+  background-color: #ffffff;
 }
 
 .header {
