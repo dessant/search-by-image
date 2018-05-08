@@ -4,7 +4,7 @@ import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
 import {validateUrl} from 'utils/app';
-import {blobToDataUrl} from 'utils/common';
+import {blobToDataUrl, getBlankCanvasDataUrl} from 'utils/common';
 import {targetEnv} from 'utils/config';
 
 const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
@@ -111,6 +111,17 @@ async function parseNode(node) {
     case 'VIDEO':
       if (node.poster) {
         urls.push({data: node.poster});
+      }
+      break;
+    case 'CANVAS':
+      let data;
+      try {
+        data = node.toDataURL('image/png');
+      } catch (e) {}
+      if (data) {
+        if (data !== getBlankCanvasDataUrl(node.width, node.height)) {
+          urls.push({data});
+        }
       }
       break;
     case 'LI':

@@ -110,6 +110,13 @@ function blobToDataUrl(blob) {
   });
 }
 
+function getBlankCanvasDataUrl(width, height) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  return canvas.toDataURL('image/png');
+}
+
 async function isAndroid() {
   const {os} = await browser.runtime.getPlatformInfo();
   return os === 'android';
@@ -135,6 +142,7 @@ module.exports = {
   getRandomInt,
   dataUrlToBlob,
   blobToDataUrl,
+  getBlankCanvasDataUrl,
   getDataUrlMimeType,
   isAndroid,
   getActiveTab
