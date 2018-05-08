@@ -9,7 +9,7 @@ import {targetEnv} from 'utils/config';
 
 const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
 const pseudoSelectors = ['::before', '::after'];
-const replacedElements = ['IMG', 'VIDEO', 'IFRAME', 'EMBED'];
+const replacedElements = ['img', 'video', 'iframe', 'embed'];
 const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
 
 function getFilenameExtFromUrl(url) {
@@ -99,35 +99,48 @@ function extractCSSImages(cssProps, node, pseudo = null) {
 
 async function parseNode(node) {
   const urls = [];
-  const nodeName = node.nodeName;
+  const nodeName = node.nodeName.toLowerCase();
   let cssProps = cssProperties;
 
-  switch (nodeName) {
-    case 'IMG':
-      if (node.currentSrc) {
-        urls.push({data: node.currentSrc});
-      }
-      break;
-    case 'VIDEO':
-      if (node.poster) {
-        urls.push({data: node.poster});
-      }
-      break;
-    case 'CANVAS':
-      let data;
-      try {
-        data = node.toDataURL('image/png');
-      } catch (e) {}
-      if (data) {
-        if (data !== getBlankCanvasDataUrl(node.width, node.height)) {
-          urls.push({data});
-        }
-      }
-      break;
-    case 'LI':
-      cssProps = cssProps.slice();
-      cssProps.push('list-style-image');
-      break;
+  if (nodeName === 'img') {
+    if (node.currentSrc) {
+      urls.push({data: node.currentSrc});
+    }
+  }
+
+  if (nodeName === 'embed') {
+    const data = node.src;
+    if (data && (await getImageElement(data))) {
+      urls.push({data});
+    }
+  }
+
+  if (nodeName === 'object') {
+    const data = node.data;
+    if (data && (await getImageElement(data))) {
+      urls.push({data});
+    }
+  }
+
+  if (nodeName === 'canvas') {
+    let data;
+    try {
+      data = node.toDataURL('image/png');
+    } catch (e) {}
+    if (data && data !== getBlankCanvasDataUrl(node.width, node.height)) {
+      urls.push({data});
+    }
+  }
+
+  if (nodeName === 'video') {
+    if (node.poster) {
+      urls.push({data: node.poster});
+    }
+  }
+
+  if (nodeName === 'li') {
+    cssProps = cssProps.slice();
+    cssProps.push('list-style-image');
   }
 
   urls.push(...extractCSSImages(cssProps, node));
