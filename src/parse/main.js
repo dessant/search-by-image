@@ -49,6 +49,9 @@ function fetchImage(url, {credentials = true, token = ''} = {}) {
     xhr.onerror = () => {
       resolve();
     };
+    xhr.onabort = () => {
+      resolve();
+    };
     xhr.ontimeout = () => {
       resolve();
     };
@@ -68,6 +71,9 @@ function getImageElement(url) {
       resolve(img);
     };
     img.onerror = () => {
+      resolve();
+    };
+    img.onabort = () => {
       resolve();
     };
     img.src = url;
