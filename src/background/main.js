@@ -439,7 +439,7 @@ async function onContextMenuItemClick(info, tab) {
   const engine = info.menuItemId;
 
   if (!await scriptsAllowed(tabId, frameId)) {
-    if (info.srcUrl) {
+    if (info.srcUrl && info.mediaType === 'image') {
       await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
       await showNotification({messageId: 'error_scriptsNotAllowed'});
