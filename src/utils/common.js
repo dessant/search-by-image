@@ -117,6 +117,12 @@ function getBlankCanvasDataUrl(width, height) {
   return canvas.toDataURL('image/png');
 }
 
+function getAbsoluteUrl(url) {
+  const a = document.createElement('a');
+  a.href = url;
+  return a.href;
+}
+
 async function isAndroid() {
   const {os} = await browser.runtime.getPlatformInfo();
   return os === 'android';
@@ -143,6 +149,7 @@ module.exports = {
   dataUrlToBlob,
   blobToDataUrl,
   getBlankCanvasDataUrl,
+  getAbsoluteUrl,
   getDataUrlMimeType,
   isAndroid,
   getActiveTab

@@ -4,7 +4,11 @@ import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
 import {validateUrl} from 'utils/app';
-import {blobToDataUrl, getBlankCanvasDataUrl} from 'utils/common';
+import {
+  blobToDataUrl,
+  getBlankCanvasDataUrl,
+  getAbsoluteUrl
+} from 'utils/common';
 import {targetEnv} from 'utils/config';
 
 const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
@@ -114,6 +118,16 @@ async function parseNode(node) {
     }
   }
 
+  if (nodeName === 'image') {
+    const url = node.getAttribute('href') || node.getAttribute('xlink:href');
+    if (url) {
+      const absUrl = getAbsoluteUrl(url);
+      if (absUrl) {
+        urls.push({data: absUrl});
+      }
+    }
+  }
+
   if (nodeName === 'embed') {
     const data = node.src;
     if (data && (await getImageElement(data))) {
@@ -124,6 +138,13 @@ async function parseNode(node) {
   if (nodeName === 'object') {
     const data = node.data;
     if (data && (await getImageElement(data))) {
+      urls.push({data});
+    }
+  }
+
+  if (nodeName === 'iframe') {
+    const data = node.src;
+    if (data && !node.srcdoc && (await getImageElement(data))) {
       urls.push({data});
     }
   }
@@ -168,7 +189,8 @@ async function parseDocument() {
   let urls = [];
   const targetNode = clickTarget.node;
 
-  if (!document.querySelector('html')) {
+  const docNodeName = document.documentElement.nodeName.toLowerCase();
+  if (docNodeName !== 'html' && docNodeName !== 'svg') {
     return urls;
   }
 
@@ -179,7 +201,7 @@ async function parseDocument() {
     'sync'
   );
 
-  if (targetNode.nodeName !== 'IMG' || options.imgFullParse) {
+  if (targetNode.nodeName.toLowerCase() !== 'img' || options.imgFullParse) {
     const fullParseUrls = [];
 
     const clickRectBottom = clickTarget.uy + 24;
