@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.13.0"></a>
+# [1.13.0](https://github.com/dessant/search-by-image/compare/v1.12.1...v1.13.0) (2018-05-14)
+
+
+### Bug Fixes
+
+* always use current source of img element ([9c594b2](https://github.com/dessant/search-by-image/commit/9c594b2))
+* handle abort event during image load ([7374c1e](https://github.com/dessant/search-by-image/commit/7374c1e))
+* search for URL only when it originates from image context ([6a3c7cd](https://github.com/dessant/search-by-image/commit/6a3c7cd))
+
+
+### Features
+
+* detect images in <image> and <iframe> elements ([84e2f4e](https://github.com/dessant/search-by-image/commit/84e2f4e))
+* search for canvas image ([bba9b58](https://github.com/dessant/search-by-image/commit/bba9b58))
+* search for images from embed and object elements ([da5412c](https://github.com/dessant/search-by-image/commit/da5412c))
+* search with current video frame ([1db9903](https://github.com/dessant/search-by-image/commit/1db9903))
+
+
+
 <a name="1.12.1"></a>
 ## [1.12.1](https://github.com/dessant/search-by-image/compare/v1.12.0...v1.12.1) (2018-05-01)
 
