@@ -7,6 +7,7 @@ import {validateUrl} from 'utils/app';
 import {
   blobToDataUrl,
   getBlankCanvasDataUrl,
+  canvasToDataUrl,
   getAbsoluteUrl
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
@@ -150,10 +151,7 @@ async function parseNode(node) {
   }
 
   if (nodeName === 'canvas') {
-    let data;
-    try {
-      data = node.toDataURL('image/png');
-    } catch (e) {}
+    const data = canvasToDataUrl({cnv: node, clear: false});
     if (data && data !== getBlankCanvasDataUrl(node.width, node.height)) {
       urls.push({data});
     }
@@ -252,10 +250,11 @@ async function parseDocument() {
           cnv.width = img.naturalWidth;
           cnv.height = img.naturalHeight;
           ctx.drawImage(img, 0, 0);
-          const data = cnv.toDataURL(type, 0.8);
-          ctx.clearRect(0, 0, cnv.width, cnv.height);
+          const data = canvasToDataUrl({cnv, ctx, type});
 
-          urls[urls.indexOf(item)] = {data, filename};
+          if (data) {
+            urls[urls.indexOf(item)] = {data, filename};
+          }
         }
       }
     }
@@ -271,10 +270,11 @@ async function parseDocument() {
         cnv.width = img.naturalWidth;
         cnv.height = img.naturalHeight;
         ctx.drawImage(img, 0, 0);
-        const data = cnv.toDataURL('image/png');
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        const data = canvasToDataUrl({cnv, ctx});
 
-        urls[urls.indexOf(item)] = {data};
+        if (data) {
+          urls[urls.indexOf(item)] = {data};
+        }
       }
     }
   }

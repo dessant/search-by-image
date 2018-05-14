@@ -117,6 +117,26 @@ function getBlankCanvasDataUrl(width, height) {
   return canvas.toDataURL('image/png');
 }
 
+function canvasToDataUrl({
+  cnv,
+  ctx,
+  type = 'image/png',
+  quality = 0.8,
+  clear = true
+}) {
+  let data;
+  try {
+    data = cnv.toDataURL(type, quality);
+  } catch (e) {}
+  if (clear) {
+    if (!ctx) {
+      ctx = cnv.getContext('2d');
+    }
+    ctx.clearRect(0, 0, cnv.width, cnv.height);
+  }
+  return data;
+}
+
 function getAbsoluteUrl(url) {
   const a = document.createElement('a');
   a.href = url;
@@ -149,6 +169,7 @@ module.exports = {
   dataUrlToBlob,
   blobToDataUrl,
   getBlankCanvasDataUrl,
+  canvasToDataUrl,
   getAbsoluteUrl,
   getDataUrlMimeType,
   isAndroid,
