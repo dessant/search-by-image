@@ -158,6 +158,19 @@ async function parseNode(node) {
   }
 
   if (nodeName === 'video') {
+    if (node.readyState >= 2) {
+      const cnv = document.createElement('canvas');
+      const ctx = cnv.getContext('2d');
+      cnv.width = node.videoWidth;
+      cnv.height = node.videoHeight;
+      ctx.drawImage(node, 0, 0);
+
+      const data = canvasToDataUrl({cnv, ctx});
+      if (data) {
+        urls.push({data});
+      }
+    }
+
     if (node.poster) {
       urls.push({data: node.poster});
     }
