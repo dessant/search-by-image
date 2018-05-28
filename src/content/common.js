@@ -30,6 +30,35 @@ function largeImageNotify(engine, maxSize) {
   });
 }
 
+function waitForElement(selector, timeout = 6000) {
+  return new Promise(resolve => {
+    const el = document.querySelector(selector);
+    if (el) {
+      resolve(el);
+      return;
+    }
+
+    const observer = new MutationObserver(function(mutations, obs) {
+      const el = document.querySelector(selector);
+      if (el) {
+        obs.disconnect();
+        window.clearTimeout(timeoutId);
+        resolve(el);
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true
+    });
+
+    const timeoutId = window.setTimeout(function() {
+      observer.disconnect();
+      resolve();
+    }, timeout);
+  });
+}
+
 function uploadCallback(xhr, callback, engine) {
   try {
     callback(xhr);
@@ -48,11 +77,11 @@ function uploadCallback(xhr, callback, engine) {
 
 async function onMessage(request, uploadFunc, engine) {
   if (request.id === 'imageDataResponse') {
-    if (request.hasOwnProperty('error')) {
-      if (error === 'sessionExpired') {
+    if (request.error) {
+      if (request.error === 'sessionExpired') {
         chrome.runtime.sendMessage({
           id: 'notification',
-          message: hrome.i18n.getMessage(
+          message: chrome.i18n.getMessage(
             'error_sessionExpired',
             chrome.i18n.getMessage(`engineName_${engine}`)
           ),
@@ -63,9 +92,12 @@ async function onMessage(request, uploadFunc, engine) {
       try {
         const params = {imgData: request.imgData};
         let getImage = true;
-        if (request.imgData.isBlob) {
+        if (request.imgData.objectUrl) {
           const size = request.imgData.size;
-          if (['baidu', 'sogou'].includes(engine) && size > 10 * 1024 * 1024) {
+          if (
+            ['baidu', 'sogou', 'depositphotos'].includes(engine) &&
+            size > 10 * 1024 * 1024
+          ) {
             largeImageNotify(engine, '10');
             getImage = false;
           }
@@ -73,7 +105,10 @@ async function onMessage(request, uploadFunc, engine) {
             largeImageNotify(engine, '8');
             getImage = false;
           }
-          if (engine === 'ascii2d' && size > 5 * 1024 * 1024) {
+          if (
+            ['ascii2d', 'getty', 'istock'].includes(engine) &&
+            size > 5 * 1024 * 1024
+          ) {
             largeImageNotify(engine, '5');
             getImage = false;
           }

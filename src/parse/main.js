@@ -3,7 +3,7 @@ import _ from 'lodash';
 import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
-import {validateUrl} from 'utils/app';
+import {hasUrlSupport, validateUrl} from 'utils/app';
 import {
   blobToDataUrl,
   getBlankCanvasDataUrl,
@@ -296,12 +296,14 @@ async function parseDocument() {
     frameStore.data.eventOrigin === 'action'
       ? options.searchModeAction
       : options.searchModeContextMenu;
+  const mustUpload = searchMode === 'selectUpload';
+  const urlSupport = await hasUrlSupport(frameStore.data.engine);
 
-  if (searchMode === 'selectUpload') {
-    const httpUrls = urls.filter(item => validateUrl(item.data));
-    if (httpUrls.length) {
-      for (const item of httpUrls) {
-        const url = item.data;
+  const httpUrls = urls.filter(item => validateUrl(item.data));
+  if (httpUrls.length) {
+    for (const item of httpUrls) {
+      const url = item.data;
+      if (mustUpload || !urlSupport) {
         let rsp;
         if (targetEnv === 'firefox') {
           const token = uuidV4();
@@ -320,7 +322,9 @@ async function parseDocument() {
           continue;
         }
         const data = await blobToDataUrl(rsp.response);
-        urls[urls.indexOf(item)] = {data};
+        urls[urls.indexOf(item)] = {url, data, mustUpload};
+      } else {
+        urls[urls.indexOf(item)] = {url};
       }
     }
   }
@@ -329,13 +333,15 @@ async function parseDocument() {
 }
 
 function validateSearchItem(item, searchMode) {
-  if (item.data.startsWith('data:')) {
-    return true;
+  if (item.url && !validateUrl(item.url)) {
+    return false;
   }
 
-  if (searchMode === 'select' && validateUrl(item.data)) {
-    return true;
+  if (item.data && !item.data.startsWith('data:')) {
+    return false;
   }
+
+  return true;
 }
 
 self.initParse = async function initParse() {

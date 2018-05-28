@@ -19,6 +19,7 @@ import {
 } from 'utils/common';
 import {
   getEnabledEngines,
+  hasUrlSupport,
   showNotification,
   showContributePage
 } from 'utils/app';
@@ -166,12 +167,16 @@ async function createMenu(options) {
   }
 }
 
-async function getTabUrl(imgData, engine, options) {
+async function getTabUrl(imgData, engine, isUpload, options) {
   let tabUrl;
 
-  if (imgData.isBlob) {
+  if (isUpload) {
     tabUrl = engines[engine].upload;
-    if (['google', 'tineye', 'karmaDecay', 'saucenao'].includes(engine)) {
+    if (
+      ['google', 'tineye', 'karmaDecay', 'saucenao', 'shutterstock'].includes(
+        engine
+      )
+    ) {
       tabUrl = tabUrl.replace('{dataKey}', imgData.dataKey);
     }
   } else {
@@ -220,9 +225,10 @@ async function searchImage(
   let engines =
     engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
 
-  const imgData = {isBlob: img.data.startsWith('data:')};
+  const imgData = {};
 
-  if (imgData.isBlob) {
+  if (img.data) {
+    imgData.mustUpload = img.mustUpload;
     if (img.filename) {
       imgData.filename = img.filename;
     } else {
@@ -249,28 +255,38 @@ async function searchImage(
         URL.revokeObjectURL(data.objectUrl);
       }
     }, 600000); // 10 minutes
-  } else {
-    imgData.url = img.data;
+  }
+  if (img.url) {
+    imgData.url = img.url;
   }
 
   let firstEngine = firstBatchItem;
   for (const engine of engines) {
-    tabIndex += 1;
-    await searchEngine(imgData, engine, options, tabIndex, tabActive);
+    if (imgData.objectUrl || (imgData.url && (await hasUrlSupport(engine)))) {
+      tabIndex += 1;
+      await searchEngine(imgData, engine, options, tabIndex, tabActive);
 
-    if (firstEngine && img.origin && img.origin.context === 'browse') {
-      await browser.tabs.remove(img.origin.tabId);
-      tabIndex -= 1;
+      if (firstEngine && img.origin && img.origin.context === 'browse') {
+        await browser.tabs.remove(img.origin.tabId);
+        tabIndex -= 1;
+      }
+
+      tabActive = false;
+      firstEngine = false;
+    } else {
+      await showNotification({
+        messageId: 'error_invalidSearchMethod',
+        type: `${engine}Error`
+      });
     }
-    tabActive = false;
-    firstEngine = false;
   }
 
   return tabIndex;
 }
 
 async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
-  const tabUrl = await getTabUrl(imgData, engine, options);
+  const isUpload = imgData.mustUpload || !await hasUrlSupport(engine);
+  const tabUrl = await getTabUrl(imgData, engine, isUpload, options);
 
   let tabId;
   let loadedBingUrl;
@@ -282,9 +298,13 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
     'sogou',
     'whatanime',
     'iqdb',
-    'ascii2d'
+    'ascii2d',
+    'getty',
+    'istock',
+    'adobestock',
+    'depositphotos'
   ];
-  if (imgData.dataKey && execEngines.includes(engine)) {
+  if (isUpload && execEngines.includes(engine)) {
     const tabUpdateCallback = async function(eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {
         if (engine === 'bing') {
@@ -562,7 +582,7 @@ async function onActionPopupClick(engine, imageUrl) {
   const tabIndex = tab.index;
 
   if (searchModeAction === 'url') {
-    await searchImage({data: imageUrl}, engine, tabIndex);
+    await searchImage({url: imageUrl}, engine, tabIndex);
     return;
   }
 
@@ -609,9 +629,9 @@ async function onMessage(request, sender, sendResponse) {
     const imgData = dataStore[request.dataKey];
     const response = {id: 'imageDataResponse'};
     if (imgData) {
-      response['imgData'] = imgData;
+      response.imgData = imgData;
     } else {
-      response['error'] = 'sessionExpired';
+      response.error = 'sessionExpired';
     }
     browser.tabs.sendMessage(sender.tab.id, response, {frameId: 0});
     return;

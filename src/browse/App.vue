@@ -94,7 +94,7 @@ export default {
         if (file.type.startsWith('image/')) {
           const data = await blobToDataUrl(file);
           if (data) {
-            images.push({data, filename: file.name});
+            images.push({data, filename: file.name, mustUpload: true});
           }
         }
       }

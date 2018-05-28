@@ -30,12 +30,17 @@ export default {
   methods: {
     onMessage: async function(request, sender, sendResponse) {
       if (request.id === 'imageDataResponse') {
-        if (request.hasOwnProperty('error')) {
-          this.error = getText(`error_${request.error}`);
+        if (request.error) {
+          if (request.error === 'sessionExpired') {
+            this.error = getText(
+              'error_sessionExpired',
+              getText(`engineName_${this.engine}`)
+            );
+          }
         } else {
           const params = {imgData: request.imgData};
           let getImage = true;
-          if (request.imgData.isBlob) {
+          if (request.imgData.objectUrl) {
             const size = request.imgData.size;
             if (this.engine === 'google' && size > 20 * 1024 * 1024) {
               this.error = getText('error_invalidImageSize', [
@@ -60,9 +65,12 @@ export default {
               getImage = false;
             }
 
-            if (this.engine === 'saucenao' && size > 5 * 1024 * 1024) {
+            if (
+              ['saucenao', 'shutterstock'].includes(this.engine) &&
+              size > 5 * 1024 * 1024
+            ) {
               this.error = getText('error_invalidImageSize', [
-                getText('engineName_saucenao'),
+                getText(`engineName_${this.engine}`),
                 getText('unit_mb', '5')
               ]);
               getImage = false;
@@ -162,6 +170,34 @@ export default {
 
         window.location.replace(tabUrl);
       }
+
+      if (this.engine === 'shutterstock') {
+        const data = new FormData();
+        data.append('image', blob, imgData.filename);
+        const rsp = await fetch(
+          'https://www.shutterstock.com/discover/search/upload/images',
+          {
+            referrer: '',
+            mode: 'cors',
+            method: 'POST',
+            body: data
+          }
+        );
+
+        if (rsp.status !== 200) {
+          this.error = getText('error_invalidImageSize', [
+            getText('engineName_shutterstock'),
+            getText('unit_mb', '5')
+          ]);
+          return;
+        }
+
+        const results = (await rsp.json()).response.docs;
+        const ids = encodeURIComponent(results.map(item => item.id).join(','));
+        const tabUrl = `https://www.shutterstock.com/search/ris/${ids}`;
+
+        window.location.replace(tabUrl);
+      }
     }
   },
 
@@ -182,7 +218,13 @@ export default {
       getText('extensionName')
     ]);
 
-    const supportedEngines = ['google', 'tineye', 'karmaDecay', 'saucenao'];
+    const supportedEngines = [
+      'google',
+      'tineye',
+      'karmaDecay',
+      'saucenao',
+      'shutterstock'
+    ];
     if (!supportedEngines.includes(this.engine)) {
       this.error = getText(
         'error_invalidImageUrl_dataUrl',

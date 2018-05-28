@@ -70,6 +70,23 @@ const engines = {
   ascii2d: {
     url: 'https://ascii2d.net/search/url/{imgUrl}',
     upload: 'https://ascii2d.net/'
+  },
+  getty: {
+    upload: 'https://www.gettyimages.com/'
+  },
+  istock: {
+    upload: 'https://www.istockphoto.com/'
+  },
+  shutterstock: {
+    upload: `${browser.extension.getURL(
+      '/src/upload/index.html'
+    )}?engine=shutterstock&dataKey={dataKey}`
+  },
+  adobestock: {
+    upload: 'https://stock.adobe.com/'
+  },
+  depositphotos: {
+    upload: 'https://depositphotos.com/'
   }
 };
 

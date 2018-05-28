@@ -3,12 +3,25 @@ import _ from 'lodash';
 
 import storage from 'storage/storage';
 import {getText, createTab, getActiveTab} from 'utils/common';
+import {engines} from 'utils/data';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
     options = await storage.get(['engines', 'disabledEngines'], 'sync');
   }
   return _.difference(options.engines, options.disabledEngines);
+}
+
+async function hasUrlSupport(engine) {
+  let targetEngines =
+    engine === 'allEngines' ? await getEnabledEngines() : [engine];
+  for (const engine of targetEngines) {
+    if (!engines[engine].url) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function showNotification({message, messageId, title, type = 'info'}) {
@@ -71,6 +84,7 @@ async function showContributePage(action = false) {
 
 module.exports = {
   getEnabledEngines,
+  hasUrlSupport,
   showNotification,
   getOptionLabels,
   validateUrl,

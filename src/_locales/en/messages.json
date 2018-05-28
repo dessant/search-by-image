@@ -65,6 +65,31 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_getty": {
+    "message": "Getty",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_istock": {
+    "message": "iStock",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_shutterstock": {
+    "message": "Shutterstock",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_adobestock": {
+    "message": "Adobe Stock",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_depositphotos": {
+    "message": "Depositphotos",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -138,6 +163,31 @@
 
   "menuItemTitle_ascii2d": {
     "message": "Ascii2d",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_getty": {
+    "message": "Getty",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_istock": {
+    "message": "iStock",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_shutterstock": {
+    "message": "Shutterstock",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_adobestock": {
+    "message": "Adobe Stock",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_depositphotos": {
+    "message": "Depositphotos",
     "description": "Title of the menu item."
   },
 
@@ -230,6 +280,31 @@
 
   "optionTitle_ascii2d": {
     "message": "Ascii2d",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_getty": {
+    "message": "Getty Images",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_istock": {
+    "message": "iStock",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_shutterstock": {
+    "message": "Shutterstock",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_adobestock": {
+    "message": "Adobe Stock",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_depositphotos": {
+    "message": "Depositphotos",
     "description": "Title of the option."
   },
 
@@ -525,6 +600,12 @@
   "error_imageNotFound": {
     "message":
       "No image found. Try searching again by placing the cursor above the image.",
+    "description": "Error message."
+  },
+
+  "error_invalidSearchMethod": {
+    "message":
+      "The selected search engine does not support the current search method.",
     "description": "Error message."
   },
 
