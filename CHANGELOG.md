@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.14.0"></a>
+# [1.14.0](https://github.com/dessant/search-by-image/compare/v1.13.0...v1.14.0) (2018-05-28)
+
+
+### Features
+
+* support Getty, iStock, Shutterstock, Adobe Stock and Depositphotos ([976c5e3](https://github.com/dessant/search-by-image/commit/976c5e3)), closes [#32](https://github.com/dessant/search-by-image/issues/32) [#33](https://github.com/dessant/search-by-image/issues/33) [#34](https://github.com/dessant/search-by-image/issues/34) [#35](https://github.com/dessant/search-by-image/issues/35) [#36](https://github.com/dessant/search-by-image/issues/36)
+
+
+
 <a name="1.13.0"></a>
 # [1.13.0](https://github.com/dessant/search-by-image/compare/v1.12.1...v1.13.0) (2018-05-14)
 
