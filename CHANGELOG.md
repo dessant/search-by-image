@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.14.1"></a>
+## [1.14.1](https://github.com/dessant/search-by-image/compare/v1.14.0...v1.14.1) (2018-06-01)
+
+
+### Bug Fixes
+
+* don't search for url when it's not available ([2025134](https://github.com/dessant/search-by-image/commit/2025134)), closes [#39](https://github.com/dessant/search-by-image/issues/39)
+
+
+
 <a name="1.14.0"></a>
 # [1.14.0](https://github.com/dessant/search-by-image/compare/v1.13.0...v1.14.0) (2018-05-28)
 
