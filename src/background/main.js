@@ -285,7 +285,8 @@ async function searchImage(
 }
 
 async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
-  const isUpload = imgData.mustUpload || !await hasUrlSupport(engine);
+  const isUpload =
+    imgData.mustUpload || !imgData.url || !await hasUrlSupport(engine);
   const tabUrl = await getTabUrl(imgData, engine, isUpload, options);
 
   let tabId;
