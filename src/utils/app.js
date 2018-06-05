@@ -12,6 +12,39 @@ async function getEnabledEngines(options) {
   return _.difference(options.engines, options.disabledEngines);
 }
 
+async function getSupportedEngines(imgData, targetEngines) {
+  const supportedEngines = [];
+  for (const engine of targetEngines) {
+    if (imgData.objectUrl || (imgData.url && (await hasUrlSupport(engine)))) {
+      supportedEngines.push(engine);
+    }
+  }
+
+  return supportedEngines;
+}
+
+async function getSearches(imgData, targetEngines) {
+  const searches = [];
+  for (const engine of targetEngines) {
+    const method = (await isUploadSearch(imgData, engine)) ? 'upload' : 'url';
+    const isExec = engines[engine][method].isExec;
+    const isDataKey = engines[engine][method].isDataKey;
+    searches.push({
+      engine,
+      method,
+      isExec,
+      isDataKey,
+      sendsReceipt: isExec || isDataKey
+    });
+  }
+
+  return searches;
+}
+
+async function isUploadSearch(imgData, engine) {
+  return imgData.mustUpload || !imgData.url || !await hasUrlSupport(engine);
+}
+
 async function hasUrlSupport(engine) {
   let targetEngines =
     engine === 'allEngines' ? await getEnabledEngines() : [engine];
@@ -79,11 +112,14 @@ async function showContributePage(action = false) {
   if (action) {
     url = `${url}?action=${action}`;
   }
-  await createTab(url, activeTab.index + 1);
+  await createTab(url, {index: activeTab.index + 1});
 }
 
 module.exports = {
   getEnabledEngines,
+  getSupportedEngines,
+  getSearches,
+  isUploadSearch,
   hasUrlSupport,
   showNotification,
   getOptionLabels,

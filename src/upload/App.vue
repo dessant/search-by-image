@@ -1,7 +1,7 @@
 <template>
 <div id="app" v-show="dataLoaded">
-  <div v-show="showSpinner && !error" class="sk-rotating-plane"></div>
-  <div v-show="error">
+  <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
+  <div v-if="error">
     <div class="error-icon">:/</div>
     <div class="error-text">{{ error }}</div>
   </div>
@@ -163,7 +163,7 @@ export default {
           body: data
         });
         const imgUrl = (await rsp.json()).url;
-        const tabUrl = engines.saucenao.url.replace(
+        const tabUrl = engines.saucenao.url.target.replace(
           '{imgUrl}',
           encodeURIComponent(imgUrl)
         );
@@ -213,11 +213,6 @@ export default {
       return;
     }
 
-    document.title = getText('pageTitle', [
-      getText(`optionTitle_${this.engine}`),
-      getText('extensionName')
-    ]);
-
     const supportedEngines = [
       'google',
       'tineye',
@@ -226,13 +221,15 @@ export default {
       'shutterstock'
     ];
     if (!supportedEngines.includes(this.engine)) {
-      this.error = getText(
-        'error_invalidImageUrl_dataUrl',
-        getText(`optionTitle_${this.engine}`)
-      );
+      this.error = getText('error_invalidPageUrl');
       this.dataLoaded = true;
       return;
     }
+
+    document.title = getText('pageTitle', [
+      getText(`optionTitle_${this.engine}`),
+      getText('extensionName')
+    ]);
 
     const dataKey = query.get('dataKey');
     if (!dataKey) {
@@ -281,14 +278,14 @@ body {
 }
 
 .error-icon {
-  font-size: 96px;
+  font-size: 72px;
   color: #e74c3c;
 }
 
 .error-text {
-  @include mdc-typography('subheading2');
-  @include mdc-theme-prop('color', 'text-primary-on-light');
+  @include mdc-typography(subheading2);
+  @include mdc-theme-prop(color, text-primary-on-light);
   max-width: 520px;
-  margin-top: 36px;
+  margin-top: 24px;
 }
 </style>

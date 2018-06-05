@@ -19,6 +19,8 @@ import {
 } from 'utils/common';
 import {
   getEnabledEngines,
+  getSupportedEngines,
+  getSearches,
   hasUrlSupport,
   showNotification,
   showContributePage
@@ -167,24 +169,22 @@ async function createMenu(options) {
   }
 }
 
-async function getTabUrl(imgData, engine, isUpload, options) {
-  let tabUrl;
+async function getTabUrl(imgData, search, options) {
+  const engine = search.engine;
+  let tabUrl = engines[engine][search.method].target;
 
-  if (isUpload) {
-    tabUrl = engines[engine].upload;
-    if (
-      ['google', 'tineye', 'karmaDecay', 'saucenao', 'shutterstock'].includes(
-        engine
-      )
-    ) {
-      tabUrl = tabUrl.replace('{dataKey}', imgData.dataKey);
-    }
-  } else {
+  if (search.isDataKey) {
+    tabUrl = tabUrl
+      .replace('{engine}', engine)
+      .replace('{dataKey}', imgData.dataKey);
+  }
+
+  if (!search.isExec && !search.isDataKey) {
     let imgUrl = imgData.url;
     if (engine !== 'ascii2d') {
       imgUrl = encodeURIComponent(imgUrl);
     }
-    tabUrl = engines[engine].url.replace('{imgUrl}', imgUrl);
+    tabUrl = tabUrl.replace('{imgUrl}', imgUrl);
     if (engine === 'google' && !options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
     }
@@ -220,11 +220,7 @@ async function searchImage(
   }
 
   const options = await storage.get(optionKeys, 'sync');
-
   tabActive = !options.tabInBackgound && tabActive;
-  let engines =
-    engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
-
   const imgData = {};
 
   if (img.data) {
@@ -240,72 +236,71 @@ async function searchImage(
     const blob = dataUrlToBlob(img.data);
     imgData.objectUrl = URL.createObjectURL(blob);
     imgData.size = blob.size;
+  }
 
+  if (img.url) {
+    imgData.url = img.url;
+  }
+
+  const targetEngines =
+    engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
+  const supportedEngines = await getSupportedEngines(imgData, targetEngines);
+  const unsupportedEngines = targetEngines.filter(
+    item => !supportedEngines.includes(item)
+  );
+  if (unsupportedEngines.length) {
+    await showNotification({
+      messageId: 'error_invalidSearchMethod',
+      type: 'unsupportedError'
+    });
+  }
+
+  const searches = await getSearches(imgData, supportedEngines);
+
+  const expectedReceipts = searches.filter(item => item.sendsReceipt).length;
+  if (expectedReceipts) {
     imgData.dataKey = storeData(
       Object.assign({}, imgData, {
         receipts: {
-          expected: engines.length,
+          expected: expectedReceipts,
           received: 0
         }
       })
     );
     window.setTimeout(function() {
       const data = deleteData(imgData.dataKey);
-      if (data) {
+      if (data && data.objectUrl) {
         URL.revokeObjectURL(data.objectUrl);
       }
     }, 600000); // 10 minutes
   }
-  if (img.url) {
-    imgData.url = img.url;
-  }
 
   let firstEngine = firstBatchItem;
-  for (const engine of engines) {
-    if (imgData.objectUrl || (imgData.url && (await hasUrlSupport(engine)))) {
-      tabIndex += 1;
-      await searchEngine(imgData, engine, options, tabIndex, tabActive);
+  for (const search of searches) {
+    tabIndex += 1;
+    await searchEngine(imgData, search, options, tabIndex, tabActive);
 
-      if (firstEngine && img.origin && img.origin.context === 'browse') {
-        await browser.tabs.remove(img.origin.tabId);
-        tabIndex -= 1;
-      }
-
-      tabActive = false;
-      firstEngine = false;
-    } else {
-      await showNotification({
-        messageId: 'error_invalidSearchMethod',
-        type: `${engine}Error`
-      });
+    if (firstEngine && img.origin && img.origin.context === 'browse') {
+      await browser.tabs.remove(img.origin.tabId);
+      tabIndex -= 1;
     }
+
+    tabActive = false;
+    firstEngine = false;
   }
 
   return tabIndex;
 }
 
-async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
-  const isUpload =
-    imgData.mustUpload || !imgData.url || !await hasUrlSupport(engine);
-  const tabUrl = await getTabUrl(imgData, engine, isUpload, options);
+async function searchEngine(imgData, search, options, tabIndex, tabActive) {
+  const tabUrl = await getTabUrl(imgData, search, options);
 
   let tabId;
   let loadedBingUrl;
   let bingRemoveCallbacks;
-  const execEngines = [
-    'bing',
-    'yandex',
-    'baidu',
-    'sogou',
-    'whatanime',
-    'iqdb',
-    'ascii2d',
-    'getty',
-    'istock',
-    'adobestock',
-    'depositphotos'
-  ];
-  if (isUpload && execEngines.includes(engine)) {
+  const engine = search.engine;
+
+  if (search.isExec) {
     const tabUpdateCallback = async function(eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {
         if (engine === 'bing') {
@@ -358,7 +353,7 @@ async function searchEngine(imgData, engine, options, tabIndex, tabActive) {
     }
   }
 
-  const tab = await createTab(tabUrl, tabIndex, tabActive);
+  const tab = await createTab(tabUrl, {index: tabIndex, active: tabActive});
   tabId = tab.id;
 
   // Google only works with a Blink/WebKit user agent on Android.
@@ -492,7 +487,10 @@ function rememberExecution(module, tabId, frameId = 0) {
 async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
   if (searchMode === 'upload') {
     const browseUrl = browser.extension.getURL('/src/browse/index.html');
-    await createTab(`${browseUrl}?engine=${engine}`, tabIndex + 1, true, tabId);
+    await createTab(`${browseUrl}?engine=${engine}`, {
+      index: tabIndex + 1,
+      openerTabId: tabId
+    });
     return;
   }
 

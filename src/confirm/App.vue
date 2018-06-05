@@ -8,11 +8,11 @@
 
   <div class="mdc-grid-list">
     <ul class="mdc-grid-list__tiles">
-      <li class="mdc-grid-tile" v-for="img in images">
+      <li class="mdc-grid-tile" v-for="(img, index) in images">
         <div class="mdc-grid-tile__primary">
           <div class="mdc-grid-tile__primary-content tile-container"
               tabindex="0"
-              :data-index="images.indexOf(img)"
+              :data-index="index"
               @click="onSelection"
               @keyup.enter="onSelection">
             <img class="tile" :src="img.data"/>

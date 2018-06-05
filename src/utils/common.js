@@ -14,15 +14,15 @@ function onComplete() {
   }
 }
 
-function createTab(url, index, active = true, openerTabId) {
+function createTab(
+  url,
+  {index = null, active = true, openerTabId = null} = {}
+) {
   const props = {url, active};
-  if (typeof index !== 'undefined') {
+  if (index !== null) {
     props.index = index;
   }
-  if (
-    typeof openerTabId !== 'undefined' &&
-    ['chrome', 'opera'].includes(targetEnv)
-  ) {
+  if (openerTabId !== null && ['chrome', 'opera'].includes(targetEnv)) {
     props.openerTabId = openerTabId;
   }
   return browser.tabs.create(props);

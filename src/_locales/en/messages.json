@@ -90,6 +90,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_pinterest": {
+    "message": "Pinterest",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -188,6 +193,11 @@
 
   "menuItemTitle_depositphotos": {
     "message": "Depositphotos",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_pinterest": {
+    "message": "Pinterest",
     "description": "Title of the menu item."
   },
 
@@ -305,6 +315,11 @@
 
   "optionTitle_depositphotos": {
     "message": "Depositphotos",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_pinterest": {
+    "message": "Pinterest",
     "description": "Title of the option."
   },
 
@@ -463,6 +478,17 @@
     "description": "Page content."
   },
 
+  "pageContent_results_title": {
+    "message": "Search results from $ENGINE$",
+    "description": "Page content.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
   "inputPlaceholder_imageUrl": {
     "message": "Image URL",
     "description": "Placeholder of the input."
@@ -545,17 +571,6 @@
   "error_invalidImageUrl": {
     "message": "The image URL is not valid.",
     "description": "Error message."
-  },
-
-  "error_invalidImageUrl_dataUrl": {
-    "message": "Searching for data URI images is not supported on $ENGINE$.",
-    "description": "Error message.",
-    "placeholders": {
-      "engine": {
-        "content": "$1",
-        "example": "Google Images"
-      }
-    }
   },
 
   "error_invalidImageUrl_fileUrl": {

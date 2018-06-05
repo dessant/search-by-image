@@ -13,80 +13,142 @@ const optionKeys = [
   'searchModeContextMenu'
 ];
 
+const uploadUrl =
+  browser.extension.getURL('/src/upload/index.html') +
+  '?engine={engine}&dataKey={dataKey}';
+
+const resultsUrl =
+  browser.extension.getURL('/src/results/index.html') +
+  '?engine={engine}&dataKey={dataKey}';
+
 const engines = {
   google: {
-    url: 'https://www.google.com/searchbyimage?image_url={imgUrl}',
-    upload: `${browser.extension.getURL(
-      '/src/upload/index.html'
-    )}?engine=google&dataKey={dataKey}`
+    url: {target: 'https://www.google.com/searchbyimage?image_url={imgUrl}'},
+    upload: {
+      target: uploadUrl,
+      isDataKey: true
+    }
   },
   bing: {
-    url:
-      'https://www.bing.com/images/search?q=imgurl:{imgUrl}&view=detailv2' +
-      '&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com' +
-      '%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights',
-    upload: 'https://www.bing.com/images/discover?form=HDRSC2'
+    url: {
+      target:
+        'https://www.bing.com/images/search?q=imgurl:{imgUrl}&view=detailv2' +
+        '&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com' +
+        '%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights'
+    },
+    upload: {
+      target: 'https://www.bing.com/images/discover?form=HDRSC2',
+      isExec: true
+    }
   },
   yandex: {
-    url: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview',
-    upload: 'https://yandex.com/images/'
+    url: {
+      target: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview'
+    },
+    upload: {
+      target: 'https://yandex.com/images/',
+      isExec: true
+    }
   },
   baidu: {
-    url:
-      'https://image.baidu.com/n/pc_search' +
-      '?queryImageUrl={imgUrl}&fm=index&uptype=paste',
-    upload: 'http://image.baidu.com/'
+    url: {
+      target:
+        'https://image.baidu.com/n/pc_search' +
+        '?queryImageUrl={imgUrl}&fm=index&uptype=paste'
+    },
+    upload: {
+      target: 'http://image.baidu.com/',
+      isExec: true
+    }
   },
   tineye: {
-    url: 'https://www.tineye.com/search/?&url={imgUrl}',
-    upload: `${browser.extension.getURL(
-      '/src/upload/index.html'
-    )}?engine=tineye&dataKey={dataKey}`
+    url: {target: 'https://www.tineye.com/search/?&url={imgUrl}'},
+    upload: {
+      target: uploadUrl,
+      isDataKey: true
+    }
   },
   sogou: {
-    url: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0',
-    upload: 'http://pic.sogou.com/'
+    url: {target: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0'},
+    upload: {
+      target: 'http://pic.sogou.com/',
+      isExec: true
+    }
   },
   karmaDecay: {
-    url: 'http://karmadecay.com/search?q={imgUrl}',
-    upload: `${browser.extension.getURL(
-      '/src/upload/index.html'
-    )}?engine=karmaDecay&dataKey={dataKey}`
+    url: {target: 'http://karmadecay.com/search?q={imgUrl}'},
+    upload: {
+      target: uploadUrl,
+      isDataKey: true
+    }
   },
   whatanime: {
-    url: 'https://whatanime.ga/?url={imgUrl}',
-    upload: 'https://whatanime.ga/'
+    url: {target: 'https://whatanime.ga/?url={imgUrl}'},
+    upload: {
+      target: 'https://whatanime.ga/',
+      isExec: true
+    }
   },
   saucenao: {
-    url: 'https://saucenao.com/search.php?url={imgUrl}',
-    upload: `${browser.extension.getURL(
-      '/src/upload/index.html'
-    )}?engine=saucenao&dataKey={dataKey}`
+    url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
+    upload: {
+      target: uploadUrl,
+      isDataKey: true
+    }
   },
   iqdb: {
-    url: 'https://iqdb.org/?url={imgUrl}',
-    upload: 'https://iqdb.org/'
+    url: {target: 'https://iqdb.org/?url={imgUrl}'},
+    upload: {
+      target: 'https://iqdb.org/',
+      isExec: true
+    }
   },
   ascii2d: {
-    url: 'https://ascii2d.net/search/url/{imgUrl}',
-    upload: 'https://ascii2d.net/'
+    url: {target: 'https://ascii2d.net/search/url/{imgUrl}'},
+    upload: {
+      target: 'https://ascii2d.net/',
+      isExec: true
+    }
   },
   getty: {
-    upload: 'https://www.gettyimages.com/'
+    upload: {
+      target: 'https://www.gettyimages.com/',
+      isExec: true
+    }
   },
   istock: {
-    upload: 'https://www.istockphoto.com/'
+    upload: {
+      target: 'https://www.istockphoto.com/',
+      isExec: true
+    }
   },
   shutterstock: {
-    upload: `${browser.extension.getURL(
-      '/src/upload/index.html'
-    )}?engine=shutterstock&dataKey={dataKey}`
+    upload: {
+      target: uploadUrl,
+      isDataKey: true
+    }
   },
   adobestock: {
-    upload: 'https://stock.adobe.com/'
+    upload: {
+      target: 'https://stock.adobe.com/',
+      isExec: true
+    }
   },
   depositphotos: {
-    upload: 'https://depositphotos.com/'
+    upload: {
+      target: 'https://depositphotos.com/',
+      isExec: true
+    }
+  },
+  pinterest: {
+    url: {
+      target: resultsUrl,
+      isDataKey: true
+    },
+    upload: {
+      target: resultsUrl,
+      isDataKey: true
+    }
   }
 };
 

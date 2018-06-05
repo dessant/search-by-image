@@ -98,7 +98,7 @@ gulp.task('icons', async function() {
   }
 
   gulp
-    .src('src/icons/@(browse|engines|modes)/*.svg', {base: '.'})
+    .src('src/icons/@(browse|engines|modes|misc)/*.svg', {base: '.'})
     .pipe(gulpif(isProduction, svgmin()))
     .pipe(gulp.dest('dist'));
   gulp

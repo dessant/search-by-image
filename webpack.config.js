@@ -32,6 +32,7 @@ let plugins = [
       'browse',
       'select',
       'upload',
+      'results',
       'confirm',
       'contribute'
     ],
@@ -48,6 +49,7 @@ module.exports = {
     options: './src/options/main.js',
     action: './src/action/main.js',
     upload: './src/upload/main.js',
+    results: './src/results/main.js',
     confirm: './src/confirm/main.js',
     browse: './src/browse/main.js',
     select: './src/select/main.js',
