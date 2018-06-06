@@ -39,22 +39,19 @@ export default {
           }
         } else {
           const params = {imgData: request.imgData};
-          let getImage = true;
-          if (request.imgData.objectUrl) {
-            const size = request.imgData.size;
+          if (params.imgData.isUpload[this.engine]) {
+            const size = params.imgData.size;
             if (this.engine === 'google' && size > 20 * 1024 * 1024) {
               this.error = getText('error_invalidImageSize', [
                 getText('engineName_google'),
                 getText('unit_mb', '20')
               ]);
-              getImage = false;
             }
             if (this.engine === 'tineye' && size > 10 * 1024 * 1024) {
               this.error = getText('error_invalidImageSize', [
                 getText('engineName_tineye'),
                 getText('unit_mb', '10')
               ]);
-              getImage = false;
             }
 
             if (this.engine === 'karmaDecay' && size > 9 * 1024 * 1024) {
@@ -62,7 +59,6 @@ export default {
                 getText('engineName_karmaDecay'),
                 getText('unit_mb', '9')
               ]);
-              getImage = false;
             }
 
             if (
@@ -73,28 +69,35 @@ export default {
                 getText(`engineName_${this.engine}`),
                 getText('unit_mb', '5')
               ]);
-              getImage = false;
             }
 
-            if (getImage) {
-              const rsp = await fetch(request.imgData.objectUrl);
+            if (!this.error) {
+              const rsp = await fetch(params.imgData.objectUrl);
               params.blob = await rsp.blob();
             }
 
             await browser.runtime.sendMessage({
               id: 'dataReceipt',
-              dataKey: request.imgData.dataKey
+              dataKey: params.imgData.dataKey
             });
           }
 
-          if (getImage) {
-            await this.processImgData(params);
+          if (!this.error) {
+            try {
+              await this.processImgData(params);
+            } catch (e) {
+              this.error = getText(
+                'error_engine',
+                getText(`engineName_${this.engine}`)
+              );
+              throw e;
+            }
           }
         }
       }
     },
 
-    processImgData: async function({blob, imgData}) {
+    processImgData: async function({imgData, blob}) {
       if (this.engine === 'google') {
         const data = new FormData();
         data.append('encoded_image', blob, imgData.filename);
@@ -275,6 +278,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  padding: 8px;
 }
 
 .error-icon {

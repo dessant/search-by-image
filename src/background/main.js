@@ -257,12 +257,19 @@ async function searchImage(
 
   const searches = await getSearches(imgData, supportedEngines);
 
-  const expectedReceipts = searches.filter(item => item.sendsReceipt).length;
-  if (expectedReceipts) {
+  const receiptSearches = searches.filter(item => item.sendsReceipt);
+  if (receiptSearches.length) {
     imgData.dataKey = storeData(
       Object.assign({}, imgData, {
+        isUpload: Object.assign(
+          ...receiptSearches.map(function(item) {
+            return {
+              [item.engine]: item.method === 'upload'
+            };
+          })
+        ),
         receipts: {
-          expected: expectedReceipts,
+          expected: receiptSearches.length,
           received: 0
         }
       })

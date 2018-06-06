@@ -91,39 +91,44 @@ async function onMessage(request, uploadFunc, engine) {
     } else {
       try {
         const params = {imgData: request.imgData};
-        let getImage = true;
-        if (request.imgData.objectUrl) {
-          const size = request.imgData.size;
+        let error = false;
+        if (params.imgData.isUpload[engine]) {
+          const size = params.imgData.size;
           if (
             ['baidu', 'sogou', 'depositphotos'].includes(engine) &&
             size > 10 * 1024 * 1024
           ) {
             largeImageNotify(engine, '10');
-            getImage = false;
+            error = true;
           }
           if (['yandex', 'iqdb'].includes(engine) && size > 8 * 1024 * 1024) {
             largeImageNotify(engine, '8');
-            getImage = false;
+            error = true;
           }
           if (
             ['ascii2d', 'getty', 'istock'].includes(engine) &&
             size > 5 * 1024 * 1024
           ) {
             largeImageNotify(engine, '5');
-            getImage = false;
+            error = true;
+          }
+          if (engine === 'qihoo' && size > 2 * 1024 * 1024) {
+            largeImageNotify(engine, '2');
+            error = true;
           }
 
-          if (getImage) {
-            const rsp = await fetch(request.imgData.objectUrl);
+          if (!error) {
+            const rsp = await fetch(params.imgData.objectUrl);
             params.blob = await rsp.blob();
           }
 
           chrome.runtime.sendMessage({
             id: 'dataReceipt',
-            dataKey: request.imgData.dataKey
+            dataKey: params.imgData.dataKey
           });
         }
-        if (getImage) {
+
+        if (!error) {
           await uploadFunc(params);
         }
       } catch (e) {

@@ -149,6 +149,16 @@ const engines = {
       target: resultsUrl,
       isDataKey: true
     }
+  },
+  qihoo: {
+    url: {
+      target: 'https://image.so.com/',
+      isExec: true
+    },
+    upload: {
+      target: 'https://image.so.com/',
+      isExec: true
+    }
   }
 };
 

@@ -41,7 +41,6 @@ import Masonry from 'masonry-layout';
 import imagesLoaded from 'imagesloaded';
 
 import storage from 'storage/storage';
-import {isUploadSearch} from 'utils/app';
 import {onError, getText, createTab, getActiveTab} from 'utils/common';
 import {optionKeys, engines} from 'utils/data';
 
@@ -80,7 +79,7 @@ export default {
           }
         } else {
           const params = {imgData: request.imgData};
-          if (await isUploadSearch(request.imgData, this.engine)) {
+          if (params.imgData.isUpload[this.engine]) {
             if (!this.error) {
               const rsp = await fetch(params.imgData.objectUrl);
               params.blob = await rsp.blob();
