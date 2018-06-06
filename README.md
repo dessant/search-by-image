@@ -25,18 +25,8 @@ or [Bitcoin](https://goo.gl/uJUAaU).
 Search by Image is a browser extension which enables you to initiate
 a reverse image search from the right-click context menu or the browser toolbar.
 It finds all images positioned in the clicked area, including those
-declared in CSS. When multiple images are found, a dialog is shown for
-selecting the desired image. The extension also supports uploading local images.
-
-Features:
-
-* Allows searching with a single engine, or all enabled ones, directly
-  from a top-level context menu item, or a browser toolbar button
-  (see options page)
-* Extracts images from CSS, including pseudo-elements
-* Supports uploading local images
-* Supports searching for data URI images
-* Finds HTML5 video posters
+declared in CSS. The extension also supports uploading local images
+and searching for images from private sites.
 
 Supported search engines:
 
@@ -51,6 +41,40 @@ Supported search engines:
 * SauceNAO
 * Iqdb
 * Ascii2d
+* Getty Images
+* iStock
+* Shutterstock
+* Adobe Stock
+* Depositphotos
+* Pinterest
+* Qihoo 360 Images
+
+The extension offers a handful of search modes which serve different use cases.
+The search mode can be set independently for the context menu
+and browser toolbar from the options page.
+
+Search modes:
+
+* Select (context menu and toolbar): select an image on the page, then search
+  for the image URL, whenever possible. Blob and data URLs will still be
+  handled as image uploads. This is the default search mode.
+* Select & upload (context menu and toolbar): select an image on the page,
+  then fetch the image, possibly from the browser cache, and upload it.
+  This search mode is preferred for sites which do not allow direct linking
+  of images or are otherwise private.
+* Upload (toolbar): select or drop an image from your device, or paste it from
+  the clipboard, then upload it.
+* URL (toolbar): search for an image URL.
+
+Features:
+
+* Search with a single engine, or all enabled ones, directly from the top-level
+  context menu item, or the browser toolbar button (see options page)
+* Detect any image on the page, including those declared in CSS and pseudo-elements
+* Select the desired image from a dialog when multiple images are found
+* Search for images from private sites (see search modes)
+* Search for local images
+* Search for the current video frame
 
 ## Screenshots
 
