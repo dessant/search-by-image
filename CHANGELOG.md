@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.15.0"></a>
+# [1.15.0](https://github.com/dessant/search-by-image/compare/v1.14.1...v1.15.0) (2018-06-06)
+
+
+### Features
+
+* search with Pinterest ([9c22aca](https://github.com/dessant/search-by-image/commit/9c22aca))
+* search with Qihoo 360 ([a407fc2](https://github.com/dessant/search-by-image/commit/a407fc2))
+
+
+
 <a name="1.14.1"></a>
 ## [1.14.1](https://github.com/dessant/search-by-image/compare/v1.14.0...v1.14.1) (2018-06-01)
 
