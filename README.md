@@ -26,7 +26,7 @@ It finds all images positioned in the clicked area, including those
 declared in CSS. The extension also supports uploading local images
 and searching for images from private sites.
 
-##### Search Engines
+#### Search Engines
 
 * Google Images
 * Bing Images
@@ -47,7 +47,7 @@ and searching for images from private sites.
 * Pinterest
 * Qihoo 360 Images
 
-##### Search Modes
+#### Search Modes
 
 The extension offers a handful of search modes which serve different use cases.
 The search mode can be set independently for the context menu
@@ -64,7 +64,7 @@ and browser toolbar from the options page.
   the clipboard, then upload it.
 * **URL** (toolbar): search for an image URL.
 
-##### Features
+#### Features
 
 * Search with a single engine, or all enabled ones, directly from the top-level
   context menu item, or the browser toolbar button (see options page)
