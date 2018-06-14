@@ -12,13 +12,11 @@
   </br></br>
 </p>
 
-## Supporting Search by Image
+## Supporting the Project
 
-Search by Image is an MIT-licensed open source project. Its ongoing
-development is made possible thanks to the support of awesome backers.
-If you'd like to join them, please consider contributing with
-[Patreon](https://goo.gl/qRhKSW), [PayPal](https://goo.gl/5FnBaw)
-or [Bitcoin](https://goo.gl/uJUAaU).
+The ongoing development of Search by Image is made possible thanks
+to the support of awesome backers. If you'd like to join them, please consider contributing with [Patreon](https://goo.gl/qRhKSW),
+[PayPal](https://goo.gl/5FnBaw) or [Bitcoin](https://goo.gl/uJUAaU).
 
 ## Description
 
@@ -28,7 +26,7 @@ It finds all images positioned in the clicked area, including those
 declared in CSS. The extension also supports uploading local images
 and searching for images from private sites.
 
-Supported search engines:
+##### Search Engines
 
 * Google Images
 * Bing Images
@@ -49,24 +47,24 @@ Supported search engines:
 * Pinterest
 * Qihoo 360 Images
 
+##### Search Modes
+
 The extension offers a handful of search modes which serve different use cases.
 The search mode can be set independently for the context menu
 and browser toolbar from the options page.
 
-Search modes:
-
-* Select (context menu and toolbar): select an image on the page, then search
+* **Select** (context menu and toolbar): select an image on the page, then search
   for the image URL, whenever possible. Blob and data URLs will still be
   handled as image uploads. This is the default search mode.
-* Select & upload (context menu and toolbar): select an image on the page,
+* **Select & upload** (context menu and toolbar): select an image on the page,
   then fetch the image, possibly from the browser cache, and upload it.
   This search mode is preferred for sites which do not allow direct linking
   of images or are otherwise private.
-* Upload (toolbar): select or drop an image from your device, or paste it from
+* **Upload** (toolbar): select or drop an image from your device, or paste it from
   the clipboard, then upload it.
-* URL (toolbar): search for an image URL.
+* **URL** (toolbar): search for an image URL.
 
-Features:
+##### Features
 
 * Search with a single engine, or all enabled ones, directly from the top-level
   context menu item, or the browser toolbar button (see options page)
