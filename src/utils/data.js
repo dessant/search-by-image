@@ -162,13 +162,18 @@ const engines = {
   }
 };
 
+// https://github.com/jshttp/mime-db
 const imageMimeTypes = {
+  'image/apng': 'apng',
   'image/bmp': 'bmp',
   'image/cgm': 'cgm',
   'image/g3fax': 'g3',
   'image/gif': 'gif',
   'image/ief': 'ief',
+  'image/jp2': 'jp2',
   'image/jpeg': 'jpg',
+  'image/jpm': 'jpm',
+  'image/jpx': 'jpx',
   'image/ktx': 'ktx',
   'image/png': 'png',
   'image/prs.btif': 'btif',
@@ -186,6 +191,7 @@ const imageMimeTypes = {
   'image/vnd.fst': 'fst',
   'image/vnd.fujixerox.edmics-mmr': 'mmr',
   'image/vnd.fujixerox.edmics-rlc': 'rlc',
+  'image/vnd.microsoft.icon': 'ico',
   'image/vnd.ms-modi': 'mdi',
   'image/vnd.ms-photo': 'wdp',
   'image/vnd.net-fpx': 'npx',
@@ -215,7 +221,7 @@ const imageMimeTypes = {
 
 const chromeUA =
   'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/' +
-  '537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36';
+  '537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Mobile Safari/537.36';
 
 module.exports = {
   optionKeys,

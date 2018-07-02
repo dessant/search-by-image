@@ -10,10 +10,7 @@ import {
   executeFile,
   scriptsAllowed,
   onComplete,
-  getRandomString,
-  getRandomInt,
   dataUrlToBlob,
-  getDataUrlMimeType,
   isAndroid,
   getActiveTab
 } from 'utils/common';
@@ -21,11 +18,10 @@ import {
   getEnabledEngines,
   getSupportedEngines,
   getSearches,
-  hasUrlSupport,
   showNotification,
   showContributePage
 } from 'utils/app';
-import {optionKeys, engines, imageMimeTypes, chromeUA} from 'utils/data';
+import {optionKeys, engines, chromeUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
 const dataStore = {};
@@ -225,13 +221,7 @@ async function searchImage(
 
   if (img.data) {
     imgData.mustUpload = img.mustUpload;
-    if (img.filename) {
-      imgData.filename = img.filename;
-    } else {
-      const ext = imageMimeTypes[getDataUrlMimeType(img.data)];
-      const filename = getRandomString(getRandomInt(5, 20));
-      imgData.filename = ext ? `${filename}.${ext}` : filename;
-    }
+    imgData.filename = img.filename;
 
     const blob = dataUrlToBlob(img.data);
     imgData.objectUrl = URL.createObjectURL(blob);

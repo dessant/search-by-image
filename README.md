@@ -14,8 +14,9 @@
 
 ## Supporting the Project
 
-The ongoing development of Search by Image is made possible thanks
-to the support of awesome backers. If you'd like to join them, please consider contributing with [Patreon](https://goo.gl/qRhKSW),
+The continued development of Search by Image is made possible
+thanks to the support of awesome backers. If you'd like to join them,
+please consider contributing with [Patreon](https://goo.gl/qRhKSW),
 [PayPal](https://goo.gl/5FnBaw) or [Bitcoin](https://goo.gl/uJUAaU).
 
 ## Description

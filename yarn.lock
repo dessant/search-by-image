@@ -4065,6 +4065,10 @@ file-type@^4.1.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/file-type/-/file-type-4.4.0.tgz#1b600e5fca1fbdc6e80c0a70c71c8dba5f7906c5"
 
+file-type@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-8.0.0.tgz#6e4bccc741187f4113334a4e4a4ef84d54d7cc1e"
+
 file-url@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/file-url/-/file-url-2.0.2.tgz#e951784d79095127d3713029ab063f40818ca2ae"

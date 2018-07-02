@@ -3,9 +3,14 @@ import _ from 'lodash';
 import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
-import {hasUrlSupport, validateUrl} from 'utils/app';
 import {
-  blobToDataUrl,
+  hasUrlSupport,
+  validateUrl,
+  normalizeFilename,
+  normalizeImage,
+  getImageElement
+} from 'utils/app';
+import {
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   getAbsoluteUrl
@@ -62,26 +67,6 @@ function fetchImage(url, {credentials = true, token = ''} = {}) {
     };
 
     xhr.send();
-  });
-}
-
-function getImageElement(url) {
-  return new Promise(resolve => {
-    let img = document.querySelector(`img[src="${url}"]`);
-    if (img && img.complete && img.naturalWidth) {
-      resolve(img);
-    }
-    img = new Image();
-    img.onload = () => {
-      resolve(img);
-    };
-    img.onerror = () => {
-      resolve();
-    };
-    img.onabort = () => {
-      resolve();
-    };
-    img.src = url;
   });
 }
 
@@ -151,7 +136,7 @@ async function parseNode(node) {
   }
 
   if (nodeName === 'canvas') {
-    const data = canvasToDataUrl({cnv: node, clear: false});
+    const data = canvasToDataUrl(node, {clear: false});
     if (data && data !== getBlankCanvasDataUrl(node.width, node.height)) {
       urls.push({data});
     }
@@ -165,7 +150,7 @@ async function parseNode(node) {
       cnv.height = node.videoHeight;
       ctx.drawImage(node, 0, 0);
 
-      const data = canvasToDataUrl({cnv, ctx});
+      const data = canvasToDataUrl(cnv, {ctx});
       if (data) {
         urls.push({data});
       }
@@ -246,6 +231,17 @@ async function parseDocument() {
 
   urls = _.uniqBy(urls, 'data');
 
+  const daraUrls = urls.filter(item => item.data.startsWith('data:'));
+  for (const item of daraUrls) {
+    const index = urls.indexOf(item);
+    const {data, ext} = await normalizeImage({dataUrl: item.data});
+    if (data) {
+      urls[index] = {data, filename: normalizeFilename({ext})};
+    } else {
+      urls.splice(index, 1);
+    }
+  }
+
   const isLocalDoc = window.location.href.startsWith('file://');
   if (isLocalDoc) {
     const fileUrls = urls.filter(item => item.data.startsWith('file://'));
@@ -256,16 +252,17 @@ async function parseDocument() {
         const url = item.data;
         const img = await getImageElement(url);
         if (img) {
-          const {filename, ext} = getFilenameExtFromUrl(url);
+          let {filename, ext} = getFilenameExtFromUrl(url);
           const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
             ? 'image/jpeg'
             : 'image/png';
           cnv.width = img.naturalWidth;
           cnv.height = img.naturalHeight;
           ctx.drawImage(img, 0, 0);
-          const data = canvasToDataUrl({cnv, ctx, type});
+          const data = canvasToDataUrl(cnv, {ctx, type});
 
           if (data) {
+            filename = normalizeFilename({filename, ext});
             urls[urls.indexOf(item)] = {data, filename};
           }
         }
@@ -277,16 +274,17 @@ async function parseDocument() {
   if (blobUrls.length) {
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
+    const filename = normalizeFilename({ext: 'png'});
     for (const item of blobUrls) {
       const img = await getImageElement(item.data);
       if (img) {
         cnv.width = img.naturalWidth;
         cnv.height = img.naturalHeight;
         ctx.drawImage(img, 0, 0);
-        const data = canvasToDataUrl({cnv, ctx});
+        const data = canvasToDataUrl(cnv, {ctx});
 
         if (data) {
-          urls[urls.indexOf(item)] = {data};
+          urls[urls.indexOf(item)] = {data, filename};
         }
       }
     }
@@ -302,6 +300,7 @@ async function parseDocument() {
   const httpUrls = urls.filter(item => validateUrl(item.data));
   if (httpUrls.length) {
     for (const item of httpUrls) {
+      const index = urls.indexOf(item);
       const url = item.data;
       if (mustUpload || !urlSupport) {
         let rsp;
@@ -318,25 +317,29 @@ async function parseDocument() {
           rsp = await fetchImage(url);
         }
 
-        if (!rsp || !rsp.response || rsp.response.type.startsWith('text/')) {
+        if (!rsp || !rsp.response) {
+          urls.splice(index, 1);
           continue;
         }
-        const data = await blobToDataUrl(rsp.response);
-        urls[urls.indexOf(item)] = {url, data, mustUpload};
+
+        const {data, ext} = await normalizeImage({blob: rsp.response});
+        if (data) {
+          let {filename} = getFilenameExtFromUrl(url);
+          filename = normalizeFilename({filename, ext});
+          urls[index] = {url, data, filename, mustUpload};
+        } else {
+          urls.splice(index, 1);
+        }
       } else {
-        urls[urls.indexOf(item)] = {url};
+        urls[index] = {url};
       }
     }
   }
 
-  return urls.filter(item => validateSearchItem(item, searchMode));
+  return urls.filter(item => validateSearchItem(item));
 }
 
-function validateSearchItem(item, searchMode) {
-  if (item.url && !validateUrl(item.url)) {
-    return false;
-  }
-
+function validateSearchItem(item) {
   if (item.data && !item.data.startsWith('data:')) {
     return false;
   }

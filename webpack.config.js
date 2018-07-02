@@ -114,5 +114,5 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     extensions: ['.js', '.json', '.css', '.scss', '.vue']
   },
-  plugins: plugins
+  plugins
 };

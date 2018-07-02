@@ -78,20 +78,44 @@ function getDataUrlMimeType(dataUrl) {
     .toLowerCase();
 }
 
-function dataUrlToBlob(dataUrl) {
+function dataUrlToArray(dataUrl) {
+  const [meta, data] = dataUrl.split(',');
   let byteString;
-  if (dataUrl.split(',')[0].indexOf('base64') >= 0) {
-    byteString = atob(dataUrl.split(',')[1]);
+  if (meta.endsWith(';base64')) {
+    byteString = atob(data);
   } else {
-    byteString = unescape(dataUrl.split(',')[1]);
+    byteString = unescape(data);
+  }
+  const length = byteString.length;
+
+  const array = new Uint8Array(new ArrayBuffer(length));
+  for (let i = 0; i < length; i++) {
+    array[i] = byteString.charCodeAt(i);
   }
 
-  const ia = new Uint8Array(byteString.length);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
+  return array;
+}
 
-  return new Blob([ia], {type: getDataUrlMimeType(dataUrl)});
+function dataUrlToBlob(dataUrl) {
+  return new Blob([dataUrlToArray(dataUrl)], {
+    type: getDataUrlMimeType(dataUrl)
+  });
+}
+
+function blobToArray(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      resolve(new Uint8Array(e.target.result));
+    };
+    reader.onerror = () => {
+      resolve();
+    };
+    reader.onabort = () => {
+      resolve();
+    };
+    reader.readAsArrayBuffer(blob);
+  });
 }
 
 function blobToDataUrl(blob) {
@@ -117,13 +141,10 @@ function getBlankCanvasDataUrl(width, height) {
   return canvas.toDataURL('image/png');
 }
 
-function canvasToDataUrl({
+function canvasToDataUrl(
   cnv,
-  ctx,
-  type = 'image/png',
-  quality = 0.8,
-  clear = true
-}) {
+  {ctx, type = 'image/png', quality = 0.8, clear = true} = {}
+) {
   let data;
   try {
     data = cnv.toDataURL(type, quality);
@@ -166,8 +187,10 @@ module.exports = {
   scriptsAllowed,
   getRandomString,
   getRandomInt,
+  dataUrlToArray,
   dataUrlToBlob,
   blobToDataUrl,
+  blobToArray,
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   getAbsoluteUrl,

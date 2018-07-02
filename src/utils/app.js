@@ -1,9 +1,18 @@
 import browser from 'webextension-polyfill';
 import _ from 'lodash';
+import fileType from 'file-type';
 
 import storage from 'storage/storage';
-import {getText, createTab, getActiveTab} from 'utils/common';
-import {engines} from 'utils/data';
+import {
+  getText,
+  createTab,
+  getActiveTab,
+  getDataUrlMimeType,
+  dataUrlToArray,
+  blobToArray,
+  blobToDataUrl
+} from 'utils/common';
+import {engines, imageMimeTypes} from 'utils/data';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
@@ -86,6 +95,16 @@ function getOptionLabels(data, scope = 'optionValue') {
   return labels;
 }
 
+async function showContributePage(action = false) {
+  await storage.set({contribPageLastOpen: new Date().getTime()}, 'sync');
+  const activeTab = await getActiveTab();
+  let url = browser.extension.getURL('/src/contribute/index.html');
+  if (action) {
+    url = `${url}?action=${action}`;
+  }
+  await createTab(url, {index: activeTab.index + 1});
+}
+
 function validateUrl(url) {
   if (!_.isString(url) || url.length > 2048) {
     return;
@@ -105,14 +124,67 @@ function validateUrl(url) {
   return true;
 }
 
-async function showContributePage(action = false) {
-  await storage.set({contribPageLastOpen: new Date().getTime()}, 'sync');
-  const activeTab = await getActiveTab();
-  let url = browser.extension.getURL('/src/contribute/index.html');
-  if (action) {
-    url = `${url}?action=${action}`;
+function normalizeFilename({filename, ext} = {}) {
+  if (!filename) {
+    filename = 'image';
   }
-  await createTab(url, {index: activeTab.index + 1});
+
+  if (ext && !filename.toLowerCase().endsWith(ext)) {
+    filename = `${filename}.${ext}`;
+  }
+
+  return filename;
+}
+
+async function normalizeImage({blob, dataUrl} = {}) {
+  let data = blob || dataUrl;
+  let type = blob ? data.type : getDataUrlMimeType(data);
+  const array = blob ? await blobToArray(data) : dataUrlToArray(data);
+
+  const {mime: realType} = fileType(array) || {};
+
+  if (realType) {
+    if (!realType.startsWith('image/')) {
+      return {};
+    }
+    if (type !== realType) {
+      type = realType;
+      data = new Blob([array], {type});
+    }
+  } else if (!type || !type.startsWith('image/')) {
+    return {};
+  }
+
+  if (data instanceof Blob) {
+    data = await blobToDataUrl(data);
+  }
+
+  const ext = imageMimeTypes[type];
+
+  return {data, type, ext};
+}
+
+function getImageElement(url, {query = true} = {}) {
+  return new Promise(resolve => {
+    let img;
+    if (query) {
+      img = document.querySelector(`img[src="${url}"]`);
+      if (img && img.complete && img.naturalWidth) {
+        resolve(img);
+      }
+    }
+    img = new Image();
+    img.onload = () => {
+      resolve(img);
+    };
+    img.onerror = () => {
+      resolve();
+    };
+    img.onabort = () => {
+      resolve();
+    };
+    img.src = url;
+  });
 }
 
 module.exports = {
@@ -123,6 +195,9 @@ module.exports = {
   hasUrlSupport,
   showNotification,
   getOptionLabels,
+  showContributePage,
   validateUrl,
-  showContributePage
+  normalizeFilename,
+  normalizeImage,
+  getImageElement
 };

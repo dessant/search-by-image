@@ -19,7 +19,6 @@
 
 <script>
 import browser from 'webextension-polyfill';
-import {MDCSnackbar} from '@material/snackbar';
 
 import {getText} from 'utils/common';
 

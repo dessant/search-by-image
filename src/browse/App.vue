@@ -44,8 +44,8 @@
 import browser from 'webextension-polyfill';
 import {Button} from 'ext-components';
 
-import {getEnabledEngines} from 'utils/app';
-import {getText, blobToDataUrl} from 'utils/common';
+import {getEnabledEngines, normalizeFilename, normalizeImage} from 'utils/app';
+import {getText} from 'utils/common';
 
 export default {
   components: {
@@ -91,11 +91,10 @@ export default {
 
       const images = [];
       for (let file of files) {
-        if (file.type.startsWith('image/')) {
-          const data = await blobToDataUrl(file);
-          if (data) {
-            images.push({data, filename: file.name, mustUpload: true});
-          }
+        const {data, ext} = await normalizeImage({blob: file});
+        if (data) {
+          const filename = normalizeFilename({filename: file.name, ext});
+          images.push({data, filename, mustUpload: true});
         }
       }
       if (images.length > 0) {

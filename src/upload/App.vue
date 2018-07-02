@@ -14,7 +14,7 @@ import browser from 'webextension-polyfill';
 
 import storage from 'storage/storage';
 import {onError, getText} from 'utils/common';
-import {optionKeys, engines} from 'utils/data';
+import {engines} from 'utils/data';
 
 export default {
   data: function() {

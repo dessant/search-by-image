@@ -5,7 +5,7 @@ async function upload({blob, imgData}) {
   }
   try {
     const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(new File([blob], imgData.filename));
+    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
     input.files = data.files;
   } catch (e) {
     chrome.runtime.sendMessage({

@@ -15,7 +15,7 @@
               :data-index="index"
               @click="onSelection"
               @keyup.enter="onSelection">
-            <img class="tile" :src="img.data"/>
+            <img class="tile" :src="img.data || img.url"/>
           </div>
         </div>
       </li>
