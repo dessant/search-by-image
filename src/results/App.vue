@@ -12,7 +12,9 @@
           :class="resultClasses"
           v-for="(item, index) in results">
         <div class="grid-item-image-wrap" :data-index="index" @click="openPage">
-          <img class="grid-item-image" :src="item.image"/>
+          <img class="grid-item-image"
+              referrerpolicy="no-referrer"
+              :src="item.image"/>
         </div>
         <div class="grid-item-footer">
           <div class="grid-item-footer-text">{{item.text}}</div>

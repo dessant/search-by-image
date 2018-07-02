@@ -15,7 +15,9 @@
               :data-index="index"
               @click="onSelection"
               @keyup.enter="onSelection">
-            <img class="tile" :src="img.data || img.url"/>
+            <img class="tile"
+                referrerpolicy="no-referrer"
+                :src="img.data || img.url"/>
           </div>
         </div>
       </li>
