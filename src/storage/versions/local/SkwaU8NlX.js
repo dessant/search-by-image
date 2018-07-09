@@ -5,7 +5,7 @@ const message = 'Add Qihoo';
 const revision = 'SkwaU8NlX';
 const downRevision = 'Syy800KkQ';
 
-const storage = browser.storage.sync;
+const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
