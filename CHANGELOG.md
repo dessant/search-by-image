@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.16.1"></a>
+## [1.16.1](https://github.com/dessant/search-by-image/compare/v1.16.0...v1.16.1) (2018-07-09)
+
+
+### Bug Fixes
+
+* request correct storage path during config upgrade ([b5a7054](https://github.com/dessant/search-by-image/commit/b5a7054)), closes [#41](https://github.com/dessant/search-by-image/issues/41)
+
+
+
 <a name="1.16.0"></a>
 # [1.16.0](https://github.com/dessant/search-by-image/compare/v1.15.0...v1.16.0) (2018-07-02)
 
