@@ -3,11 +3,11 @@
 
 <p align="center">
   </br></br>
-  <a href="https://goo.gl/RRhFWb">
+  <a href="https://chrome.google.com/webstore/detail/search-by-image/cnojnbdhbhnkbcieeekonklommdnndci">
     <img src="https://i.imgur.com/q6E8SOD.png" alt="Chrome Web Store"></a>
-  <a href="https://goo.gl/bUZqLG">
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
     <img src="https://i.imgur.com/dvof8rG.png" alt="Firefox add-ons"></a>
-  <a href="">
+  <a href="https://addons.opera.com/en/extensions/details/search-by-image/">
     <img src="https://i.imgur.com/wK10qEV.png" alt="Opera add-ons"></a>
   </br></br>
 </p>
