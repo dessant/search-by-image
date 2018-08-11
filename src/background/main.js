@@ -62,7 +62,7 @@ function createMenuItem({
   parent,
   type = 'normal',
   urlPatterns,
-  icons = null
+  icons
 }) {
   const params = {
     id,
@@ -127,26 +127,17 @@ async function createMenu(options) {
       return;
     }
 
-    createMenuItem({
-      id: 'par-1',
-      title: getText('mainMenuGroupTitle_searchImage'),
-      contexts,
-      urlPatterns
-    });
-
     if (searchAllEngines === 'sub') {
       createMenuItem({
         id: 'allEngines',
         title: getText('menuItemTitle_allEngines'),
         contexts,
-        parent: 'par-1',
         urlPatterns,
         icons: setIcons && getEngineMenuIcons('allEngines')
       });
       createMenuItem({
         id: 'sep-1',
         contexts,
-        parent: 'par-1',
         type: 'separator',
         urlPatterns
       });
@@ -157,7 +148,6 @@ async function createMenu(options) {
         id: engine,
         title: getText(`menuItemTitle_${engine}`),
         contexts,
-        parent: 'par-1',
         urlPatterns,
         icons: setIcons && getEngineMenuIcons(engine)
       });

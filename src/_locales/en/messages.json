@@ -232,11 +232,6 @@
     }
   },
 
-  "mainMenuGroupTitle_searchImage": {
-    "message": "Search for image on...",
-    "description": "Title of the menu group."
-  },
-
   "optionSectionTitle_engines": {
     "message": "Search engines",
     "description": "Title of the options section."
