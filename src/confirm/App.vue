@@ -70,7 +70,7 @@ export default {
       this.showDialog = false;
       browser.runtime.sendMessage({
         id: 'imageConfirmationSubmit',
-        img: this.images[e.target.dataset.index],
+        img: Object.assign({}, this.images[e.target.dataset.index]),
         engine: this.engine
       });
     }
