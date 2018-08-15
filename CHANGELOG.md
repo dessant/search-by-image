@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.17.0"></a>
+# [1.17.0](https://github.com/dessant/search-by-image/compare/v1.16.1...v1.17.0) (2018-08-15)
+
+
+### Bug Fixes
+
+* copy object before transferring ([e3cb13b](https://github.com/dessant/search-by-image/commit/e3cb13b))
+* use extension name for context menu group ([baf57cc](https://github.com/dessant/search-by-image/commit/baf57cc)), closes [#42](https://github.com/dessant/search-by-image/issues/42)
+
+
+### Features
+
+* update dependencies, optimize bundling ([b0cdb80](https://github.com/dessant/search-by-image/commit/b0cdb80))
+
+
+
 <a name="1.16.1"></a>
 ## [1.16.1](https://github.com/dessant/search-by-image/compare/v1.16.0...v1.16.1) (2018-07-09)
 
