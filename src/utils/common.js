@@ -177,7 +177,7 @@ async function getActiveTab() {
   return tab;
 }
 
-module.exports = {
+export {
   onError,
   onComplete,
   getText,

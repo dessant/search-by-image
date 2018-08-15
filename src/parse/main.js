@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import _ from 'lodash';
+import {uniqBy} from 'lodash-es';
 import uuidV4 from 'uuid/v4';
 
 import storage from 'storage/storage';
@@ -229,7 +229,7 @@ async function parseDocument() {
     urls.push(...fullParseUrls.reverse());
   }
 
-  urls = _.uniqBy(urls, 'data');
+  urls = uniqBy(urls, 'data');
 
   const daraUrls = urls.filter(item => item.data.startsWith('data:'));
   for (const item of daraUrls) {

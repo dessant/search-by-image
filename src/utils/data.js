@@ -223,9 +223,4 @@ const chromeUA =
   'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/' +
   '537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Mobile Safari/537.36';
 
-module.exports = {
-  optionKeys,
-  engines,
-  imageMimeTypes,
-  chromeUA
-};
+export {optionKeys, engines, imageMimeTypes, chromeUA};

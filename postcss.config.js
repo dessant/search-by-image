@@ -1,7 +1,7 @@
 module.exports = function(ctx) {
   return {
     plugins: {
-      autoprefixer: ctx.env === 'production' ? {} : false,
+      autoprefixer: {},
       cssnano:
         ctx.env === 'production' ? {zindex: false, discardUnused: false} : false
     }

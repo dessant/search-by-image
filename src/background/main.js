@@ -1,7 +1,8 @@
 import browser from 'webextension-polyfill';
-import _ from 'lodash';
+import {cloneDeep} from 'lodash-es';
 import uuidV4 from 'uuid/v4';
 
+import {initStorage} from 'storage/init';
 import storage from 'storage/storage';
 import {
   getText,
@@ -27,7 +28,7 @@ import {targetEnv} from 'utils/config';
 const dataStore = {};
 
 function storeData(data) {
-  data = _.cloneDeep(data);
+  data = cloneDeep(data);
   const dataKey = uuidV4();
   data.dataKey = dataKey;
   dataStore[dataKey] = data;
@@ -392,11 +393,11 @@ async function searchClickTarget(tabId, frameId, engine, eventOrigin) {
   const [probe] = await executeCode('frameStore;', tabId, frameId);
   if (!probe.modules.manifest) {
     await rememberExecution('manifest', tabId, frameId);
-    await executeFile('/src/manifest.bundle.js', tabId, frameId);
+    await executeFile('/src/manifest.js', tabId, frameId);
   }
   if (!probe.modules.parse) {
     await rememberExecution('parse', tabId, frameId);
-    await executeFile('/src/parse/parse.bundle.js', tabId, frameId);
+    await executeFile('/src/parse/script.js', tabId, frameId);
   }
 
   await executeCode('initParse();', tabId, frameId);
@@ -441,7 +442,7 @@ async function onContextMenuItemClick(info, tab) {
   const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
   const engine = info.menuItemId;
 
-  if (!await scriptsAllowed(tabId, frameId)) {
+  if (!(await scriptsAllowed(tabId, frameId))) {
     if (info.srcUrl && info.mediaType === 'image') {
       await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
@@ -487,7 +488,7 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
       return;
     }
 
-    if (!await scriptsAllowed(tabId)) {
+    if (!(await scriptsAllowed(tabId))) {
       await showNotification({messageId: 'error_scriptsNotAllowed'});
       return;
     }
@@ -857,7 +858,7 @@ function addMessageListener() {
 }
 
 async function onLoad() {
-  await storage.init('sync');
+  await initStorage('sync');
   await setContextMenu();
   await setBrowserAction();
   addStorageListener();

@@ -96,7 +96,7 @@
 
 <script>
 import browser from 'webextension-polyfill';
-import _ from 'lodash';
+import {includes, without} from 'lodash-es';
 import draggable from 'vuedraggable';
 import {Checkbox, FormField, Switch, Select} from 'ext-components';
 
@@ -146,12 +146,12 @@ export default {
     getText,
 
     engineEnabled: function(engine) {
-      return !_.includes(this.options.disabledEngines, engine);
+      return !includes(this.options.disabledEngines, engine);
     },
 
     setEngineState: async function(engine, enabled) {
       if (enabled) {
-        this.options.disabledEngines = _.without(
+        this.options.disabledEngines = without(
           this.options.disabledEngines,
           engine
         );

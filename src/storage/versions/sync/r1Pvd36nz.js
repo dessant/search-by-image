@@ -25,9 +25,4 @@ async function downgrade() {
   return storage.set(changes);
 }
 
-module.exports = {
-  message,
-  revision,
-  upgrade,
-  downgrade
-};
+export {message, revision, upgrade, downgrade};

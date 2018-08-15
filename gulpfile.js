@@ -26,7 +26,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('js:webpack', function(done) {
-  exec('webpack --display-error-details --colors', function(
+  exec('webpack-cli --display-error-details --bail --colors', function(
     err,
     stdout,
     stderr

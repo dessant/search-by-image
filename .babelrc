@@ -1,10 +1,10 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/env",
       {
-        "targets": {"chrome": 55, "firefox": 52, "opera": 42},
-        "exclude": ["transform-regenerator"]
+        "exclude": ["transform-regenerator"],
+        "modules": false
       }
     ]
   ],

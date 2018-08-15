@@ -34,10 +34,10 @@ async function upload({blob, imgData}) {
         }
         if (sw > sh) {
           dw = maxSize;
-          dh = sh / sw * maxSize;
+          dh = (sh / sw) * maxSize;
         }
         if (sw < sh) {
-          dw = sw / sh * maxSize;
+          dw = (sw / sh) * maxSize;
           dh = maxSize;
         }
       } else {

@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import _ from 'lodash';
+import {difference, isString} from 'lodash-es';
 import fileType from 'file-type';
 
 import storage from 'storage/storage';
@@ -18,7 +18,7 @@ async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
     options = await storage.get(['engines', 'disabledEngines'], 'sync');
   }
-  return _.difference(options.engines, options.disabledEngines);
+  return difference(options.engines, options.disabledEngines);
 }
 
 async function getSupportedEngines(imgData, targetEngines) {
@@ -51,7 +51,7 @@ async function getSearches(imgData, targetEngines) {
 }
 
 async function isUploadSearch(imgData, engine) {
-  return imgData.mustUpload || !imgData.url || !await hasUrlSupport(engine);
+  return imgData.mustUpload || !imgData.url || !(await hasUrlSupport(engine));
 }
 
 async function hasUrlSupport(engine) {
@@ -106,7 +106,7 @@ async function showContributePage(action = false) {
 }
 
 function validateUrl(url) {
-  if (!_.isString(url) || url.length > 2048) {
+  if (!isString(url) || url.length > 2048) {
     return;
   }
 
@@ -187,7 +187,7 @@ function getImageElement(url, {query = true} = {}) {
   });
 }
 
-module.exports = {
+export {
   getEnabledEngines,
   getSupportedEngines,
   getSearches,
