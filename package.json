@@ -78,7 +78,7 @@
     "gulp-svgmin": "^1.2.4",
     "lodash-webpack-plugin": "^0.11.5",
     "mini-css-extract-plugin": "^0.4.1",
-    "node-sass": "^4.9.3",
+    "node-sass": "4.7.2",
     "npm-check-updates": "^2.14.2",
     "postcss-loader": "^3.0.0",
     "recursive-readdir": "^2.2.2",
