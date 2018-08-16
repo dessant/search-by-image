@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.17.1"></a>
+## [1.17.1](https://github.com/dessant/search-by-image/compare/v1.17.0...v1.17.1) (2018-08-16)
+
+
+### Bug Fixes
+
+* downgrade node-sass ([b80d9f7](https://github.com/dessant/search-by-image/commit/b80d9f7))
+
+
+
 <a name="1.17.0"></a>
 # [1.17.0](https://github.com/dessant/search-by-image/compare/v1.16.1...v1.17.0) (2018-08-15)
 
