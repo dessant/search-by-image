@@ -89,5 +89,7 @@ and browser toolbar from the options page.
 
 ## License
 
-Search by Image is released under the terms of the MIT License.
+Copyright (C) 2017-2018 Armin Sebastian
+
+This software is released under the terms of the GNU General Public License v3.0.
 Please refer to the LICENSE file.

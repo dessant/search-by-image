@@ -3,7 +3,7 @@
   "version": "1.17.1",
   "author": "Armin Sebastian",
   "repository": "https://github.com/dessant/search-by-image",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "scripts": {
     "build": "cross-env NODE_ENV=development gulp",
     "build:chrome": "cross-env TARGET_ENV=chrome yarn run build",
