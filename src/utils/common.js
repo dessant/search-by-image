@@ -158,6 +158,13 @@ function canvasToDataUrl(
   return data;
 }
 
+function drawElementOnCanvas(ctx, node) {
+  try {
+    ctx.drawImage(node, 0, 0);
+    return true;
+  } catch (e) {}
+}
+
 function getAbsoluteUrl(url) {
   const a = document.createElement('a');
   a.href = url;
@@ -193,6 +200,7 @@ export {
   blobToArray,
   getBlankCanvasDataUrl,
   canvasToDataUrl,
+  drawElementOnCanvas,
   getAbsoluteUrl,
   getDataUrlMimeType,
   isAndroid,

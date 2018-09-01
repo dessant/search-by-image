@@ -13,6 +13,7 @@ import {
 import {
   getBlankCanvasDataUrl,
   canvasToDataUrl,
+  drawElementOnCanvas,
   getAbsoluteUrl
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
@@ -148,11 +149,12 @@ async function parseNode(node) {
       const ctx = cnv.getContext('2d');
       cnv.width = node.videoWidth;
       cnv.height = node.videoHeight;
-      ctx.drawImage(node, 0, 0);
 
-      const data = canvasToDataUrl(cnv, {ctx});
-      if (data) {
-        urls.push({data});
+      if (drawElementOnCanvas(ctx, node)) {
+        const data = canvasToDataUrl(cnv, {ctx});
+        if (data) {
+          urls.push({data});
+        }
       }
     }
 
@@ -258,12 +260,13 @@ async function parseDocument() {
             : 'image/png';
           cnv.width = img.naturalWidth;
           cnv.height = img.naturalHeight;
-          ctx.drawImage(img, 0, 0);
-          const data = canvasToDataUrl(cnv, {ctx, type});
 
-          if (data) {
-            filename = normalizeFilename({filename, ext});
-            urls[urls.indexOf(item)] = {data, filename};
+          if (drawElementOnCanvas(ctx, img)) {
+            const data = canvasToDataUrl(cnv, {ctx, type});
+            if (data) {
+              filename = normalizeFilename({filename, ext});
+              urls[urls.indexOf(item)] = {data, filename};
+            }
           }
         }
       }
@@ -280,11 +283,12 @@ async function parseDocument() {
       if (img) {
         cnv.width = img.naturalWidth;
         cnv.height = img.naturalHeight;
-        ctx.drawImage(img, 0, 0);
-        const data = canvasToDataUrl(cnv, {ctx});
 
-        if (data) {
-          urls[urls.indexOf(item)] = {data, filename};
+        if (drawElementOnCanvas(ctx, img)) {
+          const data = canvasToDataUrl(cnv, {ctx});
+          if (data) {
+            urls[urls.indexOf(item)] = {data, filename};
+          }
         }
       }
     }
@@ -349,7 +353,7 @@ function validateSearchItem(item) {
 
 self.initParse = async function initParse() {
   const images = await parseDocument().catch(err => {
-    console.log(err);
+    console.log(err.toString());
     browser.runtime.sendMessage({
       id: 'pageParseError'
     });
