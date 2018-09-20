@@ -17,6 +17,7 @@ const jsonmin = require('gulp-jsonmin');
 const svg2png = require('svg2png');
 const imagemin = require('gulp-imagemin');
 const sharp = require('sharp');
+const dedent = require('dedent');
 
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -187,18 +188,31 @@ gulp.task('manifest', function() {
     .pipe(gulp.dest('dist'));
 });
 
+gulp.task('license', function() {
+  const notice = dedent`
+    Search by Image
+    Copyright (c) 2017-${new Date().getFullYear()} Armin Sebastian
+
+    This software is released under the terms of the GNU General Public License v3.0.
+    See the LICENSE file for further information.
+  `;
+
+  writeFileSync('dist/NOTICE', notice);
+  gulp.src(['LICENSE']).pipe(gulp.dest('dist'));
+});
+
 gulp.task('copy', function() {
   gulp
     .src('node_modules/ext-contribute/src/assets/*.@(jpg|png)')
     .pipe(gulp.dest('dist/src/contribute/assets'));
-  gulp.src(['LICENSE', 'src*/icons/**/*.@(jpg|png)']).pipe(gulp.dest('dist'));
+  gulp.src(['src*/icons/**/*.@(jpg|png)']).pipe(gulp.dest('dist'));
 });
 
 gulp.task(
   'build',
   gulpSeq(
     'clean',
-    ['js', 'html', 'css', 'icons', 'fonts', 'locale', 'manifest'],
+    ['js', 'html', 'css', 'icons', 'fonts', 'locale', 'manifest', 'license'],
     'copy'
   )
 );
