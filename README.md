@@ -91,6 +91,5 @@ and browser toolbar from the options page.
 
 Copyright (c) 2017-2018 Armin Sebastian
 
-Search by Image is released under the terms
-of the GNU General Public License v3.0.
+This software is released under the terms of the GNU General Public License v3.0.
 See the [LICENSE](LICENSE) file for further information.
