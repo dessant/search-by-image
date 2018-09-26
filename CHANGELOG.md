@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.18.0"></a>
+# [1.18.0](https://github.com/dessant/search-by-image/compare/v1.17.1...v1.18.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* catch error while drawing to canvas ([8ec43d1](https://github.com/dessant/search-by-image/commit/8ec43d1))
+
+
+### Features
+
+* capture and search for details in images ([92cb939](https://github.com/dessant/search-by-image/commit/92cb939)), closes [#43](https://github.com/dessant/search-by-image/issues/43)
+* change license to GPLv3 ([321806a](https://github.com/dessant/search-by-image/commit/321806a))
+
+
+
 <a name="1.17.1"></a>
 ## [1.17.1](https://github.com/dessant/search-by-image/compare/v1.17.0...v1.17.1) (2018-08-16)
 
