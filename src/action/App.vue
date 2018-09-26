@@ -105,7 +105,13 @@ export default {
       imageUrl: '',
       selectOptions: getOptionLabels(
         {
-          searchModeAction: ['select', 'selectUpload', 'upload', 'url']
+          searchModeAction: [
+            'select',
+            'selectUpload',
+            'capture',
+            'upload',
+            'url'
+          ]
         },
         'optionValue_action'
       ),

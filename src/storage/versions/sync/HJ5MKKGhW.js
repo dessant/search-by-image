@@ -12,7 +12,7 @@ async function upgrade() {
   const changes = {
     showInContextMenu: true,
     searchAllEnginesAction: 'sub', // 'main', 'sub', 'false'
-    searchModeAction: 'select' // 'select', 'selectUpload', 'upload', 'url'
+    searchModeAction: 'select' // 'select', 'selectUpload', 'capture', 'upload', 'url'
   };
 
   changes.storageVersion = revision;

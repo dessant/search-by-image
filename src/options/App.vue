@@ -121,9 +121,9 @@ export default {
 
       selectOptions: getOptionLabels({
         searchAllEnginesContextMenu: ['main', 'sub', 'false'],
-        searchModeContextMenu: ['select', 'selectUpload'],
+        searchModeContextMenu: ['select', 'selectUpload', 'capture'],
         searchAllEnginesAction: ['main', 'sub', 'false'],
-        searchModeAction: ['select', 'selectUpload', 'upload', 'url']
+        searchModeAction: ['select', 'selectUpload', 'capture', 'upload', 'url']
       }),
       contextMenuEnabled: true,
 

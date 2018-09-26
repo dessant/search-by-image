@@ -12,6 +12,7 @@ import {
   scriptsAllowed,
   onComplete,
   dataUrlToBlob,
+  canvasToDataUrl,
   isAndroid,
   getActiveTab
 } from 'utils/common';
@@ -20,7 +21,9 @@ import {
   getSupportedEngines,
   getSearches,
   showNotification,
-  showContributePage
+  showContributePage,
+  normalizeFilename,
+  captureVisibleTabArea
 } from 'utils/app';
 import {optionKeys, engines, chromeUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
@@ -442,6 +445,16 @@ async function onContextMenuItemClick(info, tab) {
   const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
   const engine = info.menuItemId;
 
+  const {searchModeContextMenu} = await storage.get(
+    'searchModeContextMenu',
+    'sync'
+  );
+
+  if (searchModeContextMenu === 'capture') {
+    await showCapture(tabId, engine);
+    return;
+  }
+
   if (!(await scriptsAllowed(tabId, frameId))) {
     if (info.srcUrl && info.mediaType === 'image') {
       await searchImage({data: info.srcUrl}, engine, tabIndex);
@@ -479,6 +492,11 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
       index: tabIndex + 1,
       openerTabId: tabId
     });
+    return;
+  }
+
+  if (searchMode === 'capture') {
+    await showCapture(tabId, engine);
     return;
   }
 
@@ -574,6 +592,34 @@ async function onActionPopupClick(engine, imageUrl) {
   }
 
   onActionClick(tabIndex, tab.id, tab.url, engine, searchModeAction);
+}
+
+async function showCapture(tabId, engine) {
+  if (!(await scriptsAllowed(tabId))) {
+    await showNotification({messageId: 'error_scriptsNotAllowed'});
+    return;
+  }
+
+  const [probe] = await executeCode('frameStore;', tabId);
+  if (!probe.modules.capture) {
+    await rememberExecution('capture', tabId);
+
+    await browser.tabs.insertCSS(tabId, {
+      runAt: 'document_start',
+      file: '/src/capture/frame.css'
+    });
+
+    await executeFile('/src/content/capture.js', tabId);
+  }
+
+  await browser.tabs.sendMessage(
+    tabId,
+    {
+      id: 'imageCaptureOpen',
+      engine
+    },
+    {frameId: 0}
+  );
 }
 
 function setRequestReferrer(url, referrer, token) {
@@ -715,6 +761,35 @@ async function onMessage(request, sender, sendResponse) {
     browser.tabs.sendMessage(
       sender.tab.id,
       {id: 'imageConfirmationClose'},
+      {frameId: 0}
+    );
+    return;
+  }
+
+  if (request.id === 'imageCaptureSubmit') {
+    const tabId = sender.tab.id;
+    browser.tabs.sendMessage(tabId, {id: 'imageCaptureClose'}, {frameId: 0});
+
+    const [[surfaceWidth, surfaceHeight]] = await executeCode(
+      `[window.innerWidth, window.innerHeight];`,
+      tabId
+    );
+    const area = {...request.area, surfaceWidth, surfaceHeight};
+
+    const captureData = await captureVisibleTabArea(area);
+    const image = {
+      data: captureData,
+      filename: normalizeFilename({ext: 'png'})
+    };
+
+    searchImage(image, request.engine, sender.tab.index);
+    return;
+  }
+
+  if (request.id === 'imageCaptureCancel') {
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: 'imageCaptureClose'},
       {frameId: 0}
     );
     return;

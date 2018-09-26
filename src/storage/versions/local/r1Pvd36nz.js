@@ -9,7 +9,7 @@ const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {
-    searchModeContextMenu: 'select' // 'select', 'selectUpload'
+    searchModeContextMenu: 'select' // 'select', 'selectUpload', 'capture'
   };
 
   changes.storageVersion = revision;

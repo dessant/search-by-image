@@ -34,6 +34,7 @@ module.exports = {
     confirm: './src/confirm/main.js',
     browse: './src/browse/main.js',
     select: './src/select/main.js',
+    capture: './src/capture/main.js',
     contribute: './src/contribute/main.js',
     parse: './src/parse/main.js'
   },
@@ -56,6 +57,7 @@ module.exports = {
               'action',
               'browse',
               'select',
+              'capture',
               'upload',
               'results',
               'confirm',

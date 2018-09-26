@@ -61,6 +61,7 @@ gulp.task('css', function() {
         'src/select/frame.css',
         'src/select/pointer.css',
         'src/confirm/frame.css',
+        'src/capture/frame.css',
         'src/content/engines/style.css'
       ],
       {

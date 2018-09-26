@@ -3103,6 +3103,10 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+cropperjs@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/cropperjs/-/cropperjs-1.4.1.tgz#41d9fcd87f9d9cd2e1dcf27c36680cac7a48cd6b"
+
 cross-env@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-5.2.0.tgz#6ecd4c015d5773e614039ee529076669b9d126f2"

@@ -39,6 +39,7 @@
     "@material/snackbar": "^0.30.0",
     "@material/theme": "^0.30.0",
     "@material/typography": "^0.28.0",
+    "cropperjs": "^1.4.1",
     "ext-components": "dessant/ext-components#^0.1.5",
     "ext-contribute": "dessant/ext-contribute#^0.1.5",
     "file-type": "^9.0.0",

@@ -373,6 +373,11 @@
     "description": "Value of the option."
   },
 
+  "optionValue_action_searchModeAction_capture": {
+    "message": "Capture",
+    "description": "Value of the option."
+  },
+
   "optionValue_action_searchModeAction_upload": {
     "message": "Upload",
     "description": "Value of the option."
@@ -390,6 +395,11 @@
 
   "optionValue_searchModeAction_selectUpload": {
     "message": "Select & upload",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchModeAction_capture": {
+    "message": "Capture",
     "description": "Value of the option."
   },
 
@@ -438,6 +448,11 @@
     "description": "Value of the option."
   },
 
+  "optionValue_searchModeContextMenu_capture": {
+    "message": "Capture",
+    "description": "Value of the option."
+  },
+
   "optionSectionTitle_misc": {
     "message": "Miscellaneous",
     "description": "Title of the options section."
@@ -468,6 +483,11 @@
     "description": "Text of the snackbar."
   },
 
+  "snackbarMessage_imageCapture": {
+    "message": "Select a page area to search for",
+    "description": "Text of the snackbar."
+  },
+
   "buttonText_cancel": {
     "message": "Cancel",
     "description": "Text of the button."
@@ -475,6 +495,11 @@
 
   "buttonText_browse": {
     "message": "Browse",
+    "description": "Text of the button."
+  },
+
+  "buttonText_search": {
+    "message": "Search",
     "description": "Text of the button."
   },
 
@@ -631,6 +656,11 @@
   "error_invalidSearchMethod": {
     "message":
       "The selected search engine does not support the current search method.",
+    "description": "Error message."
+  },
+
+  "error_invalidCaptureArea": {
+    "message": "Select a page area to capture before searching.",
     "description": "Error message."
   },
 

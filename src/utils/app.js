@@ -10,7 +10,8 @@ import {
   getDataUrlMimeType,
   dataUrlToArray,
   blobToArray,
-  blobToDataUrl
+  blobToDataUrl,
+  canvasToDataUrl
 } from 'utils/common';
 import {engines, imageMimeTypes} from 'utils/data';
 
@@ -187,6 +188,34 @@ function getImageElement(url, {query = true} = {}) {
   });
 }
 
+async function captureVisibleTabArea(area) {
+  const tabData = await browser.tabs.captureVisibleTab({format: 'png'});
+  const img = await getImageElement(tabData, {query: false});
+
+  const {left, top, width, height, surfaceWidth, surfaceHeight} = area;
+  const scaleX = img.naturalWidth / surfaceWidth;
+  const scaleY = img.naturalHeight / surfaceHeight;
+
+  const cnv = document.createElement('canvas');
+  const ctx = cnv.getContext('2d');
+  cnv.width = width * scaleX;
+  cnv.height = height * scaleY;
+
+  ctx.drawImage(
+    img,
+    left * scaleX,
+    top * scaleY,
+    cnv.width,
+    cnv.height,
+    0,
+    0,
+    cnv.width,
+    cnv.height
+  );
+
+  return canvasToDataUrl(cnv, {ctx});
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -199,5 +228,6 @@ export {
   validateUrl,
   normalizeFilename,
   normalizeImage,
-  getImageElement
+  getImageElement,
+  captureVisibleTabArea
 };

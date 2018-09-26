@@ -61,6 +61,8 @@ and browser toolbar from the options page.
   then fetch the image, possibly from the browser cache, and upload it.
   This search mode is preferred for sites which do not allow direct linking
   of images or are otherwise private.
+* **Capture** (context menu and toolbar): create an image by selecting
+  and capturing a page area, then upload it.
 * **Upload** (toolbar): select or drop an image from your device, or paste it from
   the clipboard, then upload it.
 * **URL** (toolbar): search for an image URL.
