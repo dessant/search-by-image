@@ -23,7 +23,7 @@ var clickTarget = {
   uy: 0
 };
 
-let pointerCss = null;
+var pointerCss = null;
 
 function saveClickTarget(e) {
   clickTarget.ux = e.pageX;
@@ -72,7 +72,7 @@ function showPointer() {
 
 function hidePointer() {
   if (pointerCss) {
-    pointerCss.parentNode.removeChild(pointerCss);
+    pointerCss.remove();
     pointerCss = null;
   }
 }

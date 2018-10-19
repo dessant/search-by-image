@@ -932,6 +932,26 @@ function addMessageListener() {
   browser.runtime.onMessage.addListener(onMessage);
 }
 
+async function onInstall(details) {
+  if (
+    ['chrome', 'opera'].includes(targetEnv) &&
+    ['install', 'update'].includes(details.reason)
+  ) {
+    const tabs = await browser.tabs.query({
+      url: ['http://*/*', 'https://*/*', 'ftp://*/*'],
+      windowType: 'normal'
+    });
+
+    for (const tab of tabs) {
+      browser.tabs.executeScript(tab.id, {
+        allFrames: true,
+        runAt: 'document_start',
+        file: '/src/content/insert.js'
+      });
+    }
+  }
+}
+
 async function onLoad() {
   await initStorage('sync');
   await setContextMenu();
@@ -939,5 +959,7 @@ async function onLoad() {
   addStorageListener();
   addMessageListener();
 }
+
+browser.runtime.onInstalled.addListener(onInstall);
 
 document.addEventListener('DOMContentLoaded', onLoad);
