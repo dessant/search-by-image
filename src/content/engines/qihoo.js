@@ -1,7 +1,6 @@
 const engine = 'qihoo';
 
 async function upload({blob, imgData}) {
-  document.querySelector('#iconSt').click();
   if (blob) {
     const input = document.querySelector('input#stUpload');
     if (!input) {
@@ -25,7 +24,7 @@ async function upload({blob, imgData}) {
     input.dispatchEvent(event);
   } else {
     document.querySelector('input#stInput').value = imgData.url;
-    document.querySelector('button.st_submit').click();
+    document.querySelector('input.st_submit').click();
   }
 }
 

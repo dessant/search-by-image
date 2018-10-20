@@ -152,11 +152,11 @@ const engines = {
   },
   qihoo: {
     url: {
-      target: 'https://image.so.com/',
+      target: 'https://st.so.com/',
       isExec: true
     },
     upload: {
-      target: 'https://image.so.com/',
+      target: 'https://st.so.com/',
       isExec: true
     }
   }
