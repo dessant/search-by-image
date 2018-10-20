@@ -71,7 +71,7 @@ const engines = {
   sogou: {
     url: {target: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0'},
     upload: {
-      target: 'http://pic.sogou.com/',
+      target: 'https://pic.sogou.com/',
       isExec: true
     }
   },
