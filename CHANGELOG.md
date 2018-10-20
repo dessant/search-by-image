@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.18.1"></a>
+## [1.18.1](https://github.com/dessant/search-by-image/compare/v1.18.0...v1.18.1) (2018-10-20)
+
+
+### Bug Fixes
+
+* inject content script in current tabs after install ([649abe0](https://github.com/dessant/search-by-image/commit/649abe0)), closes [#46](https://github.com/dessant/search-by-image/issues/46)
+* update getty image upload ([c987421](https://github.com/dessant/search-by-image/commit/c987421))
+* update qihoo search ([3b52d66](https://github.com/dessant/search-by-image/commit/3b52d66))
+* update sogou image upload ([adef7c3](https://github.com/dessant/search-by-image/commit/adef7c3))
+
+
+
 <a name="1.18.0"></a>
 # [1.18.0](https://github.com/dessant/search-by-image/compare/v1.17.1...v1.18.0) (2018-09-26)
 
