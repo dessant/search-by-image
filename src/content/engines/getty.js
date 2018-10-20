@@ -1,7 +1,7 @@
 const engine = 'getty';
 
 async function upload({blob, imgData}) {
-  document.querySelector('a.ups-search-camera').click();
+  document.querySelector('a.search-camera-icon').click();
   const input = await waitForElement('input[type=file]');
   if (!input) {
     throw new Error('input field missing');
