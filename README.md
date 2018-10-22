@@ -47,6 +47,9 @@ and searching for images from private sites.
 * Depositphotos
 * Pinterest
 * Qihoo 360 Images
+* Jingdong
+* Taobao
+* Alibaba China
 
 #### Search Modes
 
