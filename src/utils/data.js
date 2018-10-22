@@ -83,9 +83,9 @@ const engines = {
     }
   },
   whatanime: {
-    url: {target: 'https://whatanime.ga/?url={imgUrl}'},
+    url: {target: 'https://trace.moe/?url={imgUrl}'},
     upload: {
-      target: 'https://whatanime.ga/',
+      target: 'https://trace.moe/',
       isExec: true
     }
   },
