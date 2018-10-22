@@ -106,13 +106,20 @@ async function onMessage(request, uploadFunc, engine) {
             error = true;
           }
           if (
-            ['ascii2d', 'getty', 'istock'].includes(engine) &&
+            ['ascii2d', 'getty', 'istock', 'taobao'].includes(engine) &&
             size > 5 * 1024 * 1024
           ) {
             largeImageNotify(engine, '5');
             error = true;
           }
-          if (engine === 'qihoo' && size > 2 * 1024 * 1024) {
+          if (engine === 'jingdong' && size > 4 * 1024 * 1024) {
+            largeImageNotify(engine, '4');
+            error = true;
+          }
+          if (
+            ['qihoo', 'alibabaChina'].includes(engine) &&
+            size > 2 * 1024 * 1024
+          ) {
             largeImageNotify(engine, '2');
             error = true;
           }

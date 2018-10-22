@@ -159,6 +159,24 @@ const engines = {
       target: 'https://st.so.com/',
       isExec: true
     }
+  },
+  jingdong: {
+    upload: {
+      target: 'https://www.jd.com/',
+      isExec: true
+    }
+  },
+  taobao: {
+    upload: {
+      target: 'https://www.taobao.com/',
+      isExec: true
+    }
+  },
+  alibabaChina: {
+    upload: {
+      target: 'https://www.1688.com/',
+      isExec: true
+    }
   }
 };
 

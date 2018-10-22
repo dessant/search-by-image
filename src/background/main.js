@@ -314,7 +314,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
       window.clearTimeout(timeoutId);
       browser.tabs.onUpdated.removeListener(tabUpdateCallback);
     };
-    const timeoutId = window.setTimeout(removeCallbacks, 120000); // 2 minutes
+    const timeoutId = window.setTimeout(removeCallbacks, 360000); // 6 minutes
 
     browser.tabs.onUpdated.addListener(tabUpdateCallback);
 
@@ -331,7 +331,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
         window.clearTimeout(bingTimeoutId);
         browser.webRequest.onBeforeRequest.removeListener(bingRequestCallback);
       };
-      const bingTimeoutId = window.setTimeout(bingRemoveCallbacks, 180000); // 3 minutes
+      const bingTimeoutId = window.setTimeout(bingRemoveCallbacks, 420000); // 7 minutes
 
       browser.webRequest.onBeforeRequest.addListener(
         bingRequestCallback,
@@ -340,6 +340,108 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
           urls: ['https://www.bing.com/*']
         },
         ['blocking']
+      );
+    }
+
+    // Taobao needs Chinese locale for image search.
+    if (engine === 'taobao') {
+      const rxCookie = /((?:^|\s|;)hng=)[^;]*/g;
+      const cookieValue = 'CN%7Czh-CN%7CCNY%7C156';
+
+      const taobaoRequestCallback = function(details) {
+        if (details.tabId === tabId) {
+          taobaoRemoveRequestCallbacks();
+
+          let cookieMatch;
+          for (const header of details.requestHeaders) {
+            if (header.name.toLowerCase() === 'cookie') {
+              header.value = header.value.replace(rxCookie, (match, p1) => {
+                cookieMatch = true;
+                return p1 + cookieValue;
+              });
+              break;
+            }
+          }
+
+          if (!cookieMatch) {
+            details.requestHeaders.push({
+              name: 'Cookie',
+              value: `hng=${cookieValue}`
+            });
+          }
+
+          const requestId = details.requestId;
+
+          const taobaoResponseCallback = function(details) {
+            if (details.requestId === requestId) {
+              taobaoRemoveResponseCallbacks();
+
+              let cookieMatch;
+              for (const header of details.responseHeaders) {
+                if (header.name.toLowerCase() === 'set-cookie') {
+                  header.value = header.value.replace(rxCookie, (match, p1) => {
+                    cookieMatch = true;
+                    return p1 + cookieValue;
+                  });
+                }
+              }
+
+              if (!cookieMatch) {
+                const expiry = new Date();
+                expiry.setFullYear(expiry.getFullYear() + 1);
+                details.responseHeaders.push({
+                  name: 'Set-Cookie',
+                  value:
+                    `hng=${cookieValue}; Domain=.taobao.com; Expires=` +
+                    expiry.toUTCString()
+                });
+              }
+
+              return {responseHeaders: details.responseHeaders};
+            }
+          };
+
+          const taobaoRemoveResponseCallbacks = function() {
+            window.clearTimeout(taobaoResponseTimeoutId);
+            browser.webRequest.onHeadersReceived.removeListener(
+              taobaoResponseCallback
+            );
+          };
+          const taobaoResponseTimeoutId = window.setTimeout(
+            taobaoRemoveResponseCallbacks,
+            120000
+          ); // 2 minutes
+
+          browser.webRequest.onHeadersReceived.addListener(
+            taobaoResponseCallback,
+            {
+              urls: ['https://www.taobao.com/*'],
+              tabId
+            },
+            ['blocking', 'responseHeaders']
+          );
+
+          return {requestHeaders: details.requestHeaders};
+        }
+      };
+
+      const taobaoRemoveRequestCallbacks = function() {
+        window.clearTimeout(taobaoRequestTimeoutId);
+        browser.webRequest.onBeforeSendHeaders.removeListener(
+          taobaoRequestCallback
+        );
+      };
+      const taobaoRequestTimeoutId = window.setTimeout(
+        taobaoRemoveRequestCallbacks,
+        60000
+      ); // 1 minute
+
+      browser.webRequest.onBeforeSendHeaders.addListener(
+        taobaoRequestCallback,
+        {
+          urls: ['https://www.taobao.com/']
+        },
+        ['blocking', 'requestHeaders']
       );
     }
   }

@@ -100,6 +100,21 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_jingdong": {
+    "message": "Jingdong",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_taobao": {
+    "message": "Taobao",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_alibabaChina": {
+    "message": "Alibaba China",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -208,6 +223,21 @@
 
   "menuItemTitle_qihoo": {
     "message": "Qihoo 360",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_jingdong": {
+    "message": "Jingdong",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_taobao": {
+    "message": "Taobao",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_alibabaChina": {
+    "message": "Alibaba China",
     "description": "Title of the menu item."
   },
 
@@ -330,6 +360,21 @@
 
   "optionTitle_qihoo": {
     "message": "Qihoo 360 Images",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_jingdong": {
+    "message": "Jingdong",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_taobao": {
+    "message": "Taobao",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_alibabaChina": {
+    "message": "Alibaba China",
     "description": "Title of the option."
   },
 
