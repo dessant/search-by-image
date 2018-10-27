@@ -36,7 +36,7 @@ and searching for images from private sites.
 * TinEye Reverse Image Search
 * Sogou Images
 * Karma Decay
-* WhatAnime
+* trace.moe (WhatAnime)
 * SauceNAO
 * Iqdb
 * Ascii2d

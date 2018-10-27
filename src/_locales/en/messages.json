@@ -46,7 +46,7 @@
   },
 
   "engineName_whatanime": {
-    "message": "WhatAnime",
+    "message": "trace.moe",
     "description": "Name of the search engine."
   },
 
@@ -172,7 +172,7 @@
   },
 
   "menuItemTitle_whatanime": {
-    "message": "WhatAnime",
+    "message": "trace.moe",
     "description": "Title of the menu item."
   },
 
@@ -309,7 +309,7 @@
   },
 
   "optionTitle_whatanime": {
-    "message": "WhatAnime",
+    "message": "trace.moe",
     "description": "Title of the option."
   },
 
