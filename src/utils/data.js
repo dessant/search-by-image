@@ -64,8 +64,8 @@ const engines = {
   tineye: {
     url: {target: 'https://www.tineye.com/search/?&url={imgUrl}'},
     upload: {
-      target: uploadUrl,
-      isDataKey: true
+      target: 'https://www.tineye.com/',
+      isExec: true
     }
   },
   sogou: {

@@ -47,12 +47,6 @@ export default {
                 getText('unit_mb', '20')
               ]);
             }
-            if (this.engine === 'tineye' && size > 10 * 1024 * 1024) {
-              this.error = getText('error_invalidImageSize', [
-                getText('engineName_tineye'),
-                getText('unit_mb', '10')
-              ]);
-            }
 
             if (this.engine === 'karmaDecay' && size > 9 * 1024 * 1024) {
               this.error = getText('error_invalidImageSize', [
@@ -124,20 +118,6 @@ export default {
             '$1com$2&gl=US'
           );
         }
-
-        window.location.replace(tabUrl);
-      }
-
-      if (this.engine === 'tineye') {
-        const data = new FormData();
-        data.append('image', blob, imgData.filename);
-        const rsp = await fetch('https://www.tineye.com/search', {
-          referrer: '',
-          mode: 'cors',
-          method: 'POST',
-          body: data
-        });
-        const tabUrl = rsp.url;
 
         window.location.replace(tabUrl);
       }
@@ -218,7 +198,6 @@ export default {
 
     const supportedEngines = [
       'google',
-      'tineye',
       'karmaDecay',
       'saucenao',
       'shutterstock'
