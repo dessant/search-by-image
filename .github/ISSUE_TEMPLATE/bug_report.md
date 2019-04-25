@@ -5,7 +5,7 @@ about: Create a report if something isn't working as expected
 ---
 
 **System**
-<!-- Fill out the teplate below with the requested information. -->
+<!-- Fill out the template below with the requested information. -->
 
 * OS name: [e.g. Windows, Ubuntu]
 * OS version: [e.g. 10]
