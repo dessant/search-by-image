@@ -57,7 +57,7 @@ const engines = {
         '?queryImageUrl={imgUrl}&fm=index&uptype=paste'
     },
     upload: {
-      target: 'http://image.baidu.com/',
+      target: 'https://image.baidu.com/',
       isExec: true
     }
   },

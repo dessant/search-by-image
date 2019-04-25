@@ -1,35 +1,28 @@
-function showResults(xhr) {
-  if (xhr.status === 413) {
-    largeImageNotify('baidu', '10');
+async function upload({blob, imgData}) {
+  const button = await waitForElement('a#sttb', 120000);
+  button.click();
+
+  const input = await waitForElement('input#stfile');
+  if (!input) {
+    throw new Error('input field missing');
+  }
+
+  try {
+    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
+    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
+    input.files = data.files;
+  } catch (e) {
+    chrome.runtime.sendMessage({
+      id: 'notification',
+      message:
+        'Baidu image uploading requires at least Chrome 60 or Firefox 57.',
+      type: `${engine}Error`
+    });
     return;
   }
 
-  const rsp = JSON.parse(xhr.responseText);
-  const url =
-    `http://image.baidu.com/pcdutu?queryImageUrl=${rsp.url}` +
-    `&querySign=${rsp.querySign}&fm=index&uptype=upload_pc` +
-    `&result=result_camera`;
-
-  window.location.replace(url);
-}
-
-async function upload({blob, imgData}) {
-  const url =
-    'http://image.baidu.com/pcdutu/a_upload?fr=html5' +
-    '&target=pcSearchImage&needJson=true';
-  const data = new FormData();
-  data.append('file', blob, imgData.filename);
-  data.append('pos', 'upload');
-  data.append('uptype', 'upload_pc');
-  data.append('fm', 'index');
-
-  const xhr = getXHR();
-  xhr.addEventListener('load', function() {
-    uploadCallback(this, showResults, 'baidu');
-  });
-  xhr.open('POST', url);
-  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-  xhr.send(data);
+  const event = new Event('change');
+  input.dispatchEvent(event);
 }
 
 initUpload(upload, dataKey, 'baidu');
