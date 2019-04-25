@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.19.1](https://github.com/dessant/search-by-image/compare/v1.19.0...v1.19.1) (2019-04-25)
+
+
+### Bug Fixes
+
+* rename WhatAnime to trace.moe ([6679b53](https://github.com/dessant/search-by-image/commit/6679b53))
+* update baidu search ([4f441c8](https://github.com/dessant/search-by-image/commit/4f441c8)), closes [#51](https://github.com/dessant/search-by-image/issues/51)
+* update tineye search ([552a6ac](https://github.com/dessant/search-by-image/commit/552a6ac))
+
+
+
 <a name="1.19.0"></a>
 # [1.19.0](https://github.com/dessant/search-by-image/compare/v1.18.1...v1.19.0) (2018-10-24)
 
