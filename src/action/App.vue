@@ -1,3 +1,4 @@
+<!-- prettier-ignore -->
 <template>
 <div id="app" v-show="dataLoaded">
   <div class="header">
@@ -5,39 +6,37 @@
       {{ getText('extensionName') }}
     </div>
     <div class="header-buttons">
-      <img class="contribute-icon"
+      <v-icon-button class="contribute-button"
           src="/src/contribute/assets/heart.svg"
           @click="showContribute">
-      <v-select class="search-mode" v-if="dataLoaded"
-          v-model="searchModeAction"
-          :options="selectOptions.searchModeAction">
-        <template slot="selection" slot-scope="data">
-          <img class="mdc-list-item__graphic item-icon-selected"
-              :src="`/src/icons/modes/${data.selection}.svg`">
-          <div class="mdc-select__label"></div>
-          <div class="mdc-select__selected-text"></div>
-          <div class="mdc-select__bottom-line"></div>
-        </template>
-        <template slot="options" slot-scope="data">
-          <li class="mdc-list-item" role="option" tabindex="0"
-              v-for="option in data.options"
+      </v-icon-button>
+
+      <v-icon-button class="search-mode-button"
+          :ripple="false"
+          :src="`/src/icons/modes/${searchModeAction}.svg`"
+          @click="openSearchModeMenu">
+      </v-icon-button>
+
+      <div class="mdc-menu mdc-menu-surface search-mode-menu">
+        <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical">
+          <li class="mdc-list-item" role="menuitem"
+              v-for="option of selectOptions.searchModeAction"
               :key="option.id"
-              :id="option.id"
-              :aria-selected="data.selection === option.id">
+              :data-value="option.id">
             <img class="mdc-list-item__graphic item-icon"
                 :src="`/src/icons/modes/${option.id}.svg`">
-            {{ option.label }}
+            <span class="mdc-list-item__text">{{ option.label }}</span>
           </li>
-        </template>
-      </v-select>
+        </ul>
+      </div>
     </div>
   </div>
 
   <transition name="settings" v-if="dataLoaded"
-      @after-enter="handleSizeChange"
+      @after-enter="settingsAfterEnter"
       @after-leave="settingsAfterLeave">
     <div class="settings" v-if="searchModeAction === 'url'">
-      <v-textfield v-model="imageUrl"
+      <v-textfield ref="imageUrlInput" v-model="imageUrl"
           :placeholder="getText('inputPlaceholder_imageUrl')"
           :fullwidth="true">
       </v-textfield>
@@ -46,7 +45,7 @@
 
   <div class="list-padding-top"></div>
   <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
-    <li class="mdc-list-item list-item ripple-surface"
+    <li class="mdc-list-item list-item"
         @click="selectItem('allEngines')">
       <img class="mdc-list-item__graphic list-item-icon"
           :src="getEngineIcon('allEngines')">
@@ -60,7 +59,7 @@
   <div class="list-items-wrap" ref="items" :class="listClasses">
     <resize-observer @notify="handleSizeChange"></resize-observer>
     <ul class="mdc-list list list-items">
-      <li class="mdc-list-item list-item ripple-surface"
+      <li class="mdc-list-item list-item"
           v-for="engine in engines"
           :key="engine.id"
           @click="selectItem(engine)">
@@ -76,7 +75,10 @@
 <script>
 import browser from 'webextension-polyfill';
 import {ResizeObserver} from 'vue-resize';
-import {Select, TextField} from 'ext-components';
+import {MDCList} from '@material/list';
+import {MDCMenu} from '@material/menu';
+import {MDCRipple} from '@material/ripple';
+import {IconButton, TextField} from 'ext-components';
 
 import storage from 'storage/storage';
 import {
@@ -92,7 +94,7 @@ import {targetEnv} from 'utils/config';
 
 export default {
   components: {
-    [Select.name]: Select,
+    [IconButton.name]: IconButton,
     [TextField.name]: TextField,
     [ResizeObserver.name]: ResizeObserver
   },
@@ -145,6 +147,7 @@ export default {
     selectItem: function(engine) {
       if (this.searchModeAction === 'url') {
         if (!validateUrl(this.imageUrl)) {
+          this.focusImageUrlInput();
           showNotification({messageId: 'error_invalidImageUrl'});
           return;
         }
@@ -164,6 +167,15 @@ export default {
       this.closeAction();
     },
 
+    openSearchModeMenu: function() {
+      this.searchModeMenu.open = true;
+      document
+        .querySelector(
+          `.search-mode-menu li[data-value="${this.searchModeAction}"]`
+        )
+        .focus();
+    },
+
     closeAction: async function() {
       if (!this.isPopup) {
         browser.tabs.remove((await browser.tabs.getCurrent()).id);
@@ -172,9 +184,18 @@ export default {
       }
     },
 
+    focusImageUrlInput: function() {
+      this.$refs.imageUrlInput.$refs.input.focus();
+    },
+
     handleSizeChange: function() {
       const items = this.$refs.items;
       this.hasScrollBar = items.scrollHeight > items.clientHeight;
+    },
+
+    settingsAfterEnter: function() {
+      this.handleSizeChange();
+      this.focusImageUrlInput();
     },
 
     settingsAfterLeave: function() {
@@ -185,7 +206,7 @@ export default {
 
   created: async function() {
     const currentTab = await browser.tabs.getCurrent();
-    this.isPopup = !currentTab || currentTab instanceof Array;
+    this.isPopup = !currentTab;
     if (!this.isPopup) {
       document.documentElement.style.height = '100%';
       document.body.style.minWidth = 'initial';
@@ -199,7 +220,7 @@ export default {
       (await isAndroid()) &&
       (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
     ) {
-      // Removing the action popup has no effect on Android
+      // Removing the action popup has no effect on Firefox for Android
       showNotification({messageId: 'error_optionsNotApplied'});
       return;
     }
@@ -213,6 +234,31 @@ export default {
     });
 
     this.dataLoaded = true;
+  },
+
+  mounted: function() {
+    this.searchModeMenu = new MDCMenu(
+      document.querySelector('.search-mode-menu')
+    );
+    this.searchModeMenu.setFixedPosition(true);
+    this.searchModeMenu.listen('MDCMenu:selected', ev => {
+      this.searchModeAction = ev.detail.item.dataset.value;
+    });
+
+    window.setTimeout(() => {
+      for (const el of this.searchModeMenu.items) {
+        MDCRipple.attachTo(el);
+      }
+
+      for (const listEl of document.querySelectorAll(
+        '.list-bulk-button, .list-items'
+      )) {
+        const list = new MDCList(listEl);
+        for (const el of list.listElements) {
+          MDCRipple.attachTo(el);
+        }
+      }
+    }, 500);
   }
 };
 </script>
@@ -221,9 +267,12 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/list/mdc-list';
+@import '@material/menu-surface/mdc-menu-surface';
+@import '@material/menu/mdc-menu';
+
+@import '@material/icon-button/mixins';
 @import '@material/theme/mixins';
 @import '@material/typography/mixins';
-@import '@material/ripple/mixins';
 
 @import 'vue-resize/dist/vue-resize';
 
@@ -239,7 +288,7 @@ body,
 
 body {
   margin: 0;
-  min-width: 323px;
+  min-width: 333px;
   overflow: hidden;
   @include mdc-typography-base;
   font-size: 100%;
@@ -259,58 +308,51 @@ body {
 .title {
   overflow: hidden;
   text-overflow: ellipsis;
-  @include mdc-typography('title');
-  @include mdc-theme-prop('color', 'text-primary-on-light');
+  @include mdc-typography(headline6);
+  @include mdc-theme-prop(color, text-primary-on-light);
 }
 
 .header-buttons {
   display: flex;
   align-items: center;
+  height: 24px;
   margin-left: 56px;
   @media (max-width: 322px) {
     margin-left: 32px;
   }
 }
 
-.contribute-icon {
-  margin-right: 16px;
-  cursor: pointer;
+.contribute-button {
+  margin-right: 12px;
+  @include mdc-icon-button-size(24px, 24px, 8px);
 }
 
 .settings {
   padding: 16px;
 }
 
-.search-mode {
-  height: auto !important;
-  background-position: 100% !important;
+.search-mode-button {
+  background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2210px%22%20height%3D%225px%22%20viewBox%3D%227%2010%2010%205%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%0A%20%20%20%20%3Cpolygon%20id%3D%22Shape%22%20stroke%3D%22none%22%20fill%3D%22%23000%22%20fill-rule%3D%22evenodd%22%20opacity%3D%220.54%22%20points%3D%227%2010%2012%2015%2017%2010%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E');
+  background-position-x: right;
+  background-position-y: center;
+  background-repeat: no-repeat;
+  @include mdc-icon-button-size(24px, 24px, 8px);
+  @include mdc-icon-button-ink-color(#00000000);
 }
 
-.search-mode .mdc-select__selected-text,
-.search-mode .mdc-select__bottom-line {
-  width: 0 !important;
+.search-mode-button img {
+  margin-left: -16px;
 }
 
-.search-mode .mdc-select__surface {
-  width: auto !important;
-  height: auto !important;
-  padding-right: 16px !important;
-  padding-bottom: 0 !important;
-}
-
-.search-mode .item-icon-selected {
-  margin-right: 0 !important;
-}
-
-.search-mode .item-icon {
-  margin-right: 16px !important;
-}
-
-.search-mode .mdc-select__menu {
+.search-mode-menu {
   left: auto !important;
-  top: 0 !important;
-  right: 0 !important;
+  top: 16px !important;
+  right: 16px;
   transform-origin: top right !important;
+}
+
+.search-mode-menu .item-icon {
+  margin-right: 16px !important;
 }
 
 .settings-enter-active,
@@ -368,15 +410,5 @@ body {
 
 .list-item-icon {
   margin-right: 16px !important;
-}
-
-.ripple-surface {
-  @include mdc-ripple-surface;
-  @include mdc-ripple-radius-bounded;
-  @include mdc-states;
-
-  position: sticky;
-  outline: none;
-  overflow: hidden;
 }
 </style>

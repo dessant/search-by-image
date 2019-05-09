@@ -1,3 +1,4 @@
+<!-- prettier-ignore -->
 <template>
 <div id="app" v-show="dataLoaded">
   <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
@@ -267,7 +268,7 @@ body {
 }
 
 .error-text {
-  @include mdc-typography(subheading2);
+  @include mdc-typography(subtitle1);
   @include mdc-theme-prop(color, text-primary-on-light);
   max-width: 520px;
   margin-top: 24px;

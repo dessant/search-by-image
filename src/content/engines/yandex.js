@@ -5,6 +5,7 @@ function getHostname() {
     'yandex.ua',
     'yandex.by',
     'yandex.kz',
+    'yandex.uz',
     'yandex.com.tr'
   ];
   return getValidHostname(hostnames, 'yandex');

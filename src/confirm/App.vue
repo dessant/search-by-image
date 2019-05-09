@@ -1,8 +1,8 @@
+<!-- prettier-ignore -->
 <template>
 <v-dialog id="sbi-dialog-select"
     :title="getText('dialogTitle_imageConfirmation')"
     :cancel-text="getText('buttonText_cancel')"
-    :scrollable="scrollableDialog"
     :show-dialog="showDialog"
     @cancel="onCancel">
 
@@ -40,7 +40,6 @@ export default {
   data: function() {
     return {
       showDialog: false,
-      scrollableDialog: false,
       images: [],
       engine: ''
     };
@@ -53,7 +52,6 @@ export default {
       if (request.id === 'imageConfirmationOpen') {
         this.images = request.images;
         this.engine = request.engine;
-        this.scrollableDialog = this.images.length > 3;
         this.showDialog = true;
       }
       if (request.id === 'imageConfirmationClose') {
@@ -128,5 +126,15 @@ body {
   max-width: 94%;
   max-height: 94%;
   object-fit: scale-down;
+}
+
+@media (min-width: 722px) {
+  .mdc-dialog__surface {
+    max-width: 660px !important;
+  }
+
+  .mdc-dialog--scrollable .mdc-dialog__surface {
+    max-width: 690px !important;
+  }
 }
 </style>

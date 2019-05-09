@@ -1,3 +1,4 @@
+<!-- prettier-ignore -->
 <template>
 <div id="app" v-show="dataLoaded">
   <input class="drop-zone"
@@ -24,7 +25,7 @@
       <input ref="input" class="image-input" type="file"
           accept="image/*" multiple @change="handleFiles($event, 'input')">
       <v-button class="browse-button" v-show="!dropState"
-          :stroked="true"
+          :outlined="true"
           @click="$refs.input.click()">
         {{ getText('buttonText_browse') }}
       </v-button>
@@ -223,8 +224,8 @@ body {
 
 .error-text,
 .drop-zone-text {
-  @include mdc-typography('subheading2');
-  @include mdc-theme-prop('color', 'text-primary-on-light');
+  @include mdc-typography(subtitle1);
+  @include mdc-theme-prop(color, text-primary-on-light);
 }
 
 .error-icon {

@@ -5,7 +5,6 @@ const {lstatSync, readdirSync, readFileSync, writeFileSync} = require('fs');
 const {ensureDirSync} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
 const gulp = require('gulp');
-const gulpSeq = require('gulp-sequence');
 const htmlmin = require('gulp-htmlmin');
 const svgmin = require('gulp-svgmin');
 const babel = require('gulp-babel');
@@ -39,24 +38,26 @@ gulp.task('js:webpack', function(done) {
   });
 });
 
-gulp.task('js:babel', function() {
-  return gulp
+gulp.task('js:babel', function(done) {
+  gulp
     .src(['src/content/**/*.js'], {base: '.'})
     .pipe(babel())
     .pipe(gulp.dest(distDir));
+  done();
 });
 
-gulp.task('js', ['js:webpack', 'js:babel']);
+gulp.task('js', gulp.parallel('js:webpack', 'js:babel'));
 
-gulp.task('html', function() {
-  return gulp
+gulp.task('html', function(done) {
+  gulp
     .src('src/**/*.html', {base: '.'})
     .pipe(gulpif(isProduction, htmlmin({collapseWhitespace: true})))
     .pipe(gulp.dest(distDir));
+  done();
 });
 
-gulp.task('css', function() {
-  return gulp
+gulp.task('css', function(done) {
+  gulp
     .src(
       [
         'src/select/frame.css',
@@ -71,9 +72,10 @@ gulp.task('css', function() {
     )
     .pipe(postcss())
     .pipe(gulp.dest(distDir));
+  done();
 });
 
-gulp.task('icons', async function() {
+gulp.task('icons', async function(done) {
   ensureDirSync(`${distDir}/src/icons/app`);
   const iconSvg = readFileSync('src/icons/app/icon.svg');
   const appIconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
@@ -97,7 +99,7 @@ gulp.task('icons', async function() {
     gulp
       .src(`${distDir}/src/icons/**/*.png`, {base: '.'})
       .pipe(imagemin())
-      .pipe(gulp.dest(''));
+      .pipe(gulp.dest('.'));
   }
 
   gulp
@@ -108,9 +110,10 @@ gulp.task('icons', async function() {
     .src('node_modules/ext-contribute/src/assets/*.svg')
     .pipe(gulpif(isProduction, svgmin()))
     .pipe(gulp.dest(`${distDir}/src/contribute/assets`));
+  done();
 });
 
-gulp.task('fonts', function() {
+gulp.task('fonts', function(done) {
   gulp
     .src('src/fonts/roboto.css', {base: '.'})
     .pipe(postcss())
@@ -118,9 +121,10 @@ gulp.task('fonts', function() {
   gulp
     .src('node_modules/typeface-roboto/files/roboto-latin-@(400|500|700).woff2')
     .pipe(gulp.dest(`${distDir}/src/fonts/files`));
+  done();
 });
 
-gulp.task('locale', function() {
+gulp.task('locale', function(done) {
   const localesRootDir = path.join(__dirname, 'src/_locales');
   const localeDirs = readdirSync(localesRootDir).filter(function(file) {
     return lstatSync(path.join(localesRootDir, file)).isDirectory();
@@ -128,10 +132,13 @@ gulp.task('locale', function() {
   localeDirs.forEach(function(localeDir) {
     const localePath = path.join(localesRootDir, localeDir);
     gulp
-      .src([
-        path.join(localePath, 'messages.json'),
-        path.join(localePath, `messages-${targetEnv}.json`)
-      ])
+      .src(
+        [
+          path.join(localePath, 'messages.json'),
+          path.join(localePath, `messages-${targetEnv}.json`)
+        ],
+        {allowEmpty: true}
+      )
       .pipe(
         jsonMerge({
           fileName: 'messages.json',
@@ -150,10 +157,11 @@ gulp.task('locale', function() {
       .pipe(gulpif(isProduction, jsonmin()))
       .pipe(gulp.dest(path.join(distDir, '_locales', localeDir)));
   });
+  done();
 });
 
-gulp.task('manifest', function() {
-  return gulp
+gulp.task('manifest', function(done) {
+  gulp
     .src('src/manifest.json')
     .pipe(
       jsonMerge({
@@ -188,9 +196,10 @@ gulp.task('manifest', function() {
     )
     .pipe(gulpif(isProduction, jsonmin()))
     .pipe(gulp.dest(distDir));
+  done();
 });
 
-gulp.task('license', function() {
+gulp.task('license', function(done) {
   let year = '2017';
   const currentYear = new Date().getFullYear().toString();
   if (year !== currentYear) {
@@ -207,20 +216,31 @@ gulp.task('license', function() {
 
   writeFileSync(`${distDir}/NOTICE`, notice);
   gulp.src(['LICENSE']).pipe(gulp.dest(distDir));
+  done();
 });
 
-gulp.task('copy', function() {
+gulp.task('copy', function(done) {
   gulp
     .src('node_modules/ext-contribute/src/assets/*.@(jpg|png)')
     .pipe(gulp.dest(`${distDir}/src/contribute/assets`));
   gulp.src(['src*/icons/**/*.@(jpg|png)']).pipe(gulp.dest(distDir));
+  done();
 });
 
 gulp.task(
   'build',
-  gulpSeq(
+  gulp.series(
     'clean',
-    ['js', 'html', 'css', 'icons', 'fonts', 'locale', 'manifest', 'license'],
+    gulp.parallel(
+      'js',
+      'html',
+      'css',
+      'icons',
+      'fonts',
+      'locale',
+      'manifest',
+      'license'
+    ),
     'copy'
   )
 );
@@ -247,4 +267,4 @@ gulp.task('inspect', function(done) {
   );
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', gulp.series('build'));

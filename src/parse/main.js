@@ -212,6 +212,10 @@ async function parseDocument() {
 
     for (let i = 0; i < nodeCount; i++) {
       let currentNode = nodes[i];
+      // the node collection length may change during iteration
+      if (!currentNode) {
+        break;
+      }
 
       let nodeRect = currentNode.getBoundingClientRect();
       if (

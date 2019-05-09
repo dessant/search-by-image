@@ -1,25 +1,27 @@
+<!-- prettier-ignore -->
 <template>
 <div id="app">
   <div class="canvas-wrap">
     <canvas id="canvas"></canvas>
   </div>
-  <div ref="snackbar" class="mdc-snackbar" :class="classes"
-       aria-live="assertive"
-       aria-atomic="true"
-       aria-hidden="showSnackbar">
-    <div class="mdc-snackbar__text">
-      {{ getText('snackbarMessage_imageCapture') }}
-    </div>
-    <div class="mdc-snackbar__action-wrapper">
-      <button type="button" class="mdc-snackbar__action-button"
-          @click="onCancel">
-        {{ getText('buttonText_cancel') }}
-      </button>
-      <v-button class="capture-button"
-          :raised="true"
-          @click="onCapture">
-        {{ getText('buttonText_search') }}
-      </v-button>
+  <div ref="snackbar" class="mdc-snackbar">
+    <div class="mdc-snackbar__surface">
+      <div class="mdc-snackbar__label">
+        {{ getText('snackbarMessage_imageCapture') }}
+      </div>
+      <div class="mdc-snackbar__actions">
+        <v-button class="capture-button"
+            :ripple="false"
+            @click="onCapture">
+          {{ getText('buttonText_search') }}
+        </v-button>
+
+        <v-icon-button class="cancel-button"
+            :ripple="false"
+            src="/src/icons/misc/close.svg"
+            @click="onCancel">
+        </v-icon-button>
+      </div>
     </div>
   </div>
 </div>
@@ -28,28 +30,15 @@
 <script>
 import browser from 'webextension-polyfill';
 import Cropper from 'cropperjs';
-import {Button} from 'ext-components';
+import {MDCSnackbar} from '@material/snackbar';
+import {Button, IconButton} from 'ext-components';
 
 import {getText} from 'utils/common';
 
 export default {
   components: {
-    [Button.name]: Button
-  },
-
-  data: function() {
-    return {
-      showSnackbar: false,
-      cropper: null
-    };
-  },
-
-  computed: {
-    classes: function() {
-      return {
-        'mdc-snackbar--active': this.showSnackbar
-      };
-    }
+    [Button.name]: Button,
+    [IconButton.name]: IconButton
   },
 
   methods: {
@@ -99,7 +88,7 @@ export default {
     },
 
     showCapture: function() {
-      this.showSnackbar = true;
+      this.snackbar.open();
       if (!this.cropper) {
         this.cropper = new Cropper(document.getElementById('canvas'), {
           checkCrossOrigin: false,
@@ -122,7 +111,7 @@ export default {
     },
 
     hideCapture: function() {
-      this.showSnackbar = false;
+      this.snackbar.close();
       if (this.cropper) {
         this.cropper.clear();
       }
@@ -130,6 +119,10 @@ export default {
   },
 
   mounted: function() {
+    this.snackbar = new MDCSnackbar(this.$refs.snackbar);
+    this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
+    this.snackbar.closeOnEscape = false;
+
     browser.runtime.onMessage.addListener(this.onMessage);
     browser.runtime.sendMessage({id: 'captureFrameId'});
   }
@@ -140,7 +133,7 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/snackbar/mdc-snackbar';
-@import '@material/theme/mixins';
+@import '@material/icon-button/mixins';
 @import '@material/typography/mixins';
 @import '~cropperjs/dist/cropper';
 
@@ -161,7 +154,7 @@ body {
 
 .canvas-wrap {
   width: 100%;
-  height: calc(100% - 80px);
+  height: calc(100% - 84px);
 }
 
 .cropper-point,
@@ -197,40 +190,23 @@ body {
   box-shadow: 0 0 0 20000px rgba(0, 0, 0, 0.4);
 }
 
-.mdc-snackbar {
-  height: 80px !important;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.mdc-snackbar__action-wrapper {
-  white-space: nowrap;
-}
-
-.mdc-snackbar__action-button {
-  @include mdc-theme-prop(color, primary);
-}
-
-.capture-button {
-  color: #fff !important;
-  margin-left: 24px;
+.cancel-button {
+  @include mdc-icon-button-size(18px, 18px, 9px);
+  @include mdc-icon-button-ink-color(rgba(255, 255, 255, 0.87));
+  margin-left: 8px;
 }
 
 /* phones */
-@media (min-width: 490px) {
-  .mdc-snackbar {
-    height: 64px !important;
-  }
-
+@media (min-width: 380px) {
   .canvas-wrap {
     height: calc(100% - 64px);
   }
 }
 
 /* tablets */
-@media (min-width: 600px) {
-  .mdc-snackbar {
-    min-width: 490px !important;
+@media (min-width: 480px) {
+  .mdc-snackbar__surface {
+    min-width: 440px !important;
   }
 }
 </style>

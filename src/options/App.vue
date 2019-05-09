@@ -1,3 +1,4 @@
+<!-- prettier-ignore -->
 <template>
 <div id="app" v-if="dataLoaded">
   <div class="section">
@@ -198,11 +199,6 @@ body {
   overflow: visible !important;
 }
 
-.mdc-select__menu {
-  top: inherit !important;
-  left: inherit !important;
-}
-
 .mdc-checkbox {
   margin-left: 8px;
 }
@@ -219,15 +215,15 @@ body {
 
 .section-title,
 .section-desc {
-  @include mdc-theme-prop('color', 'text-primary-on-light');
+  @include mdc-theme-prop(color, text-primary-on-light);
 }
 
 .section-title {
-  @include mdc-typography('title');
+  @include mdc-typography(headline6);
 }
 
 .section-desc {
-  @include mdc-typography('body1');
+  @include mdc-typography(body2);
   padding-top: 8px;
 }
 

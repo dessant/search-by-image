@@ -1,3 +1,4 @@
+<!-- prettier-ignore -->
 <template>
 <div id="app" v-show="dataLoaded">
   <div v-if="results.length">
@@ -291,7 +292,7 @@ body {
 }
 
 .error-text {
-  @include mdc-typography(subheading2);
+  @include mdc-typography(subtitle1);
   @include mdc-theme-prop(color, text-primary-on-light);
   max-width: 520px;
   margin-top: 24px;
@@ -314,9 +315,9 @@ body {
 }
 
 .title {
-  @include mdc-typography(title);
+  @include mdc-typography(headline6);
   @media (min-width: 576px) {
-    @include mdc-typography(headline);
+    @include mdc-typography(headline5);
   }
   @include mdc-theme-prop(color, text-primary-on-light);
   margin-left: 16px;
