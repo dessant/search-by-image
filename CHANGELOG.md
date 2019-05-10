@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.20.1](https://github.com/dessant/search-by-image/compare/v1.20.0...v1.20.1) (2019-05-10)
+
+
+### Bug Fixes
+
+* show notification for outdated browsers after upload error ([01d617e](https://github.com/dessant/search-by-image/commit/01d617e))
+
+
+
 ## [1.20.0](https://github.com/dessant/search-by-image/compare/v1.19.1...v1.20.0) (2019-05-09)
 
 
