@@ -6,7 +6,7 @@ async function getSupportedArea(requestedArea) {
     try {
       await browser.storage.sync.get('');
       syncArea = true;
-    } catch (e) {
+    } catch (err) {
       syncArea = false;
     }
   }

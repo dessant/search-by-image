@@ -1,20 +1,15 @@
+const engine = 'tineye';
+
 async function upload({blob, imgData}) {
   const input = await waitForElement('input#upload_box');
   if (!input) {
     throw new Error('input field missing');
   }
 
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   try {
-    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
-    input.files = data.files;
-  } catch (e) {
-    chrome.runtime.sendMessage({
-      id: 'notification',
-      message:
-        'Tineye image uploading requires at least Chrome 60 or Firefox 57.',
-      type: `${engine}Error`
-    });
+    setFileInputData(input, fileData, engine);
+  } catch (err) {
     return;
   }
 
@@ -22,4 +17,4 @@ async function upload({blob, imgData}) {
   input.dispatchEvent(event);
 }
 
-initUpload(upload, dataKey, 'tineye');
+initUpload(upload, dataKey, engine);

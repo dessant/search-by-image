@@ -1,22 +1,19 @@
+const engine = 'ascii2d';
+
 async function upload({blob, imgData}) {
   const input = document.querySelector('#file-form');
   if (!input) {
     throw new Error('input field missing');
   }
+
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   try {
-    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
-    input.files = data.files;
-  } catch (e) {
-    chrome.runtime.sendMessage({
-      id: 'notification',
-      message:
-        'Ascii2d image uploading requires at least Chrome 60 or Firefox 57.',
-      type: `Ascii2dError`
-    });
+    setFileInputData(input, fileData, engine);
+  } catch (err) {
     return;
   }
+
   document.querySelector('#file_upload').submit();
 }
 
-initUpload(upload, dataKey, 'ascii2d');
+initUpload(upload, dataKey, engine);

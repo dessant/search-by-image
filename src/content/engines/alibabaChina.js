@@ -1,3 +1,5 @@
+const engine = 'alibabaChina';
+
 async function upload({blob, imgData}) {
   const button = await waitForElement('span#sm-widget-picbtn', 60000);
 
@@ -9,17 +11,10 @@ async function upload({blob, imgData}) {
 
   button.click();
 
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   try {
-    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
-    input.files = data.files;
-  } catch (e) {
-    chrome.runtime.sendMessage({
-      id: 'notification',
-      message:
-        'Alibaba China image uploading requires at least Chrome 60 or Firefox 57.',
-      type: `${engine}Error`
-    });
+    setFileInputData(input, fileData, engine);
+  } catch (err) {
     return;
   }
 
@@ -27,4 +22,4 @@ async function upload({blob, imgData}) {
   input.dispatchEvent(event);
 }
 
-initUpload(upload, dataKey, 'alibabaChina');
+initUpload(upload, dataKey, engine);

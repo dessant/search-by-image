@@ -1,20 +1,16 @@
+const engine = 'sogou';
+
 async function upload({blob, imgData}) {
   document.querySelector('a#stswitcher').click();
   const input = document.querySelector('input#upload_pic_file');
   if (!input) {
     throw new Error('input field missing');
   }
+
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   try {
-    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
-    input.files = data.files;
-  } catch (e) {
-    chrome.runtime.sendMessage({
-      id: 'notification',
-      message:
-        'Sogou image uploading requires at least Chrome 60 or Firefox 57.',
-      type: `${engine}Error`
-    });
+    setFileInputData(input, fileData, engine);
+  } catch (err) {
     return;
   }
 
@@ -22,4 +18,4 @@ async function upload({blob, imgData}) {
   input.dispatchEvent(event);
 }
 
-initUpload(upload, dataKey, 'sogou');
+initUpload(upload, dataKey, engine);

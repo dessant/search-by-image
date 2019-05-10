@@ -97,12 +97,12 @@ export default {
           if (!this.error) {
             try {
               await this.processImgData(params);
-            } catch (e) {
+            } catch (err) {
               this.error = getText(
                 'error_engine',
                 getText(`engineName_${this.engine}`)
               );
-              throw e;
+              throw err;
             }
           }
         }

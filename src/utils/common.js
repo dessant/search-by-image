@@ -52,7 +52,7 @@ async function scriptsAllowed(tabId, frameId = 0) {
       code: 'true;'
     });
     return true;
-  } catch (e) {}
+  } catch (err) {}
 }
 
 function getRandomString(length) {
@@ -148,7 +148,7 @@ function canvasToDataUrl(
   let data;
   try {
     data = cnv.toDataURL(type, quality);
-  } catch (e) {}
+  } catch (err) {}
   if (clear) {
     if (!ctx) {
       ctx = cnv.getContext('2d');
@@ -162,7 +162,7 @@ function drawElementOnCanvas(ctx, node) {
   try {
     ctx.drawImage(node, 0, 0);
     return true;
-  } catch (e) {}
+  } catch (err) {}
 }
 
 function getAbsoluteUrl(url) {

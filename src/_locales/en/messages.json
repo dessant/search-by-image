@@ -5,8 +5,7 @@
   },
 
   "extensionDescription": {
-    "message":
-      "Reverse image search using various search engines, such as Google, Bing, Yandex, Baidu and TinEye.",
+    "message": "Reverse image search using various search engines, such as Google, Bing, Yandex, Baidu and TinEye.",
     "description": "Description of the extension."
   },
 
@@ -268,8 +267,7 @@
   },
 
   "optionSectionDescription_engines": {
-    "message":
-      "Toggle search engines and customize their order (drag and drop)",
+    "message": "Toggle search engines and customize their order (drag and drop)",
     "description": "Description of the options section."
   },
 
@@ -610,8 +608,7 @@
   },
 
   "error_sessionExpired": {
-    "message":
-      "The session has expired. Try searching for the image on $ENGINE$ again.",
+    "message": "The session has expired. Try searching for the image on $ENGINE$ again.",
     "description": "Error message.",
     "placeholders": {
       "engine": {
@@ -622,8 +619,7 @@
   },
 
   "error_invalidImageSize": {
-    "message":
-      "The uploaded image is too large. $ENGINE$ accepts images up to $SIZE$ in size.",
+    "message": "The uploaded image is too large. $ENGINE$ accepts images up to $SIZE$ in size.",
     "description": "Error message.",
     "placeholders": {
       "engine": {
@@ -654,14 +650,12 @@
   },
 
   "error_invalidImageUrl_fileUrl": {
-    "message":
-      "Searching for images loaded from local file URLs is not supported.",
+    "message": "Searching for images loaded from local file URLs is not supported.",
     "description": "Error message."
   },
 
   "error_invalidSearchMode_url": {
-    "message":
-      "Searching for image URLs is supported only from the browser toolbar popup. Visit the options page to select a different search mode.",
+    "message": "Searching for image URLs is supported only from the browser toolbar popup. Visit the options page to select a different search mode.",
     "description": "Error message."
   },
 
@@ -671,13 +665,23 @@
   },
 
   "error_invalidImageCount": {
-    "message":
-      "Select fewer images. Up to three images can be uploaded at once.",
+    "message": "Select fewer images. Up to three images can be uploaded at once.",
     "description": "Error message."
   },
 
   "error_engine": {
     "message": "Something went wrong. Searching on $ENGINE$ has failed.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "error_formUpload": {
+    "message": "$ENGINE$ image uploading requires at least Chrome 60, Firefox 57 or Opera 47.",
     "description": "Error message.",
     "placeholders": {
       "engine": {
@@ -693,14 +697,12 @@
   },
 
   "error_imageNotFound": {
-    "message":
-      "No image found. Try searching again by placing the cursor above the image.",
+    "message": "No image found. Try searching again by placing the cursor above the image.",
     "description": "Error message."
   },
 
   "error_invalidSearchMethod": {
-    "message":
-      "The selected search engine does not support the current search method.",
+    "message": "The selected search engine does not support the current search method.",
     "description": "Error message."
   },
 

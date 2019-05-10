@@ -114,7 +114,7 @@ function validateUrl(url) {
   let parsedUrl;
   try {
     parsedUrl = new URL(url);
-  } catch (e) {
+  } catch (err) {
     return;
   }
 

@@ -1,11 +1,11 @@
 function getXHR() {
   try {
     return new content.XMLHttpRequest();
-  } catch (e) {
+  } catch (err) {
     try {
       // Firefox <= 57
       return XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
-    } catch (e) {
+    } catch (err) {
       return new XMLHttpRequest();
     }
   }
@@ -17,6 +17,25 @@ function getValidHostname(validHostnames, engine) {
     throw new Error(`Invalid ${engine} hostname: ${hostname}`);
   }
   return hostname;
+}
+
+function setFileInputData(input, fileData, engine) {
+  try {
+    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
+    data.items.add(fileData);
+    input.files = data.files;
+  } catch (err) {
+    console.log(err.toString());
+    chrome.runtime.sendMessage({
+      id: 'notification',
+      message: chrome.i18n.getMessage(
+        'error_formUpload',
+        chrome.i18n.getMessage(`engineName_${engine}`)
+      ),
+      type: `${engine}Error`
+    });
+    throw err;
+  }
 }
 
 function largeImageNotify(engine, maxSize) {
@@ -62,7 +81,7 @@ function waitForElement(selector, timeout = 6000) {
 function uploadCallback(xhr, callback, engine) {
   try {
     callback(xhr);
-  } catch (e) {
+  } catch (err) {
     chrome.runtime.sendMessage({
       id: 'notification',
       message: chrome.i18n.getMessage(
@@ -71,7 +90,7 @@ function uploadCallback(xhr, callback, engine) {
       ),
       type: `${engine}Error`
     });
-    throw e;
+    throw err;
   }
 }
 
@@ -138,7 +157,7 @@ async function onMessage(request, uploadFunc, engine) {
         if (!error) {
           await uploadFunc(params);
         }
-      } catch (e) {
+      } catch (err) {
         chrome.runtime.sendMessage({
           id: 'notification',
           message: chrome.i18n.getMessage(
@@ -147,7 +166,7 @@ async function onMessage(request, uploadFunc, engine) {
           ),
           type: `${engine}Error`
         });
-        throw e;
+        throw err;
       }
     }
   }

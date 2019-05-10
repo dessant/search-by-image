@@ -1,3 +1,5 @@
+const engine = 'yandex';
+
 function getHostname() {
   const hostnames = [
     'yandex.com',
@@ -8,12 +10,12 @@ function getHostname() {
     'yandex.uz',
     'yandex.com.tr'
   ];
-  return getValidHostname(hostnames, 'yandex');
+  return getValidHostname(hostnames, engine);
 }
 
 function showResults(xhr) {
   if (xhr.status === 413) {
-    largeImageNotify('yandex', '8');
+    largeImageNotify(engine, '8');
     return;
   }
 
@@ -32,7 +34,7 @@ async function upload({blob, imgData}) {
 
   const xhr = getXHR();
   xhr.addEventListener('load', function() {
-    uploadCallback(this, showResults, 'yandex');
+    uploadCallback(this, showResults, engine);
   });
   xhr.open('POST', url);
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -43,4 +45,4 @@ async function upload({blob, imgData}) {
   xhr.send(data);
 }
 
-initUpload(upload, dataKey, 'yandex');
+initUpload(upload, dataKey, engine);

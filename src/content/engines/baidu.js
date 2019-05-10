@@ -1,3 +1,5 @@
+const engine = 'baidu';
+
 async function upload({blob, imgData}) {
   const button = await waitForElement('a#sttb', 120000);
   button.click();
@@ -7,17 +9,10 @@ async function upload({blob, imgData}) {
     throw new Error('input field missing');
   }
 
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   try {
-    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(new File([blob], imgData.filename, {type: blob.type}));
-    input.files = data.files;
-  } catch (e) {
-    chrome.runtime.sendMessage({
-      id: 'notification',
-      message:
-        'Baidu image uploading requires at least Chrome 60 or Firefox 57.',
-      type: `${engine}Error`
-    });
+    setFileInputData(input, fileData, engine);
+  } catch (err) {
     return;
   }
 
@@ -25,4 +20,4 @@ async function upload({blob, imgData}) {
   input.dispatchEvent(event);
 }
 
-initUpload(upload, dataKey, 'baidu');
+initUpload(upload, dataKey, engine);

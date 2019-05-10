@@ -1,3 +1,5 @@
+const engine = 'bing';
+
 async function upload({blob, imgData}) {
   const form = document.createElement('form');
   form.setAttribute('data-c45ng3u9', '');
@@ -66,4 +68,4 @@ async function upload({blob, imgData}) {
   }
 }
 
-initUpload(upload, dataKey, 'bing');
+initUpload(upload, dataKey, engine);

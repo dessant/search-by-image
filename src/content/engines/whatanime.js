@@ -1,3 +1,5 @@
+const engine = 'whatanime';
+
 async function upload({blob, imgData}) {
   const img = new Image();
   img.onload = function() {
@@ -39,4 +41,4 @@ async function upload({blob, imgData}) {
   img.src = URL.createObjectURL(blob);
 }
 
-initUpload(upload, dataKey, 'whatanime');
+initUpload(upload, dataKey, engine);
