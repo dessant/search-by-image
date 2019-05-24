@@ -36,7 +36,7 @@
       @after-enter="settingsAfterEnter"
       @after-leave="settingsAfterLeave">
     <div class="settings" v-if="searchModeAction === 'url'">
-      <v-textfield ref="imageUrlInput" v-model="imageUrl"
+      <v-textfield ref="imageUrlInput" v-model.trim="imageUrl"
           :placeholder="getText('inputPlaceholder_imageUrl')"
           :fullwidth="true">
       </v-textfield>
@@ -156,7 +156,7 @@ export default {
       browser.runtime.sendMessage({
         id: 'actionPopupSubmit',
         engine,
-        imageUrl: this.imageUrl.trim()
+        imageUrl: this.imageUrl
       });
 
       this.closeAction();

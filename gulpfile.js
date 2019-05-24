@@ -16,7 +16,6 @@ const jsonmin = require('gulp-jsonmin');
 const svg2png = require('svg2png');
 const imagemin = require('gulp-imagemin');
 const sharp = require('sharp');
-const dedent = require('dedent');
 
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -206,13 +205,12 @@ gulp.task('license', function(done) {
     year = `${year}-${currentYear}`;
   }
 
-  const notice = dedent`
-    Search by Image
-    Copyright (c) ${year} Armin Sebastian
+  const notice = `Search by Image
+Copyright (c) ${year} Armin Sebastian
 
-    This software is released under the terms of the GNU General Public License v3.0.
-    See the LICENSE file for further information.
-  `;
+This software is released under the terms of the GNU General Public License v3.0.
+See the LICENSE file for further information.
+`;
 
   writeFileSync(`${distDir}/NOTICE`, notice);
   gulp.src(['LICENSE']).pipe(gulp.dest(distDir));
