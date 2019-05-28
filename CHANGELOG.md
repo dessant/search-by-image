@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.21.0](https://github.com/dessant/search-by-image/compare/v1.20.1...v1.21.0) (2019-05-28)
+
+
+### Bug Fixes
+
+* disable button ripple ([713ae8d](https://github.com/dessant/search-by-image/commit/713ae8d))
+
+
+### Features
+
+* build with travis ([b7c6a96](https://github.com/dessant/search-by-image/commit/b7c6a96))
+
+
+
 ### [1.20.1](https://github.com/dessant/search-by-image/compare/v1.20.0...v1.20.1) (2019-05-10)
 
 
