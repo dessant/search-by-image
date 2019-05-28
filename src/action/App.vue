@@ -7,6 +7,7 @@
     </div>
     <div class="header-buttons">
       <v-icon-button class="contribute-button"
+          :ripple="false"
           src="/src/contribute/assets/heart.svg"
           @click="showContribute">
       </v-icon-button>
