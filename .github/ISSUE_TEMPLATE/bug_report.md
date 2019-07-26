@@ -15,7 +15,18 @@ about: Create a report if something isn't working as expected
 
 **Bug description**
 <!--
-A clear and concise description of what the bug is and how to reproduce it.
-List any URLs that may help reproduce the issue, and if applicable,
-attach screenshots or local images.
+Describe what the bug is and how to reproduce it. List each step
+that is required to reproduce the issue. Mention any browser features
+or installed extensions that may trigger the bug. If applicable,
+attach screenshots.
 -->
+
+**Logs**
+
+<!--
+If there was an error, open the browser console (Ctrl+Shift+J)
+and share its recent output.
+-->
+```
+// REPLACE WITH LOGS
+```
