@@ -43,7 +43,7 @@ const engines = {
   },
   yandex: {
     url: {
-      target: 'https://yandex.com/images/search?img_url={imgUrl}&rpt=imageview'
+      target: 'https://yandex.com/images/search?url={imgUrl}&rpt=imageview'
     },
     upload: {
       target: 'https://yandex.com/images/',
