@@ -1112,13 +1112,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.52.tgz#ef0ca1809994e20186090408b8cb7f2a6877d5f9"
   integrity sha512-2RbW7WXeLex6RI+kQSxq6Ym0GiVcODeQ4Km7MnnTX5BHdOGQnqVa+s6AUmAW+OFYAJ8wv9QxvNZXm7/kBdGTVw==
 
-"@types/package-json@^5.0.0":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@types/package-json/-/package-json-5.0.1.tgz#0157acd348cf3ec8834290367e7f24b85cf6e1d0"
-  integrity sha512-0M6UdBDyGmgWly5Dtenf1U9HPMNCXtAnvvxIKoK9u6b5CCrxiVxc32eoqBzLccH/1Z8ApY927UiYoQ5cwPKcJw==
-  dependencies:
-    package-json "*"
-
 "@types/q@^1.5.1":
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
@@ -4715,9 +4708,9 @@ ejs@^2.6.1:
   integrity sha512-PcW2a0tyTuPHz3tWyYqtK6r1fZ3gp+3Sop8Ph+ZYN81Ob5rwmbHEzaqs10N3BEsaGTkh/ooniXK+WwszGlc2+Q==
 
 electron-to-chromium@^1.3.191:
-  version "1.3.238"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.238.tgz#6d6496e393a709b7b186823281d49b1a5d96a6cf"
-  integrity sha512-k+s6EIiSTgfOm7WiMlGBMMMtBQXSui8OfLN1sXU3RohJOuLGVq0lVm7hXyDIDBcbPM0MeZabAdIPQOSEZT3ZLg==
+  version "1.3.240"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.240.tgz#8e278c4d2b3a96fa865725589277c05c8a1e9584"
+  integrity sha512-cMlX5lQpTzLZI0CsC4Mt2sl6z3jz1RvN/8rIqqwqWy3LYCnu8TUf5o8sqST44nP6zIEdjZb0opXq6qswE9o9pA==
 
 elliptic@^6.0.0:
   version "6.5.0"
@@ -5840,7 +5833,7 @@ fs-extra@^1.0.0:
     jsonfile "^2.1.0"
     klaw "^1.0.0"
 
-fs-extra@^8.0.1, fs-extra@^8.1.0:
+fs-extra@^8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-8.1.0.tgz#49d43c45a88cd9677668cb7be1b46efdb8d2e1c0"
   integrity sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==
@@ -8061,7 +8054,7 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lodash-es@^4.17.11, lodash-es@^4.17.15:
+lodash-es@^4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.15.tgz#21bd96839354412f23d7a10340e5eac6ee455d78"
   integrity sha512-rlrc3yU3+JNOpZ9zj5pQtxnx2THmvRykwL4Xlxoa8I9lHBlVbbyPhgyPMioxVZ4NqyxaVVtaJnzsyOidQIhyyQ==
@@ -8747,9 +8740,9 @@ nan@^2.12.1, nan@^2.13.2, nan@^2.14.0:
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
 
 nanoid@^2.0.0:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.0.3.tgz#dde999e173bc9d7bd2ee2746b89909ade98e075e"
-  integrity sha512-NbaoqdhIYmY6FXDRB4eYtDVC9Z9eCbn8TyaiC16LNKtpPv/aqa0tOPD8y6gNE4yUNnaZ7LLhYtXOev/6+cBtfw==
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.0.4.tgz#4889355c9ce8e24efad7c65945a4a2875ac3e8f4"
+  integrity sha512-sOJnBmY3TJQBVIBqKHoifuwygrocXg3NjS9rZSMnVl05XWSHK7Qxb177AIZQyMDjP86bz+yneozj/h9qsPLcCA==
 
 nanomatch@^1.2.9:
   version "1.2.13"
@@ -9608,16 +9601,6 @@ pac-resolver@^3.0.0:
     netmask "^1.0.6"
     thunkify "^2.1.2"
 
-package-json@*, package-json@^6.3.0:
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/package-json/-/package-json-6.5.0.tgz#6feedaca35e75725876d0b0e64974697fed145b0"
-  integrity sha512-k3bdm2n25tkyxcjSKzB5x8kfVxlMdgsbPr0GkZcwHsLpba6cBjqCt1KlcChKEvxHIcTB1FVMuwoijZ26xex5MQ==
-  dependencies:
-    got "^9.6.0"
-    registry-auth-token "^4.0.0"
-    registry-url "^5.0.0"
-    semver "^6.2.0"
-
 package-json@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/package-json/-/package-json-4.0.1.tgz#8869a0401253661c4c4ca3da6c2121ed555f5eed"
@@ -9627,6 +9610,16 @@ package-json@^4.0.0:
     registry-auth-token "^3.0.1"
     registry-url "^3.0.3"
     semver "^5.1.0"
+
+package-json@^6.3.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/package-json/-/package-json-6.5.0.tgz#6feedaca35e75725876d0b0e64974697fed145b0"
+  integrity sha512-k3bdm2n25tkyxcjSKzB5x8kfVxlMdgsbPr0GkZcwHsLpba6cBjqCt1KlcChKEvxHIcTB1FVMuwoijZ26xex5MQ==
+  dependencies:
+    got "^9.6.0"
+    registry-auth-token "^4.0.0"
+    registry-url "^5.0.0"
+    semver "^6.2.0"
 
 pacote@^9.5.4:
   version "9.5.8"
@@ -11823,13 +11816,12 @@ snyk-python-plugin@^1.13.0:
     "@snyk/cli-interface" "^2.0.2"
     tmp "0.0.33"
 
-snyk-resolve-deps@4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/snyk-resolve-deps/-/snyk-resolve-deps-4.3.0.tgz#0f356ebaed9ca78806024aa0d564c229377f39cb"
-  integrity sha512-HWGiwnz0hH59tyvcpaWho0G8oHlFiiTMgWbx/wZMZmCcgrmmqbjNRp6g+Zg6Cr0Ng2Gy0oc4jqvwspmOoh0c4g==
+snyk-resolve-deps@4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/snyk-resolve-deps/-/snyk-resolve-deps-4.4.0.tgz#ef20fb578a4c920cc262fb73dd292ff21215f52d"
+  integrity sha512-aFPtN8WLqIk4E1ulMyzvV5reY1Iksz+3oPnUVib1jKdyTHymmOIYF7z8QZ4UUr52UsgmrD9EA/dq7jpytwFoOQ==
   dependencies:
     "@types/node" "^6.14.4"
-    "@types/package-json" "^5.0.0"
     "@types/semver" "^5.5.0"
     ansicolors "^0.3.2"
     debug "^3.2.5"
@@ -11855,10 +11847,10 @@ snyk-resolve@1.0.1, snyk-resolve@^1.0.0, snyk-resolve@^1.0.1:
     debug "^3.1.0"
     then-fs "^2.0.0"
 
-snyk-sbt-plugin@2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/snyk-sbt-plugin/-/snyk-sbt-plugin-2.6.1.tgz#bbd01291cb778d5e44689a4a1b0e3de1727942fe"
-  integrity sha512-zWU14cm+cpamJ0CJdekTfgmv6ifdgVcapO6d27KTJThqRuR0arCqGPPyZa/Zl+jzhcK0dtRS4Ihk7g+d36SWIg==
+snyk-sbt-plugin@2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/snyk-sbt-plugin/-/snyk-sbt-plugin-2.7.0.tgz#2b28cf5742b52bf38c76c1973324835adaf947e7"
+  integrity sha512-qQSPkiyd/WNfo0z8MDK+87iIIT2wCn+k6tl9mx0VoNJo/z5jJLAoIc41zkGt/K8TjxA7VF1PV5B3tHqBp1xAVA==
   dependencies:
     semver "^6.1.2"
     tmp "^0.1.0"
@@ -11883,9 +11875,9 @@ snyk-try-require@1.3.1, snyk-try-require@^1.1.1, snyk-try-require@^1.3.1:
     then-fs "^2.0.0"
 
 snyk@^1.165.1:
-  version "1.217.3"
-  resolved "https://registry.yarnpkg.com/snyk/-/snyk-1.217.3.tgz#9a363986e3c5c9fb8769e744159c9e416a794595"
-  integrity sha512-VVTIEuKqw6O5Cj/ypps3TC/MShc2cM5P6ilMhf5xg6IETMvAFt04svNiE84oMWRedPPTVKhDBhTAOaAWx2qCAA==
+  version "1.219.0"
+  resolved "https://registry.yarnpkg.com/snyk/-/snyk-1.219.0.tgz#cf4925015366abb1f58175a24a9e385849f65217"
+  integrity sha512-AE71frDXHzZQjWm1kEKq0+AgQY4hRG5LkgOI3psRxMVlNsCsgVHwW5oFMhXZ9rv47GZYlirYnIznvjNXjgiEVQ==
   dependencies:
     "@snyk/dep-graph" "1.12.0"
     "@snyk/gemfile" "1.2.0"
@@ -11919,8 +11911,8 @@ snyk@^1.165.1:
     snyk-policy "1.13.5"
     snyk-python-plugin "^1.13.0"
     snyk-resolve "1.0.1"
-    snyk-resolve-deps "4.3.0"
-    snyk-sbt-plugin "2.6.1"
+    snyk-resolve-deps "4.4.0"
+    snyk-sbt-plugin "2.7.0"
     snyk-tree "^1.0.0"
     snyk-try-require "1.3.1"
     source-map-support "^0.5.11"
@@ -12203,13 +12195,13 @@ stdout-stream@^1.4.0:
   dependencies:
     readable-stream "^2.0.1"
 
-storage-versions@dessant/storage-versions#^0.2.5:
-  version "0.2.5"
-  resolved "https://codeload.github.com/dessant/storage-versions/tar.gz/3985698b0f167017abc71fbf5234f4bf66aa91ef"
+storage-versions@dessant/storage-versions#^0.2.6:
+  version "0.2.6"
+  resolved "https://codeload.github.com/dessant/storage-versions/tar.gz/2db3d18ec6570f2c99dad41d9fdcad5c055b18e9"
   dependencies:
-    commander "^2.20.0"
-    fs-extra "^8.0.1"
-    lodash-es "^4.17.11"
+    commander "^3.0.0"
+    fs-extra "^8.1.0"
+    lodash-es "^4.17.15"
     shortid "^2.2.14"
     webextension-polyfill "^0.4.0"
 
