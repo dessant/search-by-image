@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.21.2](https://github.com/dessant/search-by-image/compare/v1.21.1...v1.21.2) (2019-08-25)
+
+
+### Bug Fixes
+
+* copy buffer into array ([babab90](https://github.com/dessant/search-by-image/commit/babab90))
+* update yandex url parameter ([ac6784c](https://github.com/dessant/search-by-image/commit/ac6784c))
+
 ### [1.21.1](https://github.com/dessant/search-by-image/compare/v1.21.0...v1.21.1) (2019-06-25)
 
 
