@@ -102,20 +102,8 @@ function dataUrlToBlob(dataUrl) {
   });
 }
 
-function blobToArray(blob) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      resolve(Uint8Array.from(e.target.result));
-    };
-    reader.onerror = () => {
-      resolve();
-    };
-    reader.onabort = () => {
-      resolve();
-    };
-    reader.readAsArrayBuffer(blob);
-  });
+async function blobToArray(blob) {
+  return new Uint8Array(await new Response(blob).arrayBuffer());
 }
 
 function blobToDataUrl(blob) {
