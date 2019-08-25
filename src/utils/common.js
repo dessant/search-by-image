@@ -106,7 +106,7 @@ function blobToArray(blob) {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = e => {
-      resolve(new Uint8Array(e.target.result));
+      resolve(Uint8Array.from(e.target.result));
     };
     reader.onerror = () => {
       resolve();
