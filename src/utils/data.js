@@ -177,6 +177,12 @@ const engines = {
       target: 'https://www.1688.com/',
       isExec: true
     }
+  },
+  mailru: {
+    upload: {
+      target: 'https://go.mail.ru/search_images?fr=main&frm=main',
+      isExec: true
+    }
   }
 };
 

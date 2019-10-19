@@ -114,7 +114,9 @@ async function onMessage(request, uploadFunc, engine) {
         if (params.imgData.isUpload[engine]) {
           const size = params.imgData.size;
           if (
-            ['tineye', 'baidu', 'sogou', 'depositphotos'].includes(engine) &&
+            ['tineye', 'baidu', 'sogou', 'depositphotos', 'mailru'].includes(
+              engine
+            ) &&
             size > 10 * 1024 * 1024
           ) {
             largeImageNotify(engine, '10');
