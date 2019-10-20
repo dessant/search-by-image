@@ -1,12 +1,29 @@
 function getXHR() {
   try {
+    // Firefox
     return new content.XMLHttpRequest();
   } catch (err) {
     try {
       // Firefox <= 57
       return XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
     } catch (err) {
+      // Chrome
       return new XMLHttpRequest();
+    }
+  }
+}
+
+function getDataTransfer() {
+  try {
+    // Firefox
+    return new window.wrappedJSObject.DataTransfer();
+  } catch (err) {
+    try {
+      // Firefox < 62
+      return new window.wrappedJSObject.ClipboardEvent('').clipboardData;
+    } catch (err) {
+      // Chrome
+      return new DataTransfer();
     }
   }
 }

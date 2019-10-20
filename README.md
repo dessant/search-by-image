@@ -52,6 +52,7 @@ and searching for images from private sites.
 * Jingdong
 * Taobao
 * Alibaba China
+* Mail.ru Image Search
 
 #### Search Modes
 
