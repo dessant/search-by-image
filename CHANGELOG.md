@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.22.0](https://github.com/dessant/search-by-image/compare/v1.21.2...v1.22.0) (2019-10-21)
+
+
+### Features
+
+* search with Mail.ru ([f6401c0](https://github.com/dessant/search-by-image/commit/f6401c0))
+
 ### [1.21.2](https://github.com/dessant/search-by-image/compare/v1.21.1...v1.21.2) (2019-08-25)
 
 
