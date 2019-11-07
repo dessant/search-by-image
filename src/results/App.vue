@@ -1,41 +1,51 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app" v-show="dataLoaded">
-  <div v-if="results.length">
-    <div v-show="resultsLoaded" class="title">
-      {{ getText('pageContent_results_title', getText(`engineName_${engine}`)) }}
-    </div>
-    <div class="grid">
-      <div class="grid-item"
+  <div id="app" v-show="dataLoaded">
+    <div v-if="results.length">
+      <div v-show="resultsLoaded" class="title">
+        {{
+          getText('pageContent_results_title', getText(`engineName_${engine}`))
+        }}
+      </div>
+      <div class="grid">
+        <div
+          class="grid-item"
           tabindex="0"
           :data-index="index"
           @keyup.enter="openPage"
           :class="resultClasses"
-          v-for="(item, index) in results">
-        <div class="grid-item-image-wrap" :data-index="index" @click="openPage">
-          <img class="grid-item-image"
-              referrerpolicy="no-referrer"
-              :src="item.image"/>
-        </div>
-        <div class="grid-item-footer">
-          <div class="grid-item-footer-text">{{item.text}}</div>
-          <img class="grid-item-footer-button"
-            src="/src/icons/misc/image.svg"
+          v-for="(item, index) in results"
+        >
+          <div
+            class="grid-item-image-wrap"
             :data-index="index"
-            @click="openImage">
+            @click="openPage"
+          >
+            <img
+              class="grid-item-image"
+              referrerpolicy="no-referrer"
+              :src="item.image"
+            />
+          </div>
+          <div class="grid-item-footer">
+            <div class="grid-item-footer-text">{{ item.text }}</div>
+            <img
+              class="grid-item-footer-button"
+              src="/src/icons/misc/image.svg"
+              :data-index="index"
+              @click="openImage"
+            />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div v-if="!resultsLoaded" class="page-overlay">
-    <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
-    <div v-if="error">
-      <div class="error-icon">:/</div>
-      <div class="error-text">{{ error }}</div>
+    <div v-if="!resultsLoaded" class="page-overlay">
+      <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
+      <div v-if="error">
+        <div class="error-icon">:/</div>
+        <div class="error-text">{{ error }}</div>
+      </div>
     </div>
   </div>
-
-</div>
 </template>
 
 <script>

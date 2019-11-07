@@ -1,29 +1,33 @@
-<!-- prettier-ignore -->
 <template>
-<v-dialog id="sbi-dialog-select"
+  <v-dialog
+    id="sbi-dialog-select"
     :title="getText('dialogTitle_imageConfirmation')"
     :cancel-text="getText('buttonText_cancel')"
     :show-dialog="showDialog"
-    @cancel="onCancel">
-
-  <div class="mdc-grid-list">
-    <ul class="mdc-grid-list__tiles">
-      <li class="mdc-grid-tile" v-for="(img, index) in images">
-        <div class="mdc-grid-tile__primary">
-          <div class="mdc-grid-tile__primary-content tile-container"
+    @cancel="onCancel"
+  >
+    <div class="mdc-grid-list">
+      <ul class="mdc-grid-list__tiles">
+        <li class="mdc-grid-tile" v-for="(img, index) in images">
+          <div class="mdc-grid-tile__primary">
+            <div
+              class="mdc-grid-tile__primary-content tile-container"
               tabindex="0"
               :data-index="index"
               @click="onSelection"
-              @keyup.enter="onSelection">
-            <img class="tile"
+              @keyup.enter="onSelection"
+            >
+              <img
+                class="tile"
                 referrerpolicy="no-referrer"
-                :src="img.data || img.url"/>
+                :src="img.data || img.url"
+              />
+            </div>
           </div>
-        </div>
-      </li>
-    </ul>
-  </div>
-</v-dialog>
+        </li>
+      </ul>
+    </div>
+  </v-dialog>
 </template>
 
 <script>

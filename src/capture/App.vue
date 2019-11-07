@@ -1,29 +1,33 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app">
-  <div class="canvas-wrap">
-    <canvas id="canvas"></canvas>
-  </div>
-  <div ref="snackbar" class="mdc-snackbar">
-    <div class="mdc-snackbar__surface">
-      <div class="mdc-snackbar__label">
-        {{ getText('snackbarMessage_imageCapture') }}
-      </div>
-      <div class="mdc-snackbar__actions">
-        <v-button class="capture-button"
-            :ripple="false" :label="getText('buttonText_search')"
-            @click="onCapture">
-        </v-button>
+  <div id="app">
+    <div class="canvas-wrap">
+      <canvas id="canvas"></canvas>
+    </div>
+    <div ref="snackbar" class="mdc-snackbar">
+      <div class="mdc-snackbar__surface">
+        <div class="mdc-snackbar__label">
+          {{ getText('snackbarMessage_imageCapture') }}
+        </div>
+        <div class="mdc-snackbar__actions">
+          <v-button
+            class="capture-button"
+            :ripple="false"
+            :label="getText('buttonText_search')"
+            @click="onCapture"
+          >
+          </v-button>
 
-        <v-icon-button class="cancel-button"
+          <v-icon-button
+            class="cancel-button"
             :ripple="false"
             src="/src/icons/misc/close.svg"
-            @click="onCancel">
-        </v-icon-button>
+            @click="onCancel"
+          >
+          </v-icon-button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>

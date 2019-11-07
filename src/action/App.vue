@@ -1,76 +1,97 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app" v-show="dataLoaded">
-  <div class="header">
-    <div class="title">
-      {{ getText('extensionName') }}
-    </div>
-    <div class="header-buttons">
-      <v-icon-button class="contribute-button"
+  <div id="app" v-show="dataLoaded">
+    <div class="header">
+      <div class="title">{{ getText('extensionName') }}</div>
+      <div class="header-buttons">
+        <v-icon-button
+          class="contribute-button"
           :ripple="false"
           src="/src/contribute/assets/heart.svg"
-          @click="showContribute">
-      </v-icon-button>
+          @click="showContribute"
+        ></v-icon-button>
 
-      <v-icon-button class="search-mode-button"
+        <v-icon-button
+          class="search-mode-button"
           :ripple="false"
           :src="`/src/icons/modes/${searchModeAction}.svg`"
-          @click="openSearchModeMenu">
-      </v-icon-button>
+          @click="openSearchModeMenu"
+        ></v-icon-button>
 
-      <div class="mdc-menu mdc-menu-surface search-mode-menu">
-        <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical">
-          <li class="mdc-list-item" role="menuitem"
+        <div class="mdc-menu mdc-menu-surface search-mode-menu">
+          <ul
+            class="mdc-list"
+            role="menu"
+            aria-hidden="true"
+            aria-orientation="vertical"
+          >
+            <li
+              class="mdc-list-item"
+              role="menuitem"
               v-for="option of selectOptions.searchModeAction"
               :key="option.id"
-              :data-value="option.id">
-            <img class="mdc-list-item__graphic item-icon"
-                :src="`/src/icons/modes/${option.id}.svg`">
-            <span class="mdc-list-item__text">{{ option.label }}</span>
-          </li>
-        </ul>
+              :data-value="option.id"
+            >
+              <img
+                class="mdc-list-item__graphic item-icon"
+                :src="`/src/icons/modes/${option.id}.svg`"
+              />
+              <span class="mdc-list-item__text">{{ option.label }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
 
-  <transition name="settings" v-if="dataLoaded"
+    <transition
+      name="settings"
+      v-if="dataLoaded"
       @after-enter="settingsAfterEnter"
-      @after-leave="settingsAfterLeave">
-    <div class="settings" v-if="searchModeAction === 'url'">
-      <v-textfield ref="imageUrlInput" v-model.trim="imageUrl"
+      @after-leave="settingsAfterLeave"
+    >
+      <div class="settings" v-if="searchModeAction === 'url'">
+        <v-textfield
+          ref="imageUrlInput"
+          v-model.trim="imageUrl"
           :placeholder="getText('inputPlaceholder_imageUrl')"
-          fullwidth>
-      </v-textfield>
-    </div>
-  </transition>
+          fullwidth
+        ></v-textfield>
+      </div>
+    </transition>
 
-  <div class="list-padding-top"></div>
-  <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
-    <li class="mdc-list-item list-item"
-        @click="selectItem('allEngines')">
-      <img class="mdc-list-item__graphic list-item-icon"
-          :src="getEngineIcon('allEngines')">
-      {{ getText('menuItemTitle_allEngines') }}
-    </li>
-  </ul>
-  <ul class="mdc-list list list-separator"
-      v-if="searchAllEngines || hasScrollBar">
-    <li role="separator" class="mdc-list-divider"></li>
-  </ul>
-  <div class="list-items-wrap" ref="items" :class="listClasses">
-    <resize-observer @notify="handleSizeChange"></resize-observer>
-    <ul class="mdc-list list list-items">
-      <li class="mdc-list-item list-item"
-          v-for="engine in engines"
-          :key="engine.id"
-          @click="selectItem(engine)">
-        <img class="mdc-list-item__graphic list-item-icon"
-            :src="getEngineIcon(engine)">
-        {{ getText(`menuItemTitle_${engine}`) }}
+    <div class="list-padding-top"></div>
+    <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
+      <li class="mdc-list-item list-item" @click="selectItem('allEngines')">
+        <img
+          class="mdc-list-item__graphic list-item-icon"
+          :src="getEngineIcon('allEngines')"
+        />
+        {{ getText('menuItemTitle_allEngines') }}
       </li>
     </ul>
+    <ul
+      class="mdc-list list list-separator"
+      v-if="searchAllEngines || hasScrollBar"
+    >
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+    <div class="list-items-wrap" ref="items" :class="listClasses">
+      <resize-observer @notify="handleSizeChange"></resize-observer>
+      <ul class="mdc-list list list-items">
+        <li
+          class="mdc-list-item list-item"
+          v-for="engine in engines"
+          :key="engine.id"
+          @click="selectItem(engine)"
+        >
+          <img
+            class="mdc-list-item__graphic list-item-icon"
+            :src="getEngineIcon(engine)"
+          />
+          {{ getText(`menuItemTitle_${engine}`) }}
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
 </template>
 
 <script>

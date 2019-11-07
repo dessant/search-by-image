@@ -1,21 +1,22 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app">
-  <div ref="snackbar" class="mdc-snackbar">
-    <div class="mdc-snackbar__surface">
-      <div class="mdc-snackbar__label">
-        {{ getText('snackbarMessage_imageSelection') }}
-      </div>
-      <div class="mdc-snackbar__actions">
-        <v-icon-button class="cancel-button"
+  <div id="app">
+    <div ref="snackbar" class="mdc-snackbar">
+      <div class="mdc-snackbar__surface">
+        <div class="mdc-snackbar__label">
+          {{ getText('snackbarMessage_imageSelection') }}
+        </div>
+        <div class="mdc-snackbar__actions">
+          <v-icon-button
+            class="cancel-button"
             :ripple="false"
             src="/src/icons/misc/close.svg"
-            @click="onCancel">
-        </v-icon-button>
+            @click="onCancel"
+          >
+          </v-icon-button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>

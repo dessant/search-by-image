@@ -1,7 +1,7 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app" v-show="dataLoaded">
-  <input class="drop-zone"
+  <div id="app" v-show="dataLoaded">
+    <input
+      class="drop-zone"
       ref="dropZone"
       v-show="!showSpinner && !error"
       @cut.prevent
@@ -11,33 +11,45 @@
       @dragenter.prevent="dropState = true"
       @dragexit.prevent="dropState = false"
       @dragend.prevent="dropState = false"
-      @dragover.prevent>
+      @dragover.prevent
+    />
 
-  <div class="drop-zone-content" v-show="!showSpinner && !error">
-    <img class="drop-zone-icon"
-        :src="`/src/icons/browse/drop-zone-${dropState ? 'drop' : 'drag'}.svg`">
+    <div class="drop-zone-content" v-show="!showSpinner && !error">
+      <img
+        class="drop-zone-icon"
+        :src="`/src/icons/browse/drop-zone-${dropState ? 'drop' : 'drag'}.svg`"
+      />
 
-    <div class="drop-zone-text">
-      {{ getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`) }}
+      <div class="drop-zone-text">
+        {{ getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`) }}
+      </div>
+
+      <div class="browse-button-wrap">
+        <input
+          ref="input"
+          class="image-input"
+          type="file"
+          accept="image/*"
+          multiple
+          @change="handleFiles($event, 'input')"
+        />
+        <v-button
+          class="browse-button"
+          v-show="!dropState"
+          outlined
+          :label="getText('buttonText_browse')"
+          @click="$refs.input.click()"
+        ></v-button>
+      </div>
     </div>
 
-    <div class="browse-button-wrap">
-      <input ref="input" class="image-input" type="file"
-          accept="image/*" multiple @change="handleFiles($event, 'input')">
-      <v-button class="browse-button" v-show="!dropState"
-          outlined :label="getText('buttonText_browse')"
-          @click="$refs.input.click()">
-      </v-button>
+    <div v-show="showSpinner && !error" class="sk-rotating-plane"></div>
+
+    <div v-show="error">
+      <div class="error-icon">:/</div>
+      <div class="error-text">{{ error }}</div>
     </div>
   </div>
-
-  <div v-show="showSpinner && !error" class="sk-rotating-plane"></div>
-
-  <div v-show="error">
-    <div class="error-icon">:/</div>
-    <div class="error-text">{{ error }}</div>
-  </div>
-</div>
 </template>
 
 <script>

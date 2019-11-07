@@ -1,98 +1,117 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app" v-if="dataLoaded">
-  <div class="section">
-    <div class="section-title" v-once>
-      {{ getText('optionSectionTitle_engines') }}
-    </div>
-    <div class="section-desc" v-once>
-      {{ getText('optionSectionDescription_engines') }}
-    </div>
-    <v-draggable class="option-wrap" :list="options.engines">
-      <div class="option" v-for="engine in options.engines" :key="engine.id">
-        <v-form-field :input-id="engine"
-            :label="getText(`optionTitle_${engine}`)">
-          <v-checkbox :id="engine" :checked="engineEnabled(engine)"
-              @change="setEngineState(engine, $event)">
-          </v-checkbox>
-        </v-form-field>
+  <div id="app" v-if="dataLoaded">
+    <div class="section">
+      <div class="section-title" v-once>
+        {{ getText('optionSectionTitle_engines') }}
       </div>
-    </v-draggable>
-  </div>
+      <div class="section-desc" v-once>
+        {{ getText('optionSectionDescription_engines') }}
+      </div>
+      <v-draggable class="option-wrap" :list="options.engines">
+        <div class="option" v-for="engine in options.engines" :key="engine.id">
+          <v-form-field
+            :input-id="engine"
+            :label="getText(`optionTitle_${engine}`)"
+          >
+            <v-checkbox
+              :id="engine"
+              :checked="engineEnabled(engine)"
+              @change="setEngineState(engine, $event)"
+            >
+            </v-checkbox>
+          </v-form-field>
+        </div>
+      </v-draggable>
+    </div>
 
-  <div class="section" v-if="contextMenuEnabled">
-    <div class="section-title" v-once>
-      {{ getText('optionSectionTitle_contextmenu') }}
-    </div>
-    <div class="option-wrap">
-      <div class="option">
-        <v-form-field input-id="sic"
-            :label="getText('optionTitle_showInContextMenu')">
-          <v-switch id="sic" v-model="options.showInContextMenu"></v-switch>
-        </v-form-field>
+    <div class="section" v-if="contextMenuEnabled">
+      <div class="section-title" v-once>
+        {{ getText('optionSectionTitle_contextmenu') }}
       </div>
-      <div class="option select">
-        <v-select :label="getText('optionTitle_searchMode')"
+      <div class="option-wrap">
+        <div class="option">
+          <v-form-field
+            input-id="sic"
+            :label="getText('optionTitle_showInContextMenu')"
+          >
+            <v-switch id="sic" v-model="options.showInContextMenu"></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option select">
+          <v-select
+            :label="getText('optionTitle_searchMode')"
             v-model="options.searchModeContextMenu"
-            :options="selectOptions.searchModeContextMenu">
-        </v-select>
-      </div>
-      <div class="option select">
-        <v-select :label="getText('optionTitle_searchAllEngines')"
+            :options="selectOptions.searchModeContextMenu"
+          >
+          </v-select>
+        </div>
+        <div class="option select">
+          <v-select
+            :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesContextMenu"
-            :options="selectOptions.searchAllEnginesContextMenu">
-        </v-select>
+            :options="selectOptions.searchAllEnginesContextMenu"
+          >
+          </v-select>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="section-title" v-once>
-      {{ getText('optionSectionTitle_toolbar') }}
-    </div>
-    <div class="option-wrap">
-      <div class="option select">
-        <v-select :label="getText('optionTitle_searchMode')"
+    <div class="section">
+      <div class="section-title" v-once>
+        {{ getText('optionSectionTitle_toolbar') }}
+      </div>
+      <div class="option-wrap">
+        <div class="option select">
+          <v-select
+            :label="getText('optionTitle_searchMode')"
             v-model="options.searchModeAction"
-            :options="selectOptions.searchModeAction">
-        </v-select>
-      </div>
-      <div class="option select">
-        <v-select :label="getText('optionTitle_searchAllEngines')"
+            :options="selectOptions.searchModeAction"
+          >
+          </v-select>
+        </div>
+        <div class="option select">
+          <v-select
+            :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesAction"
-            :options="selectOptions.searchAllEnginesAction">
-        </v-select>
+            :options="selectOptions.searchAllEnginesAction"
+          >
+          </v-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" v-once>
+        {{ getText('optionSectionTitle_misc') }}
+      </div>
+      <div class="option-wrap">
+        <div class="option">
+          <v-form-field
+            input-id="tib"
+            :label="getText('optionTitle_tabInBackgound')"
+          >
+            <v-switch id="tib" v-model="options.tabInBackgound"></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option">
+          <v-form-field
+            input-id="ifp"
+            :label="getText('optionTitle_imgFullParse')"
+          >
+            <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option">
+          <v-form-field
+            input-id="lg"
+            :label="getText('optionTitle_localGoogle')"
+          >
+            <v-switch id="lg" v-model="options.localGoogle"></v-switch>
+          </v-form-field>
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="section">
-    <div class="section-title" v-once>
-      {{ getText('optionSectionTitle_misc') }}
-    </div>
-    <div class="option-wrap">
-      <div class="option">
-        <v-form-field input-id="tib"
-            :label="getText('optionTitle_tabInBackgound')">
-          <v-switch id="tib" v-model="options.tabInBackgound"></v-switch>
-        </v-form-field>
-      </div>
-      <div class="option">
-        <v-form-field input-id="ifp"
-            :label="getText('optionTitle_imgFullParse')">
-          <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
-        </v-form-field>
-      </div>
-      <div class="option">
-        <v-form-field input-id="lg"
-            :label="getText('optionTitle_localGoogle')">
-          <v-switch id="lg" v-model="options.localGoogle"></v-switch>
-        </v-form-field>
-      </div>
-    </div>
-  </div>
-
-</div>
 </template>
 
 <script>
