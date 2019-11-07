@@ -39,7 +39,7 @@
     <div class="settings" v-if="searchModeAction === 'url'">
       <v-textfield ref="imageUrlInput" v-model.trim="imageUrl"
           :placeholder="getText('inputPlaceholder_imageUrl')"
-          :fullwidth="true">
+          fullwidth>
       </v-textfield>
     </div>
   </transition>
@@ -325,7 +325,7 @@ body {
 
 .contribute-button {
   margin-right: 12px;
-  @include mdc-icon-button-size(24px, 24px, 8px);
+  @include mdc-icon-button-icon-size(24px, 24px, 8px);
 }
 
 .settings {
@@ -337,7 +337,7 @@ body {
   background-position-x: right;
   background-position-y: center;
   background-repeat: no-repeat;
-  @include mdc-icon-button-size(24px, 24px, 8px);
+  @include mdc-icon-button-icon-size(24px, 24px, 8px);
   @include mdc-icon-button-ink-color(#00000000);
 }
 

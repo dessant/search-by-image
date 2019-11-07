@@ -11,9 +11,8 @@
       </div>
       <div class="mdc-snackbar__actions">
         <v-button class="capture-button"
-            :ripple="false"
+            :ripple="false" :label="getText('buttonText_search')"
             @click="onCapture">
-          {{ getText('buttonText_search') }}
         </v-button>
 
         <v-icon-button class="cancel-button"
@@ -191,7 +190,7 @@ body {
 }
 
 .cancel-button {
-  @include mdc-icon-button-size(18px, 18px, 9px);
+  @include mdc-icon-button-icon-size(18px, 18px, 9px);
   @include mdc-icon-button-ink-color(rgba(255, 255, 255, 0.87));
   margin-left: 8px;
 }

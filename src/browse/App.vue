@@ -25,9 +25,8 @@
       <input ref="input" class="image-input" type="file"
           accept="image/*" multiple @change="handleFiles($event, 'input')">
       <v-button class="browse-button" v-show="!dropState"
-          :outlined="true"
+          outlined :label="getText('buttonText_browse')"
           @click="$refs.input.click()">
-        {{ getText('buttonText_browse') }}
       </v-button>
     </div>
   </div>

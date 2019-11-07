@@ -85,7 +85,7 @@ body {
 }
 
 .cancel-button {
-  @include mdc-icon-button-size(18px, 18px, 9px);
+  @include mdc-icon-button-icon-size(18px, 18px, 9px);
   @include mdc-icon-button-ink-color(rgba(255, 255, 255, 0.87));
 }
 
