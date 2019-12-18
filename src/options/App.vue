@@ -41,7 +41,7 @@
           <v-select
             :label="getText('optionTitle_searchMode')"
             v-model="options.searchModeContextMenu"
-            :options="selectOptions.searchModeContextMenu"
+            :options="listItems.searchModeContextMenu"
           >
           </v-select>
         </div>
@@ -49,7 +49,7 @@
           <v-select
             :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesContextMenu"
-            :options="selectOptions.searchAllEnginesContextMenu"
+            :options="listItems.searchAllEnginesContextMenu"
           >
           </v-select>
         </div>
@@ -65,7 +65,7 @@
           <v-select
             :label="getText('optionTitle_searchMode')"
             v-model="options.searchModeAction"
-            :options="selectOptions.searchModeAction"
+            :options="listItems.searchModeAction"
           >
           </v-select>
         </div>
@@ -73,7 +73,7 @@
           <v-select
             :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesAction"
-            :options="selectOptions.searchAllEnginesAction"
+            :options="listItems.searchAllEnginesAction"
           >
           </v-select>
         </div>
@@ -121,7 +121,7 @@ import draggable from 'vuedraggable';
 import {Checkbox, FormField, Switch, Select} from 'ext-components';
 
 import storage from 'storage/storage';
-import {getOptionLabels} from 'utils/app';
+import {getListItems} from 'utils/app';
 import {getText, isAndroid} from 'utils/common';
 import {optionKeys} from 'utils/data';
 import {targetEnv} from 'utils/config';
@@ -139,12 +139,36 @@ export default {
     return {
       dataLoaded: false,
 
-      selectOptions: getOptionLabels({
-        searchAllEnginesContextMenu: ['main', 'sub', 'false'],
-        searchModeContextMenu: ['select', 'selectUpload', 'capture'],
-        searchAllEnginesAction: ['main', 'sub', 'false'],
-        searchModeAction: ['select', 'selectUpload', 'capture', 'upload', 'url']
-      }),
+      listItems: {
+        ...getListItems(
+          {
+            searchAllEnginesContextMenu: ['main', 'sub', 'false']
+          },
+          {scope: 'optionValue_searchAllEnginesContextMenu'}
+        ),
+        ...getListItems(
+          {
+            searchModeContextMenu: ['select', 'selectUpload', 'capture']
+          },
+          {scope: 'optionValue_searchModeContextMenu'}
+        ),
+        ...getListItems(
+          {searchAllEnginesAction: ['main', 'sub', 'false']},
+          {scope: 'optionValue_searchAllEnginesAction'}
+        ),
+        ...getListItems(
+          {
+            searchModeAction: [
+              'select',
+              'selectUpload',
+              'capture',
+              'upload',
+              'url'
+            ]
+          },
+          {scope: 'optionValue_searchModeAction'}
+        )
+      },
       contextMenuEnabled: true,
 
       options: {
@@ -208,28 +232,30 @@ export default {
 <style lang="scss">
 $mdc-theme-primary: #1abc9c;
 
+@import '@material/select/mdc-select';
 @import '@material/theme/mixins';
 @import '@material/typography/mixins';
 
 body {
+  margin: 0;
   @include mdc-typography-base;
   font-size: 100%;
   background-color: #ffffff;
   overflow: visible !important;
 }
 
-.mdc-checkbox {
-  margin-left: 8px;
-}
-
-.mdc-switch {
-  margin-right: 12px;
-}
-
 #app {
   display: grid;
   grid-row-gap: 32px;
-  padding: 12px;
+  padding: 24px;
+}
+
+.mdc-checkbox {
+  margin-right: 4px;
+}
+
+.mdc-switch {
+  margin-right: 16px;
 }
 
 .section-title,
@@ -248,18 +274,40 @@ body {
 
 .option-wrap {
   display: grid;
-  grid-row-gap: 12px;
-  padding-top: 16px;
+  grid-row-gap: 24px;
+  padding-top: 24px;
   grid-auto-columns: min-content;
 }
 
 .option {
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 24px;
+
+  & .mdc-form-field {
+    max-width: calc(100vw - 48px);
+
+    & label {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
 .option.select {
+  align-items: start;
   height: 56px;
+
+  & .mdc-select__anchor,
+  & .mdc-select__menu {
+    max-width: calc(100vw - 48px);
+  }
+
+  & .mdc-select__selected-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 </style>

@@ -4,42 +4,57 @@
       <div class="title">{{ getText('extensionName') }}</div>
       <div class="header-buttons">
         <v-icon-button
+          class="search-mode-button"
+          :src="`/src/icons/modes/${searchModeAction}.svg`"
+          @click="showSearchModeMenu"
+        ></v-icon-button>
+
+        <v-icon-button
           class="contribute-button"
-          :ripple="false"
           src="/src/contribute/assets/heart.svg"
           @click="showContribute"
         ></v-icon-button>
 
         <v-icon-button
-          class="search-mode-button"
-          :ripple="false"
-          :src="`/src/icons/modes/${searchModeAction}.svg`"
-          @click="openSearchModeMenu"
-        ></v-icon-button>
-
-        <div class="mdc-menu mdc-menu-surface search-mode-menu">
-          <ul
-            class="mdc-list"
-            role="menu"
-            aria-hidden="true"
-            aria-orientation="vertical"
-          >
-            <li
-              class="mdc-list-item"
-              role="menuitem"
-              v-for="option of selectOptions.searchModeAction"
-              :key="option.id"
-              :data-value="option.id"
-            >
-              <img
-                class="mdc-list-item__graphic item-icon"
-                :src="`/src/icons/modes/${option.id}.svg`"
-              />
-              <span class="mdc-list-item__text">{{ option.label }}</span>
-            </li>
-          </ul>
-        </div>
+          class="menu-button"
+          src="/src/icons/misc/more.svg"
+          @click="showActionMenu"
+        >
+        </v-icon-button>
       </div>
+
+      <v-menu
+        ref="searchModeMenu"
+        class="search-mode-menu"
+        :items="listItems.searchModeAction"
+        :focusItem="searchModeAction"
+        :ripple="true"
+        @selected="onSearchModeSelect"
+      >
+        <template slot="items" slot-scope="data">
+          <li
+            class="mdc-list-item"
+            role="menuitem"
+            v-for="item of data.items"
+            :key="item.id"
+            :data-value="item.id"
+          >
+            <img
+              class="mdc-list-item__graphic item-icon"
+              :src="`/src/icons/modes/${item.id}.svg`"
+            />
+            <span class="mdc-list-item__text">{{ item.label }}</span>
+          </li>
+        </template></v-menu
+      >
+
+      <v-menu
+        ref="actionMenu"
+        class="action-menu"
+        :ripple="true"
+        :items="listItems.actionMenu"
+        @selected="onActionMenuSelect"
+      ></v-menu>
     </div>
 
     <transition
@@ -98,17 +113,17 @@
 import browser from 'webextension-polyfill';
 import {ResizeObserver} from 'vue-resize';
 import {MDCList} from '@material/list';
-import {MDCMenu} from '@material/menu';
 import {MDCRipple} from '@material/ripple';
-import {IconButton, TextField} from 'ext-components';
+import {IconButton, TextField, Menu} from 'ext-components';
 
 import storage from 'storage/storage';
 import {
   getEnabledEngines,
-  getOptionLabels,
   showNotification,
   validateUrl,
-  showContributePage
+  getListItems,
+  showContributePage,
+  showProjectPage
 } from 'utils/app';
 import {getText, isAndroid} from 'utils/common';
 import {optionKeys} from 'utils/data';
@@ -118,6 +133,7 @@ export default {
   components: {
     [IconButton.name]: IconButton,
     [TextField.name]: TextField,
+    [Menu.name]: Menu,
     [ResizeObserver.name]: ResizeObserver
   },
 
@@ -127,18 +143,24 @@ export default {
 
       searchModeAction: '',
       imageUrl: '',
-      selectOptions: getOptionLabels(
-        {
-          searchModeAction: [
-            'select',
-            'selectUpload',
-            'capture',
-            'upload',
-            'url'
-          ]
-        },
-        'optionValue_action'
-      ),
+      listItems: {
+        ...getListItems(
+          {actionMenu: ['options', 'website']},
+          {scope: 'actionMenu'}
+        ),
+        ...getListItems(
+          {
+            searchModeAction: [
+              'select',
+              'selectUpload',
+              'capture',
+              'upload',
+              'url'
+            ]
+          },
+          {scope: 'optionValue_searchModeAction'}
+        )
+      },
       hasScrollBar: false,
       isPopup: false,
 
@@ -189,13 +211,34 @@ export default {
       this.closeAction();
     },
 
-    openSearchModeMenu: function() {
-      this.searchModeMenu.open = true;
-      document
-        .querySelector(
-          `.search-mode-menu li[data-value="${this.searchModeAction}"]`
-        )
-        .focus();
+    showOptions: async function() {
+      await browser.runtime.openOptionsPage();
+      this.closeAction();
+    },
+
+    showWebsite: async function() {
+      await showProjectPage();
+      this.closeAction();
+    },
+
+    showActionMenu: function() {
+      this.$refs.actionMenu.$emit('open');
+    },
+
+    onActionMenuSelect: async function(item) {
+      if (item === 'options') {
+        await this.showOptions();
+      } else if (item === 'website') {
+        await this.showWebsite();
+      }
+    },
+
+    showSearchModeMenu: function() {
+      this.$refs.searchModeMenu.$emit('open');
+    },
+
+    onSearchModeSelect: async function(item) {
+      this.searchModeAction = item;
     },
 
     closeAction: async function() {
@@ -259,19 +302,7 @@ export default {
   },
 
   mounted: function() {
-    this.searchModeMenu = new MDCMenu(
-      document.querySelector('.search-mode-menu')
-    );
-    this.searchModeMenu.setFixedPosition(true);
-    this.searchModeMenu.listen('MDCMenu:selected', ev => {
-      this.searchModeAction = ev.detail.item.dataset.value;
-    });
-
     window.setTimeout(() => {
-      for (const el of this.searchModeMenu.items) {
-        MDCRipple.attachTo(el);
-      }
-
       for (const listEl of document.querySelectorAll(
         '.list-bulk-button, .list-items'
       )) {
@@ -289,8 +320,6 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/list/mdc-list';
-@import '@material/menu-surface/mdc-menu-surface';
-@import '@material/menu/mdc-menu';
 
 @import '@material/icon-button/mixins';
 @import '@material/theme/mixins';
@@ -310,7 +339,7 @@ body,
 
 body {
   margin: 0;
-  min-width: 333px;
+  min-width: 350px;
   overflow: hidden;
   @include mdc-typography-base;
   font-size: 100%;
@@ -324,7 +353,7 @@ body {
   white-space: nowrap;
   padding-top: 16px;
   padding-left: 16px;
-  padding-right: 16px;
+  padding-right: 4px;
 }
 
 .title {
@@ -339,42 +368,52 @@ body {
   align-items: center;
   height: 24px;
   margin-left: 56px;
-  @media (max-width: 322px) {
+  @media (max-width: 349px) {
     margin-left: 32px;
   }
 }
 
-.contribute-button {
-  margin-right: 12px;
-  @include mdc-icon-button-icon-size(24px, 24px, 8px);
+.contribute-button,
+.search-mode-button,
+.menu-button {
+  @include mdc-icon-button-icon-size(24px, 24px, 6px);
+
+  &::before {
+    --mdc-ripple-fg-size: 20px;
+    --mdc-ripple-fg-scale: 1.8;
+    --mdc-ripple-left: 8px;
+    --mdc-ripple-top: 8px;
+  }
 }
 
-.settings {
-  padding: 16px;
+.contribute-button {
+  margin-right: 4px;
 }
 
 .search-mode-button {
-  background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2210px%22%20height%3D%225px%22%20viewBox%3D%227%2010%2010%205%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%0A%20%20%20%20%3Cpolygon%20id%3D%22Shape%22%20stroke%3D%22none%22%20fill%3D%22%23000%22%20fill-rule%3D%22evenodd%22%20opacity%3D%220.54%22%20points%3D%227%2010%2012%2015%2017%2010%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E');
-  background-position-x: right;
-  background-position-y: center;
-  background-repeat: no-repeat;
-  @include mdc-icon-button-icon-size(24px, 24px, 8px);
-  @include mdc-icon-button-ink-color(#00000000);
-}
-
-.search-mode-button img {
-  margin-left: -16px;
+  margin-right: 8px;
 }
 
 .search-mode-menu {
   left: auto !important;
-  top: 16px !important;
+  top: 56px !important;
+  right: 96px;
+  transform-origin: top right !important;
+
+  & .item-icon {
+    margin-right: 16px !important;
+  }
+}
+
+.action-menu {
+  left: auto !important;
+  top: 56px !important;
   right: 16px;
   transform-origin: top right !important;
 }
 
-.search-mode-menu .item-icon {
-  margin-right: 16px !important;
+.settings {
+  padding: 16px;
 }
 
 .settings-enter-active,

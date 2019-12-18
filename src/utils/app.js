@@ -13,7 +13,7 @@ import {
   blobToDataUrl,
   canvasToDataUrl
 } from 'utils/common';
-import {engines, imageMimeTypes} from 'utils/data';
+import {engines, imageMimeTypes, projectUrl} from 'utils/data';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
@@ -82,15 +82,19 @@ function showNotification({message, messageId, title, type = 'info'}) {
   });
 }
 
-function getOptionLabels(data, scope = 'optionValue') {
+function getListItems(data, {scope = '', shortScope = ''} = {}) {
   const labels = {};
   for (const [group, items] of Object.entries(data)) {
     labels[group] = [];
     items.forEach(function(value) {
-      labels[group].push({
+      const item = {
         id: value,
-        label: getText(`${scope}_${group}_${value}`)
-      });
+        label: getText(`${scope ? scope + '_' : ''}${value}`)
+      };
+      if (shortScope) {
+        item.shortLabel = getText(`${shortScope}_${value}`);
+      }
+      labels[group].push(item);
     });
   }
   return labels;
@@ -104,6 +108,11 @@ async function showContributePage(action = false) {
     url = `${url}?action=${action}`;
   }
   await createTab(url, {index: activeTab.index + 1});
+}
+
+async function showProjectPage() {
+  const activeTab = await getActiveTab();
+  await createTab(projectUrl, {index: activeTab.index + 1});
 }
 
 function validateUrl(url) {
@@ -223,8 +232,9 @@ export {
   isUploadSearch,
   hasUrlSupport,
   showNotification,
-  getOptionLabels,
+  getListItems,
   showContributePage,
+  showProjectPage,
   validateUrl,
   normalizeFilename,
   normalizeImage,

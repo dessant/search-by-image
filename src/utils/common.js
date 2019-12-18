@@ -1,7 +1,5 @@
 import browser from 'webextension-polyfill';
 
-import {targetEnv} from 'utils/config';
-
 const getText = browser.i18n.getMessage;
 
 function onError(error) {
@@ -14,7 +12,7 @@ function onComplete() {
   }
 }
 
-function createTab(
+async function createTab(
   url,
   {index = null, active = true, openerTabId = null} = {}
 ) {
@@ -22,7 +20,11 @@ function createTab(
   if (index !== null) {
     props.index = index;
   }
-  if (openerTabId !== null && ['chrome', 'opera'].includes(targetEnv)) {
+  if (
+    openerTabId !== null &&
+    openerTabId !== browser.tabs.TAB_ID_NONE &&
+    !(await isAndroid())
+  ) {
     props.openerTabId = openerTabId;
   }
   return browser.tabs.create(props);

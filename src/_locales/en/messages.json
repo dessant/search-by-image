@@ -617,6 +617,16 @@
     "description": "Title of the page."
   },
 
+  "actionMenu_options": {
+    "message": "Options",
+    "description": "Title of the menu item."
+  },
+
+  "actionMenu_website": {
+    "message": "Website",
+    "description": "Title of the menu item."
+  },
+
   "error_invalidPageUrl": {
     "message": "The page URL is not valid. Try searching for the image again.",
     "description": "Error message."
