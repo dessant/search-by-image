@@ -339,7 +339,7 @@ body,
 
 body {
   margin: 0;
-  min-width: 350px;
+  min-width: 354px;
   overflow: hidden;
   @include mdc-typography-base;
   font-size: 100%;
@@ -368,7 +368,7 @@ body {
   align-items: center;
   height: 24px;
   margin-left: 56px;
-  @media (max-width: 349px) {
+  @media (max-width: 353px) {
     margin-left: 32px;
   }
 }
@@ -391,13 +391,13 @@ body {
 }
 
 .search-mode-button {
-  margin-right: 8px;
+  margin-right: 12px;
 }
 
 .search-mode-menu {
   left: auto !important;
   top: 56px !important;
-  right: 96px;
+  right: 100px;
   transform-origin: top right !important;
 
   & .item-icon {
