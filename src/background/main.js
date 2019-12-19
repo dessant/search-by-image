@@ -400,13 +400,18 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
             120000
           ); // 2 minutes
 
+          const extraInfo = ['blocking', 'responseHeaders'];
+          if (targetEnv !== 'firefox') {
+            extraInfo.push('extraHeaders');
+          }
+
           browser.webRequest.onHeadersReceived.addListener(
             taobaoResponseCallback,
             {
               urls: ['https://www.taobao.com/*'],
               tabId
             },
-            ['blocking', 'responseHeaders']
+            extraInfo
           );
 
           return {requestHeaders: details.requestHeaders};
@@ -424,12 +429,17 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
         60000
       ); // 1 minute
 
+      const extraInfo = ['blocking', 'requestHeaders'];
+      if (targetEnv !== 'firefox') {
+        extraInfo.push('extraHeaders');
+      }
+
       browser.webRequest.onBeforeSendHeaders.addListener(
         taobaoRequestCallback,
         {
           urls: ['https://www.taobao.com/']
         },
-        ['blocking', 'requestHeaders']
+        extraInfo
       );
     }
   }
