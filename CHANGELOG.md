@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/dessant/search-by-image/compare/v1.22.0...v2.0.0) (2019-12-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* browser versions before Chrome 76, Firefox 68 and Opera 63
+are no longer supported
+
+### Features
+
+* add overflow menu with links for options and website ([0d4c984](https://github.com/dessant/search-by-image/commit/0d4c98413d1482277f8cd31eec3423b8389d9194))
+
+
+### Bug Fixes
+
+* adjust icon spacing ([88477cf](https://github.com/dessant/search-by-image/commit/88477cfbed3a1c165bb64397eac757963cf659a6))
+* remove patches for outdated browsers ([44b178d](https://github.com/dessant/search-by-image/commit/44b178d93697872fea84ad21f713f008e71d1d84))
+* request extra headers on Chrome ([d46abe4](https://github.com/dessant/search-by-image/commit/d46abe4ea5782f8c3469666e21afd35ea305095c))
+
 ## [1.22.0](https://github.com/dessant/search-by-image/compare/v1.21.2...v1.22.0) (2019-10-21)
 
 
