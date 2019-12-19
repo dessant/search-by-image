@@ -705,17 +705,6 @@
     }
   },
 
-  "error_formUpload": {
-    "message": "$ENGINE$ image uploading requires at least Chrome 60, Firefox 57 or Opera 47.",
-    "description": "Error message.",
-    "placeholders": {
-      "engine": {
-        "content": "$1",
-        "example": "Google"
-      }
-    }
-  },
-
   "error_scriptsNotAllowed": {
     "message": "Content scripts are not allowed on this page.",
     "description": "Error message."

@@ -3,13 +3,8 @@ function getXHR() {
     // Firefox
     return new content.XMLHttpRequest();
   } catch (err) {
-    try {
-      // Firefox <= 57
-      return XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
-    } catch (err) {
-      // Chrome
-      return new XMLHttpRequest();
-    }
+    // Chrome
+    return new XMLHttpRequest();
   }
 }
 
@@ -18,13 +13,8 @@ function getDataTransfer() {
     // Firefox
     return new window.wrappedJSObject.DataTransfer();
   } catch (err) {
-    try {
-      // Firefox < 62
-      return new window.wrappedJSObject.ClipboardEvent('').clipboardData;
-    } catch (err) {
-      // Chrome
-      return new DataTransfer();
-    }
+    // Chrome
+    return new DataTransfer();
   }
 }
 
@@ -36,23 +26,13 @@ function getValidHostname(validHostnames, engine) {
   return hostname;
 }
 
-function setFileInputData(input, fileData, engine) {
-  try {
-    const data = new ClipboardEvent('').clipboardData || new DataTransfer();
-    data.items.add(fileData);
-    input.files = data.files;
-  } catch (err) {
-    console.log(err.toString());
-    chrome.runtime.sendMessage({
-      id: 'notification',
-      message: chrome.i18n.getMessage(
-        'error_formUpload',
-        chrome.i18n.getMessage(`engineName_${engine}`)
-      ),
-      type: `${engine}Error`
-    });
-    throw err;
-  }
+function setFileInputData(input, blob, imgData) {
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
+
+  const data = new DataTransfer();
+  data.items.add(fileData);
+
+  input.files = data.files;
 }
 
 function largeImageNotify(engine, maxSize) {

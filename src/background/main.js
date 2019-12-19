@@ -12,7 +12,6 @@ import {
   scriptsAllowed,
   onComplete,
   dataUrlToBlob,
-  canvasToDataUrl,
   isAndroid,
   getActiveTab
 } from 'utils/common';
@@ -76,7 +75,7 @@ function createMenuItem({
     parentId: parent,
     type
   };
-  if (icons) {
+  if (icons && targetEnv === 'firefox') {
     params.icons = icons;
   }
   browser.contextMenus.create(params, onComplete);
@@ -98,10 +97,7 @@ async function createMenu(options) {
   let setIcons = false;
   if (targetEnv === 'firefox') {
     urlPatterns.push('file:///*');
-    const {version} = await browser.runtime.getBrowserInfo();
-    if (parseInt(version.slice(0, 2), 10) >= 56) {
-      setIcons = true;
-    }
+    setIcons = true;
   }
 
   if (enEngines.length === 1) {
@@ -191,18 +187,10 @@ async function searchImage(
   firstBatchItem = true
 ) {
   if (firstBatchItem) {
-    let {searchCount, contribPageLastOpen} = await storage.get(
-      ['searchCount', 'contribPageLastOpen'],
-      'sync'
-    );
+    let {searchCount} = await storage.get('searchCount', 'sync');
     searchCount += 1;
     await storage.set({searchCount}, 'sync');
-    if (
-      [10, 100].includes(searchCount) &&
-      (!contribPageLastOpen ||
-        contribPageLastOpen === 1000 ||
-        contribPageLastOpen > 1512892800000)
-    ) {
+    if ([10, 100].includes(searchCount)) {
       await showContributePage('search');
       tabIndex += 1;
       tabActive = false;
@@ -562,20 +550,6 @@ async function onContextMenuItemClick(info, tab) {
       await searchImage({data: info.srcUrl}, engine, tabIndex);
     } else {
       await showNotification({messageId: 'error_scriptsNotAllowed'});
-    }
-    return;
-  }
-
-  // Firefox < 55.0
-  if (
-    !frameId &&
-    typeof info.frameUrl !== 'undefined' &&
-    info.pageUrl !== info.frameUrl
-  ) {
-    if (info.srcUrl) {
-      await searchImage({data: info.srcUrl}, engine, tabIndex);
-    } else {
-      await showNotification({messageId: 'error_imageNotFound'});
     }
     return;
   }

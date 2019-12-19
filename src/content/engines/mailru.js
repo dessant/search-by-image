@@ -10,7 +10,6 @@ async function upload({blob, imgData}) {
   const dropZone = await waitForElement('#ImageUploadBlock-dropZone');
 
   const fileData = new File([blob], imgData.filename, {type: blob.type});
-
   const dataTransfer = getDataTransfer();
   dataTransfer.items.add(fileData);
 

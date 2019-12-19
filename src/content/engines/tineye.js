@@ -6,12 +6,7 @@ async function upload({blob, imgData}) {
     throw new Error('input field missing');
   }
 
-  const fileData = new File([blob], imgData.filename, {type: blob.type});
-  try {
-    setFileInputData(input, fileData, engine);
-  } catch (err) {
-    return;
-  }
+  setFileInputData(input, blob, imgData);
 
   const event = new Event('change');
   input.dispatchEvent(event);

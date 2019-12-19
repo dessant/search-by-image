@@ -100,7 +100,7 @@ function getListItems(data, {scope = '', shortScope = ''} = {}) {
   return labels;
 }
 
-async function showContributePage(action = false) {
+async function showContributePage(action = '') {
   await storage.set({contribPageLastOpen: new Date().getTime()}, 'sync');
   const activeTab = await getActiveTab();
   let url = browser.extension.getURL('/src/contribute/index.html');
