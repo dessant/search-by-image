@@ -119,6 +119,21 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_dreamstime": {
+    "message": "Dreamstime",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_alamy": {
+    "message": "Alamy",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_123rf": {
+    "message": "123RF",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -247,6 +262,21 @@
 
   "menuItemTitle_mailru": {
     "message": "Mail.ru",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_dreamstime": {
+    "message": "Dreamstime",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_alamy": {
+    "message": "Alamy",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_123rf": {
+    "message": "123RF",
     "description": "Title of the menu item."
   },
 
@@ -388,6 +418,21 @@
 
   "optionTitle_mailru": {
     "message": "Mail.ru Image Search",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_dreamstime": {
+    "message": "Dreamstime",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_alamy": {
+    "message": "Alamy",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_123rf": {
+    "message": "123RF",
     "description": "Title of the option."
   },
 

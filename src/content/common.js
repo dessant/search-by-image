@@ -124,7 +124,9 @@ async function onMessage(request, uploadFunc, engine) {
             error = true;
           }
           if (
-            ['ascii2d', 'getty', 'istock', 'taobao'].includes(engine) &&
+            ['ascii2d', 'getty', 'istock', 'taobao', 'alamy', '123rf'].includes(
+              engine
+            ) &&
             size > 5 * 1024 * 1024
           ) {
             largeImageNotify(engine, '5');

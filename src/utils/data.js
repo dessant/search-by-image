@@ -183,6 +183,24 @@ const engines = {
       target: 'https://go.mail.ru/search_images?fr=main&frm=main',
       isExec: true
     }
+  },
+  dreamstime: {
+    upload: {
+      target: 'https://www.dreamstime.com/',
+      isExec: true
+    }
+  },
+  alamy: {
+    upload: {
+      target: 'https://www.alamy.com/',
+      isExec: true
+    }
+  },
+  '123rf': {
+    upload: {
+      target: 'https://www.123rf.com/',
+      isExec: true
+    }
   }
 };
 
