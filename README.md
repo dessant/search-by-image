@@ -45,6 +45,9 @@ and searching for images from private sites.
 * Shutterstock
 * Adobe Stock
 * Depositphotos
+* Dreamstime
+* Alamy
+* 123RF
 * Jingdong
 * Taobao
 * Alibaba China
