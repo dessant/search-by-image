@@ -3,7 +3,7 @@
 
 <p align="center">
   </br></br>
-  <a href="https://chrome.google.com/webstore/detail/search-by-image/cnojnbdhbhnkbcieeekonklommdnndci">
+  <a href="https://chrome.google.com/webstore/detail/cnojnbdhbhnkbcieeekonklommdnndci">
     <img src="https://i.imgur.com/B0i5sn3.png" alt="Chrome Web Store"></a>
   <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
     <img src="https://i.imgur.com/dvof8rG.png" alt="Firefox add-ons"></a>
@@ -26,12 +26,16 @@ please consider contributing with
 Search by Image is a browser extension which enables you to initiate a
 reverse image search from the right-click context menu or the browser toolbar,
 and comes with support for more than 20 search engines.
+
 Images positioned at the selected area are detected regardless of how they were
 embedded in the page. The extension also supports uploading local images,
 searching for video frames, capturing details within images,
 and searching for images from private sites.
 
 #### Search Engines
+
+A diverse set of reverse image search engines are supported,
+which can be toggled and reordered from the extension's options.
 
 * Google Images
 * Bing Images
