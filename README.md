@@ -95,13 +95,13 @@ and browser toolbar from the options page.
 ## Screenshots
 
 <p>
-  <img width="280" src="https://i.imgur.com/niHgndz.png">
-  <img width="280" src="https://i.imgur.com/OvfAAL0.png">
-  <img width="280" src="https://i.imgur.com/MbMzLTV.png">
-  <img width="280" src="https://i.imgur.com/vhC5rym.png">
-  <img width="280" src="https://i.imgur.com/Y00YHGR.png">
-  <img width="280" src="https://i.imgur.com/lPqR2A1.png">
-  <img width="280" src="https://i.imgur.com/kEX2Rzu.png">
+  <img width="280" src="https://i.imgur.com/eV6B53R.png">
+  <img width="280" src="https://i.imgur.com/ylHTQkS.png">
+  <img width="280" src="https://i.imgur.com/rwUcedk.png">
+  <img width="280" src="https://i.imgur.com/DtgpxvL.png">
+  <img width="280" src="https://i.imgur.com/w0yU1Rm.png">
+  <img width="280" src="https://i.imgur.com/Vp6XYTw.png">
+  <img width="280" src="https://i.imgur.com/qBKWrW1.png">
 </p>
 
 ## License
