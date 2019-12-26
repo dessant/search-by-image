@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/dessant/search-by-image/compare/v2.0.0...v2.1.0) (2019-12-26)
+
+
+### Features
+
+* search with Dreamstime, Alamy and 123RF ([53152f1](https://github.com/dessant/search-by-image/commit/53152f1c7cf267908e1515fc8744a8c28a885f80))
+
 ## [2.0.0](https://github.com/dessant/search-by-image/compare/v1.22.0...v2.0.0) (2019-12-19)
 
 
