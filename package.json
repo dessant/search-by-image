@@ -23,8 +23,6 @@
     "start:chrome": "web-ext run -s dist/chrome -t chromium",
     "start:firefox": "web-ext run -s dist/firefox -t firefox-desktop",
     "start:android": "web-ext run -s dist/firefox -t firefox-android",
-    "exec": "run-s build:firefox start",
-    "exec:prod": "run-s build:prod:firefox start",
     "inspect": "cross-env NODE_ENV=production gulp inspect",
     "update": "ncu --upgrade && yarn",
     "push": "git push --follow-tags origin master",
