@@ -1020,7 +1020,7 @@ function addMessageListener() {
 
 async function onInstall(details) {
   if (
-    ['chrome', 'opera'].includes(targetEnv) &&
+    ['chrome', 'edge', 'opera'].includes(targetEnv) &&
     ['install', 'update'].includes(details.reason)
   ) {
     const tabs = await browser.tabs.query({
