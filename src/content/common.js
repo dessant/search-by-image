@@ -46,6 +46,30 @@ function largeImageNotify(engine, maxSize) {
   });
 }
 
+function maxImageSize(engine) {
+  if (
+    ['tineye', 'baidu', 'sogou', 'depositphotos', 'mailru'].includes(engine)
+  ) {
+    return 10 * 1024 * 1024;
+  }
+  if (['yandex', 'iqdb'].includes(engine)) {
+    return 8 * 1024 * 1024;
+  }
+  if (
+    ['ascii2d', 'getty', 'istock', 'taobao', 'alamy', '123rf'].includes(engine)
+  ) {
+    return 5 * 1024 * 1024;
+  }
+  if (['jingdong'].includes(engine)) {
+    return 4 * 1024 * 1024;
+  }
+  if (['qihoo', 'alibabaChina'].includes(engine)) {
+    return 2 * 1024 * 1024;
+  }
+
+  return Infinity;
+}
+
 function waitForElement(selector, timeout = 6000) {
   return new Promise(resolve => {
     const el = document.querySelector(selector);
@@ -92,90 +116,60 @@ function uploadCallback(xhr, callback, engine) {
 }
 
 async function onMessage(request, uploadFunc, engine) {
-  if (request.id === 'imageDataResponse') {
-    if (request.error) {
-      if (request.error === 'sessionExpired') {
-        chrome.runtime.sendMessage({
-          id: 'notification',
-          message: chrome.i18n.getMessage(
-            'error_sessionExpired',
-            chrome.i18n.getMessage(`engineName_${engine}`)
-          ),
-          type: `${engine}Error`
-        });
-      }
-    } else {
-      try {
-        const params = {imgData: request.imgData};
-        let error = false;
-        if (params.imgData.isUpload[engine]) {
-          const size = params.imgData.size;
-          if (
-            ['tineye', 'baidu', 'sogou', 'depositphotos', 'mailru'].includes(
-              engine
-            ) &&
-            size > 10 * 1024 * 1024
-          ) {
-            largeImageNotify(engine, '10');
-            error = true;
-          }
-          if (['yandex', 'iqdb'].includes(engine) && size > 8 * 1024 * 1024) {
-            largeImageNotify(engine, '8');
-            error = true;
-          }
-          if (
-            ['ascii2d', 'getty', 'istock', 'taobao', 'alamy', '123rf'].includes(
-              engine
-            ) &&
-            size > 5 * 1024 * 1024
-          ) {
-            largeImageNotify(engine, '5');
-            error = true;
-          }
-          if (engine === 'jingdong' && size > 4 * 1024 * 1024) {
-            largeImageNotify(engine, '4');
-            error = true;
-          }
-          if (
-            ['qihoo', 'alibabaChina'].includes(engine) &&
-            size > 2 * 1024 * 1024
-          ) {
-            largeImageNotify(engine, '2');
-            error = true;
-          }
+  if (request.error) {
+    if (request.error === 'sessionExpired') {
+      chrome.runtime.sendMessage({
+        id: 'notification',
+        message: chrome.i18n.getMessage(
+          'error_sessionExpired',
+          chrome.i18n.getMessage(`engineName_${engine}`)
+        ),
+        type: `${engine}Error`
+      });
+    }
+  } else {
+    try {
+      const params = {imgData: request.imgData};
+      let error = false;
+      if (params.imgData.isUpload[engine]) {
+        const maxSize = maxImageSize(engine);
 
-          if (!error) {
-            const rsp = await fetch(params.imgData.objectUrl);
-            params.blob = await rsp.blob();
-          }
-
-          chrome.runtime.sendMessage({
-            id: 'dataReceipt',
-            dataKey: params.imgData.dataKey
-          });
+        if (params.imgData.size > maxSize) {
+          largeImageNotify(engine, maxSize);
+          error = true;
+        } else {
+          const rsp = await fetch(params.imgData.objectUrl);
+          params.blob = await rsp.blob();
         }
-
-        if (!error) {
-          await uploadFunc(params);
-        }
-      } catch (err) {
-        chrome.runtime.sendMessage({
-          id: 'notification',
-          message: chrome.i18n.getMessage(
-            'error_engine',
-            chrome.i18n.getMessage(`engineName_${engine}`)
-          ),
-          type: `${engine}Error`
-        });
-        throw err;
       }
+
+      if (!error) {
+        await uploadFunc(params);
+      }
+    } catch (err) {
+      chrome.runtime.sendMessage({
+        id: 'notification',
+        message: chrome.i18n.getMessage(
+          'error_engine',
+          chrome.i18n.getMessage(`engineName_${engine}`)
+        ),
+        type: `${engine}Error`
+      });
+      throw err;
+    } finally {
+      chrome.runtime.sendMessage({
+        id: 'dataReceipt',
+        dataKey: request.imgData.dataKey
+      });
     }
   }
 }
 
 function initUpload(upload, dataKey, engine) {
-  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    onMessage(request, upload, engine);
+  chrome.runtime.onMessage.addListener(function(request, sender) {
+    if (request.id === 'imageDataResponse') {
+      onMessage(request, upload, engine);
+    }
   });
   chrome.runtime.sendMessage({id: 'imageDataRequest', dataKey});
 }
