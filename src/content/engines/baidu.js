@@ -1,18 +1,30 @@
 const engine = 'baidu';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('a#sttb', 120000);
+  const button = await waitForElement('.soutu-btn', 120000);
   button.click();
 
-  const input = await waitForElement('input#stfile');
-  if (!input) {
-    throw new Error('input field missing');
+  if (blob) {
+    const input = await waitForElement('input.upload-pic');
+    if (!input) {
+      throw new Error('input field missing');
+    }
+
+    setFileInputData(input, blob, imgData);
+
+    const event = new Event('change');
+    input.dispatchEvent(event);
+  } else {
+    const input = await waitForElement('input#soutu-url-kw');
+    if (!input) {
+      throw new Error('input field missing');
+    }
+
+    input.value = imgData.url;
+
+    const submit = await waitForElement('.soutu-url-btn');
+    submit.click();
   }
-
-  setFileInputData(input, blob, imgData);
-
-  const event = new Event('change');
-  input.dispatchEvent(event);
 }
 
 initUpload(upload, dataKey, engine);

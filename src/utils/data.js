@@ -52,12 +52,11 @@ const engines = {
   },
   baidu: {
     url: {
-      target:
-        'https://image.baidu.com/n/pc_search' +
-        '?queryImageUrl={imgUrl}&fm=index&uptype=paste'
+      target: 'https://www.baidu.com/',
+      isExec: true
     },
     upload: {
-      target: 'https://image.baidu.com/',
+      target: 'https://www.baidu.com/',
       isExec: true
     }
   },
