@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/dessant/search-by-image/compare/v2.1.0...v2.1.1) (2020-02-19)
+
+
+### Bug Fixes
+
+* always send image data receipt ([3615a88](https://github.com/dessant/search-by-image/commit/3615a88a460a8fced562f5e3805b4161e29ed691))
+* include source maps for production builds ([7ec786a](https://github.com/dessant/search-by-image/commit/7ec786a106f47fa931a5e1eb05594f5cf336c8ec))
+* update Alibaba search ([e200237](https://github.com/dessant/search-by-image/commit/e2002377cf5743f1cbba0391146389639d996198))
+* update Baidu search ([a697c4a](https://github.com/dessant/search-by-image/commit/a697c4ac9858a22f28ebc7f498636c189f0e297a)), closes [#67](https://github.com/dessant/search-by-image/issues/67)
+* update Bing search ([90f7791](https://github.com/dessant/search-by-image/commit/90f7791f23459cebe4278edae735902c86fe7cf7))
+
 ## [2.1.0](https://github.com/dessant/search-by-image/compare/v2.0.0...v2.1.0) (2019-12-26)
 
 
