@@ -379,9 +379,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
                 expiry.setFullYear(expiry.getFullYear() + 1);
                 details.responseHeaders.push({
                   name: 'Set-Cookie',
-                  value:
-                    `hng=${cookieValue}; Domain=.taobao.com; Expires=` +
-                    expiry.toUTCString()
+                  value: `hng=${cookieValue}; Domain=.taobao.com; Expires=${expiry.toUTCString()}; Path=/`
                 });
               }
 
