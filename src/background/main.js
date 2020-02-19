@@ -275,25 +275,12 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   const tabUrl = await getTabUrl(imgData, search, options);
 
   let tabId;
-  let loadedBingUrl;
-  let bingRemoveCallbacks;
   const engine = search.engine;
 
   if (search.isExec) {
     const tabUpdateCallback = async function(eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {
-        if (engine === 'bing') {
-          if (loadedBingUrl) {
-            if (loadedBingUrl !== tab.url) {
-              removeCallbacks();
-              bingRemoveCallbacks();
-            }
-            return;
-          }
-          loadedBingUrl = tab.url;
-        } else {
-          removeCallbacks();
-        }
+        removeCallbacks();
 
         execEngine(tabId, engine, imgData.dataKey);
       }
@@ -305,31 +292,6 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
     const timeoutId = window.setTimeout(removeCallbacks, 360000); // 6 minutes
 
     browser.tabs.onUpdated.addListener(tabUpdateCallback);
-
-    // Bing may reload itself right after the page has finished loading,
-    // breaking the injected scripts. Requests to the current URL
-    // are blocked for a short period to prevent this.
-    if (engine === 'bing') {
-      const bingRequestCallback = function(details) {
-        if (details.tabId === tabId && details.url === loadedBingUrl) {
-          return {cancel: true};
-        }
-      };
-      bingRemoveCallbacks = function() {
-        window.clearTimeout(bingTimeoutId);
-        browser.webRequest.onBeforeRequest.removeListener(bingRequestCallback);
-      };
-      const bingTimeoutId = window.setTimeout(bingRemoveCallbacks, 420000); // 7 minutes
-
-      browser.webRequest.onBeforeRequest.addListener(
-        bingRequestCallback,
-        {
-          types: ['main_frame'],
-          urls: ['https://www.bing.com/*']
-        },
-        ['blocking']
-      );
-    }
 
     // Taobao needs Chinese locale for image search.
     if (engine === 'taobao') {
@@ -469,13 +431,6 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
 }
 
 async function execEngine(tabId, engine, dataKey) {
-  if (['bing'].includes(engine)) {
-    await browser.tabs.insertCSS(tabId, {
-      runAt: 'document_start',
-      file: '/src/content/engines/style.css'
-    });
-  }
-
   await executeCode(`var dataKey = '${dataKey}';`, tabId);
   await executeFile(`/src/content/common.js`, tabId);
   await executeFile(`/src/content/engines/${engine}.js`, tabId);

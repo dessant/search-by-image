@@ -37,7 +37,7 @@ const engines = {
         '%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights'
     },
     upload: {
-      target: 'https://www.bing.com/images/discover?form=HDRSC2',
+      target: 'https://www.bing.com/',
       isExec: true
     }
   },
