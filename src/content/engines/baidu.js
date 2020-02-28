@@ -1,7 +1,7 @@
 const engine = 'baidu';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('.soutu-btn', 120000);
+  const button = await waitForElement('.soutu-btn', {timeout: 120000});
   button.click();
 
   if (blob) {

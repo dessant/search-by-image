@@ -52,6 +52,9 @@ function getEngineMenuIcons(engine) {
       '32': `src/icons/engines/${engine}-32.png`
     };
   } else {
+    if (['branddb', 'madridMonitor'].includes(engine)) {
+      engine = 'wipo';
+    }
     return {
       '16': `src/icons/engines/${engine}.svg`
     };
@@ -277,10 +280,29 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   let tabId;
   const engine = search.engine;
 
+  // Some search engines may reload themselves right after the page has finished
+  // loading, breaking the injected scripts. Scripts are injected again
+  // after reload to mitigate this issue.
+  const loadedUrls = {};
+  const reloadEngines = ['esearch', 'tmview'];
+
   if (search.isExec) {
     const tabUpdateCallback = async function(eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {
-        removeCallbacks();
+        if (reloadEngines.includes(engine)) {
+          const loadedUrl = loadedUrls[engine];
+          if (loadedUrl) {
+            removeCallbacks();
+
+            if (loadedUrl !== tab.url) {
+              return;
+            }
+          } else {
+            loadedUrls[engine] = tab.url;
+          }
+        } else {
+          removeCallbacks();
+        }
 
         execEngine(tabId, engine, imgData.dataKey);
       }
@@ -367,10 +389,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
 
           browser.webRequest.onHeadersReceived.addListener(
             taobaoResponseCallback,
-            {
-              urls: ['https://www.taobao.com/*'],
-              tabId
-            },
+            {types: ['main_frame'], urls: ['https://www.taobao.com/*'], tabId},
             extraInfo
           );
 
@@ -396,9 +415,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
 
       browser.webRequest.onBeforeSendHeaders.addListener(
         taobaoRequestCallback,
-        {
-          urls: ['https://www.taobao.com/']
-        },
+        {types: ['main_frame'], urls: ['https://www.taobao.com/']},
         extraInfo
       );
     }

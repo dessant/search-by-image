@@ -134,6 +134,46 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_esearch": {
+    "message": "eSearch plus",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_tmview": {
+    "message": "TMview",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_branddb": {
+    "message": "Global Brand Database",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_madridMonitor": {
+    "message": "Madrid Monitor",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_auTrademark": {
+    "message": "Australian Trade Mark Search",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_auDesign": {
+    "message": "Australian Design Search",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_nzTrademark": {
+    "message": "IPONZ Trade Mark Check",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_jpDesign": {
+    "message": "Graphic Image Park",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -277,6 +317,46 @@
 
   "menuItemTitle_123rf": {
     "message": "123RF",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_esearch": {
+    "message": "eSearch plus",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_tmview": {
+    "message": "TMview",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_branddb": {
+    "message": "Global Brand Database",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_madridMonitor": {
+    "message": "Madrid Monitor",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_auTrademark": {
+    "message": "Australian Trade Mark Search",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_auDesign": {
+    "message": "Australian Design Search",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_nzTrademark": {
+    "message": "IPONZ Trade Mark Check",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_jpDesign": {
+    "message": "Graphic Image Park",
     "description": "Title of the menu item."
   },
 
@@ -433,6 +513,46 @@
 
   "optionTitle_123rf": {
     "message": "123RF",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_esearch": {
+    "message": "eSearch plus",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_tmview": {
+    "message": "TMview",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_branddb": {
+    "message": "Global Brand Database",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_madridMonitor": {
+    "message": "Madrid Monitor",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_auTrademark": {
+    "message": "Australian Trade Mark Search",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_auDesign": {
+    "message": "Australian Design Search",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_nzTrademark": {
+    "message": "IPONZ Trade Mark Check",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_jpDesign": {
+    "message": "Graphic Image Park",
     "description": "Title of the option."
   },
 

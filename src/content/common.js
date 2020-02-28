@@ -47,30 +47,53 @@ function largeImageNotify(engine, maxSize) {
 }
 
 function maxImageSize(engine) {
+  if (['auDesign', 'nzTrademark'].includes(engine)) {
+    return 20 * 1024 * 1024;
+  }
   if (
     ['tineye', 'baidu', 'sogou', 'depositphotos', 'mailru'].includes(engine)
   ) {
     return 10 * 1024 * 1024;
   }
-  if (['yandex', 'iqdb'].includes(engine)) {
+  if (['yandex', 'iqdb', 'auTrademark'].includes(engine)) {
     return 8 * 1024 * 1024;
   }
   if (
-    ['ascii2d', 'getty', 'istock', 'taobao', 'alamy', '123rf'].includes(engine)
+    [
+      'ascii2d',
+      'getty',
+      'istock',
+      'taobao',
+      'alamy',
+      '123rf',
+      'jpDesign'
+    ].includes(engine)
   ) {
     return 5 * 1024 * 1024;
   }
   if (['jingdong'].includes(engine)) {
     return 4 * 1024 * 1024;
   }
-  if (['qihoo', 'alibabaChina'].includes(engine)) {
+  if (
+    [
+      'qihoo',
+      'alibabaChina',
+      'esearch',
+      'tmview',
+      'branddb',
+      'madridMonitor'
+    ].includes(engine)
+  ) {
     return 2 * 1024 * 1024;
   }
 
   return Infinity;
 }
 
-function waitForElement(selector, timeout = 6000) {
+function waitForElement(
+  selector,
+  {timeout = 60000, observerOptions = null} = {}
+) {
   return new Promise(resolve => {
     const el = document.querySelector(selector);
     if (el) {
@@ -87,10 +110,15 @@ function waitForElement(selector, timeout = 6000) {
       }
     });
 
-    observer.observe(document, {
+    const options = {
       childList: true,
       subtree: true
-    });
+    };
+    if (observerOptions) {
+      Object.assign(options, observerOptions);
+    }
+
+    observer.observe(document, options);
 
     const timeoutId = window.setTimeout(function() {
       observer.disconnect();

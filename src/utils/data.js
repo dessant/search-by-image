@@ -200,6 +200,54 @@ const engines = {
       target: 'https://www.123rf.com/',
       isExec: true
     }
+  },
+  esearch: {
+    upload: {
+      target: 'https://euipo.europa.eu/eSearch/',
+      isExec: true
+    }
+  },
+  tmview: {
+    upload: {
+      target: 'https://www.tmdn.org/tmview/beta/#/tmview',
+      isExec: true
+    }
+  },
+  branddb: {
+    upload: {
+      target: 'https://www3.wipo.int/branddb/en/',
+      isExec: true
+    }
+  },
+  madridMonitor: {
+    upload: {
+      target: 'https://www3.wipo.int/madrid/monitor/en/',
+      isExec: true
+    }
+  },
+  auTrademark: {
+    upload: {
+      target: 'https://search.ipaustralia.gov.au/trademarks/search/advanced',
+      isExec: true
+    }
+  },
+  auDesign: {
+    upload: {
+      target: 'https://search.ipaustralia.gov.au/designs/search/advanced',
+      isExec: true
+    }
+  },
+  nzTrademark: {
+    upload: {
+      target: 'https://app.iponz.govt.nz/app/TradeMarkCheck',
+      isExec: true
+    }
+  },
+  jpDesign: {
+    upload: {
+      target: 'https://www.graphic-image.inpit.go.jp/',
+      isExec: true
+    }
   }
 };
 

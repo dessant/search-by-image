@@ -184,6 +184,8 @@ export default {
       let ext = 'svg';
       if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
         ext = 'png';
+      } else if (['branddb', 'madridMonitor'].includes(engine)) {
+        engine = 'wipo';
       }
       return `/src/icons/engines/${engine}.${ext}`;
     },

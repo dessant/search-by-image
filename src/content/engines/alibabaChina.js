@@ -1,7 +1,7 @@
 const engine = 'alibabaChina';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('#img-search-btn', 60000);
+  const button = await waitForElement('#img-search-btn');
 
   const input = await waitForElement('input[type=file]');
   input.addEventListener('click', e => e.preventDefault(), {

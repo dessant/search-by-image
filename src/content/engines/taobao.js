@@ -1,7 +1,7 @@
 const engine = 'taobao';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('div.drop-wrapper', 60000);
+  const button = await waitForElement('div.drop-wrapper');
 
   const input = await waitForElement('input#J_IMGSeachUploadBtn');
   input.addEventListener('click', e => e.preventDefault(), {

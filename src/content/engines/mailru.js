@@ -2,8 +2,7 @@ const engine = 'mailru';
 
 async function upload({blob, imgData}) {
   const button = await waitForElement(
-    'button.MainSearchFieldContainer-buttonCamera',
-    60000
+    'button.MainSearchFieldContainer-buttonCamera'
   );
   button.click();
 

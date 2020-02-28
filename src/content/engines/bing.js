@@ -1,7 +1,7 @@
 const engine = 'bing';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('#sb_sbi', 60000);
+  const button = await waitForElement('#sb_sbi');
   button.click();
 
   const input = await waitForElement('input#sb_fileinput');
