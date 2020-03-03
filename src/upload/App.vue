@@ -85,6 +85,8 @@ export default {
                 'error_engine',
                 getText(`engineName_${this.engine}`)
               );
+
+              console.log(err.toString());
               throw err;
             }
           }

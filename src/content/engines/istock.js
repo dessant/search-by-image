@@ -1,16 +1,12 @@
 const engine = 'istock';
 
 async function upload({blob, imgData}) {
-  document.querySelector('a.search-camera-icon').click();
-  const input = await waitForElement('input[type=file]');
-  if (!input) {
-    throw new Error('input field missing');
-  }
+  (await findNode('a.search-camera-icon')).click();
 
+  const input = await findNode('input[type=file]');
   setFileInputData(input, blob, imgData);
 
-  const event = new Event('change');
-  input.dispatchEvent(event);
+  input.dispatchEvent(new Event('change'));
 }
 
 initUpload(upload, dataKey, engine);

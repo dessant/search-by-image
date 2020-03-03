@@ -1,16 +1,12 @@
 const engine = 'adobestock';
 
 async function upload({blob, imgData}) {
-  document.querySelector('i.js-camera-icon').click();
-  const input = await waitForElement('#js-vsupload');
-  if (!input) {
-    throw new Error('input field missing');
-  }
+  (await findNode('i.js-camera-icon')).click();
 
+  const input = await findNode('#js-vsupload');
   setFileInputData(input, blob, imgData);
 
-  const event = new Event('change');
-  input.dispatchEvent(event);
+  input.dispatchEvent(new Event('change'));
 }
 
 initUpload(upload, dataKey, engine);

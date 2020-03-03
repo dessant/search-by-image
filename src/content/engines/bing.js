@@ -1,15 +1,12 @@
 const engine = 'bing';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('#sb_sbi');
-  button.click();
+  (await findNode('#sb_sbi')).click();
 
-  const input = await waitForElement('input#sb_fileinput');
-
+  const input = await findNode('input#sb_fileinput');
   setFileInputData(input, blob, imgData);
 
-  const event = new Event('change');
-  input.dispatchEvent(event);
+  input.dispatchEvent(new Event('change'));
 }
 
 initUpload(upload, dataKey, engine);

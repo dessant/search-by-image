@@ -1,19 +1,15 @@
 const engine = 'mailru';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement(
-    'button.MainSearchFieldContainer-buttonCamera'
-  );
-  button.click();
+  (await findNode('button.MainSearchFieldContainer-buttonCamera')).click();
 
-  const dropZone = await waitForElement('#ImageUploadBlock-dropZone');
-
-  const fileData = new File([blob], imgData.filename, {type: blob.type});
   const dataTransfer = getDataTransfer();
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   dataTransfer.items.add(fileData);
 
-  const event = new DragEvent('drop', {dataTransfer});
-  dropZone.dispatchEvent(event);
+  const dropZone = await findNode('#ImageUploadBlock-dropZone');
+
+  dropZone.dispatchEvent(new DragEvent('drop', {dataTransfer}));
 }
 
 initUpload(upload, dataKey, engine);

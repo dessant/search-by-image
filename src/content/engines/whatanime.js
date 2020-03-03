@@ -35,8 +35,8 @@ async function upload({blob, imgData}) {
     ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
     const data = cnv.toDataURL('image/jpeg', 0.8);
 
-    document.querySelector('#autoSearch').checked = true;
-    document.querySelector('#originalImage').src = data;
+    (await findNode('#autoSearch')).checked = true;
+    (await findNode('#originalImage')).src = data;
   };
   img.src = URL.createObjectURL(blob);
 }

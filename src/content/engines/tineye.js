@@ -1,15 +1,10 @@
 const engine = 'tineye';
 
 async function upload({blob, imgData}) {
-  const input = await waitForElement('input#upload_box');
-  if (!input) {
-    throw new Error('input field missing');
-  }
-
+  const input = await findNode('input#upload_box');
   setFileInputData(input, blob, imgData);
 
-  const event = new Event('change');
-  input.dispatchEvent(event);
+  input.dispatchEvent(new Event('change'));
 }
 
 initUpload(upload, dataKey, engine);

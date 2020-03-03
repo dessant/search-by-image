@@ -2,18 +2,14 @@ const engine = 'qihoo';
 
 async function upload({blob, imgData}) {
   if (blob) {
-    const input = document.querySelector('input#stUpload');
-    if (!input) {
-      throw new Error('input field missing');
-    }
-
+    const input = await findNode('input#stUpload', {timeout: 120000});
     setFileInputData(input, blob, imgData);
 
-    const event = new Event('change');
-    input.dispatchEvent(event);
+    input.dispatchEvent(new Event('change'));
   } else {
-    document.querySelector('input#stInput').value = imgData.url;
-    document.querySelector('input.st_submit').click();
+    (await findNode('input#stInput')).value = imgData.url;
+
+    (await findNode('input.st_submit')).click();
   }
 }
 

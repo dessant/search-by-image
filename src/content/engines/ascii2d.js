@@ -1,14 +1,10 @@
 const engine = 'ascii2d';
 
 async function upload({blob, imgData}) {
-  const input = document.querySelector('#file-form');
-  if (!input) {
-    throw new Error('input field missing');
-  }
-
+  const input = await findNode('#file-form');
   setFileInputData(input, blob, imgData);
 
-  document.querySelector('#file_upload').submit();
+  (await findNode('#file_upload')).submit();
 }
 
 initUpload(upload, dataKey, engine);

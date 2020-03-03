@@ -1,28 +1,30 @@
 const engine = 'nzTrademark';
 
 async function upload({blob, imgData}) {
-  (await waitForElement('#logoCheckButton')).click();
+  (await findNode('#logoCheckButton')).click();
 
-  const input = await waitForElement('#imageSearchDialogUploadButton');
+  const input = await findNode('#imageSearchDialogUploadButton');
   setFileInputData(input, blob, imgData);
+
   input.dispatchEvent(new Event('change'));
 
   (
-    await waitForElement('#imageSearchDialogNextButton:not([disabled])', {
+    await findNode('#imageSearchDialogNextButton:not([disabled])', {
       observerOptions: {attributes: true, attributeFilter: ['disabled']}
     })
   ).click();
 
-  const features = await waitForElement(
+  const features = await findNode(
     '#imageSearchDialogMainStep1_2:not(.hidden)',
     {
       timeout: 30000,
+      throwError: false,
       observerOptions: {attributes: true, attributeFilter: ['class']}
     }
   );
   if (features) {
     (
-      await waitForElement('#imageSearchDialogNextButton:not([disabled])', {
+      await findNode('#imageSearchDialogNextButton:not([disabled])', {
         observerOptions: {attributes: true, attributeFilter: ['disabled']}
       })
     ).click();

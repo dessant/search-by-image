@@ -1,15 +1,10 @@
 const engine = 'jingdong';
 
 async function upload({blob, imgData}) {
-  const input = document.querySelector('input.upload-trigger');
-  if (!input) {
-    throw new Error('input field missing');
-  }
-
+  const input = await findNode('input.upload-trigger', {timeout: 10000});
   setFileInputData(input, blob, imgData);
 
-  const event = new Event('change');
-  input.dispatchEvent(event);
+  input.dispatchEvent(new Event('change'));
 }
 
 initUpload(upload, dataKey, engine);

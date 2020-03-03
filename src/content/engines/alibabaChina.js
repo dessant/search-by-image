@@ -1,9 +1,9 @@
 const engine = 'alibabaChina';
 
 async function upload({blob, imgData}) {
-  const button = await waitForElement('#img-search-btn');
+  const button = await findNode('#img-search-btn', {timeout: 120000});
 
-  const input = await waitForElement('input[type=file]');
+  const input = await findNode('input[type=file]');
   input.addEventListener('click', e => e.preventDefault(), {
     capture: true,
     once: true

@@ -1,15 +1,17 @@
 const engine = 'tmview';
 
 async function upload({blob, imgData}) {
-  const dropZone = await waitForElement('.content .container');
-  const fileData = new File([blob], imgData.filename, {type: blob.type});
   const dataTransfer = getDataTransfer();
+  const fileData = new File([blob], imgData.filename, {type: blob.type});
   dataTransfer.items.add(fileData);
+
+  const dropZone = await findNode('.content .container');
+
   dropZone.dispatchEvent(new DragEvent('drop', {dataTransfer}));
 
-  await waitForElement('img[alt=tmview]');
+  await findNode('img[alt=tmview]');
 
-  (await waitForElement('button[data-test-id=search-button]')).click();
+  (await findNode('button[data-test-id=search-button]')).click();
 }
 
 initUpload(upload, dataKey, engine);

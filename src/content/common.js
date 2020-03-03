@@ -90,11 +90,11 @@ function maxImageSize(engine) {
   return Infinity;
 }
 
-function waitForElement(
+function findNode(
   selector,
-  {timeout = 60000, observerOptions = null} = {}
+  {timeout = 60000, throwError = true, observerOptions = null} = {}
 ) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const el = document.querySelector(selector);
     if (el) {
       resolve(el);
@@ -122,7 +122,12 @@ function waitForElement(
 
     const timeoutId = window.setTimeout(function() {
       observer.disconnect();
-      resolve();
+
+      if (throwError) {
+        reject(new Error(`DOM node not found: ${selector}`));
+      } else {
+        resolve();
+      }
     }, timeout);
   });
 }
@@ -139,6 +144,8 @@ function uploadCallback(xhr, callback, engine) {
       ),
       type: `${engine}Error`
     });
+
+    console.log(err.toString());
     throw err;
   }
 }
@@ -183,6 +190,8 @@ async function onMessage(request, uploadFunc, engine) {
         ),
         type: `${engine}Error`
       });
+
+      console.log(err.toString());
       throw err;
     } finally {
       chrome.runtime.sendMessage({
