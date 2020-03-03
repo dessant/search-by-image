@@ -1,13 +1,11 @@
-<!-- prettier-ignore -->
 <template>
-<div id="app" v-show="dataLoaded">
-  <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
-  <div v-if="error">
-    <div class="error-icon">:/</div>
-    <div class="error-text">{{ error }}</div>
+  <div id="app" v-show="dataLoaded">
+    <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
+    <div v-if="error">
+      <div class="error-icon">:/</div>
+      <div class="error-text">{{ error }}</div>
+    </div>
   </div>
-
-</div>
 </template>
 
 <script>
