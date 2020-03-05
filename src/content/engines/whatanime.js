@@ -2,7 +2,7 @@ const engine = 'whatanime';
 
 async function upload({blob, imgData}) {
   const img = new Image();
-  img.onload = function() {
+  img.onload = async function() {
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
 
