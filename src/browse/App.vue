@@ -129,7 +129,7 @@ export default {
     }
   },
 
-  created: function() {
+  created: async function() {
     document.title = getText('pageTitle', [
       getText('pageTitle_browse'),
       getText('extensionName')
@@ -161,6 +161,8 @@ $spinkit-spinner-color: #e74c3c;
 $mdc-theme-primary: #1abc9c;
 
 @import 'spinkit/scss/spinners/1-rotating-plane';
+@import '@material/button/mixins';
+@import '@material/ripple/mixins';
 @import '@material/theme/mixins';
 @import '@material/typography/mixins';
 
@@ -211,13 +213,12 @@ body {
 }
 
 .drop-zone-text {
-  margin-top: 12px;
+  margin-top: 24px;
 }
 
 .drop-zone-icon {
-  width: 128px;
-  height: 128px;
-  opacity: 0.5;
+  width: 96px;
+  height: 96px;
 }
 
 .browse-button-wrap {
@@ -247,5 +248,21 @@ body {
 .error-text {
   max-width: 520px;
   margin-top: 36px;
+}
+
+.fenix {
+  & .error-text,
+  & .drop-zone-text {
+    @include mdc-theme-prop(color, #20123a);
+  }
+
+  & .browse-button {
+    @include mdc-button-ink-color(#20123a);
+    @include mdc-button-outline-color(#20123a);
+
+    & .mdc-button__ripple {
+      @include mdc-states-base-color(#312a65);
+    }
+  }
 }
 </style>

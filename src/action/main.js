@@ -1,5 +1,6 @@
 import Vue from 'vue';
 
+import {configFenix} from 'utils/app';
 import App from './App';
 
 async function init() {
@@ -8,7 +9,9 @@ async function init() {
     await document.fonts.load('500 14px Roboto');
   } catch (err) {}
 
-  const vm = new Vue({
+  Vue.prototype.$isFenix = await configFenix();
+
+  new Vue({
     el: '#app',
     render: h => h(App)
   });

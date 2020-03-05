@@ -1,9 +1,16 @@
 <template>
   <div id="app" v-show="dataLoaded">
     <div class="header">
-      <div class="title">{{ getText('extensionName') }}</div>
+      <div v-if="!$isFenix" class="title">{{ getText('extensionName') }}</div>
+      <v-dense-select
+        v-if="$isFenix"
+        v-model="searchModeAction"
+        :options="listItems.searchModeAction"
+      >
+      </v-dense-select>
       <div class="header-buttons">
         <v-icon-button
+          v-if="!$isFenix"
           class="search-mode-button"
           :src="`/src/icons/modes/${searchModeAction}.svg`"
           @click="showSearchModeMenu"
@@ -24,6 +31,7 @@
       </div>
 
       <v-menu
+        v-if="!$isFenix"
         ref="searchModeMenu"
         class="search-mode-menu"
         :items="listItems.searchModeAction"
@@ -126,14 +134,17 @@ import {
   showProjectPage
 } from 'utils/app';
 import {getText, isAndroid} from 'utils/common';
-import {optionKeys} from 'utils/data';
 import {targetEnv} from 'utils/config';
+import {optionKeys} from 'utils/data';
+
+import DenseSelect from './components/DenseSelect';
 
 export default {
   components: {
     [IconButton.name]: IconButton,
     [TextField.name]: TextField,
     [Menu.name]: Menu,
+    [DenseSelect.name]: DenseSelect,
     [ResizeObserver.name]: ResizeObserver
   },
 
@@ -158,7 +169,7 @@ export default {
               'url'
             ]
           },
-          {scope: 'optionValue_searchModeAction'}
+          {scope: 'optionValue_action_searchModeAction'}
         )
       },
       hasScrollBar: false,
@@ -322,9 +333,11 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/list/mdc-list';
+@import '@material/select/mdc-select';
 
 @import '@material/icon-button/mixins';
 @import '@material/theme/mixins';
+@import '@material/textfield/mixins';
 @import '@material/typography/mixins';
 
 @import 'vue-resize/dist/vue-resize';
@@ -473,5 +486,38 @@ body {
 
 .list-item-icon {
   margin-right: 16px !important;
+}
+
+html.fenix {
+  height: 100%;
+}
+
+.fenix {
+  & .mdc-list-item {
+    @include mdc-theme-prop(color, #20123a);
+  }
+
+  & .mdc-text-field {
+    @include mdc-text-field-ink-color(#20123a);
+    @include mdc-text-field-caret-color(#312a65);
+    @include mdc-text-field-bottom-line-color(#20123a);
+    @include mdc-text-field-line-ripple-color(#312a65);
+  }
+
+  & .search-mode-button img,
+  & .menu-button img,
+  & .search-mode-menu img {
+    filter: brightness(0) saturate(100%) invert(10%) sepia(43%) saturate(1233%)
+      hue-rotate(225deg) brightness(97%) contrast(105%);
+  }
+
+  & .mdc-select {
+    @include mdc-select-ink-color(#20123a);
+
+    & .mdc-select__dropdown-icon {
+      background: url('data:image/svg+xml,%3Csvg%20width%3D%2210px%22%20height%3D%225px%22%20viewBox%3D%227%2010%2010%205%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%0A%20%20%20%20%3Cpolygon%20id%3D%22Shape%22%20stroke%3D%22none%22%20fill%3D%22%2320123a%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%20points%3D%227%2010%2012%2015%2017%2010%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E')
+        no-repeat center !important;
+    }
+  }
 }
 </style>

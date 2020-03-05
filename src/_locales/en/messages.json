@@ -697,17 +697,17 @@
   },
 
   "dialogTitle_imageConfirmation": {
-    "message": "Select an image to search for",
+    "message": "Select an image",
     "description": "Title of the dialog."
   },
 
   "snackbarMessage_imageSelection": {
-    "message": "Select an image to search for",
+    "message": "Select an image",
     "description": "Text of the snackbar."
   },
 
   "snackbarMessage_imageCapture": {
-    "message": "Select a page area to search for",
+    "message": "Select an area",
     "description": "Text of the snackbar."
   },
 

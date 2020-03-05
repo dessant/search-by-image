@@ -11,8 +11,11 @@ import {
   dataUrlToArray,
   blobToArray,
   blobToDataUrl,
-  canvasToDataUrl
+  canvasToDataUrl,
+  getBrowser,
+  isAndroid
 } from 'utils/common';
+import {targetEnv} from 'utils/config';
 import {engines, imageMimeTypes, projectUrl} from 'utils/data';
 
 async function getEnabledEngines(options) {
@@ -225,6 +228,27 @@ async function captureVisibleTabArea(area) {
   return canvasToDataUrl(cnv, {ctx});
 }
 
+async function isFenix() {
+  if (targetEnv === 'firefox' && (await isAndroid())) {
+    let version;
+    try {
+      ({version} = await getBrowser());
+    } catch (err) {
+      ({version} = await browser.runtime.sendMessage({id: 'getBrowser'}));
+    }
+    if (parseInt(version.slice(0, 2), 10) > 68) {
+      return true;
+    }
+  }
+}
+
+async function configFenix() {
+  if (await isFenix()) {
+    document.documentElement.classList.add('fenix');
+    return true;
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -239,5 +263,6 @@ export {
   normalizeFilename,
   normalizeImage,
   getImageElement,
-  captureVisibleTabArea
+  captureVisibleTabArea,
+  configFenix
 };

@@ -422,4 +422,11 @@ body {
   cursor: pointer;
   opacity: 0.7;
 }
+
+.fenix {
+  & .title,
+  & .grid-item-footer-text {
+    @include mdc-theme-prop(color, #312a65);
+  }
+}
 </style>

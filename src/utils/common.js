@@ -161,17 +161,45 @@ function getAbsoluteUrl(url) {
   return a.href;
 }
 
-async function isAndroid() {
-  const {os} = await browser.runtime.getPlatformInfo();
-  return os === 'android';
-}
-
 async function getActiveTab() {
   const [tab] = await browser.tabs.query({
     lastFocusedWindow: true,
     active: true
   });
   return tab;
+}
+
+async function getPlatform() {
+  let {os, arch} = await browser.runtime.getPlatformInfo();
+  if (os === 'win') {
+    os = 'windows';
+  } else if (os === 'mac') {
+    os = 'macos';
+  }
+
+  if (arch === 'x86-32') {
+    arch = '386';
+  } else if (arch === 'x86-64') {
+    arch = 'amd64';
+  }
+
+  return {os, arch};
+}
+
+async function getBrowser() {
+  const {name, version} = await browser.runtime.getBrowserInfo();
+  return {name, version};
+}
+
+async function isAndroid() {
+  let os;
+  try {
+    ({os} = await getPlatform());
+  } catch (err) {
+    ({os} = await browser.runtime.sendMessage({id: 'getPlatform'}));
+  }
+
+  return os === 'android';
 }
 
 export {
@@ -194,5 +222,7 @@ export {
   getAbsoluteUrl,
   getDataUrlMimeType,
   isAndroid,
-  getActiveTab
+  getActiveTab,
+  getPlatform,
+  getBrowser
 };

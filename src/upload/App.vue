@@ -273,4 +273,10 @@ body {
   max-width: 520px;
   margin-top: 24px;
 }
+
+.fenix {
+  & .error-text {
+    @include mdc-theme-prop(color, #20123a);
+  }
+}
 </style>

@@ -13,7 +13,9 @@ import {
   onComplete,
   dataUrlToBlob,
   isAndroid,
-  getActiveTab
+  getActiveTab,
+  getPlatform,
+  getBrowser
 } from 'utils/common';
 import {
   getEnabledEngines,
@@ -723,15 +725,9 @@ async function onMessage(request, sender, sendResponse) {
       response.error = 'sessionExpired';
     }
     browser.tabs.sendMessage(sender.tab.id, response, {frameId: 0});
-    return;
-  }
-
-  if (request.id === 'actionPopupSubmit') {
+  } else if (request.id === 'actionPopupSubmit') {
     onActionPopupClick(request.engine, request.imageUrl);
-    return;
-  }
-
-  if (request.id === 'imageUploadSubmit') {
+  } else if (request.id === 'imageUploadSubmit') {
     let tabIndex = sender.tab.index;
     let tabActive = true;
     let firstBatchItem = true;
@@ -747,10 +743,7 @@ async function onMessage(request, sender, sendResponse) {
       tabActive = false;
       firstBatchItem = false;
     }
-    return;
-  }
-
-  if (request.id === 'dataReceipt') {
+  } else if (request.id === 'dataReceipt') {
     const data = dataStore[request.dataKey];
     if (data) {
       data.receipts.received += 1;
@@ -761,10 +754,7 @@ async function onMessage(request, sender, sendResponse) {
         }
       }
     }
-    return;
-  }
-
-  if (request.id === 'imageSelectionSubmit') {
+  } else if (request.id === 'imageSelectionSubmit') {
     browser.tabs.executeScript(sender.tab.id, {
       allFrames: true,
       runAt: 'document_start',
@@ -781,10 +771,7 @@ async function onMessage(request, sender, sendResponse) {
       {frameId: 0}
     );
     searchClickTarget(sender.tab.id, sender.frameId, request.engine, 'action');
-    return;
-  }
-
-  if (request.id === 'imageSelectionCancel') {
+  } else if (request.id === 'imageSelectionCancel') {
     browser.tabs.executeScript(sender.tab.id, {
       allFrames: true,
       runAt: 'document_start',
@@ -800,29 +787,20 @@ async function onMessage(request, sender, sendResponse) {
       {id: 'imageSelectionClose'},
       {frameId: 0}
     );
-    return;
-  }
-
-  if (request.id === 'imageConfirmationSubmit') {
+  } else if (request.id === 'imageConfirmationSubmit') {
     browser.tabs.sendMessage(
       sender.tab.id,
       {id: 'imageConfirmationClose'},
       {frameId: 0}
     );
     searchImage(request.img, request.engine, sender.tab.index);
-    return;
-  }
-
-  if (request.id === 'imageConfirmationCancel') {
+  } else if (request.id === 'imageConfirmationCancel') {
     browser.tabs.sendMessage(
       sender.tab.id,
       {id: 'imageConfirmationClose'},
       {frameId: 0}
     );
-    return;
-  }
-
-  if (request.id === 'imageCaptureSubmit') {
+  } else if (request.id === 'imageCaptureSubmit') {
     const tabId = sender.tab.id;
     browser.tabs.sendMessage(tabId, {id: 'imageCaptureClose'}, {frameId: 0});
 
@@ -839,58 +817,37 @@ async function onMessage(request, sender, sendResponse) {
     };
 
     searchImage(image, request.engine, sender.tab.index);
-    return;
-  }
-
-  if (request.id === 'imageCaptureCancel') {
+  } else if (request.id === 'imageCaptureCancel') {
     browser.tabs.sendMessage(
       sender.tab.id,
       {id: 'imageCaptureClose'},
       {frameId: 0}
     );
-    return;
-  }
-
-  if (request.id === 'pageParseSubmit') {
+  } else if (request.id === 'pageParseSubmit') {
     handleParseResults(
       request.images,
       request.engine,
       sender.tab.id,
       sender.tab.index
     );
-    return;
-  }
-
-  if (request.id === 'pageParseError') {
+  } else if (request.id === 'pageParseError') {
     showNotification({messageId: 'error_internalError'});
-    return;
-  }
-
-  if (request.id === 'setRequestReferrer') {
+  } else if (request.id === 'setRequestReferrer') {
     setRequestReferrer(request.url, request.referrer, request.token);
-    return;
-  }
-
-  if (request.id.endsWith('FrameId')) {
+  } else if (request.id.endsWith('FrameId')) {
     browser.tabs.sendMessage(
       sender.tab.id,
       {id: request.id, frameId: sender.frameId},
       {frameId: 0}
     );
-    return;
-  }
-
-  if (request.id === 'notification') {
+  } else if (request.id === 'notification') {
     showNotification({
       message: request.message,
       messageId: request.messageId,
       title: request.title,
       type: request.type
     });
-    return;
-  }
-
-  if (request.id === 'routeMessage') {
+  } else if (request.id === 'routeMessage') {
     const params = [
       request.hasOwnProperty('tabId') ? request.tabId : sender.tab.id,
       request.data
@@ -899,7 +856,10 @@ async function onMessage(request, sender, sendResponse) {
       params.push({frameId: request.frameId});
     }
     browser.tabs.sendMessage(...params);
-    return;
+  } else if (request.id === 'getPlatform') {
+    return getPlatform();
+  } else if (request.id === 'getBrowser') {
+    return getBrowser();
   }
 }
 

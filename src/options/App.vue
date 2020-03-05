@@ -233,6 +233,8 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/select/mdc-select';
+@import '@material/checkbox/mixins';
+@import '@material/switch/mixins';
 @import '@material/theme/mixins';
 @import '@material/typography/mixins';
 
@@ -308,6 +310,42 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+}
+
+.fenix {
+  & .section-title,
+  & .section-desc,
+  & .mdc-form-field,
+  & .mdc-list-item {
+    @include mdc-theme-prop(color, #20123a);
+  }
+
+  & .mdc-checkbox {
+    @include mdc-checkbox-container-colors(
+      #312a65,
+      #00000000,
+      #312a65,
+      #312a65
+    );
+    @include mdc-checkbox-focus-indicator-color(#312a65);
+  }
+
+  & .mdc-switch {
+    @include mdc-switch-toggled-on-color(#312a65);
+  }
+
+  & .mdc-select {
+    @include mdc-select-ink-color(#20123a);
+    @include mdc-select-focused-label-color(#20123a);
+    @include mdc-select-bottom-line-color(#20123a);
+    @include mdc-select-focused-bottom-line-color(#312a65);
+    @include mdc-select-focused-outline-color(#312a65);
+
+    &.mdc-select--focused .mdc-select__dropdown-icon {
+      filter: brightness(0) saturate(100%) invert(10%) sepia(43%)
+        saturate(1233%) hue-rotate(225deg) brightness(97%) contrast(105%);
+    }
   }
 }
 </style>

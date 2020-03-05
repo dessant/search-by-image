@@ -136,7 +136,9 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/snackbar/mdc-snackbar';
+@import '@material/button/mixins';
 @import '@material/icon-button/mixins';
+@import '@material/ripple/mixins';
 @import '@material/typography/mixins';
 @import '~cropperjs/dist/cropper';
 
@@ -157,7 +159,7 @@ body {
 
 .canvas-wrap {
   width: 100%;
-  height: calc(100% - 84px);
+  height: calc(100% - 64px);
 }
 
 .cropper-point,
@@ -199,17 +201,41 @@ body {
   margin-left: 8px;
 }
 
-/* phones */
-@media (min-width: 380px) {
-  .canvas-wrap {
-    height: calc(100% - 64px);
-  }
-}
-
 /* tablets */
 @media (min-width: 480px) {
   .mdc-snackbar__surface {
     min-width: 440px !important;
+  }
+}
+
+.fenix {
+  & .cropper-point,
+  & .cropper-point.point-se:before,
+  & .cropper-line {
+    background-color: #312a65;
+  }
+
+  & .mdc-snackbar {
+    @include mdc-snackbar-fill-color(#312a65);
+    @include mdc-snackbar-shape-radius(8px);
+  }
+
+  & .mdc-snackbar__label {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  & .capture-button {
+    @include mdc-button-ink-color(#ffffff);
+    font-size: 17px;
+
+    & .mdc-button__ripple {
+      @include mdc-states-base-color(#ffffff);
+    }
+  }
+
+  & .cancel-button {
+    @include mdc-icon-button-icon-size(24px, 24px, 6px);
   }
 }
 </style>

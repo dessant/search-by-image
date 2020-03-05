@@ -96,4 +96,20 @@ body {
     min-width: 400px !important;
   }
 }
+
+.fenix {
+  & .mdc-snackbar {
+    @include mdc-snackbar-fill-color(#312a65);
+    @include mdc-snackbar-shape-radius(8px);
+  }
+
+  & .mdc-snackbar__label {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  & .cancel-button {
+    @include mdc-icon-button-icon-size(24px, 24px, 6px);
+  }
+}
 </style>

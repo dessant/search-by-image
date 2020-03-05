@@ -78,7 +78,7 @@ export default {
     }
   },
 
-  created: function() {
+  created: async function() {
     browser.runtime.onMessage.addListener(this.onMessage);
     browser.runtime.sendMessage({id: 'confirmFrameId'});
   }
@@ -89,6 +89,9 @@ export default {
 $mdc-theme-primary: #1abc9c;
 
 @import '@material/grid-list/mdc-grid-list';
+@import '@material/button/mixins';
+@import '@material/ripple/mixins';
+@import '@material/theme/mixins';
 @import '@material/typography/mixins';
 
 body {
@@ -139,6 +142,20 @@ body {
 
   .mdc-dialog--scrollable .mdc-dialog__surface {
     max-width: 690px !important;
+  }
+}
+
+.fenix {
+  & .mdc-dialog__title {
+    @include mdc-theme-prop(color, #20123a);
+  }
+
+  & .mdc-dialog__button {
+    @include mdc-button-ink-color(#20123a);
+
+    & .mdc-button__ripple {
+      @include mdc-states-base-color(#312a65);
+    }
   }
 }
 </style>
