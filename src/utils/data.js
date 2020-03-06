@@ -308,9 +308,19 @@ const imageMimeTypes = {
   'image/x-xwindowdump': 'xwd'
 };
 
-const chromeUA =
-  'Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.93 Mobile Safari/537.36';
+const chromeDesktopUA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36';
+
+const chromeMobileUA =
+  'Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36';
 
 const projectUrl = 'https://github.com/dessant/search-by-image';
 
-export {optionKeys, engines, imageMimeTypes, chromeUA, projectUrl};
+export {
+  optionKeys,
+  engines,
+  imageMimeTypes,
+  chromeDesktopUA,
+  chromeMobileUA,
+  projectUrl
+};

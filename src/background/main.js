@@ -26,7 +26,7 @@ import {
   normalizeFilename,
   captureVisibleTabArea
 } from 'utils/app';
-import {optionKeys, engines, chromeUA} from 'utils/data';
+import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
 const dataStore = {};
@@ -426,26 +426,36 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   const tab = await createTab(tabUrl, {index: tabIndex, active: tabActive});
   tabId = tab.id;
 
-  // Google only works with a Blink/WebKit user agent on Android.
-  if (targetEnv === 'firefox' && engine === 'google' && (await isAndroid())) {
-    const googleRequestCallback = function(details) {
-      for (const header of details.requestHeaders) {
-        if (header.name.toLowerCase() === 'user-agent') {
-          header.value = chromeUA;
-          break;
-        }
-      }
-      return {requestHeaders: details.requestHeaders};
-    };
+  if (await isAndroid()) {
+    // Google only works with a Chrome user agent on Android,
+    // while other search engines may need a desktop user agent.
+    let userAgent;
+    if (engine === 'google' && targetEnv === 'firefox') {
+      userAgent = chromeMobileUA;
+    } else if (['mailru'].includes(engine)) {
+      userAgent = chromeDesktopUA;
+    }
 
-    browser.webRequest.onBeforeSendHeaders.addListener(
-      googleRequestCallback,
-      {
-        urls: ['http://*/*', 'https://*/*'],
-        tabId
-      },
-      ['blocking', 'requestHeaders']
-    );
+    if (userAgent) {
+      const engineRequestCallback = function(details) {
+        for (const header of details.requestHeaders) {
+          if (header.name.toLowerCase() === 'user-agent') {
+            header.value = userAgent;
+            break;
+          }
+        }
+        return {requestHeaders: details.requestHeaders};
+      };
+
+      browser.webRequest.onBeforeSendHeaders.addListener(
+        engineRequestCallback,
+        {
+          urls: ['http://*/*', 'https://*/*'],
+          tabId
+        },
+        ['blocking', 'requestHeaders']
+      );
+    }
   }
 }
 
