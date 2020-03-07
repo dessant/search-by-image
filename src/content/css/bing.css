@@ -1,0 +1,5 @@
+body > form#sbi-upload-form[data-c45ng3u9],
+body > form#sbi-upload-form[data-c45ng3u9] > input[data-c45ng3u9] {
+  all: initial !important;
+  display: none !important;
+}

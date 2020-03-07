@@ -460,6 +460,13 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
 }
 
 async function execEngine(tabId, engine, dataKey) {
+  if (['bing'].includes(engine)) {
+    await browser.tabs.insertCSS(tabId, {
+      runAt: 'document_start',
+      file: `/src/content/css/${engine}.css`
+    });
+  }
+
   await executeCode(`var dataKey = '${dataKey}';`, tabId);
   await executeFile(`/src/content/common.js`, tabId);
   await executeFile(`/src/content/engines/${engine}.js`, tabId);
