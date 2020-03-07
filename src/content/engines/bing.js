@@ -1,7 +1,7 @@
 const engine = 'bing';
 
 async function upload({blob, imgData}) {
-  if (document.querySelector('meta[name="mobileoptimized"]')) {
+  if (document.head.querySelector('meta[name="mobileoptimized"]')) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
     form.id = 'sbi-upload-form';
