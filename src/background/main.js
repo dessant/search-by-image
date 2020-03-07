@@ -432,7 +432,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
     let userAgent;
     if (engine === 'google' && targetEnv === 'firefox') {
       userAgent = chromeMobileUA;
-    } else if (['mailru'].includes(engine)) {
+    } else if (['baidu', 'mailru'].includes(engine)) {
       userAgent = chromeDesktopUA;
     }
 
