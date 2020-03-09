@@ -1,7 +1,10 @@
 const engine = 'branddb';
 
 async function upload({blob, imgData}) {
-  await findNode('tr[id="0"]');
+  await Promise.race([
+    findNode('tr[id="0"]'), // desktop
+    findNode('.flowItemBox .flowItem[foo="0"]') // mobile
+  ]);
 
   (await findNode('a[href="#image_filter"]')).click();
 
