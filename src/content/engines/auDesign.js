@@ -7,7 +7,13 @@ async function upload({blob, imgData}) {
   input.dispatchEvent(new Event('change'));
 
   (await findNode('.popup-content .buttons button')).click();
-  (await findNode('.as-search-button')).click();
+
+  (
+    await Promise.race([
+      findNode('.as-search-button'), // desktop
+      findNode('.qs-search-button') // mobile
+    ])
+  ).click();
 }
 
 initUpload(upload, dataKey, engine);
