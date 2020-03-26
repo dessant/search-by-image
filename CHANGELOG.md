@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/dessant/search-by-image/compare/v2.1.1...v2.2.0) (2020-03-26)
+
+
+### Features
+
+* add support for Firefox Preview ([ecec816](https://github.com/dessant/search-by-image/commit/ecec816a70820e79f930c5d7658e83ae6c61a5ae))
+* search for trademarks and design patents ([3b91df4](https://github.com/dessant/search-by-image/commit/3b91df48de269cbc8264febb2888a14341b309b3)), closes [#62](https://github.com/dessant/search-by-image/issues/62)
+
+
+### Bug Fixes
+
+* load desktop Baidu on mobile ([f645dc6](https://github.com/dessant/search-by-image/commit/f645dc60e1dc8068378f3ca1e756b23b7dcc1404))
+* log missing HTML elements ([a31f19e](https://github.com/dessant/search-by-image/commit/a31f19ebdae9d78ca04797c7d6ad78188474aeea))
+* update Australian Design Search ([325500e](https://github.com/dessant/search-by-image/commit/325500ef8c07da62d887d18930f020da939ba07d))
+* update Global Brand Database ([f62dab0](https://github.com/dessant/search-by-image/commit/f62dab005cded5cf206788e566263b533b1112a5))
+* update Mail.ru ([a141ba0](https://github.com/dessant/search-by-image/commit/a141ba043546ec28a494bedb01972762333ba8bb))
+* update Qihoo ([e962f64](https://github.com/dessant/search-by-image/commit/e962f6413d67860a3e5896d50263cea20349bef5))
+* update Sogou ([de745a5](https://github.com/dessant/search-by-image/commit/de745a51ff3581c36b7fb0fa0470f4484c2fa7ca))
+* update Yandex ([f0bff0c](https://github.com/dessant/search-by-image/commit/f0bff0c46762cb067d5594d4d6f390309a36263b))
+* use old Bing upload method on mobile ([b393fa2](https://github.com/dessant/search-by-image/commit/b393fa268c3d25a163b8e252e175a3e9d746f0f1))
+* use old Yandex upload method on mobile ([23833b0](https://github.com/dessant/search-by-image/commit/23833b07412498dc3fa27583fbb85c4d5fd1048f))
+
 ### [2.1.1](https://github.com/dessant/search-by-image/compare/v2.1.0...v2.1.1) (2020-02-19)
 
 
