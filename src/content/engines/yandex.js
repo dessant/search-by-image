@@ -24,18 +24,9 @@ function showResults(xhr) {
 }
 
 async function upload({blob, imgData}) {
-  const button = await findNode('.input__cbir-button');
-  const desktopButton = button.querySelector('button');
-
-  if (desktopButton) {
-    desktopButton.click();
-
-    const input = await findNode('.cbir-panel__file-input');
-
-    setFileInputData(input, blob, imgData);
-
-    input.dispatchEvent(new Event('change'));
-  } else {
+  if (
+    document.head.querySelector('meta[name="apple-mobile-web-app-capable"]')
+  ) {
     const hostname = getHostname();
     const url =
       `https://${hostname}/images/touch/search?rpt=imageview&format=json` +
@@ -45,7 +36,7 @@ async function upload({blob, imgData}) {
     data.append('upfile', blob);
 
     const xhr = getXHR();
-    xhr.addEventListener('load', function() {
+    xhr.addEventListener('load', function () {
       uploadCallback(this, showResults, engine);
     });
     xhr.open('POST', url);
@@ -55,6 +46,14 @@ async function upload({blob, imgData}) {
       'application/json, text/javascript, */*; q=0.01'
     );
     xhr.send(data);
+  } else {
+    (await findNode('.input__cbir-button button')).click();
+
+    const input = await findNode('.cbir-panel__file-input');
+
+    setFileInputData(input, blob, imgData);
+
+    input.dispatchEvent(new Event('change'));
   }
 }
 

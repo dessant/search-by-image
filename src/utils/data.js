@@ -46,7 +46,7 @@ const engines = {
       target: 'https://yandex.com/images/search?url={imgUrl}&rpt=imageview'
     },
     upload: {
-      target: 'https://yandex.com/images/',
+      target: 'https://yandex.com/images/search',
       isExec: true
     }
   },
