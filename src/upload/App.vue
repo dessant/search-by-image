@@ -16,7 +16,7 @@ import {onError, getText} from 'utils/common';
 import {engines} from 'utils/data';
 
 export default {
-  data: function() {
+  data: function () {
     return {
       dataLoaded: false,
 
@@ -27,7 +27,7 @@ export default {
   },
 
   methods: {
-    onMessage: async function(request, sender, sendResponse) {
+    onMessage: async function (request, sender, sendResponse) {
       if (request.id === 'imageDataResponse') {
         if (request.error) {
           if (request.error === 'sessionExpired') {
@@ -92,7 +92,7 @@ export default {
       }
     },
 
-    processImgData: async function({imgData, blob}) {
+    processImgData: async function ({imgData, blob}) {
       if (this.engine === 'google') {
         const data = new FormData();
         data.append('encoded_image', blob, imgData.filename);
@@ -159,7 +159,7 @@ export default {
         const data = new FormData();
         data.append('image', blob, imgData.filename);
         const rsp = await fetch(
-          'https://www.shutterstock.com/discover/search/upload/images',
+          'https://www.shutterstock.com/studioapi/images/reverse-image-search',
           {
             referrer: '',
             mode: 'cors',
@@ -176,8 +176,9 @@ export default {
           return;
         }
 
-        const results = (await rsp.json()).response.docs;
-        const ids = encodeURIComponent(results.map(item => item.id).join(','));
+        const ids = encodeURIComponent(
+          (await rsp.json()).map(item => item.id).join(',')
+        );
         const tabUrl = `https://www.shutterstock.com/search/ris/${ids}`;
 
         window.location.replace(tabUrl);
@@ -185,7 +186,7 @@ export default {
     }
   },
 
-  created: async function() {
+  created: async function () {
     browser.runtime.onMessage.addListener(this.onMessage);
 
     const query = new URL(window.location.href).searchParams;
