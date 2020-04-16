@@ -23,11 +23,7 @@ async function upload({blob, imgData}) {
     }
   );
   if (features) {
-    (
-      await findNode('#imageSearchDialogNextButton:not([disabled])', {
-        observerOptions: {attributes: true, attributeFilter: ['disabled']}
-      })
-    ).click();
+    (await findNode('#imageSearchDialogSkipButton')).click();
   }
 }
 
