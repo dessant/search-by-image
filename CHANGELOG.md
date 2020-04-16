@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1](https://github.com/dessant/search-by-image/compare/v2.2.0...v2.2.1) (2020-04-16)
+
+
+### Bug Fixes
+
+* update Baidu search ([eabf2fe](https://github.com/dessant/search-by-image/commit/eabf2fe31b01cc166060699afa017d2174769339))
+* update Bing search ([cd44734](https://github.com/dessant/search-by-image/commit/cd447340ae2ffa53737ba497060c5c4c2b3c3d28))
+* update IPONZ Trade Mark Check search ([0420cde](https://github.com/dessant/search-by-image/commit/0420cded0801571852126f553f34f86ad32489d6))
+* update iStock search ([ebe84fd](https://github.com/dessant/search-by-image/commit/ebe84fd9ff4939805df55d45b955397c92eebc67))
+* update Shutterstock search ([d8c6948](https://github.com/dessant/search-by-image/commit/d8c6948f371947ee42d1a684cee0d66ec288a74d))
+* update TMView URL ([6a62ba3](https://github.com/dessant/search-by-image/commit/6a62ba337349c9fed510c050b6239493a6536509))
+* update Yandex search ([62c423e](https://github.com/dessant/search-by-image/commit/62c423e9e2cccd3fb6b61bdd63aecff734d5dccf))
+
 ## [2.2.0](https://github.com/dessant/search-by-image/compare/v2.1.1...v2.2.0) (2020-03-26)
 
 
