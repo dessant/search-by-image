@@ -27,7 +27,7 @@ please consider contributing with
 
 Search by Image is a browser extension which enables you to initiate a
 reverse image search from the right-click context menu or the browser toolbar,
-and comes with support for more than 20 search engines.
+and comes with support for more than 30 search engines.
 
 Images positioned at the selected area are detected regardless of how they were
 embedded in the page. The extension also supports uploading local images,
@@ -38,32 +38,9 @@ and searching for images from private sites.
 
 A diverse set of reverse image search engines are supported,
 which can be toggled and reordered from the extension's options.
+Visit the wiki for the full list of supported search engines.
 
-* Google Images
-* Bing Images
-* Yandex.Images
-* Baidu Image Search
-* Sogou Images
-* Qihoo 360 Images
-* Mail.ru Image Search
-* Getty Images
-* iStock
-* Shutterstock
-* Adobe Stock
-* Depositphotos
-* Dreamstime
-* Alamy
-* 123RF
-* Jingdong
-* Taobao
-* Alibaba China
-* Pinterest
-* TinEye Reverse Image Search
-* Karma Decay
-* trace.moe (WhatAnime)
-* SauceNAO
-* Iqdb
-* Ascii2d
+https://github.com/dessant/search-by-image/wiki/Search-engines
 
 #### Search Modes
 
