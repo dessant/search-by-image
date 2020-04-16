@@ -1,7 +1,7 @@
 const engine = 'bing';
 
 async function upload({blob, imgData}) {
-  if (document.head.querySelector('meta[name="mobileoptimized"]')) {
+  if (window.screen.width < 1024) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
     form.id = 'sbi-upload-form';
@@ -19,7 +19,7 @@ async function upload({blob, imgData}) {
 
     if (blob.size > 600 * 1024) {
       const img = new Image();
-      img.onload = function() {
+      img.onload = function () {
         const cnv = document.createElement('canvas');
         const ctx = cnv.getContext('2d');
 
@@ -58,7 +58,7 @@ async function upload({blob, imgData}) {
       img.src = URL.createObjectURL(blob);
     } else {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         input.value = e.target.result.substring(
           e.target.result.indexOf(',') + 1
         );
