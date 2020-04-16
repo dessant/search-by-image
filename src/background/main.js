@@ -148,7 +148,7 @@ async function createMenu(options) {
       });
     }
 
-    enEngines.forEach(function(engine) {
+    enEngines.forEach(function (engine) {
       createMenuItem({
         id: engine,
         title: getText(`menuItemTitle_${engine}`),
@@ -239,7 +239,7 @@ async function searchImage(
     imgData.dataKey = storeData(
       Object.assign({}, imgData, {
         isUpload: Object.assign(
-          ...receiptSearches.map(function(item) {
+          ...receiptSearches.map(function (item) {
             return {
               [item.engine]: item.method === 'upload'
             };
@@ -251,7 +251,7 @@ async function searchImage(
         }
       })
     );
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       const data = deleteData(imgData.dataKey);
       if (data && data.objectUrl) {
         URL.revokeObjectURL(data.objectUrl);
@@ -289,7 +289,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   const reloadEngines = ['esearch', 'tmview'];
 
   if (search.isExec) {
-    const tabUpdateCallback = async function(eventTabId, changes, tab) {
+    const tabUpdateCallback = async function (eventTabId, changes, tab) {
       if (eventTabId === tabId && tab.status === 'complete') {
         if (reloadEngines.includes(engine)) {
           const loadedUrl = loadedUrls[engine];
@@ -309,7 +309,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
         execEngine(tabId, engine, imgData.dataKey);
       }
     };
-    const removeCallbacks = function() {
+    const removeCallbacks = function () {
       window.clearTimeout(timeoutId);
       browser.tabs.onUpdated.removeListener(tabUpdateCallback);
     };
@@ -322,7 +322,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
       const rxCookie = /((?:^|\s|;)hng=)[^;]*/g;
       const cookieValue = 'CN%7Czh-CN%7CCNY%7C156';
 
-      const taobaoRequestCallback = function(details) {
+      const taobaoRequestCallback = function (details) {
         if (details.tabId === tabId) {
           taobaoRemoveRequestCallbacks();
 
@@ -346,7 +346,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
 
           const requestId = details.requestId;
 
-          const taobaoResponseCallback = function(details) {
+          const taobaoResponseCallback = function (details) {
             if (details.requestId === requestId) {
               taobaoRemoveResponseCallbacks();
 
@@ -373,7 +373,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
             }
           };
 
-          const taobaoRemoveResponseCallbacks = function() {
+          const taobaoRemoveResponseCallbacks = function () {
             window.clearTimeout(taobaoResponseTimeoutId);
             browser.webRequest.onHeadersReceived.removeListener(
               taobaoResponseCallback
@@ -399,7 +399,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
         }
       };
 
-      const taobaoRemoveRequestCallbacks = function() {
+      const taobaoRemoveRequestCallbacks = function () {
         window.clearTimeout(taobaoRequestTimeoutId);
         browser.webRequest.onBeforeSendHeaders.removeListener(
           taobaoRequestCallback
@@ -432,12 +432,12 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
     let userAgent;
     if (engine === 'google' && targetEnv === 'firefox') {
       userAgent = chromeMobileUA;
-    } else if (['baidu', 'mailru'].includes(engine)) {
+    } else if (['mailru'].includes(engine)) {
       userAgent = chromeDesktopUA;
     }
 
     if (userAgent) {
-      const engineRequestCallback = function(details) {
+      const engineRequestCallback = function (details) {
         for (const header of details.requestHeaders) {
           if (header.name.toLowerCase() === 'user-agent') {
             header.value = userAgent;
@@ -698,7 +698,7 @@ async function showCapture(tabId, engine) {
 }
 
 function setRequestReferrer(url, referrer, token) {
-  const requestCallback = function(details) {
+  const requestCallback = function (details) {
     const headers = details.requestHeaders;
     for (const header of headers) {
       if (
@@ -716,7 +716,7 @@ function setRequestReferrer(url, referrer, token) {
     }
   };
 
-  const removeCallbacks = function() {
+  const removeCallbacks = function () {
     window.clearTimeout(timeoutId);
     browser.webRequest.onBeforeSendHeaders.removeListener(requestCallback);
   };
