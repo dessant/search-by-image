@@ -205,7 +205,7 @@ const engines = {
   },
   tmview: {
     upload: {
-      target: 'https://www.tmdn.org/tmview/beta/#/tmview',
+      target: 'https://www.tmdn.org/tmview/#/tmview',
       isExec: true
     }
   },
