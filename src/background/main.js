@@ -98,7 +98,7 @@ async function createMenu(options) {
     'selection',
     'video'
   ];
-  const urlPatterns = ['http://*/*', 'https://*/*', 'ftp://*/*'];
+  const urlPatterns = ['http://*/*', 'https://*/*'];
   let setIcons = false;
   if (targetEnv === 'firefox') {
     urlPatterns.push('file:///*');
@@ -971,7 +971,7 @@ async function onInstall(details) {
     ['install', 'update'].includes(details.reason)
   ) {
     const tabs = await browser.tabs.query({
-      url: ['http://*/*', 'https://*/*', 'ftp://*/*'],
+      url: ['http://*/*', 'https://*/*'],
       windowType: 'normal'
     });
 

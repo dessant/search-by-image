@@ -130,7 +130,7 @@ function validateUrl(url) {
     return;
   }
 
-  if (!/^(?:https?|ftp):$/i.test(parsedUrl.protocol)) {
+  if (!/^https?:$/i.test(parsedUrl.protocol)) {
     return;
   }
 
