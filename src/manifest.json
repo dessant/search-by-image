@@ -7,7 +7,7 @@
   "homepage_url": "https://github.com/dessant/search-by-image",
   "default_locale": "en",
 
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "{2e5ff8c8-32fe-46d0-9fc8-6b8986621f3c}",
       "strict_min_version": "68.0"
