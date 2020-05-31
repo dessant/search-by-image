@@ -348,4 +348,11 @@ body {
     }
   }
 }
+
+@media (prefers-color-scheme: dark) {
+body, div.section-title, div.section-desc, label, .mdc-select:not(.mdc-select--disabled) .mdc-floating-label, .mdc-select__menu .mdc-list .mdc-list-item--selected, .mdc-select:not(.mdc-select--disabled) .mdc-select__selected-text, div.mdc-select__anchor.mdc-ripple-upgraded.mdc-ripple-upgraded, div.mdc-select__anchor.mdc-ripple-upgraded.mdc-ripple-upgraded--background-focused, ul, li {
+    background-color: #313131;
+    color: #bfbfbf;
+}
+}
 </style>

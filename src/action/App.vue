@@ -520,4 +520,11 @@ html.fenix {
     }
   }
 }
+
+@media (prefers-color-scheme: dark) {
+body, div.title, ul, li {
+    background-color: #313131;
+    color: #bfbfbf;
+}
+}
 </style>
