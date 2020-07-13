@@ -1,0 +1,897 @@
+{
+  "extensionName": {
+    "message": "Search by Image",
+    "description": "Название расширения."
+  },
+
+  "extensionDescription": {
+    "message": "Мощный инструмент поиска изображений с поддержкой различных поисковых систем, таких как Google, Bing, Yandex, Baidu и TinEye.",
+    "description": "Описание расширения."
+  },
+
+  "engineName_google": {
+    "message": "Google",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_bing": {
+    "message": "Bing",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_yandex": {
+    "message": "Yandex",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_baidu": {
+    "message": "Baidu",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_tineye": {
+    "message": "TinEye",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_sogou": {
+    "message": "Sogou",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_karmaDecay": {
+    "message": "Karma Decay",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_whatanime": {
+    "message": "trace.moe",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_saucenao": {
+    "message": "SauceNAO",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_iqdb": {
+    "message": "Iqdb",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_ascii2d": {
+    "message": "Ascii2d",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_getty": {
+    "message": "Getty",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_istock": {
+    "message": "iStock",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_shutterstock": {
+    "message": "Shutterstock",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_adobestock": {
+    "message": "Adobe Stock",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_depositphotos": {
+    "message": "Depositphotos",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_pinterest": {
+    "message": "Pinterest",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_qihoo": {
+    "message": "Qihoo 360",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_jingdong": {
+    "message": "Jingdong",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_taobao": {
+    "message": "Taobao",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_alibabaChina": {
+    "message": "Alibaba China",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_mailru": {
+    "message": "Mail.ru",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_dreamstime": {
+    "message": "Dreamstime",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_alamy": {
+    "message": "Alamy",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_123rf": {
+    "message": "123RF",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_esearch": {
+    "message": "eSearch plus",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_tmview": {
+    "message": "TMview",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_branddb": {
+    "message": "Global Brand Database",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_madridMonitor": {
+    "message": "Madrid Monitor",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_auTrademark": {
+    "message": "Australian Trade Mark Search",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_auDesign": {
+    "message": "Australian Design Search",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_nzTrademark": {
+    "message": "IPONZ Trade Mark Check",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_jpDesign": {
+    "message": "Graphic Image Park",
+    "description": "Название поисковой системы."
+  },
+
+  "engineName_allEngines": {
+    "message": "все поисковые системы",
+    "description": "Название поисковой системы."
+  },
+
+  "actionTitle_allEngines": {
+    "message": "Найти изображение во всех системах",
+    "description": "Название действия."
+  },
+
+  "actionTitle_engine": {
+    "message": "Найти изображение в $ENGINE$",
+    "description": "Название действия.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "menuItemTitle_google": {
+    "message": "Google",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_bing": {
+    "message": "Bing",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_yandex": {
+    "message": "Yandex",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_baidu": {
+    "message": "Baidu",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_tineye": {
+    "message": "TinEye",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_sogou": {
+    "message": "Sogou",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_karmaDecay": {
+    "message": "Karma Decay",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_whatanime": {
+    "message": "trace.moe",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_saucenao": {
+    "message": "SauceNAO",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_iqdb": {
+    "message": "Iqdb",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_ascii2d": {
+    "message": "Ascii2d",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_getty": {
+    "message": "Getty",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_istock": {
+    "message": "iStock",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_shutterstock": {
+    "message": "Shutterstock",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_adobestock": {
+    "message": "Adobe Stock",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_depositphotos": {
+    "message": "Depositphotos",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_pinterest": {
+    "message": "Pinterest",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_qihoo": {
+    "message": "Qihoo 360",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_jingdong": {
+    "message": "Jingdong",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_taobao": {
+    "message": "Taobao",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_alibabaChina": {
+    "message": "Alibaba China",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_mailru": {
+    "message": "Mail.ru",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_dreamstime": {
+    "message": "Dreamstime",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_alamy": {
+    "message": "Alamy",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_123rf": {
+    "message": "123RF",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_esearch": {
+    "message": "eSearch plus",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_tmview": {
+    "message": "TMview",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_branddb": {
+    "message": "Global Brand Database",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_madridMonitor": {
+    "message": "Madrid Monitor",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_auTrademark": {
+    "message": "Australian Trade Mark Search",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_auDesign": {
+    "message": "Australian Design Search",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_nzTrademark": {
+    "message": "IPONZ Trade Mark Check",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_jpDesign": {
+    "message": "Graphic Image Park",
+    "description": "Название пункта меню."
+  },
+
+  "menuItemTitle_allEngines": {
+    "message": "Все поисковые системы",
+    "description": "Название пункта меню."
+  },
+
+  "mainMenuItemTitle_allEngines": {
+    "message": "Найти изображение во всех системах",
+    "description": "Название пункта меню."
+  },
+
+  "mainMenuItemTitle_engine": {
+    "message": "Найти изображение в $ENGINE$",
+    "description": "Название пункта меню.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "optionSectionTitle_engines": {
+    "message": "Поисковые системы",
+    "description": "Название секции настроек."
+  },
+
+  "optionSectionDescription_engines": {
+    "message": "Переключайте поисковые системы и настраивайте их порядок с помощью перетаскивания",
+    "description": "Описание секции настроек."
+  },
+
+  "optionTitle_google": {
+    "message": "Google Images",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_bing": {
+    "message": "Bing Images",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_yandex": {
+    "message": "Yandex.Images",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_baidu": {
+    "message": "Baidu Image Search",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_tineye": {
+    "message": "TinEye Reverse Image Search",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_sogou": {
+    "message": "Sogou Images",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_karmaDecay": {
+    "message": "Karma Decay",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_whatanime": {
+    "message": "trace.moe",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_saucenao": {
+    "message": "SauceNAO",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_iqdb": {
+    "message": "Iqdb",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_ascii2d": {
+    "message": "Ascii2d",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_getty": {
+    "message": "Getty Images",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_istock": {
+    "message": "iStock",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_shutterstock": {
+    "message": "Shutterstock",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_adobestock": {
+    "message": "Adobe Stock",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_depositphotos": {
+    "message": "Depositphotos",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_pinterest": {
+    "message": "Pinterest",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_qihoo": {
+    "message": "Qihoo 360 Images",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_jingdong": {
+    "message": "Jingdong",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_taobao": {
+    "message": "Taobao",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_alibabaChina": {
+    "message": "Alibaba China",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_mailru": {
+    "message": "Mail.ru Image Search",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_dreamstime": {
+    "message": "Dreamstime",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_alamy": {
+    "message": "Alamy",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_123rf": {
+    "message": "123RF",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_esearch": {
+    "message": "eSearch plus",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_tmview": {
+    "message": "TMview",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_branddb": {
+    "message": "Global Brand Database",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_madridMonitor": {
+    "message": "Madrid Monitor",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_auTrademark": {
+    "message": "Australian Trade Mark Search",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_auDesign": {
+    "message": "Australian Design Search",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_nzTrademark": {
+    "message": "IPONZ Trade Mark Check",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_jpDesign": {
+    "message": "Graphic Image Park",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_searchMode": {
+    "message": "Режим поиска",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_searchAllEngines": {
+    "message": "Найти во всех системах",
+    "description": "Название настройки."
+  },
+
+  "optionSectionTitle_toolbar": {
+    "message": "Панель инструментов браузера",
+    "description": "Название настройкиs section."
+  },
+
+  "optionValue_searchAllEnginesAction_main": {
+    "message": "Из панели инструментов браузера",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchAllEnginesAction_sub": {
+    "message": "Из всплывающего окна на панели инструментов браузера",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchAllEnginesAction_false": {
+    "message": "Отключить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_action_searchModeAction_select": {
+    "message": "Выбрать",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_action_searchModeAction_selectUpload": {
+    "message": "Выбрать и загрузить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_action_searchModeAction_capture": {
+    "message": "Захватить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_action_searchModeAction_upload": {
+    "message": "Загрузить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_action_searchModeAction_url": {
+    "message": "URL",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeAction_select": {
+    "message": "Выбрать",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeAction_selectUpload": {
+    "message": "Выбрать и загрузить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeAction_capture": {
+    "message": "Захватить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeAction_upload": {
+    "message": "Загрузить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeAction_url": {
+    "message": "URL",
+    "description": "Значение настройки."
+  },
+
+  "optionSectionTitle_contextmenu": {
+    "message": "Контекстное меню",
+    "description": "Название настройкиs section."
+  },
+
+  "optionValue_searchAllEnginesContextMenu_main": {
+    "message": "Из контекстного меню",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchAllEnginesContextMenu_sub": {
+    "message": "Из подменю контекстного меню",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchAllEnginesContextMenu_false": {
+    "message": "Отключить",
+    "description": "Значение настройки."
+  },
+
+  "optionTitle_showInContextMenu": {
+    "message": "Показать в контекстном меню",
+    "description": "Название настройки."
+  },
+
+  "optionValue_searchModeContextMenu_select": {
+    "message": "Выбрать",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeContextMenu_selectUpload": {
+    "message": "Выбрать и загрузить",
+    "description": "Значение настройки."
+  },
+
+  "optionValue_searchModeContextMenu_capture": {
+    "message": "Захватить",
+    "description": "Значение настройки."
+  },
+
+  "optionSectionTitle_misc": {
+    "message": "Прочее",
+    "description": "Название настройкиs section."
+  },
+
+  "optionTitle_tabInBackgound": {
+    "message": "Открыть новые вкладки в фоне",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_localGoogle": {
+    "message": "Использовать местный сайт Google",
+    "description": "Название настройки."
+  },
+
+  "optionTitle_imgFullParse": {
+    "message": "Искать выше и ниже элементов <img>",
+    "description": "Название настройки."
+  },
+
+  "dialogTitle_imageConfirmation": {
+    "message": "Выбрать изображение",
+    "description": "Название диалога."
+  },
+
+  "snackbarMessage_imageSelection": {
+    "message": "Выбрать изображение",
+    "description": "Текст уведомления."
+  },
+
+  "snackbarMessage_imageCapture": {
+    "message": "Выбрать облать",
+    "description": "Текст уведомления."
+  },
+
+  "buttonText_cancel": {
+    "message": "Отмена",
+    "description": "Текст кнопки."
+  },
+
+  "buttonText_browse": {
+    "message": "Обзор",
+    "description": "Текст кнопки."
+  },
+
+  "buttonText_search": {
+    "message": "Найти",
+    "description": "Текст кнопки."
+  },
+
+  "pageContent_browse_drag": {
+    "message": "Перетащите или вставьте изображения сюда",
+    "description": "Содержимое страницы."
+  },
+
+  "pageContent_browse_drop": {
+    "message": "Перетащите изображения сюда",
+    "description": "Содержимое страницы."
+  },
+
+  "pageContent_results_title": {
+    "message": "Результаты поиска из $ENGINE$",
+    "description": "Содержимое страницы.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "inputPlaceholder_imageUrl": {
+    "message": "URL изображения",
+    "description": "Заглушка ввода."
+  },
+
+  "pageTitle": {
+    "message": "$PAGETITLE$ - $EXTENSIONNAME$",
+    "description": "Название страницы.",
+    "placeholders": {
+      "pageTitle": {
+        "content": "$1",
+        "example": "Настройки"
+      },
+      "extensionName": {
+        "content": "$2",
+        "example": "Название расширения"
+      }
+    }
+  },
+
+  "pageTitle_options": {
+    "message": "Настройки",
+    "description": "Название страницы."
+  },
+
+  "pageTitle_browse": {
+    "message": "Обзор",
+    "description": "Название страницы."
+  },
+
+  "pageTitle_contribute": {
+    "message": "Пожертвовать",
+    "description": "Название страницы."
+  },
+
+  "actionMenu_options": {
+    "message": "Настройки",
+    "description": "Название пункта меню."
+  },
+
+  "actionMenu_website": {
+    "message": "Сайт",
+    "description": "Название пункта меню."
+  },
+
+  "error_invalidPageUrl": {
+    "message": "URL страницы недействителен. Попробуйте найти изображение еще раз.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_sessionExpired": {
+    "message": "Сессия истекла. Попробуйте найти изображение в $ENGINE$ еще раз.",
+    "description": "Сообщение об ошибке.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "error_invalidImageSize": {
+    "message": "Размер загруженного изображения слишком большой. $ENGINE$ принимает изображения размером до $SIZE$.",
+    "description": "Сообщение об ошибке.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "size": {
+        "content": "$2",
+        "example": "10 МБ"
+      }
+    }
+  },
+
+  "unit_mb": {
+    "message": "$VALUE$ MB",
+    "description": "Обозначение единиц.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+
+  "error_invalidImageUrl": {
+    "message": "URL изображения недействителен.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_invalidImageUrl_fileUrl": {
+    "message": "Поиск изображения по URL локальных файлов не поддерживается.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_invalidSearchMode_url": {
+    "message": "Поиск по URL изображения поддерживается только из всплывающего окна панели инструментов браузера. Откройте страницу настроек, чтобы выбрать другой режим поиска.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_invalidImageFile": {
+    "message": "Выбранные объекты е являются изображениями.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_invalidImageCount": {
+    "message": "Выберите меньшее количество изображений. Одновременно может быть загружено не более 3 изображений.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_engine": {
+    "message": "Что-то пошло не так. Не удалось совершить поиск а $ENGINE$.",
+    "description": "Сообщение об ошибке.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "error_scriptsNotAllowed": {
+    "message": "Контент-скрипты запрещены на этой странице.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_imageNotFound": {
+    "message": "Изображения не найдены. Попробуйте найти повторно, поместив курсор поверх изображения.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_invalidSearchMethod": {
+    "message": "Выбранная поисковая система не поддерживает текущий метод поиска.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_invalidCaptureArea": {
+    "message": "Выберите область страницы для захвата перед поиском.",
+    "description": "Сообщение об ошибке."
+  },
+
+  "error_internalError": {
+    "message": "Что-то пошло не так. Обновите страницу перед повторным поиском.",
+    "description": "Сообщение об ошибке."
+  }
+}
