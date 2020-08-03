@@ -15,8 +15,10 @@ async function upload({blob, imgData}) {
 
   input.dispatchEvent(new Event('change'));
 
+  // wait for image to load
   await findNode('.ui-icon-pencil');
 
+  // select Concept strategy
   (await findNode('a[data-hasqtip="52"]')).click();
 
   window.setTimeout(async () => {
