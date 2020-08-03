@@ -6,7 +6,6 @@ const {ensureDirSync} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
 const gulp = require('gulp');
 const htmlmin = require('gulp-htmlmin');
-const svgmin = require('gulp-svgmin');
 const babel = require('gulp-babel');
 const postcss = require('gulp-postcss');
 const gulpif = require('gulp-if');
@@ -21,12 +20,12 @@ const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 const distDir = path.join('dist', targetEnv);
 
-gulp.task('clean', function() {
+gulp.task('clean', function () {
   return del([distDir]);
 });
 
-gulp.task('js:webpack', function(done) {
-  exec('webpack-cli --display-error-details --bail --colors', function(
+gulp.task('js:webpack', function (done) {
+  exec('webpack-cli --display-error-details --bail --colors', function (
     err,
     stdout,
     stderr
@@ -37,7 +36,7 @@ gulp.task('js:webpack', function(done) {
   });
 });
 
-gulp.task('js:babel', function(done) {
+gulp.task('js:babel', function (done) {
   gulp
     .src(['src/content/**/*.js'], {base: '.'})
     .pipe(babel())
@@ -47,7 +46,7 @@ gulp.task('js:babel', function(done) {
 
 gulp.task('js', gulp.parallel('js:webpack', 'js:babel'));
 
-gulp.task('html', function(done) {
+gulp.task('html', function (done) {
   gulp
     .src('src/**/*.html', {base: '.'})
     .pipe(gulpif(isProduction, htmlmin({collapseWhitespace: true})))
@@ -55,7 +54,7 @@ gulp.task('html', function(done) {
   done();
 });
 
-gulp.task('css', function(done) {
+gulp.task('css', function (done) {
   gulp
     .src(
       [
@@ -74,16 +73,19 @@ gulp.task('css', function(done) {
   done();
 });
 
-gulp.task('icons', async function(done) {
-  ensureDirSync(`${distDir}/src/icons/app`);
-  const iconSvg = readFileSync('src/icons/app/icon.svg');
+gulp.task('icons', async function (done) {
+  ensureDirSync(path.join(distDir, 'src/icons/app'));
+  const appIconSvg = readFileSync('src/icons/app/icon.svg');
   const appIconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
   for (const size of appIconSizes) {
-    const pngBuffer = await svg2png(iconSvg, {width: size, height: size});
-    writeFileSync(`${distDir}/src/icons/app/icon-${size}.png`, pngBuffer);
+    const pngBuffer = await svg2png(appIconSvg, {width: size, height: size});
+    writeFileSync(
+      path.join(distDir, `src/icons/app/icon-${size}.png`),
+      pngBuffer
+    );
   }
 
-  ensureDirSync(`${distDir}/src/icons/engines`);
+  ensureDirSync(path.join(distDir, 'src/icons/engines'));
   const pngPaths = await recursiveReadDir('src/icons/engines', ['*.!(png)']);
   const menuIconSizes = [16, 32];
   for (const pngPath of pngPaths) {
@@ -96,39 +98,39 @@ gulp.task('icons', async function(done) {
 
   if (isProduction) {
     gulp
-      .src(`${distDir}/src/icons/**/*.png`, {base: '.'})
+      .src(path.join(distDir, 'src/icons/**/*.png'), {base: '.'})
       .pipe(imagemin())
       .pipe(gulp.dest('.'));
   }
 
   gulp
     .src('src/icons/@(browse|engines|modes|misc)/*.svg', {base: '.'})
-    .pipe(gulpif(isProduction, svgmin()))
+    .pipe(gulpif(isProduction, imagemin()))
     .pipe(gulp.dest(distDir));
   gulp
     .src('node_modules/ext-contribute/src/assets/*.svg')
-    .pipe(gulpif(isProduction, svgmin()))
-    .pipe(gulp.dest(`${distDir}/src/contribute/assets`));
+    .pipe(gulpif(isProduction, imagemin()))
+    .pipe(gulp.dest(path.join(distDir, 'src/contribute/assets')));
   done();
 });
 
-gulp.task('fonts', function(done) {
+gulp.task('fonts', function (done) {
   gulp
     .src('src/fonts/roboto.css', {base: '.'})
     .pipe(postcss())
     .pipe(gulp.dest(distDir));
   gulp
     .src('node_modules/typeface-roboto/files/roboto-latin-@(400|500|700).woff2')
-    .pipe(gulp.dest(`${distDir}/src/fonts/files`));
+    .pipe(gulp.dest(path.join(distDir, 'src/fonts/files')));
   done();
 });
 
-gulp.task('locale', function(done) {
+gulp.task('locale', function (done) {
   const localesRootDir = path.join(__dirname, 'src/_locales');
-  const localeDirs = readdirSync(localesRootDir).filter(function(file) {
+  const localeDirs = readdirSync(localesRootDir).filter(function (file) {
     return lstatSync(path.join(localesRootDir, file)).isDirectory();
   });
-  localeDirs.forEach(function(localeDir) {
+  localeDirs.forEach(function (localeDir) {
     const localePath = path.join(localesRootDir, localeDir);
     gulp
       .src(
@@ -159,7 +161,7 @@ gulp.task('locale', function(done) {
   done();
 });
 
-gulp.task('manifest', function(done) {
+gulp.task('manifest', function (done) {
   gulp
     .src('src/manifest.json')
     .pipe(
@@ -198,7 +200,7 @@ gulp.task('manifest', function(done) {
   done();
 });
 
-gulp.task('license', function(done) {
+gulp.task('license', function (done) {
   let year = '2017';
   const currentYear = new Date().getFullYear().toString();
   if (year !== currentYear) {
@@ -212,15 +214,15 @@ This software is released under the terms of the GNU General Public License v3.0
 See the LICENSE file for further information.
 `;
 
-  writeFileSync(`${distDir}/NOTICE`, notice);
+  writeFileSync(path.join(distDir, 'NOTICE'), notice);
   gulp.src(['LICENSE']).pipe(gulp.dest(distDir));
   done();
 });
 
-gulp.task('copy', function(done) {
+gulp.task('copy', function (done) {
   gulp
     .src('node_modules/ext-contribute/src/assets/*.@(jpg|png)')
-    .pipe(gulp.dest(`${distDir}/src/contribute/assets`));
+    .pipe(gulp.dest(path.join(distDir, 'src/contribute/assets')));
   gulp.src(['src*/icons/**/*.@(jpg|png)']).pipe(gulp.dest(distDir));
   done();
 });
@@ -243,10 +245,10 @@ gulp.task(
   )
 );
 
-gulp.task('zip', function(done) {
+gulp.task('zip', function (done) {
   exec(
     `web-ext build -s dist/${targetEnv} -a artifacts/${targetEnv} --overwrite-dest`,
-    function(err, stdout, stderr) {
+    function (err, stdout, stderr) {
       console.log(stdout);
       console.log(stderr);
       done(err);
@@ -254,10 +256,10 @@ gulp.task('zip', function(done) {
   );
 });
 
-gulp.task('inspect', function(done) {
+gulp.task('inspect', function (done) {
   exec(
     `webpack --profile --json > report.json && webpack-bundle-analyzer report.json dist/firefox/src && sleep 10 && rm report.{json,html}`,
-    function(err, stdout, stderr) {
+    function (err, stdout, stderr) {
       console.log(stdout);
       console.log(stderr);
       done(err);

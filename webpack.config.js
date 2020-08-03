@@ -95,7 +95,9 @@ module.exports = {
           {
             loader: 'sass-loader',
             options: {
-              includePaths: ['node_modules']
+              sassOptions: {
+                includePaths: ['node_modules']
+              }
             }
           }
         ]
@@ -107,5 +109,6 @@ module.exports = {
     extensions: ['.js', '.json', '.css', '.scss', '.vue']
   },
   devtool: isProduction ? 'source-map' : false,
+  node: {fs: 'empty'},
   plugins
 };

@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 import {uniqBy} from 'lodash-es';
-import uuidV4 from 'uuid/v4';
+import {v4 as uuidv4} from 'uuid';
 
 import storage from 'storage/storage';
 import {
@@ -82,7 +82,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
 
   let match;
 
-  cssProperties.forEach(function(prop) {
+  cssProperties.forEach(function (prop) {
     let value = style.getPropertyValue(prop);
     if (value && value !== 'none') {
       while ((match = rxCssUrl.exec(value)) !== null) {
@@ -171,7 +171,7 @@ async function parseNode(node) {
   urls.push(...extractCSSImages(cssProps, node));
 
   if (!replacedElements.includes(nodeName)) {
-    pseudoSelectors.forEach(function(pseudo) {
+    pseudoSelectors.forEach(function (pseudo) {
       urls.push(...extractCSSImages(cssProps, node, pseudo));
     });
   }
@@ -313,7 +313,7 @@ async function parseDocument() {
       if (mustUpload || !urlSupport) {
         let rsp;
         if (targetEnv === 'firefox') {
-          const token = uuidV4();
+          const token = uuidv4();
           await browser.runtime.sendMessage({
             id: 'setRequestReferrer',
             referrer: window.location.href,

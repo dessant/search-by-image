@@ -101,7 +101,7 @@ function findNode(
       return;
     }
 
-    const observer = new MutationObserver(function(mutations, obs) {
+    const observer = new MutationObserver(function (mutations, obs) {
       const el = document.querySelector(selector);
       if (el) {
         obs.disconnect();
@@ -120,7 +120,7 @@ function findNode(
 
     observer.observe(document, options);
 
-    const timeoutId = window.setTimeout(function() {
+    const timeoutId = window.setTimeout(function () {
       observer.disconnect();
 
       if (throwError) {
@@ -203,7 +203,7 @@ async function onMessage(request, uploadFunc, engine) {
 }
 
 function initUpload(upload, dataKey, engine) {
-  chrome.runtime.onMessage.addListener(function(request, sender) {
+  chrome.runtime.onMessage.addListener(function (request, sender) {
     if (request.id === 'imageDataResponse') {
       onMessage(request, upload, engine);
     }

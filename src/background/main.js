@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 import {cloneDeep} from 'lodash-es';
-import uuidV4 from 'uuid/v4';
+import {v4 as uuidv4} from 'uuid';
 
 import {initStorage} from 'storage/init';
 import storage from 'storage/storage';
@@ -33,7 +33,7 @@ const dataStore = {};
 
 function storeData(data) {
   data = cloneDeep(data);
-  const dataKey = uuidV4();
+  const dataKey = uuidv4();
   data.dataKey = dataKey;
   dataStore[dataKey] = data;
   return dataKey;
