@@ -3,13 +3,10 @@ const engine = 'mailru';
 async function upload({blob, imgData}) {
   (await findNode('button.MainSearchFieldContainer-buttonCamera')).click();
 
-  const dataTransfer = getDataTransfer();
-  const fileData = new File([blob], imgData.filename, {type: blob.type});
-  dataTransfer.items.add(fileData);
+  const input = await findNode('#ImageUploadBlock-inputFile');
+  setFileInputData(input, blob, imgData);
 
-  const dropZone = await findNode('#ImageUploadBlock-dropZone');
-
-  dropZone.dispatchEvent(new DragEvent('drop', {dataTransfer}));
+  input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
 initUpload(upload, dataKey, engine);
