@@ -85,6 +85,14 @@ gulp.task('icons', async function (done) {
     );
   }
 
+  // Chrome Web Store does not display optimized icons correctly
+  if (isProduction && targetEnv !== 'chrome') {
+    gulp
+      .src(path.join(distDir, 'src/icons/app/*.png'), {base: '.'})
+      .pipe(imagemin())
+      .pipe(gulp.dest('.'));
+  }
+
   ensureDirSync(path.join(distDir, 'src/icons/engines'));
   const pngPaths = await recursiveReadDir('src/icons/engines', ['*.!(png)']);
   const menuIconSizes = [16, 32];
@@ -98,7 +106,7 @@ gulp.task('icons', async function (done) {
 
   if (isProduction) {
     gulp
-      .src(path.join(distDir, 'src/icons/**/*.png'), {base: '.'})
+      .src(path.join(distDir, 'src/icons/engines/*.png'), {base: '.'})
       .pipe(imagemin())
       .pipe(gulp.dest('.'));
   }
