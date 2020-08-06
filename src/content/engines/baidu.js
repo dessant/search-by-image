@@ -25,9 +25,11 @@ async function upload({blob, imgData}) {
       throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
     }
 
-    const url = (await rsp.json()).data.url;
+    const tabUrl = (await rsp.json()).data.url;
 
-    window.location.replace(url);
+    if (validateUrl(tabUrl)) {
+      window.location.replace(tabUrl);
+    }
   } else {
     (await findNode('.soutu-btn', {timeout: 120000})).click();
 

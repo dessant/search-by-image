@@ -12,6 +12,7 @@
 import browser from 'webextension-polyfill';
 
 import storage from 'storage/storage';
+import {validateUrl} from 'utils/app';
 import {onError, getText} from 'utils/common';
 import {engines} from 'utils/data';
 
@@ -120,7 +121,9 @@ export default {
           );
         }
 
-        window.location.replace(tabUrl);
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
       }
 
       if (this.engine === 'karmaDecay') {
@@ -134,7 +137,9 @@ export default {
         });
         const tabUrl = rsp.url;
 
-        window.location.replace(tabUrl);
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
       }
 
       if (this.engine === 'saucenao') {
@@ -152,7 +157,9 @@ export default {
           encodeURIComponent(imgUrl)
         );
 
-        window.location.replace(tabUrl);
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
       }
 
       if (this.engine === 'shutterstock') {
@@ -181,7 +188,9 @@ export default {
         );
         const tabUrl = `https://www.shutterstock.com/search/ris/${ids}`;
 
-        window.location.replace(tabUrl);
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
       }
     }
   },

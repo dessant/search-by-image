@@ -34,7 +34,11 @@ async function upload({blob, imgData}) {
       throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
     }
 
-    window.location.replace('https://www.istockphoto.com' + aws.presigned_url);
+    const tabUrl = 'https://www.istockphoto.com' + aws.presigned_url;
+
+    if (validateUrl(tabUrl)) {
+      window.location.replace(tabUrl);
+    }
   } else {
     (await findNode('a.search-camera-icon')).click();
 

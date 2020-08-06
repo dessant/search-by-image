@@ -26,6 +26,20 @@ function getValidHostname(validHostnames, engine) {
   return hostname;
 }
 
+function validateUrl(url) {
+  try {
+    if (url.length > 2048) {
+      return;
+    }
+
+    const parsedUrl = new URL(url);
+
+    if (/^https?:$/i.test(parsedUrl.protocol)) {
+      return true;
+    }
+  } catch (err) {}
+}
+
 function setFileInputData(input, blob, imgData) {
   const fileData = new File([blob], imgData.filename, {type: blob.type});
 

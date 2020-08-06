@@ -20,7 +20,11 @@ function showResults(xhr) {
   }
 
   const params = JSON.parse(xhr.responseText).blocks[0].params.url;
-  window.location.replace(`https://${getHostname()}/images/search?${params}`);
+  const tabUrl = `https://${getHostname()}/images/search?${params}`;
+
+  if (validateUrl(tabUrl)) {
+    window.location.replace(tabUrl);
+  }
 }
 
 async function upload({blob, imgData}) {

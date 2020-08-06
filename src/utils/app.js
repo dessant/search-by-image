@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import {difference, isString} from 'lodash-es';
+import {difference} from 'lodash-es';
 import fileType from 'file-type';
 
 import storage from 'storage/storage';
@@ -119,22 +119,17 @@ async function showProjectPage() {
 }
 
 function validateUrl(url) {
-  if (!isString(url) || url.length > 2048) {
-    return;
-  }
-
-  let parsedUrl;
   try {
-    parsedUrl = new URL(url);
-  } catch (err) {
-    return;
-  }
+    if (url.length > 2048) {
+      return;
+    }
 
-  if (!/^https?:$/i.test(parsedUrl.protocol)) {
-    return;
-  }
+    const parsedUrl = new URL(url);
 
-  return true;
+    if (/^https?:$/i.test(parsedUrl.protocol)) {
+      return true;
+    }
+  } catch (err) {}
 }
 
 function normalizeFilename({filename, ext} = {}) {

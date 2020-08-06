@@ -7,9 +7,12 @@ function showResults(xhr) {
 
   const results = JSON.parse(xhr.responseText).data.items;
   const ids = encodeURIComponent(results.map(item => item.id).join(','));
-  window.location.replace(
-    `https://depositphotos.com/search/by-images.html?idList=[${ids}]`
-  );
+
+  const tabUrl = `https://depositphotos.com/search/by-images.html?idList=[${ids}]`;
+
+  if (validateUrl(tabUrl)) {
+    window.location.replace(tabUrl);
+  }
 }
 
 async function upload({blob, imgData}) {
@@ -19,7 +22,7 @@ async function upload({blob, imgData}) {
   data.append('file', blob, imgData.filename);
 
   const xhr = getXHR();
-  xhr.addEventListener('load', function() {
+  xhr.addEventListener('load', function () {
     uploadCallback(this, showResults, engine);
   });
   xhr.open('POST', url);
