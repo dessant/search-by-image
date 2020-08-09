@@ -15,7 +15,7 @@ var frameStore = {
   }
 };
 
-var clickTarget = {
+var touchTarget = {
   node: null,
   dx: 0,
   dy: 0,
@@ -24,41 +24,44 @@ var clickTarget = {
 };
 
 var pointerCss = null;
+var handleTouch = false;
 
-function saveClickTarget(e) {
-  clickTarget.ux = e.pageX;
-  clickTarget.uy = e.pageY;
-  clickTarget.node = e.target;
+function saveTouchTarget(ev) {
+  touchTarget.ux = ev.pageX;
+  touchTarget.uy = ev.pageY;
+  touchTarget.node = ev.composedPath()[0];
 }
 
-function onMouseDown(e) {
-  clickTarget.dx = e.pageX;
-  clickTarget.dy = e.pageY;
-}
-
-function onClick(e) {
-  saveClickTarget(e);
-  if (
-    Math.abs(clickTarget.dx - clickTarget.ux) <= 24 &&
-    Math.abs(clickTarget.dy - clickTarget.uy) <= 24
-  ) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    chrome.runtime.sendMessage({
-      id: 'imageSelectionSubmit',
-      engine: frameStore.data.engine
-    });
+function onMouseDown(ev) {
+  if (handleTouch) {
+    touchTarget.dx = ev.pageX;
+    touchTarget.dy = ev.pageY;
   }
 }
 
-function addClickListener() {
-  window.addEventListener('mousedown', onMouseDown, {capture: true});
-  window.addEventListener('click', onClick, {capture: true});
+function onClick(ev) {
+  if (handleTouch) {
+    saveTouchTarget(ev);
+    if (
+      Math.abs(touchTarget.dx - touchTarget.ux) <= 24 &&
+      Math.abs(touchTarget.dy - touchTarget.uy) <= 24
+    ) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      chrome.runtime.sendMessage({
+        id: 'imageSelectionSubmit',
+        engine: frameStore.data.engine
+      });
+    }
+  }
 }
 
-function removeClickListener() {
-  window.removeEventListener('mousedown', onMouseDown, {capture: true});
-  window.removeEventListener('click', onClick, {capture: true});
+function addTouchListener() {
+  handleTouch = true;
+}
+
+function removeTouchListener() {
+  handleTouch = false;
 }
 
 function showPointer() {
@@ -77,7 +80,13 @@ function hidePointer() {
   }
 }
 
-window.addEventListener('contextmenu', saveClickTarget, {
+window.addEventListener('contextmenu', saveTouchTarget, {
   capture: true,
   passive: true
 });
+
+window.addEventListener('mousedown', onMouseDown, {
+  capture: true,
+  passive: true
+});
+window.addEventListener('click', onClick, {capture: true, passive: false});

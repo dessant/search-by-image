@@ -602,8 +602,8 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
       allFrames: true,
       runAt: 'document_start',
       code: `
-        if (typeof addClickListener !== 'undefined') {
-          addClickListener();
+        if (typeof addTouchListener !== 'undefined') {
+          addTouchListener();
           showPointer();
           frameStore.data.engine = '${engine}';
         }
@@ -776,8 +776,8 @@ async function onMessage(request, sender, sendResponse) {
       allFrames: true,
       runAt: 'document_start',
       code: `
-        if (typeof removeClickListener !== 'undefined') {
-          removeClickListener();
+        if (typeof removeTouchListener !== 'undefined') {
+          removeTouchListener();
           hidePointer();
         }
       `
@@ -793,8 +793,8 @@ async function onMessage(request, sender, sendResponse) {
       allFrames: true,
       runAt: 'document_start',
       code: `
-        if (typeof removeClickListener !== 'undefined') {
-          removeClickListener();
+        if (typeof removeTouchListener !== 'undefined') {
+          removeTouchListener();
           hidePointer();
         }
       `

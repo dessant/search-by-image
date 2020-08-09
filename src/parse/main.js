@@ -77,7 +77,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
     cssProps.push('content');
   }
 
-  const urls = [];
+  const images = [];
   const style = window.getComputedStyle(node, pseudo);
 
   let match;
@@ -86,22 +86,22 @@ function extractCSSImages(cssProps, node, pseudo = null) {
     let value = style.getPropertyValue(prop);
     if (value && value !== 'none') {
       while ((match = rxCssUrl.exec(value)) !== null) {
-        urls.push({data: match[1]});
+        images.push({data: match[1]});
       }
     }
   });
 
-  return urls;
+  return images;
 }
 
 async function parseNode(node) {
-  const urls = [];
+  const results = [];
   const nodeName = node.nodeName.toLowerCase();
   let cssProps = cssProperties;
 
   if (nodeName === 'img') {
     if (node.currentSrc) {
-      urls.push({data: node.currentSrc});
+      results.push({data: node.currentSrc});
     }
   }
 
@@ -110,7 +110,7 @@ async function parseNode(node) {
     if (url) {
       const absUrl = getAbsoluteUrl(url);
       if (absUrl) {
-        urls.push({data: absUrl});
+        results.push({data: absUrl});
       }
     }
   }
@@ -118,28 +118,28 @@ async function parseNode(node) {
   if (nodeName === 'embed') {
     const data = node.src;
     if (data && (await getImageElement(data))) {
-      urls.push({data});
+      results.push({data});
     }
   }
 
   if (nodeName === 'object') {
     const data = node.data;
     if (data && (await getImageElement(data))) {
-      urls.push({data});
+      results.push({data});
     }
   }
 
   if (nodeName === 'iframe') {
     const data = node.src;
     if (data && !node.srcdoc && (await getImageElement(data))) {
-      urls.push({data});
+      results.push({data});
     }
   }
 
   if (nodeName === 'canvas') {
     const data = canvasToDataUrl(node, {clear: false});
     if (data && data !== getBlankCanvasDataUrl(node.width, node.height)) {
-      urls.push({data});
+      results.push({data});
     }
   }
 
@@ -153,13 +153,13 @@ async function parseNode(node) {
       if (drawElementOnCanvas(ctx, node)) {
         const data = canvasToDataUrl(cnv, {ctx});
         if (data) {
-          urls.push({data});
+          results.push({data});
         }
       }
     }
 
     if (node.poster) {
-      urls.push({data: node.poster});
+      results.push({data: node.poster});
     }
   }
 
@@ -168,31 +168,65 @@ async function parseNode(node) {
     cssProps.push('list-style-image');
   }
 
-  urls.push(...extractCSSImages(cssProps, node));
+  results.push(...extractCSSImages(cssProps, node));
 
   if (!replacedElements.includes(nodeName)) {
     pseudoSelectors.forEach(function (pseudo) {
-      urls.push(...extractCSSImages(cssProps, node, pseudo));
+      results.push(...extractCSSImages(cssProps, node, pseudo));
     });
   }
 
-  return urls;
+  return results;
 }
 
-async function parseDocument() {
-  if (typeof clickTarget === 'undefined' || !clickTarget.node) {
-    throw new Error('');
+async function parseDocument({root = null, touchRect = null} = {}) {
+  const results = [];
+
+  for (const currentNode of root.querySelectorAll('*')) {
+    let nodeRect = currentNode.getBoundingClientRect();
+    if (
+      touchRect.bottom < nodeRect.top + window.scrollY ||
+      touchRect.top > nodeRect.bottom + window.scrollY ||
+      touchRect.left > nodeRect.right + window.scrollX ||
+      touchRect.right < nodeRect.left + window.scrollX
+    ) {
+      continue;
+    }
+
+    results.push(...(await parseNode(currentNode)));
+
+    const shadowRoot =
+      currentNode.openOrClosedShadowRoot || currentNode.shadowRoot;
+
+    if (shadowRoot) {
+      results.push(...(await parseDocument({root: shadowRoot, touchRect})));
+    }
   }
 
-  let urls = [];
-  const targetNode = clickTarget.node;
+  return results;
+}
+
+async function parse() {
+  if (typeof touchTarget === 'undefined' || !touchTarget.node) {
+    throw new Error('Touch target missing');
+  }
+
+  let results = [];
+  const targetNode = touchTarget.node;
 
   const docNodeName = document.documentElement.nodeName.toLowerCase();
   if (docNodeName !== 'html' && docNodeName !== 'svg') {
-    return urls;
+    return results;
   }
 
-  urls.push(...(await parseNode(targetNode)));
+  const touchRect = {
+    bottom: touchTarget.uy + 24,
+    top: touchTarget.uy - 24,
+    left: touchTarget.ux - 24,
+    right: touchTarget.ux + 24
+  };
+
+  results.push(...(await parseNode(targetNode)));
 
   const options = await storage.get(
     ['imgFullParse', 'searchModeAction', 'searchModeContextMenu'],
@@ -200,57 +234,27 @@ async function parseDocument() {
   );
 
   if (targetNode.nodeName.toLowerCase() !== 'img' || options.imgFullParse) {
-    const fullParseUrls = [];
-
-    const clickRectBottom = clickTarget.uy + 24;
-    const clickRectTop = clickTarget.uy - 24;
-    const clickRectLeft = clickTarget.ux - 24;
-    const clickRectRight = clickTarget.ux + 24;
-
-    const nodes = document.getElementsByTagName('*');
-    const nodeCount = nodes.length;
-
-    for (let i = 0; i < nodeCount; i++) {
-      let currentNode = nodes[i];
-      // the node collection length may change during iteration
-      if (!currentNode) {
-        break;
-      }
-
-      let nodeRect = currentNode.getBoundingClientRect();
-      if (
-        clickRectBottom < nodeRect.top + window.scrollY ||
-        clickRectTop > nodeRect.bottom + window.scrollY ||
-        clickRectLeft > nodeRect.right + window.scrollX ||
-        clickRectRight < nodeRect.left + window.scrollX
-      ) {
-        continue;
-      }
-
-      if (!currentNode.isSameNode(targetNode)) {
-        fullParseUrls.push(...(await parseNode(currentNode)));
-      }
-    }
-
-    urls.push(...fullParseUrls.reverse());
+    results.push(
+      ...(await parseDocument({root: document, touchRect})).reverse()
+    );
   }
 
-  urls = uniqBy(urls, 'data');
+  results = uniqBy(results, 'data');
 
-  const daraUrls = urls.filter(item => item.data.startsWith('data:'));
+  const daraUrls = results.filter(item => item.data.startsWith('data:'));
   for (const item of daraUrls) {
-    const index = urls.indexOf(item);
+    const index = results.indexOf(item);
     const {data, ext} = await normalizeImage({dataUrl: item.data});
     if (data) {
-      urls[index] = {data, filename: normalizeFilename({ext})};
+      results[index] = {data, filename: normalizeFilename({ext})};
     } else {
-      urls.splice(index, 1);
+      results.splice(index, 1);
     }
   }
 
   const isLocalDoc = window.location.href.startsWith('file://');
   if (isLocalDoc) {
-    const fileUrls = urls.filter(item => item.data.startsWith('file://'));
+    const fileUrls = results.filter(item => item.data.startsWith('file://'));
     if (fileUrls.length) {
       const cnv = document.createElement('canvas');
       const ctx = cnv.getContext('2d');
@@ -269,7 +273,7 @@ async function parseDocument() {
             const data = canvasToDataUrl(cnv, {ctx, type});
             if (data) {
               filename = normalizeFilename({filename, ext});
-              urls[urls.indexOf(item)] = {data, filename};
+              results[results.indexOf(item)] = {data, filename};
             }
           }
         }
@@ -277,7 +281,7 @@ async function parseDocument() {
     }
   }
 
-  const blobUrls = urls.filter(item => item.data.startsWith('blob:'));
+  const blobUrls = results.filter(item => item.data.startsWith('blob:'));
   if (blobUrls.length) {
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
@@ -291,7 +295,7 @@ async function parseDocument() {
         if (drawElementOnCanvas(ctx, img)) {
           const data = canvasToDataUrl(cnv, {ctx});
           if (data) {
-            urls[urls.indexOf(item)] = {data, filename};
+            results[results.indexOf(item)] = {data, filename};
           }
         }
       }
@@ -305,10 +309,10 @@ async function parseDocument() {
   const mustUpload = searchMode === 'selectUpload';
   const urlSupport = await hasUrlSupport(frameStore.data.engine);
 
-  const httpUrls = urls.filter(item => validateUrl(item.data));
+  const httpUrls = results.filter(item => validateUrl(item.data));
   if (httpUrls.length) {
     for (const item of httpUrls) {
-      const index = urls.indexOf(item);
+      const index = results.indexOf(item);
       const url = item.data;
       if (mustUpload || !urlSupport) {
         let rsp;
@@ -326,7 +330,7 @@ async function parseDocument() {
         }
 
         if (!rsp || !rsp.response) {
-          urls.splice(index, 1);
+          results.splice(index, 1);
           continue;
         }
 
@@ -334,17 +338,17 @@ async function parseDocument() {
         if (data) {
           let {filename} = getFilenameExtFromUrl(url);
           filename = normalizeFilename({filename, ext});
-          urls[index] = {url, data, filename, mustUpload};
+          results[index] = {url, data, filename, mustUpload};
         } else {
-          urls.splice(index, 1);
+          results.splice(index, 1);
         }
       } else {
-        urls[index] = {url};
+        results[index] = {url};
       }
     }
   }
 
-  return urls.filter(item => validateSearchItem(item));
+  return results.filter(item => validateSearchItem(item));
 }
 
 function validateSearchItem(item) {
@@ -356,7 +360,7 @@ function validateSearchItem(item) {
 }
 
 self.initParse = async function initParse() {
-  const images = await parseDocument().catch(err => {
+  const images = await parse().catch(err => {
     console.log(err.toString());
     browser.runtime.sendMessage({
       id: 'pageParseError'
