@@ -244,6 +244,36 @@ const engines = {
       target: 'https://www.graphic-image.inpit.go.jp/',
       isExec: true
     }
+  },
+  pimeyes: {
+    upload: {
+      target: 'https://pimeyes.com/en/search',
+      isExec: true
+    }
+  },
+  stocksy: {
+    upload: {
+      target: 'https://www.stocksy.com/search/',
+      isExec: true
+    }
+  },
+  pond5: {
+    upload: {
+      target: 'https://www.pond5.com/stock-images/',
+      isExec: true
+    }
+  },
+  pixta: {
+    upload: {
+      target: 'https://www.pixtastock.com/',
+      isExec: true
+    }
+  },
+  wayfair: {
+    upload: {
+      target: 'https://www.wayfair.com/',
+      isExec: true
+    }
   }
 };
 

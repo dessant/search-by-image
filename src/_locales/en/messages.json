@@ -174,6 +174,31 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_pimeyes": {
+    "message": "PimEyes",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_stocksy": {
+    "message": "Stocksy United",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_pond5": {
+    "message": "Pond5",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_pixta": {
+    "message": "PIXTA",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_wayfair": {
+    "message": "Wayfair",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -357,6 +382,31 @@
 
   "menuItemTitle_jpDesign": {
     "message": "Graphic Image Park",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_pimeyes": {
+    "message": "PimEyes",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_stocksy": {
+    "message": "Stocksy United",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_pond5": {
+    "message": "Pond5",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_pixta": {
+    "message": "PIXTA",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_wayfair": {
+    "message": "Wayfair",
     "description": "Title of the menu item."
   },
 
@@ -553,6 +603,31 @@
 
   "optionTitle_jpDesign": {
     "message": "Graphic Image Park",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_pimeyes": {
+    "message": "PimEyes",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_stocksy": {
+    "message": "Stocksy United",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_pond5": {
+    "message": "Pond5",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_pixta": {
+    "message": "PIXTA",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_wayfair": {
+    "message": "Wayfair",
     "description": "Title of the option."
   },
 

@@ -61,7 +61,7 @@ function largeImageNotify(engine, maxSize) {
 }
 
 function maxImageSize(engine) {
-  if (['auDesign', 'nzTrademark'].includes(engine)) {
+  if (['auDesign', 'nzTrademark', 'stocksy'].includes(engine)) {
     return 20 * 1024 * 1024;
   }
   if (
@@ -80,7 +80,8 @@ function maxImageSize(engine) {
       'taobao',
       'alamy',
       '123rf',
-      'jpDesign'
+      'jpDesign',
+      'pixta'
     ].includes(engine)
   ) {
     return 5 * 1024 * 1024;
