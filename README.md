@@ -74,13 +74,13 @@ and browser toolbar from the options page.
 ## Screenshots
 
 <p>
-  <img width="278" src="https://i.imgur.com/eV6B53R.png">
-  <img width="278" src="https://i.imgur.com/ylHTQkS.png">
-  <img width="278" src="https://i.imgur.com/rwUcedk.png">
-  <img width="278" src="https://i.imgur.com/DtgpxvL.png">
-  <img width="278" src="https://i.imgur.com/w0yU1Rm.png">
-  <img width="278" src="https://i.imgur.com/Vp6XYTw.png">
-  <img width="278" src="https://i.imgur.com/qBKWrW1.png">
+  <img width="276" src="https://i.imgur.com/eV6B53R.png">
+  <img width="276" src="https://i.imgur.com/ylHTQkS.png">
+  <img width="276" src="https://i.imgur.com/rwUcedk.png">
+  <img width="276" src="https://i.imgur.com/DtgpxvL.png">
+  <img width="276" src="https://i.imgur.com/w0yU1Rm.png">
+  <img width="276" src="https://i.imgur.com/Vp6XYTw.png">
+  <img width="276" src="https://i.imgur.com/qBKWrW1.png">
 </p>
 
 ## License
