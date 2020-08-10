@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/dessant/search-by-image/compare/v2.2.1...v3.0.0) (2020-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* FTP is no longer supported
+
+### Features
+
+* add support for Shadow DOM ([38d3d77](https://github.com/dessant/search-by-image/commit/38d3d77636ba34103a5865cac9e2cac146fee6b2))
+* search with PimEyes, Stocksy United, Pond5, PIXTA and Wayfair ([18b183c](https://github.com/dessant/search-by-image/commit/18b183c1ecff619992cc79590ae597f97a04e581)), closes [#88](https://github.com/dessant/search-by-image/issues/88)
+
+
+### Bug Fixes
+
+* correct icon opacity on Chrome Web Store ([04f4093](https://github.com/dessant/search-by-image/commit/04f40930e7513e64fcabec60402cc9036fa277f7))
+* increase favicon size ([529a038](https://github.com/dessant/search-by-image/commit/529a038e7c010c84d7d6eab34f894ff585c93dbf))
+* remove support for FTP ([67d5170](https://github.com/dessant/search-by-image/commit/67d5170e8334b67fb883dd3a4733d73bbce42502))
+* update Madrid Monitor ([15e7c51](https://github.com/dessant/search-by-image/commit/15e7c51d33f119082d1f9d40ff6588413ea5cb9f))
+* update Mail.ru ([4885b2d](https://github.com/dessant/search-by-image/commit/4885b2d9804677da1aaa5b3131e5225545a86162))
+* validate URL before updating document location ([cd69647](https://github.com/dessant/search-by-image/commit/cd69647c206bc036cd5ebafad15b1367cd47aa01))
+
 ### [2.2.1](https://github.com/dessant/search-by-image/compare/v2.2.0...v2.2.1) (2020-04-16)
 
 
