@@ -123,8 +123,8 @@ const engines = {
   },
   shutterstock: {
     upload: {
-      target: uploadUrl,
-      isDataKey: true
+      target: 'https://www.shutterstock.com/',
+      isExec: true
     }
   },
   adobestock: {

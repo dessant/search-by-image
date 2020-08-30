@@ -81,7 +81,8 @@ function maxImageSize(engine) {
       'alamy',
       '123rf',
       'jpDesign',
-      'pixta'
+      'pixta',
+      'shutterstock'
     ].includes(engine)
   ) {
     return 5 * 1024 * 1024;

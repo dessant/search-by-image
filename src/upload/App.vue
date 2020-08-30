@@ -55,10 +55,7 @@ export default {
               ]);
             }
 
-            if (
-              ['saucenao', 'shutterstock'].includes(this.engine) &&
-              size > 5 * 1024 * 1024
-            ) {
+            if (this.engine === 'saucenao' && size > 5 * 1024 * 1024) {
               this.error = getText('error_invalidImageSize', [
                 getText(`engineName_${this.engine}`),
                 getText('unit_mb', '5')
@@ -161,37 +158,6 @@ export default {
           window.location.replace(tabUrl);
         }
       }
-
-      if (this.engine === 'shutterstock') {
-        const data = new FormData();
-        data.append('image', blob, imgData.filename);
-        const rsp = await fetch(
-          'https://www.shutterstock.com/studioapi/images/reverse-image-search',
-          {
-            referrer: '',
-            mode: 'cors',
-            method: 'POST',
-            body: data
-          }
-        );
-
-        if (rsp.status !== 200) {
-          this.error = getText('error_invalidImageSize', [
-            getText('engineName_shutterstock'),
-            getText('unit_mb', '5')
-          ]);
-          return;
-        }
-
-        const ids = encodeURIComponent(
-          (await rsp.json()).map(item => item.id).join(',')
-        );
-        const tabUrl = `https://www.shutterstock.com/search/ris/${ids}`;
-
-        if (validateUrl(tabUrl)) {
-          window.location.replace(tabUrl);
-        }
-      }
     }
   },
 
@@ -207,12 +173,7 @@ export default {
       return;
     }
 
-    const supportedEngines = [
-      'google',
-      'karmaDecay',
-      'saucenao',
-      'shutterstock'
-    ];
+    const supportedEngines = ['google', 'karmaDecay', 'saucenao'];
     if (!supportedEngines.includes(this.engine)) {
       this.error = getText('error_invalidPageUrl');
       this.dataLoaded = true;
