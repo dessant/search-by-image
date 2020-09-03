@@ -73,11 +73,7 @@ function getRandomInt(min, max) {
 }
 
 function getDataUrlMimeType(dataUrl) {
-  return dataUrl
-    .split(',')[0]
-    .split(':')[1]
-    .split(';')[0]
-    .toLowerCase();
+  return dataUrl.split(',')[0].split(':')[1].split(';')[0].toLowerCase();
 }
 
 function dataUrlToArray(dataUrl) {

@@ -15,7 +15,7 @@ function showCaptureFrame() {
 }
 
 function hideCaptureFrame(delay = 300) {
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     captureFrame.classList.add('sbi-frame-hidden');
     document.body.focus();
   }, delay);

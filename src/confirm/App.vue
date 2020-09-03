@@ -41,7 +41,7 @@ export default {
     [Dialog.name]: Dialog
   },
 
-  data: function() {
+  data: function () {
     return {
       showDialog: false,
       images: [],
@@ -52,7 +52,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: function(request, sender, sendResponse) {
+    onMessage: function (request, sender, sendResponse) {
       if (request.id === 'imageConfirmationOpen') {
         this.images = request.images;
         this.engine = request.engine;
@@ -63,12 +63,12 @@ export default {
       }
     },
 
-    onCancel: function() {
+    onCancel: function () {
       this.showDialog = false;
       browser.runtime.sendMessage({id: 'imageConfirmationCancel'});
     },
 
-    onSelection: function(e) {
+    onSelection: function (e) {
       this.showDialog = false;
       browser.runtime.sendMessage({
         id: 'imageConfirmationSubmit',
@@ -78,7 +78,7 @@ export default {
     }
   },
 
-  created: async function() {
+  created: async function () {
     browser.runtime.onMessage.addListener(this.onMessage);
     browser.runtime.sendMessage({id: 'confirmFrameId'});
   }

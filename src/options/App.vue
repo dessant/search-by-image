@@ -135,7 +135,7 @@ export default {
     [FormField.name]: FormField
   },
 
-  data: function() {
+  data: function () {
     return {
       dataLoaded: false,
 
@@ -189,11 +189,11 @@ export default {
   methods: {
     getText,
 
-    engineEnabled: function(engine) {
+    engineEnabled: function (engine) {
       return !includes(this.options.disabledEngines, engine);
     },
 
-    setEngineState: async function(engine, enabled) {
+    setEngineState: async function (engine, enabled) {
       if (enabled) {
         this.options.disabledEngines = without(
           this.options.disabledEngines,
@@ -205,12 +205,12 @@ export default {
     }
   },
 
-  created: async function() {
+  created: async function () {
     const options = await storage.get(optionKeys, 'sync');
 
     for (const option of Object.keys(this.options)) {
       this.options[option] = options[option];
-      this.$watch(`options.${option}`, async function(value) {
+      this.$watch(`options.${option}`, async function (value) {
         await storage.set({[option]: value}, 'sync');
       });
     }

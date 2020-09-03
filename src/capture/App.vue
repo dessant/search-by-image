@@ -47,7 +47,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: function(request, sender, sendResponse) {
+    onMessage: function (request, sender, sendResponse) {
       if (request.id === 'imageCaptureOpen') {
         this.engine = request.engine;
         this.showCapture();
@@ -60,12 +60,12 @@ export default {
       }
     },
 
-    onCancel: function() {
+    onCancel: function () {
       this.hideCapture();
       browser.runtime.sendMessage({id: 'imageCaptureCancel'});
     },
 
-    onCapture: function(e) {
+    onCapture: function (e) {
       const area = this.cropper.getCropBoxData();
 
       if (!area.width) {
@@ -90,7 +90,7 @@ export default {
       });
     },
 
-    showCapture: function() {
+    showCapture: function () {
       this.snackbar.open();
       if (!this.cropper) {
         this.cropper = new Cropper(document.getElementById('canvas'), {
@@ -113,7 +113,7 @@ export default {
       }
     },
 
-    hideCapture: function() {
+    hideCapture: function () {
       this.snackbar.close();
       if (this.cropper) {
         this.cropper.clear();
@@ -121,7 +121,7 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted: function () {
     this.snackbar = new MDCSnackbar(this.$refs.snackbar);
     this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
     this.snackbar.closeOnEscape = false;

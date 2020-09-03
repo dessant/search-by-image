@@ -58,7 +58,7 @@ import {onError, getText, createTab, getActiveTab} from 'utils/common';
 import {optionKeys, engines} from 'utils/data';
 
 export default {
-  data: function() {
+  data: function () {
     return {
       dataLoaded: false,
 
@@ -71,7 +71,7 @@ export default {
   },
 
   computed: {
-    resultClasses: function() {
+    resultClasses: function () {
       return {
         'grid-item-loaded': this.resultsLoaded
       };
@@ -81,7 +81,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: async function(request, sender, sendResponse) {
+    onMessage: async function (request, sender, sendResponse) {
       if (request.id === 'imageDataResponse') {
         if (request.error) {
           if (request.error === 'sessionExpired') {
@@ -121,7 +121,7 @@ export default {
       }
     },
 
-    processImgData: async function({imgData, blob}) {
+    processImgData: async function ({imgData, blob}) {
       if (this.engine === 'pinterest') {
         let rsp;
         if (blob) {
@@ -174,7 +174,7 @@ export default {
       this.layoutGrid();
     },
 
-    layoutGrid: function() {
+    layoutGrid: function () {
       this.$nextTick(() => {
         const grid = document.querySelector('.grid');
         imagesLoaded(grid).once('always', () => {
@@ -194,15 +194,15 @@ export default {
       });
     },
 
-    openPage: async function(e) {
+    openPage: async function (e) {
       await this.openTab(this.results[e.currentTarget.dataset.index].page);
     },
 
-    openImage: async function(e) {
+    openImage: async function (e) {
       await this.openTab(this.results[e.target.dataset.index].image);
     },
 
-    openTab: async function(url) {
+    openTab: async function (url) {
       const activeTab = await getActiveTab();
       await createTab(url, {
         index: activeTab.index + 1,
@@ -211,7 +211,7 @@ export default {
     }
   },
 
-  created: async function() {
+  created: async function () {
     browser.runtime.onMessage.addListener(this.onMessage);
 
     const query = new URL(window.location.href).searchParams;

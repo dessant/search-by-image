@@ -48,12 +48,12 @@ export default {
   },
 
   watch: {
-    value: function() {
+    value: function () {
       if (this.select) {
         this.setValue();
       }
     },
-    disabled: function() {
+    disabled: function () {
       if (this.select) {
         this.setDisabled();
       }
@@ -61,15 +61,15 @@ export default {
   },
 
   methods: {
-    onChange: function() {
+    onChange: function () {
       this.$emit('change', this.select.value);
     },
 
-    setDisabled: function() {
+    setDisabled: function () {
       this.select.disabled = this.disabled;
     },
 
-    setValue: function() {
+    setValue: function () {
       if (!this.value) {
         this.select.selectedIndex = -1;
       } else {
@@ -83,7 +83,7 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted: function () {
     this.select = new MDCSelect(this.$el);
     this.select.listen('MDCSelect:change', this.onChange);
 

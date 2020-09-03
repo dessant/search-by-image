@@ -148,7 +148,7 @@ export default {
     [ResizeObserver.name]: ResizeObserver
   },
 
-  data: function() {
+  data: function () {
     return {
       dataLoaded: false,
 
@@ -181,7 +181,7 @@ export default {
   },
 
   computed: {
-    listClasses: function() {
+    listClasses: function () {
       return {
         'list-items-max-height': this.isPopup
       };
@@ -191,7 +191,7 @@ export default {
   methods: {
     getText,
 
-    getEngineIcon: function(engine) {
+    getEngineIcon: function (engine) {
       let ext = 'svg';
       if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
         ext = 'png';
@@ -201,7 +201,7 @@ export default {
       return `/src/icons/engines/${engine}.${ext}`;
     },
 
-    selectItem: function(engine) {
+    selectItem: function (engine) {
       if (this.searchModeAction === 'url') {
         if (!validateUrl(this.imageUrl)) {
           this.focusImageUrlInput();
@@ -219,26 +219,26 @@ export default {
       this.closeAction();
     },
 
-    showContribute: async function() {
+    showContribute: async function () {
       await showContributePage();
       this.closeAction();
     },
 
-    showOptions: async function() {
+    showOptions: async function () {
       await browser.runtime.openOptionsPage();
       this.closeAction();
     },
 
-    showWebsite: async function() {
+    showWebsite: async function () {
       await showProjectPage();
       this.closeAction();
     },
 
-    showActionMenu: function() {
+    showActionMenu: function () {
       this.$refs.actionMenu.$emit('open');
     },
 
-    onActionMenuSelect: async function(item) {
+    onActionMenuSelect: async function (item) {
       if (item === 'options') {
         await this.showOptions();
       } else if (item === 'website') {
@@ -246,15 +246,15 @@ export default {
       }
     },
 
-    showSearchModeMenu: function() {
+    showSearchModeMenu: function () {
       this.$refs.searchModeMenu.$emit('open');
     },
 
-    onSearchModeSelect: async function(item) {
+    onSearchModeSelect: async function (item) {
       this.searchModeAction = item;
     },
 
-    closeAction: async function() {
+    closeAction: async function () {
       if (!this.isPopup) {
         browser.tabs.remove((await browser.tabs.getCurrent()).id);
       } else {
@@ -262,27 +262,27 @@ export default {
       }
     },
 
-    focusImageUrlInput: function() {
+    focusImageUrlInput: function () {
       this.$refs.imageUrlInput.$refs.input.focus();
     },
 
-    handleSizeChange: function() {
+    handleSizeChange: function () {
       const items = this.$refs.items;
       this.hasScrollBar = items.scrollHeight > items.clientHeight;
     },
 
-    settingsAfterEnter: function() {
+    settingsAfterEnter: function () {
       this.handleSizeChange();
       this.focusImageUrlInput();
     },
 
-    settingsAfterLeave: function() {
+    settingsAfterLeave: function () {
       this.handleSizeChange();
       this.imageUrl = '';
     }
   },
 
-  created: async function() {
+  created: async function () {
     const currentTab = await browser.tabs.getCurrent();
     this.isPopup = !currentTab;
     if (!this.isPopup) {
@@ -307,14 +307,14 @@ export default {
     this.searchAllEngines = options.searchAllEnginesAction === 'sub';
     this.searchModeAction = options.searchModeAction;
 
-    this.$watch('searchModeAction', async function(value) {
+    this.$watch('searchModeAction', async function (value) {
       await storage.set({searchModeAction: value}, 'sync');
     });
 
     this.dataLoaded = true;
   },
 
-  mounted: function() {
+  mounted: function () {
     window.setTimeout(() => {
       for (const listEl of document.querySelectorAll(
         '.list-bulk-button, .list-items'

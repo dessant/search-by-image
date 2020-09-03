@@ -15,7 +15,7 @@ function showSelectFrame() {
 }
 
 function hideSelectFrame(delay = 300) {
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     selectFrame.classList.add('sbi-frame-hidden');
     document.body.focus();
   }, delay);

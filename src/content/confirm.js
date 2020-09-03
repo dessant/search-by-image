@@ -15,7 +15,7 @@ function showConfirmFrame() {
 }
 
 function hideConfirmFrame(delay = 300) {
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     confirmFrame.classList.add('sbi-frame-hidden');
     document.body.focus();
   }, delay);

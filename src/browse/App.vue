@@ -64,7 +64,7 @@ export default {
     [Button.name]: Button
   },
 
-  data: function() {
+  data: function () {
     return {
       dataLoaded: false,
 
@@ -78,7 +78,7 @@ export default {
   methods: {
     getText,
 
-    handleFiles: async function(e, source) {
+    handleFiles: async function (e, source) {
       let files;
       if (source === 'input') {
         files = e.target.files;
@@ -129,14 +129,14 @@ export default {
     }
   },
 
-  created: async function() {
+  created: async function () {
     document.title = getText('pageTitle', [
       getText('pageTitle_browse'),
       getText('extensionName')
     ]);
   },
 
-  mounted: async function() {
+  mounted: async function () {
     const engine = new URL(window.location.href).searchParams.get('engine');
     if (
       engine &&

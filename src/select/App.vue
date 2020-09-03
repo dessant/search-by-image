@@ -34,7 +34,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: function(request, sender, sendResponse) {
+    onMessage: function (request, sender, sendResponse) {
       if (request.id === 'imageSelectionOpen') {
         this.snackbar.open();
         return;
@@ -45,13 +45,13 @@ export default {
       }
     },
 
-    onCancel: function() {
+    onCancel: function () {
       this.snackbar.close();
       browser.runtime.sendMessage({id: 'imageSelectionCancel'});
     }
   },
 
-  mounted: function() {
+  mounted: function () {
     this.snackbar = new MDCSnackbar(this.$refs.snackbar);
     this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
     this.snackbar.closeOnEscape = false;
