@@ -174,6 +174,7 @@ export default {
       },
       hasScrollBar: false,
       isPopup: false,
+      tabId: null,
 
       engines: [],
       searchAllEngines: false
@@ -255,8 +256,8 @@ export default {
     },
 
     closeAction: async function () {
-      if (!this.isPopup) {
-        browser.tabs.remove((await browser.tabs.getCurrent()).id);
+      if (this.tabId) {
+        browser.tabs.remove(this.tabId);
       } else {
         window.close();
       }
@@ -284,7 +285,11 @@ export default {
 
   created: async function () {
     const currentTab = await browser.tabs.getCurrent();
-    this.isPopup = !currentTab;
+    if (currentTab) {
+      this.tabId = currentTab.id;
+    }
+
+    this.isPopup = !this.tabId && !this.$isFenix;
     if (!this.isPopup) {
       document.documentElement.style.height = '100%';
       document.body.style.minWidth = 'initial';
