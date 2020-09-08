@@ -81,5 +81,7 @@
     "src/select/pointer.css",
     "src/capture/index.html",
     "src/confirm/index.html"
-  ]
+  ],
+
+  "incognito": "split"
 }
