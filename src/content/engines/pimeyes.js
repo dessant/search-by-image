@@ -3,14 +3,9 @@ const engine = 'pimeyes';
 async function upload({blob, imgData}) {
   document.cookie = `uploadPermissions=${Date.now()}; path=/`;
 
-  const script = document.createElement('script');
-  script.textContent = `window.env.FORCE_CAMERA_ONLY = false;`;
-  document.documentElement.appendChild(script);
-  script.remove();
+  (await findNode('.upload-bar button[aria-label="upload photo" i]')).click();
 
-  (await findNode('#search-action span[aria-label="upload photo" i]')).click();
-
-  const input = await findNode('input[type="file"]');
+  const input = await findNode('input#file-input');
 
   setFileInputData(input, blob, imgData);
 
