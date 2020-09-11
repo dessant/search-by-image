@@ -54,7 +54,7 @@ function largeImageNotify(engine, maxSize) {
     id: 'notification',
     message: chrome.i18n.getMessage('error_invalidImageSize', [
       chrome.i18n.getMessage(`engineName_${engine}`),
-      chrome.i18n.getMessage('unit_mb', maxSize)
+      chrome.i18n.getMessage('unit_mb', maxSize / 1024 / 1024)
     ]),
     type: `${engine}Error`
   });
