@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/dessant/search-by-image/compare/v3.0.0...v3.1.0) (2020-09-11)
+
+
+### Features
+
+* support Chrome Incognito ([5c84497](https://github.com/dessant/search-by-image/commit/5c8449726c63aac3d7838517325c02f02c875516)), closes [#76](https://github.com/dessant/search-by-image/issues/76) [#78](https://github.com/dessant/search-by-image/issues/78)
+
+
+### Bug Fixes
+
+* set correct browser action height on Firefox for Android ([7892143](https://github.com/dessant/search-by-image/commit/78921433e5a8b15147f29c41e29d21dff0c8a251))
+* show correct max image size in error message ([0cda478](https://github.com/dessant/search-by-image/commit/0cda47883dbd1f9f8752bf9873cb12843e5e508f))
+* update Madrid Monitor ([67d36c3](https://github.com/dessant/search-by-image/commit/67d36c366526f6521379597ed764208d4393c775))
+* update PimEyes ([95a89e4](https://github.com/dessant/search-by-image/commit/95a89e48c7ebc721740d4cefe46bce49e384e098))
+* update Shutterstock ([fe0e04c](https://github.com/dessant/search-by-image/commit/fe0e04cc2b77d6108af719335a1bbefb080c858a))
+
 ## [3.0.0](https://github.com/dessant/search-by-image/compare/v2.2.1...v3.0.0) (2020-08-10)
 
 
