@@ -509,9 +509,7 @@ html.fenix {
     @include mdc-text-field-line-ripple-color(#312a65);
   }
 
-  & .search-mode-button img,
-  & .menu-button img,
-  & .search-mode-menu img {
+  & .menu-button img {
     filter: brightness(0) saturate(100%) invert(10%) sepia(43%) saturate(1233%)
       hue-rotate(225deg) brightness(97%) contrast(105%);
   }
