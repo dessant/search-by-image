@@ -40,6 +40,11 @@
     "description": "Title of the options section."
   },
 
+  "optionSectionTitleMobile_toolbar": {
+    "message": "Browser Menu",
+    "description": "Title of the options section."
+  },
+
   "error_optionsNotApplied": {
     "message": "Restart the browser for changes to take effect.",
     "description": "Error message."

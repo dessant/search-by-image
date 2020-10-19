@@ -34,7 +34,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: function (request, sender, sendResponse) {
+    onMessage: function (request, sender) {
       if (request.id === 'imageSelectionOpen') {
         this.snackbar.open();
         return;
@@ -97,7 +97,7 @@ body {
   }
 }
 
-.fenix {
+.firefox-android {
   & .mdc-snackbar {
     @include mdc-snackbar-fill-color(#312a65);
     @include mdc-snackbar-shape-radius(8px);

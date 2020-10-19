@@ -28,7 +28,7 @@ export default {
   },
 
   methods: {
-    onMessage: async function (request, sender, sendResponse) {
+    onMessage: async function (request, sender) {
       if (request.id === 'imageDataResponse') {
         if (request.error) {
           if (request.error === 'sessionExpired') {
@@ -245,7 +245,7 @@ body {
   margin-top: 24px;
 }
 
-.fenix {
+.firefox-android {
   & .error-text {
     @include mdc-theme-prop(color, #20123a);
   }

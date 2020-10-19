@@ -12,7 +12,6 @@ import {
   blobToArray,
   blobToDataUrl,
   canvasToDataUrl,
-  getBrowser,
   isAndroid
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
@@ -110,7 +109,7 @@ async function showContributePage(action = '') {
   if (action) {
     url = `${url}?action=${action}`;
   }
-  await createTab(url, {index: activeTab.index + 1});
+  return createTab(url, {index: activeTab.index + 1});
 }
 
 async function showProjectPage() {
@@ -223,24 +222,9 @@ async function captureVisibleTabArea(area) {
   return canvasToDataUrl(cnv, {ctx});
 }
 
-async function isFenix() {
+async function configTheme() {
   if (targetEnv === 'firefox' && (await isAndroid())) {
-    let version;
-    try {
-      ({version} = await getBrowser());
-    } catch (err) {
-      ({version} = await browser.runtime.sendMessage({id: 'getBrowser'}));
-    }
-    if (parseInt(version.slice(0, 2), 10) > 68) {
-      return true;
-    }
-  }
-}
-
-async function configFenix() {
-  if (await isFenix()) {
-    document.documentElement.classList.add('fenix');
-    return true;
+    document.documentElement.classList.add('firefox-android');
   }
 }
 
@@ -259,5 +243,5 @@ export {
   normalizeImage,
   getImageElement,
   captureVisibleTabArea,
-  configFenix
+  configTheme
 };

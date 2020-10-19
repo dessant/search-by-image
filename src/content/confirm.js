@@ -21,7 +21,7 @@ function hideConfirmFrame(delay = 300) {
   }, delay);
 }
 
-function onConfirmMessage(request, sender, sendResponse) {
+function onConfirmMessage(request, sender) {
   if (request.id === 'imageConfirmationOpen') {
     messageConfirmFrame({
       id: request.id,

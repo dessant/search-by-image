@@ -1,16 +1,17 @@
 <template>
   <div id="app" v-show="dataLoaded">
     <div class="header">
-      <div v-if="!$isFenix" class="title">{{ getText('extensionName') }}</div>
+      <div v-if="!$isAndroid" class="title">{{ getText('extensionName') }}</div>
       <v-dense-select
-        v-if="$isFenix"
+        v-if="$isAndroid"
+        class="search-mode-menu-mobile"
         v-model="searchModeAction"
         :options="listItems.searchModeAction"
       >
       </v-dense-select>
       <div class="header-buttons">
         <v-icon-button
-          v-if="!$isFenix"
+          v-if="!$isAndroid"
           class="search-mode-button"
           :src="`/src/icons/modes/${searchModeAction}.svg`"
           @click="showSearchModeMenu"
@@ -31,7 +32,7 @@
       </div>
 
       <v-menu
-        v-if="!$isFenix"
+        v-if="!$isAndroid"
         ref="searchModeMenu"
         class="search-mode-menu"
         :items="listItems.searchModeAction"
@@ -97,7 +98,7 @@
     >
       <li role="separator" class="mdc-list-divider"></li>
     </ul>
-    <div class="list-items-wrap" ref="items" :class="listClasses">
+    <div class="list-items-wrap" ref="items">
       <resize-observer @notify="handleSizeChange"></resize-observer>
       <ul class="mdc-list list list-items">
         <li
@@ -133,7 +134,7 @@ import {
   showContributePage,
   showProjectPage
 } from 'utils/app';
-import {getText, isAndroid} from 'utils/common';
+import {getText, getActiveTab, createTab} from 'utils/common';
 import {targetEnv} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
@@ -149,6 +150,18 @@ export default {
   },
 
   data: function () {
+    let searchModeAction = [
+      'select',
+      'selectUpload',
+      'capture',
+      'upload',
+      'url'
+    ];
+    if (targetEnv === 'samsung') {
+      // Samsung Internet 13: tabs.captureVisibleTab fails.
+      searchModeAction = searchModeAction.filter(item => item !== 'capture');
+    }
+
     return {
       dataLoaded: false,
 
@@ -160,33 +173,15 @@ export default {
           {scope: 'actionMenu'}
         ),
         ...getListItems(
-          {
-            searchModeAction: [
-              'select',
-              'selectUpload',
-              'capture',
-              'upload',
-              'url'
-            ]
-          },
+          {searchModeAction},
           {scope: 'optionValue_action_searchModeAction'}
         )
       },
       hasScrollBar: false,
-      isPopup: false,
-      tabId: null,
 
       engines: [],
       searchAllEngines: false
     };
-  },
-
-  computed: {
-    listClasses: function () {
-      return {
-        'list-items-max-height': this.isPopup
-      };
-    }
   },
 
   methods: {
@@ -226,7 +221,13 @@ export default {
     },
 
     showOptions: async function () {
-      await browser.runtime.openOptionsPage();
+      if (targetEnv === 'samsung') {
+        // Samsung Internet 13: runtime.openOptionsPage fails.
+        await createTab(browser.extension.getURL('/src/options/index.html'));
+      } else {
+        await browser.runtime.openOptionsPage();
+      }
+
       this.closeAction();
     },
 
@@ -256,8 +257,9 @@ export default {
     },
 
     closeAction: async function () {
-      if (this.tabId) {
-        browser.tabs.remove(this.tabId);
+      const currentTab = await browser.tabs.getCurrent();
+      if (currentTab && currentTab.id !== browser.tabs.TAB_ID_NONE) {
+        browser.tabs.remove(currentTab.id);
       } else {
         window.close();
       }
@@ -265,11 +267,6 @@ export default {
 
     focusImageUrlInput: function () {
       this.$refs.imageUrlInput.$refs.input.focus();
-    },
-
-    handleSizeChange: function () {
-      const items = this.$refs.items;
-      this.hasScrollBar = items.scrollHeight > items.clientHeight;
     },
 
     settingsAfterEnter: function () {
@@ -280,27 +277,50 @@ export default {
     settingsAfterLeave: function () {
       this.handleSizeChange();
       this.imageUrl = '';
+    },
+
+    handleSizeChange: function () {
+      const items = this.$refs.items;
+      this.hasScrollBar = items.scrollHeight > items.clientHeight;
+    },
+
+    setViewportSize: async function () {
+      const activeTab = await getActiveTab();
+
+      if (this.$isAndroid && activeTab && activeTab.width > window.innerWidth) {
+        // mobile popup
+        if (activeTab.width < 394) {
+          document.body.style.minWidth = `${activeTab.width - 40}px`;
+        } else {
+          document.body.style.minWidth = '354px';
+        }
+        this.$el.style.maxHeight = `${activeTab.height - 40}px`;
+      } else if (
+        !this.$isAndroid &&
+        activeTab &&
+        activeTab.width > window.innerWidth
+      ) {
+        // desktop popup
+        this.$refs.items.style.maxHeight = '392px';
+      } else {
+        document.body.style.minWidth = 'initial';
+        document.documentElement.style.height = '100%';
+      }
     }
   },
 
   created: async function () {
-    const currentTab = await browser.tabs.getCurrent();
-    if (currentTab) {
-      this.tabId = currentTab.id;
-    }
-
-    this.isPopup = !this.tabId && !this.$isFenix;
-    if (!this.isPopup) {
-      document.documentElement.style.height = '100%';
-      document.body.style.minWidth = 'initial';
-    }
+    await this.setViewportSize();
+    window.addEventListener('orientationchange', () =>
+      window.setTimeout(this.setViewportSize, 1000)
+    );
 
     const options = await storage.get(optionKeys, 'sync');
     const enEngines = await getEnabledEngines(options);
 
     if (
       targetEnv === 'firefox' &&
-      (await isAndroid()) &&
+      this.$isAndroid &&
       (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
     ) {
       // Removing the action popup has no effect on Firefox for Android
@@ -388,9 +408,6 @@ body {
   align-items: center;
   height: 24px;
   margin-left: 56px;
-  @media (max-width: 353px) {
-    margin-left: 32px;
-  }
 }
 
 .contribute-button,
@@ -423,6 +440,12 @@ body {
   & .item-icon {
     margin-right: 16px !important;
   }
+}
+
+.search-mode-menu-mobile .mdc-select__menu {
+  position: fixed !important;
+  top: 56px !important;
+  left: 16px !important;
 }
 
 .action-menu {
@@ -475,10 +498,6 @@ body {
   overflow-y: auto;
 }
 
-.list-items-max-height {
-  max-height: 392px;
-}
-
 .list-items {
   padding-bottom: 8px !important;
 }
@@ -493,11 +512,11 @@ body {
   margin-right: 16px !important;
 }
 
-html.fenix {
+html.firefox-android {
   height: 100%;
 }
 
-.fenix {
+.firefox-android {
   & .mdc-list-item {
     @include mdc-theme-prop(color, #20123a);
   }

@@ -1,5 +1,7 @@
 import browser from 'webextension-polyfill';
 
+import {targetEnv} from 'utils/config';
+
 const getText = browser.i18n.getMessage;
 
 function onError(error) {
@@ -10,6 +12,10 @@ function onComplete() {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function createTab(
@@ -27,7 +33,22 @@ async function createTab(
   ) {
     props.openerTabId = openerTabId;
   }
-  return browser.tabs.create(props);
+
+  let tab = await browser.tabs.create(props);
+
+  if (targetEnv === 'samsung' && index !== null) {
+    // Samsung Internet 13: tabs.create returns previously active tab.
+
+    // Samsung Internet 13: tabs.query does not immediately return previously created tabs.
+    await sleep(1000);
+
+    [tab] = await browser.tabs.query({
+      lastFocusedWindow: true,
+      index
+    });
+  }
+
+  return tab;
 }
 
 function executeCode(string, tabId, frameId = 0, runAt = 'document_start') {
@@ -166,6 +187,11 @@ async function getActiveTab() {
 }
 
 async function getPlatform() {
+  if (targetEnv === 'samsung') {
+    // Samsung Internet 13: runtime.getPlatformInfo fails.
+    return {os: 'android', arch: ''};
+  }
+
   let {os, arch} = await browser.runtime.getPlatformInfo();
   if (os === 'win') {
     os = 'windows';
@@ -180,11 +206,6 @@ async function getPlatform() {
   }
 
   return {os, arch};
-}
-
-async function getBrowser() {
-  const {name, version} = await browser.runtime.getBrowserInfo();
-  return {name, version};
 }
 
 async function isAndroid() {
@@ -220,5 +241,5 @@ export {
   isAndroid,
   getActiveTab,
   getPlatform,
-  getBrowser
+  sleep
 };

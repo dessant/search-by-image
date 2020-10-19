@@ -52,7 +52,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: function (request, sender, sendResponse) {
+    onMessage: function (request, sender) {
       if (request.id === 'imageConfirmationOpen') {
         this.images = request.images;
         this.engine = request.engine;
@@ -145,7 +145,7 @@ body {
   }
 }
 
-.fenix {
+.firefox-android {
   & .mdc-dialog__title {
     @include mdc-theme-prop(color, #20123a);
   }

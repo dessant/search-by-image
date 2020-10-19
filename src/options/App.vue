@@ -7,7 +7,12 @@
       <div class="section-desc" v-once>
         {{ getText('optionSectionDescription_engines') }}
       </div>
-      <v-draggable class="option-wrap" :list="options.engines">
+      <v-draggable
+        class="option-wrap"
+        :list="options.engines"
+        :delay="120"
+        :delay-on-touch-only="true"
+      >
         <div class="option" v-for="engine in options.engines" :key="engine.id">
           <v-form-field
             :input-id="engine"
@@ -58,7 +63,13 @@
 
     <div class="section">
       <div class="section-title" v-once>
-        {{ getText('optionSectionTitle_toolbar') }}
+        {{
+          getText(
+            $isAndroid
+              ? 'optionSectionTitleMobile_toolbar'
+              : 'optionSectionTitle_toolbar'
+          )
+        }}
       </div>
       <div class="option-wrap">
         <div class="option select">
@@ -85,7 +96,7 @@
         {{ getText('optionSectionTitle_misc') }}
       </div>
       <div class="option-wrap">
-        <div class="option">
+        <div class="option" v-if="!$isAndroid">
           <v-form-field
             input-id="tib"
             :label="getText('optionTitle_tabInBackgound')"
@@ -122,7 +133,7 @@ import {Checkbox, FormField, Switch, Select} from 'ext-components';
 
 import storage from 'storage/storage';
 import {getListItems} from 'utils/app';
-import {getText, isAndroid} from 'utils/common';
+import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
@@ -136,6 +147,22 @@ export default {
   },
 
   data: function () {
+    let searchModeContextMenu = ['select', 'selectUpload', 'capture'];
+    let searchModeAction = [
+      'select',
+      'selectUpload',
+      'capture',
+      'upload',
+      'url'
+    ];
+    if (targetEnv === 'samsung') {
+      // Samsung Internet 13: tabs.captureVisibleTab fails.
+      searchModeContextMenu = searchModeContextMenu.filter(
+        item => item !== 'capture'
+      );
+      searchModeAction = searchModeAction.filter(item => item !== 'capture');
+    }
+
     return {
       dataLoaded: false,
 
@@ -147,25 +174,19 @@ export default {
           {scope: 'optionValue_searchAllEnginesContextMenu'}
         ),
         ...getListItems(
-          {
-            searchModeContextMenu: ['select', 'selectUpload', 'capture']
-          },
+          {searchModeContextMenu},
           {scope: 'optionValue_searchModeContextMenu'}
         ),
         ...getListItems(
           {searchAllEnginesAction: ['main', 'sub', 'false']},
-          {scope: 'optionValue_searchAllEnginesAction'}
+          {
+            scope: this.$isAndroid
+              ? 'optionValue_searchAllEnginesActionMobile'
+              : 'optionValue_searchAllEnginesAction'
+          }
         ),
         ...getListItems(
-          {
-            searchModeAction: [
-              'select',
-              'selectUpload',
-              'capture',
-              'upload',
-              'url'
-            ]
-          },
+          {searchModeAction},
           {scope: 'optionValue_searchModeAction'}
         )
       },
@@ -215,7 +236,7 @@ export default {
       });
     }
 
-    if (targetEnv === 'firefox' && (await isAndroid())) {
+    if (targetEnv !== 'samsung' && this.$isAndroid) {
       this.contextMenuEnabled = false;
     }
 
@@ -313,7 +334,7 @@ body {
   }
 }
 
-.fenix {
+.firefox-android {
   & .section-title,
   & .section-desc,
   & .mdc-form-field,

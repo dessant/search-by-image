@@ -250,7 +250,7 @@ body {
   margin-top: 36px;
 }
 
-.fenix {
+.firefox-android {
   & .error-text,
   & .drop-zone-text {
     @include mdc-theme-prop(color, #20123a);

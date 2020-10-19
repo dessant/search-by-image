@@ -661,6 +661,26 @@
     "description": "Value of the option."
   },
 
+  "optionSectionTitleMobile_toolbar": {
+    "message": "Browser menu",
+    "description": "Title of the options section."
+  },
+
+  "optionValue_searchAllEnginesActionMobile_main": {
+    "message": "From browser menu",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchAllEnginesActionMobile_sub": {
+    "message": "From browser menu popup",
+    "description": "Value of the option."
+  },
+
+  "optionValue_searchAllEnginesActionMobile_false": {
+    "message": "Disable",
+    "description": "Value of the option."
+  },
+
   "optionValue_action_searchModeAction_select": {
     "message": "Select",
     "description": "Value of the option."
@@ -920,7 +940,12 @@
   },
 
   "error_invalidSearchMode_url": {
-    "message": "Searching for image URLs is supported only from the browser toolbar popup. Visit the options page to select a different search mode.",
+    "message": "Searching for image URLs is supported only from the browser toolbar popup. Visit the extension's options to select a different search mode.",
+    "description": "Error message."
+  },
+
+  "error_invalidSearchModeMobile_url": {
+    "message": "Searching for image URLs is supported only from the browser menu popup. Visit the extension's options to select a different search mode.",
     "description": "Error message."
   },
 

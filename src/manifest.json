@@ -24,6 +24,7 @@
     "notifications",
     "webRequest",
     "webRequestBlocking",
+    "webNavigation",
     "<all_urls>"
   ],
 

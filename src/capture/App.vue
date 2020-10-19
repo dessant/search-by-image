@@ -47,7 +47,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: function (request, sender, sendResponse) {
+    onMessage: function (request, sender) {
       if (request.id === 'imageCaptureOpen') {
         this.engine = request.engine;
         this.showCapture();
@@ -208,7 +208,7 @@ body {
   }
 }
 
-.fenix {
+.firefox-android {
   & .cropper-point,
   & .cropper-point.point-se:before,
   & .cropper-line {

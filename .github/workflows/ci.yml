@@ -98,3 +98,12 @@ jobs:
           asset_path: artifacts/opera/search_by_image-${{ steps.release_info.outputs.VERSION }}-opera.zip
           asset_name: search_by_image-${{ steps.release_info.outputs.VERSION }}-opera.zip
           asset_content_type: application/octet-stream
+      - name: Upload GitHub release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/samsung/search_by_image-${{ steps.release_info.outputs.VERSION }}-samsung.zip
+          asset_name: search_by_image-${{ steps.release_info.outputs.VERSION }}-samsung.zip
+          asset_content_type: application/octet-stream

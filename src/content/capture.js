@@ -21,7 +21,7 @@ function hideCaptureFrame(delay = 300) {
   }, delay);
 }
 
-function onCaptureMessage(request, sender, sendResponse) {
+function onCaptureMessage(request, sender) {
   if (request.id === 'imageCaptureOpen') {
     messageCaptureFrame({id: request.id, engine: request.engine});
     showCaptureFrame();

@@ -14,8 +14,7 @@ import {
   dataUrlToBlob,
   isAndroid,
   getActiveTab,
-  getPlatform,
-  getBrowser
+  getPlatform
 } from 'utils/common';
 import {
   getEnabledEngines,
@@ -94,10 +93,12 @@ async function createMenu(options) {
     'frame',
     'image',
     'link',
-    'page',
     'selection',
     'video'
   ];
+  if (!(await isAndroid())) {
+    contexts.push('page');
+  }
   const urlPatterns = ['http://*/*', 'https://*/*'];
   let setIcons = false;
   if (targetEnv === 'firefox') {
@@ -191,12 +192,14 @@ async function searchImage(
   tabActive = true,
   firstBatchItem = true
 ) {
+  let contributePageTabId;
   if (firstBatchItem) {
     let {searchCount} = await storage.get('searchCount', 'sync');
     searchCount += 1;
     await storage.set({searchCount}, 'sync');
     if ([10, 100].includes(searchCount)) {
-      await showContributePage('search');
+      const tab = await showContributePage('search');
+      contributePageTabId = tab.id;
       tabIndex += 1;
       tabActive = false;
     }
@@ -273,6 +276,10 @@ async function searchImage(
     firstEngine = false;
   }
 
+  if ((await isAndroid()) && contributePageTabId) {
+    await browser.tabs.update(contributePageTabId, {active: true});
+  }
+
   return tabIndex;
 }
 
@@ -289,33 +296,83 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   const reloadEngines = ['esearch', 'tmview'];
 
   if (search.isExec) {
-    const tabUpdateCallback = async function (eventTabId, changes, tab) {
-      if (eventTabId === tabId && tab.status === 'complete') {
-        if (reloadEngines.includes(engine)) {
-          const loadedUrl = loadedUrls[engine];
-          if (loadedUrl) {
-            removeCallbacks();
+    if (targetEnv === 'samsung') {
+      // Samsung Internet 13: tabs.onUpdated does not fire on `complete` status,
+      // while webNavigation.onCompleted will provide an incorrect tab ID.
+      // Both APIs are used to associate the correct tab ID
+      // with the onCompleted event.
+      let internalTabId;
 
-            if (loadedUrl !== tab.url) {
-              return;
+      const navCompleteCallback = function (details) {
+        if (details.tabId === internalTabId) {
+          if (reloadEngines.includes(engine)) {
+            const loadedUrl = loadedUrls[engine];
+            if (loadedUrl) {
+              removeNavCallbacks();
+
+              if (loadedUrl !== details.url) {
+                return;
+              }
+            } else {
+              loadedUrls[engine] = details.url;
             }
           } else {
-            loadedUrls[engine] = tab.url;
+            removeNavCallbacks();
           }
-        } else {
-          removeCallbacks();
+
+          execEngine(tabId, engine, imgData.dataKey);
         }
+      };
+      const removeNavCallbacks = function () {
+        window.clearTimeout(navTimeoutId);
+        browser.webNavigation.onCompleted.removeListener(navCompleteCallback);
+      };
+      const navTimeoutId = window.setTimeout(removeNavCallbacks, 360000); // 6 minutes
 
-        execEngine(tabId, engine, imgData.dataKey);
-      }
-    };
-    const removeCallbacks = function () {
-      window.clearTimeout(timeoutId);
-      browser.tabs.onUpdated.removeListener(tabUpdateCallback);
-    };
-    const timeoutId = window.setTimeout(removeCallbacks, 360000); // 6 minutes
+      browser.webNavigation.onCompleted.addListener(navCompleteCallback);
 
-    browser.tabs.onUpdated.addListener(tabUpdateCallback);
+      const tabUpdateCallback = function (eventTabId, changes, tab) {
+        if (tab.id === tabId) {
+          internalTabId = eventTabId;
+          removeTabCallbacks();
+        }
+      };
+      const removeTabCallbacks = function () {
+        window.clearTimeout(tabTimeoutId);
+        browser.tabs.onUpdated.removeListener(tabUpdateCallback);
+      };
+      const tabTimeoutId = window.setTimeout(removeTabCallbacks, 360000); // 6 minutes
+
+      browser.tabs.onUpdated.addListener(tabUpdateCallback);
+    } else {
+      const tabUpdateCallback = function (eventTabId, changes, tab) {
+        if (tab.id === tabId && tab.status === 'complete') {
+          if (reloadEngines.includes(engine)) {
+            const loadedUrl = loadedUrls[engine];
+            if (loadedUrl) {
+              removeCallbacks();
+
+              if (loadedUrl !== tab.url) {
+                return;
+              }
+            } else {
+              loadedUrls[engine] = tab.url;
+            }
+          } else {
+            removeCallbacks();
+          }
+
+          execEngine(tabId, engine, imgData.dataKey);
+        }
+      };
+      const removeCallbacks = function () {
+        window.clearTimeout(timeoutId);
+        browser.tabs.onUpdated.removeListener(tabUpdateCallback);
+      };
+      const timeoutId = window.setTimeout(removeCallbacks, 360000); // 6 minutes
+
+      browser.tabs.onUpdated.addListener(tabUpdateCallback);
+    }
 
     // Taobao needs Chinese locale for image search.
     if (engine === 'taobao') {
@@ -426,8 +483,9 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   const tab = await createTab(tabUrl, {index: tabIndex, active: tabActive});
   tabId = tab.id;
 
-  if (await isAndroid()) {
-    // Google only works with a Chrome user agent on Android,
+  // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID returns requests from different tab.
+  if ((await isAndroid()) && targetEnv !== 'samsung') {
+    // Google only works with a Chrome user agent on Firefox for Android,
     // while other search engines may need a desktop user agent.
     let userAgent;
     if (engine === 'google' && targetEnv === 'firefox') {
@@ -529,6 +587,11 @@ async function handleParseResults(images, engine, tabId, tabIndex) {
 }
 
 async function onContextMenuItemClick(info, tab) {
+  if (targetEnv === 'samsung' && tab.id !== browser.tabs.TAB_ID_NONE) {
+    // Samsung Internet 13: contextMenus.onClicked provides wrong tab index.
+    tab = await browser.tabs.get(tab.id);
+  }
+
   const tabId = tab.id;
   const tabIndex = tab.index;
   const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
@@ -623,6 +686,11 @@ async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
 }
 
 async function onActionButtonClick(tab) {
+  if (targetEnv === 'samsung' && tab.id !== browser.tabs.TAB_ID_NONE) {
+    // Samsung Internet 13: browserAction.onClicked provides wrong tab index.
+    tab = await browser.tabs.get(tab.id);
+  }
+
   const options = await storage.get(
     [
       'engines',
@@ -634,7 +702,11 @@ async function onActionButtonClick(tab) {
   );
 
   if (options.searchModeAction === 'url') {
-    await showNotification({messageId: 'error_invalidSearchMode_url'});
+    await showNotification({
+      messageId: (await isAndroid())
+        ? 'error_invalidSearchModeMobile_url'
+        : 'error_invalidSearchMode_url'
+    });
     return;
   }
 
@@ -732,7 +804,15 @@ function setRequestReferrer(url, referrer, token) {
   );
 }
 
-async function onMessage(request, sender, sendResponse) {
+async function onMessage(request, sender) {
+  if (
+    targetEnv === 'samsung' &&
+    sender.tab &&
+    sender.tab.id !== browser.tabs.TAB_ID_NONE
+  ) {
+    // Samsung Internet 13: runtime.onMessage provides wrong tab index.
+    sender.tab = await browser.tabs.get(sender.tab.id);
+  }
   if (request.id === 'imageDataRequest') {
     const imgData = dataStore[request.dataKey];
     const response = {id: 'imageDataResponse'};
@@ -875,8 +955,6 @@ async function onMessage(request, sender, sendResponse) {
     browser.tabs.sendMessage(...params);
   } else if (request.id === 'getPlatform') {
     return getPlatform();
-  } else if (request.id === 'getBrowser') {
-    return getBrowser();
   }
 }
 
@@ -886,9 +964,10 @@ async function onStorageChange(changes, area) {
 }
 
 async function setContextMenu({removeFirst = false} = {}) {
-  if (targetEnv === 'firefox' && (await isAndroid())) {
+  if (targetEnv !== 'samsung' && (await isAndroid())) {
     return;
   }
+
   if (removeFirst) {
     await browser.contextMenus.removeAll();
   }
@@ -967,7 +1046,7 @@ function addMessageListener() {
 
 async function onInstall(details) {
   if (
-    ['chrome', 'edge', 'opera'].includes(targetEnv) &&
+    ['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv) &&
     ['install', 'update'].includes(details.reason)
   ) {
     const tabs = await browser.tabs.query({

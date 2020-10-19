@@ -81,7 +81,7 @@ export default {
   methods: {
     getText,
 
-    onMessage: async function (request, sender, sendResponse) {
+    onMessage: async function (request, sender) {
       if (request.id === 'imageDataResponse') {
         if (request.error) {
           if (request.error === 'sessionExpired') {
@@ -423,7 +423,7 @@ body {
   opacity: 0.7;
 }
 
-.fenix {
+.firefox-android {
   & .title,
   & .grid-item-footer-text {
     @include mdc-theme-prop(color, #312a65);

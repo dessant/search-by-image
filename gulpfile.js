@@ -186,7 +186,7 @@ function manifest() {
       jsonMerge({
         fileName: 'manifest.json',
         edit: (parsedJson, file) => {
-          if (['chrome', 'edge', 'opera'].includes(targetEnv)) {
+          if (['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)) {
             delete parsedJson.browser_specific_settings;
             delete parsedJson.browser_action.browser_style;
             delete parsedJson.options_ui.browser_style;
@@ -196,7 +196,13 @@ function manifest() {
             );
           }
 
-          if (['chrome', 'edge', 'firefox'].includes(targetEnv)) {
+          if (['chrome', 'edge', 'firefox', 'opera'].includes(targetEnv)) {
+            parsedJson.permissions = parsedJson.permissions.filter(
+              item => item !== 'webNavigation'
+            );
+          }
+
+          if (['chrome', 'edge', 'firefox', 'samsung'].includes(targetEnv)) {
             delete parsedJson.minimum_opera_version;
           }
 

@@ -21,7 +21,7 @@ function hideSelectFrame(delay = 300) {
   }, delay);
 }
 
-function onSelectMessage(request, sender, sendResponse) {
+function onSelectMessage(request, sender) {
   if (request.id === 'imageSelectionOpen') {
     messageSelectFrame({id: request.id});
     showSelectFrame();
