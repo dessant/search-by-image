@@ -135,7 +135,7 @@ async function fonts(done) {
   });
 
   await new Promise(resolve => {
-    src('node_modules/typeface-roboto/files/roboto-latin-@(400|500|700).woff2')
+    src('node_modules/fontsource-roboto/files/roboto-latin-@(400|500|700)-normal.woff2')
       .pipe(dest(path.join(distDir, 'src/fonts/files')))
       .on('error', done)
       .on('finish', resolve);
