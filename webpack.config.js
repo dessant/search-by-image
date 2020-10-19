@@ -108,7 +108,7 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     extensions: ['.js', '.json', '.css', '.scss', '.vue']
   },
-  devtool: isProduction ? 'source-map' : false,
+  devtool: false,
   node: {fs: 'empty'},
   plugins
 };
