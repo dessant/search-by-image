@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/dessant/search-by-image/compare/v3.1.0...v3.2.0) (2020-10-27)
+
+
+### Features
+
+* add support for Samsung Internet ([f0829ac](https://github.com/dessant/search-by-image/commit/f0829ac4e488cf4a91325c6a65970cd9a37a3ada))
+* configure engines for Samsung Internet ([d868ec7](https://github.com/dessant/search-by-image/commit/d868ec7ca0f3a40b09b9977248b0c060ad776406))
+* rework script injection and update search engines ([ce94485](https://github.com/dessant/search-by-image/commit/ce94485ef52fe95722c1ae55e2814312983a2110))
+
 ## [3.1.0](https://github.com/dessant/search-by-image/compare/v3.0.0...v3.1.0) (2020-09-11)
 
 
