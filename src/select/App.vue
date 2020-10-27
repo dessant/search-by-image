@@ -31,23 +31,30 @@ export default {
     [IconButton.name]: IconButton
   },
 
+  data: function () {
+    return {
+      task: null
+    };
+  },
+
   methods: {
     getText,
 
-    onMessage: function (request, sender) {
-      if (request.id === 'imageSelectionOpen') {
+    onMessage: function (request) {
+      if (request.id === 'openView') {
+        this.task = request.task;
         this.snackbar.open();
-        return;
-      }
-      if (request.id === 'imageSelectionClose') {
+      } else if (request.id === 'closeView') {
         this.snackbar.close();
-        return;
+      } else if (request.id === 'imageSelectionSubmit') {
+        this.task.sourceFrameId = request.senderFrameId;
+        browser.runtime.sendMessage({id: request.id, task: this.task});
       }
     },
 
     onCancel: function () {
       this.snackbar.close();
-      browser.runtime.sendMessage({id: 'imageSelectionCancel'});
+      browser.runtime.sendMessage({id: 'cancelView', view: 'select'});
     }
   },
 
@@ -57,7 +64,12 @@ export default {
     this.snackbar.closeOnEscape = false;
 
     browser.runtime.onMessage.addListener(this.onMessage);
-    browser.runtime.sendMessage({id: 'selectFrameId'});
+    browser.runtime.sendMessage({
+      id: 'routeMessage',
+      setSenderFrameId: true,
+      messageFrameId: 0,
+      message: {id: 'saveFrameId'}
+    });
   }
 };
 </script>

@@ -11,9 +11,8 @@
 <script>
 import browser from 'webextension-polyfill';
 
-import storage from 'storage/storage';
-import {validateUrl} from 'utils/app';
-import {onError, getText} from 'utils/common';
+import {validateUrl, getMaxImageSize, getLargeImageMessage} from 'utils/app';
+import {getText, dataUrlToBlob} from 'utils/common';
 import {engines} from 'utils/data';
 
 export default {
@@ -28,72 +27,10 @@ export default {
   },
 
   methods: {
-    onMessage: async function (request, sender) {
-      if (request.id === 'imageDataResponse') {
-        if (request.error) {
-          if (request.error === 'sessionExpired') {
-            this.error = getText(
-              'error_sessionExpired',
-              getText(`engineName_${this.engine}`)
-            );
-          }
-        } else {
-          const params = {imgData: request.imgData};
-          if (params.imgData.isUpload[this.engine]) {
-            const size = params.imgData.size;
-            if (this.engine === 'google' && size > 20 * 1024 * 1024) {
-              this.error = getText('error_invalidImageSize', [
-                getText('engineName_google'),
-                getText('unit_mb', '20')
-              ]);
-            }
-
-            if (this.engine === 'karmaDecay' && size > 9 * 1024 * 1024) {
-              this.error = getText('error_invalidImageSize', [
-                getText('engineName_karmaDecay'),
-                getText('unit_mb', '9')
-              ]);
-            }
-
-            if (this.engine === 'saucenao' && size > 5 * 1024 * 1024) {
-              this.error = getText('error_invalidImageSize', [
-                getText(`engineName_${this.engine}`),
-                getText('unit_mb', '5')
-              ]);
-            }
-
-            if (!this.error) {
-              const rsp = await fetch(params.imgData.objectUrl);
-              params.blob = await rsp.blob();
-            }
-
-            await browser.runtime.sendMessage({
-              id: 'dataReceipt',
-              dataKey: params.imgData.dataKey
-            });
-          }
-
-          if (!this.error) {
-            try {
-              await this.processImgData(params);
-            } catch (err) {
-              this.error = getText(
-                'error_engine',
-                getText(`engineName_${this.engine}`)
-              );
-
-              console.log(err.toString());
-              throw err;
-            }
-          }
-        }
-      }
-    },
-
-    processImgData: async function ({imgData, blob}) {
+    upload: async function ({task, search, image}) {
       if (this.engine === 'google') {
         const data = new FormData();
-        data.append('encoded_image', blob, imgData.filename);
+        data.append('encoded_image', image.imageBlob, image.imageFilename);
         const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
           referrer: '',
           mode: 'cors',
@@ -101,17 +38,9 @@ export default {
           body: data
         });
 
-        if (rsp.status === 413) {
-          this.error = getText('error_invalidImageSize', [
-            getText('engineName_google'),
-            getText('unit_mb', '20')
-          ]);
-          return;
-        }
-
         let tabUrl = rsp.url;
-        const {localGoogle} = await storage.get('localGoogle', 'sync');
-        if (!localGoogle) {
+
+        if (!task.options.localGoogle) {
           tabUrl = tabUrl.replace(
             /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
             '$1com$2&gl=US'
@@ -121,11 +50,9 @@ export default {
         if (validateUrl(tabUrl)) {
           window.location.replace(tabUrl);
         }
-      }
-
-      if (this.engine === 'karmaDecay') {
+      } else if (this.engine === 'karmaDecay') {
         const data = new FormData();
-        data.append('image', blob, imgData.filename);
+        data.append('image', image.imageBlob, image.imageFilename);
         const rsp = await fetch('http://karmadecay.com/index/', {
           referrer: '',
           mode: 'cors',
@@ -137,11 +64,9 @@ export default {
         if (validateUrl(tabUrl)) {
           window.location.replace(tabUrl);
         }
-      }
-
-      if (this.engine === 'saucenao') {
+      } else if (this.engine === 'saucenao') {
         const data = new FormData();
-        data.append('file', blob, 'Image');
+        data.append('file', image.imageBlob, 'Image');
         const rsp = await fetch('https://tmp.saucenao.com', {
           referrer: '',
           mode: 'cors',
@@ -162,43 +87,69 @@ export default {
   },
 
   created: async function () {
-    browser.runtime.onMessage.addListener(this.onMessage);
+    const storageKey = new URL(window.location.href).searchParams.get(
+      'session'
+    );
 
-    const query = new URL(window.location.href).searchParams;
-
-    this.engine = query.get('engine');
-    if (!this.engine) {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
-    }
-
-    const supportedEngines = ['google', 'karmaDecay', 'saucenao'];
-    if (!supportedEngines.includes(this.engine)) {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
-    }
-
-    document.title = getText('pageTitle', [
-      getText(`optionTitle_${this.engine}`),
-      getText('extensionName')
-    ]);
-
-    const dataKey = query.get('dataKey');
-    if (!dataKey) {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
-    }
-
-    this.showSpinner = true;
-    this.dataLoaded = true;
-
-    await browser.runtime.sendMessage({
-      id: 'imageDataRequest',
-      dataKey
+    const session = await browser.runtime.sendMessage({
+      id: 'storageRequest',
+      asyncResponse: true,
+      storageKey
     });
+
+    if (session) {
+      try {
+        this.engine = session.search.engine;
+
+        document.title = getText('pageTitle', [
+          getText(`optionTitle_${this.engine}`),
+          getText('extensionName')
+        ]);
+
+        if (session.search.method === 'upload') {
+          const maxSize = getMaxImageSize(this.engine);
+          if (session.search.imageSize > maxSize) {
+            this.error = getLargeImageMessage(this.engine, maxSize);
+            this.dataLoaded = true;
+            return;
+          }
+        }
+
+        this.showSpinner = true;
+        this.dataLoaded = true;
+
+        const image = await browser.runtime.sendMessage({
+          id: 'storageRequest',
+          asyncResponse: true,
+          storageKey: session.imageKey
+        });
+
+        if (image) {
+          if (session.search.method === 'upload') {
+            image.imageBlob = dataUrlToBlob(image.imageDataUrl);
+          }
+          await this.upload({
+            task: session.task,
+            search: session.search,
+            image
+          });
+        } else {
+          this.error = getText('error_invalidPageUrl');
+        }
+      } catch (err) {
+        this.error = getText(
+          'error_engine',
+          getText(`engineName_${this.engine}`)
+        );
+        this.dataLoaded = true;
+
+        console.log(err.toString());
+        throw err;
+      }
+    } else {
+      this.error = getText('error_invalidPageUrl');
+      this.dataLoaded = true;
+    }
   }
 };
 </script>

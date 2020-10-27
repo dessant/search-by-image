@@ -44,28 +44,30 @@ export default {
     [IconButton.name]: IconButton
   },
 
+  data: function () {
+    return {
+      task: null
+    };
+  },
+
   methods: {
     getText,
 
-    onMessage: function (request, sender) {
-      if (request.id === 'imageCaptureOpen') {
-        this.engine = request.engine;
+    onMessage: function (request) {
+      if (request.id === 'openView') {
+        this.task = request.task;
         this.showCapture();
-
-        return;
-      }
-      if (request.id === 'imageCaptureClose') {
+      } else if (request.id === 'closeView') {
         this.hideCapture();
-        return;
       }
     },
 
     onCancel: function () {
       this.hideCapture();
-      browser.runtime.sendMessage({id: 'imageCaptureCancel'});
+      browser.runtime.sendMessage({id: 'cancelView', view: 'capture'});
     },
 
-    onCapture: function (e) {
+    onCapture: function () {
       const area = this.cropper.getCropBoxData();
 
       if (!area.width) {
@@ -85,7 +87,7 @@ export default {
       this.hideCapture();
       browser.runtime.sendMessage({
         id: 'imageCaptureSubmit',
-        engine: this.engine,
+        task: this.task,
         area
       });
     },
@@ -127,7 +129,12 @@ export default {
     this.snackbar.closeOnEscape = false;
 
     browser.runtime.onMessage.addListener(this.onMessage);
-    browser.runtime.sendMessage({id: 'captureFrameId'});
+    browser.runtime.sendMessage({
+      id: 'routeMessage',
+      setSenderFrameId: true,
+      messageFrameId: 0,
+      message: {id: 'saveFrameId'}
+    });
   }
 };
 </script>

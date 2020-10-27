@@ -24,10 +24,13 @@ async function getEnabledEngines(options) {
   return difference(options.engines, options.disabledEngines);
 }
 
-async function getSupportedEngines(imgData, targetEngines) {
+async function getSupportedEngines(image, engines) {
   const supportedEngines = [];
-  for (const engine of targetEngines) {
-    if (imgData.objectUrl || (imgData.url && (await hasUrlSupport(engine)))) {
+  for (const engine of engines) {
+    if (
+      image.hasOwnProperty('imageDataUrl') ||
+      (image.hasOwnProperty('imageUrl') && (await hasUrlSupport(engine)))
+    ) {
       supportedEngines.push(engine);
     }
   }
@@ -35,26 +38,26 @@ async function getSupportedEngines(imgData, targetEngines) {
   return supportedEngines;
 }
 
-async function getSearches(imgData, targetEngines) {
+async function getSearches(image, targetEngines) {
   const searches = [];
   for (const engine of targetEngines) {
-    const method = (await isUploadSearch(imgData, engine)) ? 'upload' : 'url';
+    const method = (await isUploadSearch(image, engine)) ? 'upload' : 'url';
     const isExec = engines[engine][method].isExec;
-    const isDataKey = engines[engine][method].isDataKey;
+    const isSessionKey = engines[engine][method].isSessionKey;
     searches.push({
       engine,
       method,
       isExec,
-      isDataKey,
-      sendsReceipt: isExec || isDataKey
+      isSessionKey,
+      sendsReceipt: isExec || isSessionKey
     });
   }
 
   return searches;
 }
 
-async function isUploadSearch(imgData, engine) {
-  return imgData.mustUpload || !imgData.url || !(await hasUrlSupport(engine));
+async function isUploadSearch(image, engine) {
+  return image.mustUpload || !image.imageUrl || !(await hasUrlSupport(engine));
 }
 
 async function hasUrlSupport(engine) {
@@ -168,7 +171,7 @@ async function normalizeImage({blob, dataUrl} = {}) {
 
   const ext = imageMimeTypes[type];
 
-  return {data, type, ext};
+  return {dataUrl: data, type, ext};
 }
 
 function getImageElement(url, {query = true} = {}) {
@@ -228,6 +231,62 @@ async function configTheme() {
   }
 }
 
+function getLargeImageMessage(engine, maxSize) {
+  return browser.i18n.getMessage('error_invalidImageSize', [
+    browser.i18n.getMessage(`engineName_${engine}`),
+    browser.i18n.getMessage('unit_mb', (maxSize / 1024 / 1024).toString())
+  ]);
+}
+
+function getMaxImageSize(engine) {
+  let maxSize;
+  if (['google', 'auDesign', 'nzTrademark', 'stocksy'].includes(engine)) {
+    maxSize = 20;
+  } else if (
+    ['tineye', 'baidu', 'sogou', 'depositphotos', 'mailru'].includes(engine)
+  ) {
+    maxSize = 10;
+  } else if (['karmaDecay'].includes(engine)) {
+    maxSize = 9;
+  } else if (['yandex', 'iqdb', 'auTrademark'].includes(engine)) {
+    maxSize = 8;
+  } else if (
+    [
+      'ascii2d',
+      'getty',
+      'istock',
+      'taobao',
+      'alamy',
+      '123rf',
+      'jpDesign',
+      'pixta',
+      'shutterstock',
+      'saucenao'
+    ].includes(engine)
+  ) {
+    maxSize = 5;
+  } else if (['jingdong'].includes(engine)) {
+    maxSize = 4;
+  } else if (
+    [
+      'qihoo',
+      'alibabaChina',
+      'esearch',
+      'tmview',
+      'branddb',
+      'madridMonitor'
+    ].includes(engine)
+  ) {
+    maxSize = 2;
+  }
+
+  if (maxSize) {
+    return maxSize * 1024 * 1024;
+  } else {
+    return Infinity;
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -243,5 +302,7 @@ export {
   normalizeImage,
   getImageElement,
   captureVisibleTabArea,
-  configTheme
+  configTheme,
+  getLargeImageMessage,
+  getMaxImageSize
 };

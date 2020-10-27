@@ -8,7 +8,7 @@
   >
     <div class="mdc-grid-list">
       <ul class="mdc-grid-list__tiles">
-        <li class="mdc-grid-tile" v-for="(img, index) in images">
+        <li class="mdc-grid-tile" v-for="(img, index) in images" :key="index">
           <div class="mdc-grid-tile__primary">
             <div
               class="mdc-grid-tile__primary-content tile-container"
@@ -20,7 +20,7 @@
               <img
                 class="tile"
                 referrerpolicy="no-referrer"
-                :src="img.data || img.url"
+                :src="img.imageDataUrl || img.imageUrl"
               />
             </div>
           </div>
@@ -44,43 +44,48 @@ export default {
   data: function () {
     return {
       showDialog: false,
-      images: [],
-      engine: ''
+      task: null,
+      images: []
     };
   },
 
   methods: {
     getText,
 
-    onMessage: function (request, sender) {
-      if (request.id === 'imageConfirmationOpen') {
+    onMessage: function (request) {
+      if (request.id === 'openView') {
+        this.task = request.task;
         this.images = request.images;
-        this.engine = request.engine;
         this.showDialog = true;
       }
-      if (request.id === 'imageConfirmationClose') {
+      if (request.id === 'closeView') {
         this.showDialog = false;
       }
     },
 
     onCancel: function () {
       this.showDialog = false;
-      browser.runtime.sendMessage({id: 'imageConfirmationCancel'});
+      browser.runtime.sendMessage({id: 'cancelView', view: 'confirm'});
     },
 
-    onSelection: function (e) {
+    onSelection: function (ev) {
       this.showDialog = false;
       browser.runtime.sendMessage({
         id: 'imageConfirmationSubmit',
-        img: Object.assign({}, this.images[e.target.dataset.index]),
-        engine: this.engine
+        image: Object.assign({}, this.images[ev.target.dataset.index]),
+        task: this.task
       });
     }
   },
 
   created: async function () {
     browser.runtime.onMessage.addListener(this.onMessage);
-    browser.runtime.sendMessage({id: 'confirmFrameId'});
+    browser.runtime.sendMessage({
+      id: 'routeMessage',
+      setSenderFrameId: true,
+      messageFrameId: 0,
+      message: {id: 'saveFrameId'}
+    });
   }
 };
 </script>

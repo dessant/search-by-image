@@ -1,4 +1,5 @@
 const path = require('path');
+const {lstatSync, readdirSync} = require('fs');
 
 const webpack = require('webpack');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
@@ -8,7 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 
-let plugins = [
+const plugins = [
   new webpack.DefinePlugin({
     'process.env': {
       TARGET_ENV: JSON.stringify(targetEnv)
@@ -20,8 +21,15 @@ let plugins = [
     filename: '[name]/style.css'
   }),
   isProduction ? new LodashModuleReplacementPlugin({shorthands: true}) : null
-];
-plugins = plugins.filter(Boolean);
+].filter(Boolean);
+
+const enginesRootDir = path.join(__dirname, 'src/engines');
+const engines = readdirSync(enginesRootDir)
+  .filter(file => lstatSync(path.join(enginesRootDir, file)).isFile())
+  .map(file => file.split('.')[0]);
+const engineEntries = Object.fromEntries(
+  engines.map(engine => [engine, `./src/engines/${engine}.js`])
+);
 
 module.exports = {
   mode: isProduction ? 'production' : 'development',
@@ -36,16 +44,20 @@ module.exports = {
     select: './src/select/main.js',
     capture: './src/capture/main.js',
     contribute: './src/contribute/main.js',
-    parse: './src/parse/main.js'
+    content: './src/content/main.js',
+    parse: './src/parse/main.js',
+    ...engineEntries
   },
   output: {
     path: path.resolve(__dirname, 'dist', targetEnv, 'src'),
+    filename: pathData => {
+      return engines.includes(pathData.chunk.name)
+        ? 'engines/[name]/script.js'
+        : '[name]/script.js';
+    },
     chunkFilename: '[name]/script.js'
   },
   optimization: {
-    runtimeChunk: {
-      name: 'manifest'
-    },
     splitChunks: {
       cacheGroups: {
         default: false,
@@ -64,6 +76,11 @@ module.exports = {
               'contribute'
             ].includes(chunk.name);
           },
+          minChunks: 2
+        },
+        commonsEngine: {
+          name: 'commons-engine',
+          chunks: chunk => engines.includes(chunk.name),
           minChunks: 2
         }
       }

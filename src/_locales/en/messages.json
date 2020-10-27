@@ -888,12 +888,12 @@
   },
 
   "error_invalidPageUrl": {
-    "message": "The page URL is not valid. Try searching for the image again.",
+    "message": "The page URL is not valid. Try searching again for the image.",
     "description": "Error message."
   },
 
   "error_sessionExpired": {
-    "message": "The session has expired. Try searching for the image on $ENGINE$ again.",
+    "message": "The session has expired. Try searching again for the image on $ENGINE$.",
     "description": "Error message.",
     "placeholders": {
       "engine": {
@@ -940,12 +940,12 @@
   },
 
   "error_invalidSearchMode_url": {
-    "message": "Searching for image URLs is supported only from the browser toolbar popup. Visit the extension's options to select a different search mode.",
+    "message": "Searching for image URLs is only supported from the browser toolbar popup. Visit the extension's options to select a different search mode.",
     "description": "Error message."
   },
 
   "error_invalidSearchModeMobile_url": {
-    "message": "Searching for image URLs is supported only from the browser menu popup. Visit the extension's options to select a different search mode.",
+    "message": "Searching for image URLs is only supported from the browser menu popup. Visit the extension's options to select a different search mode.",
     "description": "Error message."
   },
 
@@ -987,6 +987,11 @@
 
   "error_invalidCaptureArea": {
     "message": "Select a page area to capture before searching.",
+    "description": "Error message."
+  },
+
+  "error_allEnginesDisabled": {
+    "message": "All search engines have been disabled. Visit the extensions's options to enable a search engine.",
     "description": "Error message."
   },
 

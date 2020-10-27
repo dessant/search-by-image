@@ -71,23 +71,21 @@ export default {
       showSpinner: false,
       dropState: false,
       error: '',
-      engine: ''
+      task: null
     };
   },
 
   methods: {
     getText,
 
-    handleFiles: async function (e, source) {
+    handleFiles: async function (ev, source) {
       let files;
       if (source === 'input') {
-        files = e.target.files;
-      }
-      if (source === 'drop') {
-        files = e.dataTransfer.files;
-      }
-      if (source === 'paste') {
-        files = e.clipboardData.files;
+        files = ev.target.files;
+      } else if (source === 'drop') {
+        files = ev.dataTransfer.files;
+      } else if (source === 'paste') {
+        files = ev.clipboardData.files;
       }
 
       if (files.length > 3) {
@@ -103,17 +101,23 @@ export default {
 
       const images = [];
       for (let file of files) {
-        const {data, ext} = await normalizeImage({blob: file});
-        if (data) {
+        const {dataUrl, type, ext} = await normalizeImage({blob: file});
+        if (dataUrl) {
           const filename = normalizeFilename({filename: file.name, ext});
-          images.push({data, filename, mustUpload: true});
+          images.push({
+            imageDataUrl: dataUrl,
+            imageFilename: filename,
+            imageType: type,
+            imageExt: ext,
+            imageSize: file.size
+          });
         }
       }
       if (images.length > 0) {
         browser.runtime.sendMessage({
           id: 'imageUploadSubmit',
-          engine: this.engine,
-          images
+          images,
+          task: this.task
         });
         this.showSpinner = true;
       } else {
@@ -137,20 +141,24 @@ export default {
   },
 
   mounted: async function () {
-    const engine = new URL(window.location.href).searchParams.get('engine');
-    if (
-      engine &&
-      (engine === 'allEngines' || (await getEnabledEngines()).includes(engine))
-    ) {
-      this.engine = engine;
+    const storageKey = new URL(window.location.href).searchParams.get(
+      'session'
+    );
+
+    const task = await browser.runtime.sendMessage({
+      id: 'storageRequest',
+      asyncResponse: true,
+      storageKey
+    });
+
+    if (task) {
+      this.task = task;
+      this.$nextTick(() => this.$refs.dropZone.focus());
     } else {
       this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
     }
-    this.dataLoaded = true;
 
-    this.$nextTick(() => this.$refs.dropZone.focus());
+    this.dataLoaded = true;
   }
 };
 </script>

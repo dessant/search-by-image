@@ -73,13 +73,14 @@
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "all_frames": true,
       "run_at": "document_start",
-      "js": ["src/content/insert.js"]
+      "js": ["src/content/insert/script.js"]
     }
   ],
 
   "web_accessible_resources": [
-    "src/select/index.html",
+    "src/content/style.css",
     "src/select/pointer.css",
+    "src/select/index.html",
     "src/capture/index.html",
     "src/confirm/index.html"
   ],

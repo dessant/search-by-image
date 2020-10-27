@@ -14,6 +14,7 @@
           @keyup.enter="openPage"
           :class="resultClasses"
           v-for="(item, index) in results"
+          :key="index"
         >
           <div
             class="grid-item-image-wrap"
@@ -53,9 +54,8 @@ import browser from 'webextension-polyfill';
 import Masonry from 'masonry-layout';
 import imagesLoaded from 'imagesloaded';
 
-import storage from 'storage/storage';
-import {onError, getText, createTab, getActiveTab} from 'utils/common';
-import {optionKeys, engines} from 'utils/data';
+import {getMaxImageSize, getLargeImageMessage} from 'utils/app';
+import {getText, createTab, getActiveTab, dataUrlToBlob} from 'utils/common';
 
 export default {
   data: function () {
@@ -81,52 +81,12 @@ export default {
   methods: {
     getText,
 
-    onMessage: async function (request, sender) {
-      if (request.id === 'imageDataResponse') {
-        if (request.error) {
-          if (request.error === 'sessionExpired') {
-            this.error = getText(
-              'error_sessionExpired',
-              getText(`engineName_${this.engine}`)
-            );
-          }
-        } else {
-          const params = {imgData: request.imgData};
-          if (params.imgData.isUpload[this.engine]) {
-            if (!this.error) {
-              const rsp = await fetch(params.imgData.objectUrl);
-              params.blob = await rsp.blob();
-            }
-          }
-
-          await browser.runtime.sendMessage({
-            id: 'dataReceipt',
-            dataKey: params.imgData.dataKey
-          });
-
-          if (!this.error) {
-            try {
-              await this.processImgData(params);
-            } catch (err) {
-              this.error = getText(
-                'error_engine',
-                getText(`engineName_${this.engine}`)
-              );
-
-              console.log(err.toString());
-              throw err;
-            }
-          }
-        }
-      }
-    },
-
-    processImgData: async function ({imgData, blob}) {
+    upload: async function ({task, search, image}) {
       if (this.engine === 'pinterest') {
         let rsp;
-        if (blob) {
+        if (search.method === 'upload') {
           const data = new FormData();
-          data.append('image', blob, imgData.filename);
+          data.append('image', image.imageBlob, image.imageFilename);
           data.append('x', '0');
           data.append('y', '0');
           data.append('w', '1');
@@ -144,7 +104,7 @@ export default {
         } else {
           rsp = await fetch(
             'https://api.pinterest.com/v3/visual_search/flashlight/url/' +
-              `?url=${encodeURIComponent(imgData.url)}` +
+              `?url=${encodeURIComponent(image.imageUrl)}` +
               '&x=0&y=0&w=1&h=1&base_scheme=https',
             {
               referrer: '',
@@ -194,12 +154,12 @@ export default {
       });
     },
 
-    openPage: async function (e) {
-      await this.openTab(this.results[e.currentTarget.dataset.index].page);
+    openPage: async function (ev) {
+      await this.openTab(this.results[ev.currentTarget.dataset.index].page);
     },
 
-    openImage: async function (e) {
-      await this.openTab(this.results[e.target.dataset.index].image);
+    openImage: async function (ev) {
+      await this.openTab(this.results[ev.target.dataset.index].image);
     },
 
     openTab: async function (url) {
@@ -212,43 +172,69 @@ export default {
   },
 
   created: async function () {
-    browser.runtime.onMessage.addListener(this.onMessage);
+    const storageKey = new URL(window.location.href).searchParams.get(
+      'session'
+    );
 
-    const query = new URL(window.location.href).searchParams;
-
-    this.engine = query.get('engine');
-    if (!this.engine) {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
-    }
-
-    const supportedEngines = ['pinterest'];
-    if (!supportedEngines.includes(this.engine)) {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
-    }
-
-    document.title = getText('pageTitle', [
-      getText(`optionTitle_${this.engine}`),
-      getText('extensionName')
-    ]);
-
-    const dataKey = query.get('dataKey');
-    if (!dataKey) {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-      return;
-    }
-
-    this.showSpinner = true;
-    this.dataLoaded = true;
-
-    await browser.runtime.sendMessage({
-      id: 'imageDataRequest',
-      dataKey
+    const session = await browser.runtime.sendMessage({
+      id: 'storageRequest',
+      asyncResponse: true,
+      storageKey
     });
+
+    if (session) {
+      try {
+        this.engine = session.search.engine;
+
+        document.title = getText('pageTitle', [
+          getText(`optionTitle_${this.engine}`),
+          getText('extensionName')
+        ]);
+
+        if (session.search.method === 'upload') {
+          const maxSize = getMaxImageSize(this.engine);
+          if (session.search.imageSize > maxSize) {
+            this.error = getLargeImageMessage(this.engine, maxSize);
+            this.dataLoaded = true;
+            return;
+          }
+        }
+
+        this.showSpinner = true;
+        this.dataLoaded = true;
+
+        const image = await browser.runtime.sendMessage({
+          id: 'storageRequest',
+          asyncResponse: true,
+          storageKey: session.imageKey
+        });
+
+        if (image) {
+          if (session.search.method === 'upload') {
+            image.imageBlob = dataUrlToBlob(image.imageDataUrl);
+          }
+          await this.upload({
+            task: session.task,
+            search: session.search,
+            image
+          });
+        } else {
+          this.error = getText('error_invalidPageUrl');
+        }
+      } catch (err) {
+        this.error = getText(
+          'error_engine',
+          getText(`engineName_${this.engine}`)
+        );
+        this.dataLoaded = true;
+
+        console.log(err.toString());
+        throw err;
+      }
+    } else {
+      this.error = getText('error_invalidPageUrl');
+      this.dataLoaded = true;
+    }
   }
 };
 </script>

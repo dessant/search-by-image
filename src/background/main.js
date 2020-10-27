@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill';
-import {cloneDeep} from 'lodash-es';
 import {v4 as uuidv4} from 'uuid';
 
 import {initStorage} from 'storage/init';
@@ -23,41 +22,78 @@ import {
   showNotification,
   showContributePage,
   normalizeFilename,
-  captureVisibleTabArea
+  captureVisibleTabArea,
+  validateUrl
 } from 'utils/app';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
 
-const dataStore = {};
+const dataStorage = {};
 
-function storeData(data) {
-  data = cloneDeep(data);
-  const dataKey = uuidv4();
-  data.dataKey = dataKey;
-  dataStore[dataKey] = data;
-  return dataKey;
+function addStorageItem(
+  data,
+  {deleteFn, receipts = null, expiryTime = 0} = {}
+) {
+  const storageKey = uuidv4();
+  dataStorage[storageKey] = {data, deleteFn, receipts};
+
+  if (expiryTime) {
+    window.setTimeout(function () {
+      deleteStorageItem(storageKey);
+    }, expiryTime);
+  }
+
+  return storageKey;
 }
 
-function deleteData(dataKey) {
-  const data = dataStore[dataKey];
-  if (data) {
-    delete dataStore[dataKey];
-    return data;
+function getStorageItem(storageKey, {saveReceipts = true} = {}) {
+  const storedData = dataStorage[storageKey];
+  if (storedData) {
+    if (saveReceipts && storedData.receipts) {
+      storedData.receipts.received += 1;
+      if (storedData.receipts.expected === storedData.receipts.received) {
+        deleteStorageItem(storageKey);
+      }
+    }
+
+    return storedData.data;
+  }
+}
+
+function updateStorageItem(storageKey, data) {
+  const storedData = dataStorage[storageKey];
+  if (storedData) {
+    Object.assign(storedData.data, data);
+  } else {
+    throw new Error('storage item does not exist');
+  }
+
+  return storedData;
+}
+
+function deleteStorageItem(storageKey) {
+  const storedData = dataStorage[storageKey];
+  if (storedData) {
+    if (storedData.deleteFn) {
+      storedData.deleteFn(storedData.data);
+    }
+    delete dataStorage[storageKey];
+    return storedData.data;
   }
 }
 
 function getEngineMenuIcons(engine) {
   if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
     return {
-      '16': `src/icons/engines/${engine}-16.png`,
-      '32': `src/icons/engines/${engine}-32.png`
+      16: `src/icons/engines/${engine}-16.png`,
+      32: `src/icons/engines/${engine}-32.png`
     };
   } else {
     if (['branddb', 'madridMonitor'].includes(engine)) {
       engine = 'wipo';
     }
     return {
-      '16': `src/icons/engines/${engine}.svg`
+      16: `src/icons/engines/${engine}.svg`
     };
   }
 }
@@ -161,23 +197,21 @@ async function createMenu(options) {
   }
 }
 
-async function getTabUrl(imgData, search, options) {
+async function getTabUrl(task, search, image, sessionKey) {
   const engine = search.engine;
   let tabUrl = engines[engine][search.method].target;
 
-  if (search.isDataKey) {
-    tabUrl = tabUrl
-      .replace('{engine}', engine)
-      .replace('{dataKey}', imgData.dataKey);
+  if (sessionKey) {
+    tabUrl = tabUrl.replace('{sessionKey}', sessionKey);
   }
 
-  if (!search.isExec && !search.isDataKey) {
-    let imgUrl = imgData.url;
+  if (!search.isExec && !search.isSessionKey) {
+    let imgUrl = image.imageUrl;
     if (engine !== 'ascii2d') {
       imgUrl = encodeURIComponent(imgUrl);
     }
     tabUrl = tabUrl.replace('{imgUrl}', imgUrl);
-    if (engine === 'google' && !options.localGoogle) {
+    if (engine === 'google' && !task.options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
     }
   }
@@ -185,13 +219,9 @@ async function getTabUrl(imgData, search, options) {
   return tabUrl;
 }
 
-async function searchImage(
-  img,
-  engine,
-  tabIndex,
-  tabActive = true,
-  firstBatchItem = true
-) {
+async function searchImage(task, image, firstBatchItem = true) {
+  let tabActive = firstBatchItem;
+
   let contributePageTabId;
   if (firstBatchItem) {
     let {searchCount} = await storage.get('searchCount', 'sync');
@@ -200,32 +230,20 @@ async function searchImage(
     if ([10, 100].includes(searchCount)) {
       const tab = await showContributePage('search');
       contributePageTabId = tab.id;
-      tabIndex += 1;
+      task.sourceTabIndex += 1;
       tabActive = false;
     }
   }
 
-  const options = await storage.get(optionKeys, 'sync');
-  tabActive = !options.tabInBackgound && tabActive;
-  const imgData = {};
+  tabActive = !task.options.tabInBackgound && tabActive;
 
-  if (img.data) {
-    imgData.mustUpload = img.mustUpload;
-    imgData.filename = img.filename;
-
-    const blob = dataUrlToBlob(img.data);
-    imgData.objectUrl = URL.createObjectURL(blob);
-    imgData.size = blob.size;
+  if (image.hasOwnProperty('imageDataUrl') && !image.imageSize) {
+    const blob = dataUrlToBlob(image.imageDataUrl);
+    image.imageSize = blob.size;
   }
 
-  if (img.url) {
-    imgData.url = img.url;
-  }
-
-  const targetEngines =
-    engine === 'allEngines' ? await getEnabledEngines(options) : [engine];
-  const supportedEngines = await getSupportedEngines(imgData, targetEngines);
-  const unsupportedEngines = targetEngines.filter(
+  const supportedEngines = await getSupportedEngines(image, task.engines);
+  const unsupportedEngines = task.engines.filter(
     item => !supportedEngines.includes(item)
   );
   if (unsupportedEngines.length) {
@@ -235,41 +253,28 @@ async function searchImage(
     });
   }
 
-  const searches = await getSearches(imgData, supportedEngines);
+  const searches = await getSearches(image, supportedEngines);
 
   const receiptSearches = searches.filter(item => item.sendsReceipt);
-  if (receiptSearches.length) {
-    imgData.dataKey = storeData(
-      Object.assign({}, imgData, {
-        isUpload: Object.assign(
-          ...receiptSearches.map(function (item) {
-            return {
-              [item.engine]: item.method === 'upload'
-            };
-          })
-        ),
-        receipts: {
-          expected: receiptSearches.length,
-          received: 0
-        }
-      })
-    );
-    window.setTimeout(function () {
-      const data = deleteData(imgData.dataKey);
-      if (data && data.objectUrl) {
-        URL.revokeObjectURL(data.objectUrl);
-      }
-    }, 600000); // 10 minutes
-  }
+  receiptSearches.forEach(item => {
+    if (image.imageSize) {
+      item.imageSize = image.imageSize;
+    }
+  });
+
+  const imageKey = addStorageItem(image, {
+    receipts: {expected: receiptSearches.length || 1, received: 0},
+    expiryTime: 600000 // 10 minutes
+  });
 
   let firstEngine = firstBatchItem;
   for (const search of searches) {
-    tabIndex += 1;
-    await searchEngine(imgData, search, options, tabIndex, tabActive);
+    task.sourceTabIndex += 1;
+    await searchEngine(task, search, image, imageKey, tabActive);
 
-    if (firstEngine && img.origin && img.origin.context === 'browse') {
-      await browser.tabs.remove(img.origin.tabId);
-      tabIndex -= 1;
+    if (firstEngine && task.searchMode === 'upload') {
+      await browser.tabs.remove(task.sourceTabId);
+      task.sourceTabIndex -= 1;
     }
 
     tabActive = false;
@@ -279,23 +284,28 @@ async function searchImage(
   if ((await isAndroid()) && contributePageTabId) {
     await browser.tabs.update(contributePageTabId, {active: true});
   }
-
-  return tabIndex;
 }
 
-async function searchEngine(imgData, search, options, tabIndex, tabActive) {
-  const tabUrl = await getTabUrl(imgData, search, options);
+async function searchEngine(task, search, image, imageKey, tabActive) {
+  let sessionKey;
+  if (search.isSessionKey) {
+    sessionKey = addStorageItem(
+      {task, search, imageKey},
+      {
+        receipts: {expected: 1, received: 0},
+        expiryTime: 600000 // 10 minutes
+      }
+    );
+  }
+
+  const tabUrl = await getTabUrl(task, search, image, sessionKey);
 
   let tabId;
   const engine = search.engine;
 
-  // Some search engines may reload themselves right after the page has finished
-  // loading, breaking the injected scripts. Scripts are injected again
-  // after reload to mitigate this issue.
-  const loadedUrls = {};
-  const reloadEngines = ['esearch', 'tmview'];
-
   if (search.isExec) {
+    let registeredScript;
+
     if (targetEnv === 'samsung') {
       // Samsung Internet 13: tabs.onUpdated does not fire on `complete` status,
       // while webNavigation.onCompleted will provide an incorrect tab ID.
@@ -305,22 +315,7 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
 
       const navCompleteCallback = function (details) {
         if (details.tabId === internalTabId) {
-          if (reloadEngines.includes(engine)) {
-            const loadedUrl = loadedUrls[engine];
-            if (loadedUrl) {
-              removeNavCallbacks();
-
-              if (loadedUrl !== details.url) {
-                return;
-              }
-            } else {
-              loadedUrls[engine] = details.url;
-            }
-          } else {
-            removeNavCallbacks();
-          }
-
-          execEngine(tabId, engine, imgData.dataKey);
+          execEngine(tabId, engine, sessionKey);
         }
       };
       const removeNavCallbacks = function () {
@@ -330,6 +325,8 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
       const navTimeoutId = window.setTimeout(removeNavCallbacks, 360000); // 6 minutes
 
       browser.webNavigation.onCompleted.addListener(navCompleteCallback);
+
+      registeredScript = {unregister: removeNavCallbacks};
 
       const tabUpdateCallback = function (eventTabId, changes, tab) {
         if (tab.id === tabId) {
@@ -346,23 +343,8 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
       browser.tabs.onUpdated.addListener(tabUpdateCallback);
     } else {
       const tabUpdateCallback = function (eventTabId, changes, tab) {
-        if (tab.id === tabId && tab.status === 'complete') {
-          if (reloadEngines.includes(engine)) {
-            const loadedUrl = loadedUrls[engine];
-            if (loadedUrl) {
-              removeCallbacks();
-
-              if (loadedUrl !== tab.url) {
-                return;
-              }
-            } else {
-              loadedUrls[engine] = tab.url;
-            }
-          } else {
-            removeCallbacks();
-          }
-
-          execEngine(tabId, engine, imgData.dataKey);
+        if (tab.id === tabId && changes.status === 'complete') {
+          execEngine(tabId, engine, sessionKey);
         }
       };
       const removeCallbacks = function () {
@@ -372,118 +354,33 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
       const timeoutId = window.setTimeout(removeCallbacks, 360000); // 6 minutes
 
       browser.tabs.onUpdated.addListener(tabUpdateCallback);
+
+      registeredScript = {unregister: removeCallbacks};
     }
 
-    // Taobao needs Chinese locale for image search.
-    if (engine === 'taobao') {
-      const rxCookie = /((?:^|\s|;)hng=)[^;]*/g;
-      const cookieValue = 'CN%7Czh-CN%7CCNY%7C156';
-
-      const taobaoRequestCallback = function (details) {
-        if (details.tabId === tabId) {
-          taobaoRemoveRequestCallbacks();
-
-          let cookieMatch;
-          for (const header of details.requestHeaders) {
-            if (header.name.toLowerCase() === 'cookie') {
-              header.value = header.value.replace(rxCookie, (match, p1) => {
-                cookieMatch = true;
-                return p1 + cookieValue;
-              });
-              break;
-            }
+    sessionKey = addStorageItem(
+      {task, search, scripts: [registeredScript], imageKey},
+      {
+        deleteFn: function (data) {
+          for (const script of data.scripts) {
+            script.unregister();
           }
-
-          if (!cookieMatch) {
-            details.requestHeaders.push({
-              name: 'Cookie',
-              value: `hng=${cookieValue}`
-            });
-          }
-
-          const requestId = details.requestId;
-
-          const taobaoResponseCallback = function (details) {
-            if (details.requestId === requestId) {
-              taobaoRemoveResponseCallbacks();
-
-              let cookieMatch;
-              for (const header of details.responseHeaders) {
-                if (header.name.toLowerCase() === 'set-cookie') {
-                  header.value = header.value.replace(rxCookie, (match, p1) => {
-                    cookieMatch = true;
-                    return p1 + cookieValue;
-                  });
-                }
-              }
-
-              if (!cookieMatch) {
-                const expiry = new Date();
-                expiry.setFullYear(expiry.getFullYear() + 1);
-                details.responseHeaders.push({
-                  name: 'Set-Cookie',
-                  value: `hng=${cookieValue}; Domain=.taobao.com; Expires=${expiry.toUTCString()}; Path=/`
-                });
-              }
-
-              return {responseHeaders: details.responseHeaders};
-            }
-          };
-
-          const taobaoRemoveResponseCallbacks = function () {
-            window.clearTimeout(taobaoResponseTimeoutId);
-            browser.webRequest.onHeadersReceived.removeListener(
-              taobaoResponseCallback
-            );
-          };
-          const taobaoResponseTimeoutId = window.setTimeout(
-            taobaoRemoveResponseCallbacks,
-            120000
-          ); // 2 minutes
-
-          const extraInfo = ['blocking', 'responseHeaders'];
-          if (targetEnv !== 'firefox') {
-            extraInfo.push('extraHeaders');
-          }
-
-          browser.webRequest.onHeadersReceived.addListener(
-            taobaoResponseCallback,
-            {types: ['main_frame'], urls: ['https://www.taobao.com/*'], tabId},
-            extraInfo
-          );
-
-          return {requestHeaders: details.requestHeaders};
-        }
-      };
-
-      const taobaoRemoveRequestCallbacks = function () {
-        window.clearTimeout(taobaoRequestTimeoutId);
-        browser.webRequest.onBeforeSendHeaders.removeListener(
-          taobaoRequestCallback
-        );
-      };
-      const taobaoRequestTimeoutId = window.setTimeout(
-        taobaoRemoveRequestCallbacks,
-        60000
-      ); // 1 minute
-
-      const extraInfo = ['blocking', 'requestHeaders'];
-      if (targetEnv !== 'firefox') {
-        extraInfo.push('extraHeaders');
+          delete data.scripts;
+        },
+        receipts: {expected: 1, received: 0},
+        expiryTime: 600000 // 10 minutes
       }
-
-      browser.webRequest.onBeforeSendHeaders.addListener(
-        taobaoRequestCallback,
-        {types: ['main_frame'], urls: ['https://www.taobao.com/']},
-        extraInfo
-      );
-    }
+    );
   }
 
-  const tab = await createTab(tabUrl, {index: tabIndex, active: tabActive});
+  const tab = await createTab(tabUrl, {
+    index: task.sourceTabIndex,
+    active: tabActive
+  });
   tabId = tab.id;
 
-  // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID returns requests from different tab.
+  // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID
+  // returns requests from different tab.
   if ((await isAndroid()) && targetEnv !== 'samsung') {
     // Google only works with a Chrome user agent on Firefox for Android,
     // while other search engines may need a desktop user agent.
@@ -517,72 +414,49 @@ async function searchEngine(imgData, search, options, tabIndex, tabActive) {
   }
 }
 
-async function execEngine(tabId, engine, dataKey) {
+async function execEngine(tabId, engine, sessionKey) {
   if (['bing'].includes(engine)) {
     await browser.tabs.insertCSS(tabId, {
       runAt: 'document_start',
-      file: `/src/content/css/${engine}.css`
+      file: `/src/engines/css/${engine}.css`
     });
   }
 
-  await executeCode(`var dataKey = '${dataKey}';`, tabId);
-  await executeFile(`/src/content/common.js`, tabId);
-  await executeFile(`/src/content/engines/${engine}.js`, tabId);
+  await executeCode(`var sessionKey = '${sessionKey}';`, tabId);
+  await executeFile(`/src/commons-engine/script.js`, tabId);
+  await executeFile(`/src/engines/${engine}/script.js`, tabId);
 }
 
-async function searchClickTarget(tabId, frameId, engine, eventOrigin) {
-  await executeCode(
-    `
-    frameStore.data.engine = '${engine}';
-    frameStore.data.eventOrigin = '${eventOrigin}';
-  `,
-    tabId,
-    frameId
+async function searchClickTarget(task) {
+  const [isParseModule] = await executeCode(
+    `typeof initParse !== 'undefined'`,
+    task.sourceTabId
   );
-
-  const [probe] = await executeCode('frameStore;', tabId, frameId);
-  if (!probe.modules.manifest) {
-    await rememberExecution('manifest', tabId, frameId);
-    await executeFile('/src/manifest.js', tabId, frameId);
-  }
-  if (!probe.modules.parse) {
-    await rememberExecution('parse', tabId, frameId);
-    await executeFile('/src/parse/script.js', tabId, frameId);
+  if (!isParseModule) {
+    await executeFile(
+      '/src/parse/script.js',
+      task.sourceTabId,
+      task.sourceFrameId
+    );
   }
 
-  await executeCode('initParse();', tabId, frameId);
+  await browser.tabs.sendMessage(
+    task.sourceTabId,
+    {
+      id: 'parsePage',
+      task
+    },
+    {frameId: task.sourceFrameId}
+  );
 }
 
-async function handleParseResults(images, engine, tabId, tabIndex) {
-  if (images.length === 0) {
+async function handleParseResults(task, images) {
+  if (!images.length) {
     await showNotification({messageId: 'error_imageNotFound'});
-    return;
-  }
-
-  if (images.length > 1) {
-    const [probe] = await executeCode('frameStore;', tabId);
-    if (!probe.modules.confirm) {
-      await rememberExecution('confirm', tabId);
-
-      await browser.tabs.insertCSS(tabId, {
-        runAt: 'document_start',
-        file: '/src/confirm/frame.css'
-      });
-
-      await executeFile('/src/content/confirm.js', tabId);
-    }
-
-    await browser.tabs.sendMessage(
-      tabId,
-      {
-        id: 'imageConfirmationOpen',
-        images,
-        engine
-      },
-      {frameId: 0}
-    );
+  } else if (images.length > 1) {
+    await openContentView({task, images}, 'confirm');
   } else {
-    await searchImage(images[0], engine, tabIndex);
+    await initSearch(task, images);
   }
 }
 
@@ -592,96 +466,130 @@ async function onContextMenuItemClick(info, tab) {
     tab = await browser.tabs.get(tab.id);
   }
 
-  const tabId = tab.id;
-  const tabIndex = tab.index;
-  const frameId = typeof info.frameId !== 'undefined' ? info.frameId : 0;
-  const engine = info.menuItemId;
+  const task = await createTask({
+    taskOrigin: 'context',
+    sourceTabId: tab.id,
+    sourceTabIndex: tab.index,
+    sourceFrameId: typeof info.frameId !== 'undefined' ? info.frameId : 0,
+    engine: info.menuItemId
+  });
 
-  const {searchModeContextMenu} = await storage.get(
-    'searchModeContextMenu',
-    'sync'
-  );
-
-  if (searchModeContextMenu === 'capture') {
-    await showCapture(tabId, engine);
-    return;
-  }
-
-  if (!(await scriptsAllowed(tabId, frameId))) {
-    if (info.srcUrl && info.mediaType === 'image') {
-      await searchImage({data: info.srcUrl}, engine, tabIndex);
-    } else {
-      await showNotification({messageId: 'error_scriptsNotAllowed'});
+  if (task.searchMode === 'capture') {
+    await openContentView({task}, 'capture');
+  } else {
+    if (!(await scriptsAllowed(task.sourceTabId, task.sourceFrameId))) {
+      if (
+        info.srcUrl &&
+        info.mediaType === 'image' &&
+        validateUrl(info.srcUrl)
+      ) {
+        await initSearch(task, {imageUrl: info.srcUrl});
+      } else {
+        await showNotification({messageId: 'error_scriptsNotAllowed'});
+      }
+      return;
     }
+
+    await searchClickTarget(task);
+  }
+}
+
+async function createTask(data) {
+  const task = {
+    taskOrigin: '',
+    taskType: 'search',
+    searchMode: '',
+    sourceTabId: -1,
+    sourceTabIndex: -1,
+    sourceFrameId: -1,
+    engineGroup: '',
+    engines: [],
+    options: {}
+  };
+
+  task.options = await storage.get(optionKeys, 'sync');
+
+  if (data.options) {
+    Object.assign(task.options, data.options);
+
+    delete data.options;
+  }
+
+  if (data.engine) {
+    if (data.engine === 'allEngines') {
+      const enabledEngines = await getEnabledEngines(task.options);
+      task.engineGroup = 'allEngines';
+      task.engines = enabledEngines;
+    } else {
+      task.engines.push(data.engine);
+    }
+
+    delete data.engine;
+  }
+
+  Object.assign(task, data);
+
+  if (!task.searchMode) {
+    task.searchMode =
+      task.taskOrigin === 'action'
+        ? task.options.searchModeAction
+        : task.options.searchModeContextMenu;
+  }
+
+  return task;
+}
+
+async function openContentView(message, view) {
+  const tabId = message.task.sourceTabId;
+
+  if (!(await scriptsAllowed(tabId))) {
+    await showNotification({messageId: 'error_scriptsNotAllowed'});
     return;
   }
 
-  await searchClickTarget(tabId, frameId, engine, 'contextMenu');
+  const [isContentModule] = await executeCode(
+    `typeof initContent !== 'undefined'`,
+    tabId
+  );
+  if (!isContentModule) {
+    await executeFile('/src/content/script.js', tabId);
+  }
+
+  await browser.tabs.sendMessage(
+    tabId,
+    {
+      id: 'openView',
+      ...message,
+      view
+    },
+    {frameId: 0}
+  );
 }
 
-function rememberExecution(module, tabId, frameId = 0) {
-  return executeCode(`frameStore.modules.${module} = true;`, tabId, frameId);
-}
-
-async function onActionClick(tabIndex, tabId, tabUrl, engine, searchMode) {
-  if (searchMode === 'upload') {
+async function onActionClick(task, tabUrl) {
+  if (task.searchMode === 'upload') {
     const browseUrl = browser.extension.getURL('/src/browse/index.html');
-    await createTab(`${browseUrl}?engine=${engine}`, {
-      index: tabIndex + 1,
-      openerTabId: tabId
+    const sessionKey = addStorageItem(task, {
+      receipts: {expected: 1, received: 0},
+      expiryTime: 60000 // 1 minute
     });
-    return;
-  }
-
-  if (searchMode === 'capture') {
-    await showCapture(tabId, engine);
-    return;
-  }
-
-  if (['select', 'selectUpload'].includes(searchMode)) {
+    await createTab(`${browseUrl}?session=${sessionKey}`, {
+      index: task.sourceTabIndex + 1,
+      openerTabId: task.sourceTabId
+    });
+  } else if (task.searchMode === 'capture') {
+    await openContentView({task}, 'capture');
+  } else if (['select', 'selectUpload'].includes(task.searchMode)) {
     if (tabUrl.startsWith('file://') && targetEnv !== 'firefox') {
       await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
       return;
     }
 
-    if (!(await scriptsAllowed(tabId))) {
-      await showNotification({messageId: 'error_scriptsNotAllowed'});
-      return;
+    await openContentView({task}, 'select');
+
+    if (await scriptsAllowed(task.sourceTabId)) {
+      await showContentSelectionPointer(task.sourceTabId);
     }
-
-    const [probe] = await executeCode('frameStore;', tabId);
-    if (!probe.modules.select) {
-      await rememberExecution('select', tabId);
-
-      await browser.tabs.insertCSS(tabId, {
-        runAt: 'document_start',
-        file: '/src/select/frame.css'
-      });
-
-      await executeFile('/src/content/select.js', tabId);
-    }
-
-    await browser.tabs.executeScript(tabId, {
-      allFrames: true,
-      runAt: 'document_start',
-      code: `
-        if (typeof addTouchListener !== 'undefined') {
-          addTouchListener();
-          showPointer();
-          frameStore.data.engine = '${engine}';
-        }
-      `
-    });
-
-    await browser.tabs.sendMessage(
-      tabId,
-      {
-        id: 'imageSelectionOpen'
-      },
-      {frameId: 0}
-    );
-
-    return;
   }
 }
 
@@ -691,17 +599,13 @@ async function onActionButtonClick(tab) {
     tab = await browser.tabs.get(tab.id);
   }
 
-  const options = await storage.get(
-    [
-      'engines',
-      'disabledEngines',
-      'searchAllEnginesAction',
-      'searchModeAction'
-    ],
-    'sync'
-  );
+  const task = await createTask({
+    taskOrigin: 'action',
+    sourceTabId: tab.id,
+    sourceTabIndex: tab.index
+  });
 
-  if (options.searchModeAction === 'url') {
+  if (task.searchMode === 'url') {
     await showNotification({
       messageId: (await isAndroid())
         ? 'error_invalidSearchModeMobile_url'
@@ -710,63 +614,44 @@ async function onActionButtonClick(tab) {
     return;
   }
 
-  const enEngines = await getEnabledEngines(options);
+  const enabledEngines = await getEnabledEngines(task.options);
 
-  if (enEngines.length === 0) {
+  if (enabledEngines.length === 0) {
     await showNotification({messageId: 'error_allEnginesDisabled'});
     return;
   }
 
-  let engine = null;
-  if (options.searchAllEnginesAction === 'main' && enEngines.length > 1) {
-    engine = 'allEngines';
+  if (
+    task.options.searchAllEnginesAction === 'main' &&
+    enabledEngines.length > 1
+  ) {
+    task.engineGroup = 'allEngines';
+    task.engines = enabledEngines;
   } else {
-    engine = enEngines[0];
+    task.engines.push(enabledEngines[0]);
   }
 
-  onActionClick(tab.index, tab.id, tab.url, engine, options.searchModeAction);
+  onActionClick(task, tab.url);
 }
 
 async function onActionPopupClick(engine, imageUrl) {
   const {searchModeAction} = await storage.get('searchModeAction', 'sync');
 
   const tab = await getActiveTab();
-  const tabIndex = tab.index;
+
+  const task = await createTask({
+    taskOrigin: 'action',
+    searchMode: searchModeAction,
+    sourceTabId: tab.id,
+    sourceTabIndex: tab.index,
+    engine
+  });
 
   if (searchModeAction === 'url') {
-    await searchImage({url: imageUrl}, engine, tabIndex);
-    return;
+    await initSearch(task, {imageUrl});
+  } else {
+    onActionClick(task, tab.url);
   }
-
-  onActionClick(tabIndex, tab.id, tab.url, engine, searchModeAction);
-}
-
-async function showCapture(tabId, engine) {
-  if (!(await scriptsAllowed(tabId))) {
-    await showNotification({messageId: 'error_scriptsNotAllowed'});
-    return;
-  }
-
-  const [probe] = await executeCode('frameStore;', tabId);
-  if (!probe.modules.capture) {
-    await rememberExecution('capture', tabId);
-
-    await browser.tabs.insertCSS(tabId, {
-      runAt: 'document_start',
-      file: '/src/capture/frame.css'
-    });
-
-    await executeFile('/src/content/capture.js', tabId);
-  }
-
-  await browser.tabs.sendMessage(
-    tabId,
-    {
-      id: 'imageCaptureOpen',
-      engine
-    },
-    {frameId: 0}
-  );
 }
 
 function setRequestReferrer(url, referrer, token) {
@@ -804,7 +689,52 @@ function setRequestReferrer(url, referrer, token) {
   );
 }
 
-async function onMessage(request, sender) {
+async function showContentSelectionPointer(tabId) {
+  return browser.tabs.executeScript(tabId, {
+    allFrames: true,
+    runAt: 'document_start',
+    code: `
+      if (typeof addTouchListener !== 'undefined') {
+        addTouchListener();
+        showPointer();
+      }
+    `
+  });
+}
+
+async function hideContentSelectionPointer(tabId) {
+  return browser.tabs.executeScript(tabId, {
+    allFrames: true,
+    runAt: 'document_start',
+    code: `
+      if (typeof removeTouchListener !== 'undefined') {
+        removeTouchListener();
+        hidePointer();
+      }
+    `
+  });
+}
+
+async function initSearch(task, images) {
+  if (!Array.isArray(images)) {
+    images = [images];
+  }
+
+  const tab = await browser.tabs.get(task.sourceTabId);
+  task.sourceTabIndex = tab.index;
+
+  let firstBatchItem = true;
+  for (const image of images) {
+    await searchImage(task, image, firstBatchItem);
+    firstBatchItem = false;
+  }
+}
+
+function onMessage(request, sender) {
+  return processMessage(request, sender);
+}
+
+async function processMessage(request, sender) {
   if (
     targetEnv === 'samsung' &&
     sender.tab &&
@@ -813,93 +743,48 @@ async function onMessage(request, sender) {
     // Samsung Internet 13: runtime.onMessage provides wrong tab index.
     sender.tab = await browser.tabs.get(sender.tab.id);
   }
-  if (request.id === 'imageDataRequest') {
-    const imgData = dataStore[request.dataKey];
-    const response = {id: 'imageDataResponse'};
-    if (imgData) {
-      response.imgData = imgData;
-    } else {
-      response.error = 'sessionExpired';
+
+  if (request.id === 'cancelView') {
+    if (request.view === 'select') {
+      hideContentSelectionPointer(sender.tab.id);
     }
-    browser.tabs.sendMessage(sender.tab.id, response, {frameId: 0});
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {id: 'closeView', view: request.view},
+      {frameId: 0}
+    );
+  } else if (request.id === 'discardView') {
+    if (request.view === 'select') {
+      hideContentSelectionPointer(sender.tab.id);
+    }
   } else if (request.id === 'actionPopupSubmit') {
     onActionPopupClick(request.engine, request.imageUrl);
   } else if (request.id === 'imageUploadSubmit') {
-    let tabIndex = sender.tab.index;
-    let tabActive = true;
-    let firstBatchItem = true;
-    for (let img of request.images) {
-      img.origin = {context: 'browse', tabId: sender.tab.id};
-      tabIndex = await searchImage(
-        img,
-        request.engine,
-        tabIndex,
-        tabActive,
-        firstBatchItem
-      );
-      tabActive = false;
-      firstBatchItem = false;
-    }
-  } else if (request.id === 'dataReceipt') {
-    const data = dataStore[request.dataKey];
-    if (data) {
-      data.receipts.received += 1;
-      if (data.receipts.received === data.receipts.expected) {
-        deleteData(data.dataKey);
-        if (data.objectUrl) {
-          URL.revokeObjectURL(data.objectUrl);
-        }
-      }
-    }
+    request.task.sourceTabId = sender.tab.id;
+    initSearch(request.task, request.images);
   } else if (request.id === 'imageSelectionSubmit') {
-    browser.tabs.executeScript(sender.tab.id, {
-      allFrames: true,
-      runAt: 'document_start',
-      code: `
-        if (typeof removeTouchListener !== 'undefined') {
-          removeTouchListener();
-          hidePointer();
-        }
-      `
-    });
+    hideContentSelectionPointer(sender.tab.id);
     browser.tabs.sendMessage(
       sender.tab.id,
-      {id: 'imageSelectionClose', messageFrame: true},
+      {id: 'closeView', view: 'select', messageView: true},
       {frameId: 0}
     );
-    searchClickTarget(sender.tab.id, sender.frameId, request.engine, 'action');
-  } else if (request.id === 'imageSelectionCancel') {
-    browser.tabs.executeScript(sender.tab.id, {
-      allFrames: true,
-      runAt: 'document_start',
-      code: `
-        if (typeof removeTouchListener !== 'undefined') {
-          removeTouchListener();
-          hidePointer();
-        }
-      `
-    });
-    browser.tabs.sendMessage(
-      sender.tab.id,
-      {id: 'imageSelectionClose'},
-      {frameId: 0}
-    );
+
+    searchClickTarget(request.task);
   } else if (request.id === 'imageConfirmationSubmit') {
     browser.tabs.sendMessage(
       sender.tab.id,
-      {id: 'imageConfirmationClose'},
+      {id: 'closeView', view: 'confirm'},
       {frameId: 0}
     );
-    searchImage(request.img, request.engine, sender.tab.index);
-  } else if (request.id === 'imageConfirmationCancel') {
-    browser.tabs.sendMessage(
-      sender.tab.id,
-      {id: 'imageConfirmationClose'},
-      {frameId: 0}
-    );
+    initSearch(request.task, request.image);
   } else if (request.id === 'imageCaptureSubmit') {
     const tabId = sender.tab.id;
-    browser.tabs.sendMessage(tabId, {id: 'imageCaptureClose'}, {frameId: 0});
+    browser.tabs.sendMessage(
+      tabId,
+      {id: 'closeView', view: 'capture'},
+      {frameId: 0}
+    );
 
     const [[surfaceWidth, surfaceHeight]] = await executeCode(
       `[window.innerWidth, window.innerHeight];`,
@@ -909,34 +794,19 @@ async function onMessage(request, sender) {
 
     const captureData = await captureVisibleTabArea(area);
     const image = {
-      data: captureData,
-      filename: normalizeFilename({ext: 'png'})
+      imageDataUrl: captureData,
+      imageFilename: normalizeFilename({ext: 'png'}),
+      imageType: 'image/png',
+      imageExt: 'png'
     };
 
-    searchImage(image, request.engine, sender.tab.index);
-  } else if (request.id === 'imageCaptureCancel') {
-    browser.tabs.sendMessage(
-      sender.tab.id,
-      {id: 'imageCaptureClose'},
-      {frameId: 0}
-    );
+    initSearch(request.task, image);
   } else if (request.id === 'pageParseSubmit') {
-    handleParseResults(
-      request.images,
-      request.engine,
-      sender.tab.id,
-      sender.tab.index
-    );
+    handleParseResults(request.task, request.images);
   } else if (request.id === 'pageParseError') {
     showNotification({messageId: 'error_internalError'});
   } else if (request.id === 'setRequestReferrer') {
     setRequestReferrer(request.url, request.referrer, request.token);
-  } else if (request.id.endsWith('FrameId')) {
-    browser.tabs.sendMessage(
-      sender.tab.id,
-      {id: request.id, frameId: sender.frameId},
-      {frameId: 0}
-    );
   } else if (request.id === 'notification') {
     showNotification({
       message: request.message,
@@ -946,15 +816,38 @@ async function onMessage(request, sender) {
     });
   } else if (request.id === 'routeMessage') {
     const params = [
-      request.hasOwnProperty('tabId') ? request.tabId : sender.tab.id,
-      request.data
+      request.messageTabId ? request.messageTabId : sender.tab.id
     ];
-    if (request.hasOwnProperty('frameId')) {
-      params.push({frameId: request.frameId});
+
+    const routedMessage = request.message;
+    if (request.setSenderTabId) {
+      routedMessage.senderTabId = sender.tab.id;
     }
+    if (request.setSenderFrameId) {
+      routedMessage.senderFrameId = sender.frameId;
+    }
+    params.push(routedMessage);
+
+    if (request.hasOwnProperty('messageFrameId')) {
+      params.push({frameId: request.messageFrameId});
+    }
+
     browser.tabs.sendMessage(...params);
   } else if (request.id === 'getPlatform') {
     return getPlatform();
+  } else if (request.id === 'storageRequest') {
+    const data = getStorageItem(request.storageKey);
+    if (data) {
+      if (request.asyncResponse) {
+        return Promise.resolve(data);
+      } else {
+        browser.tabs.sendMessage(
+          sender.tab.id,
+          {id: 'storageResponse', storageItem: data},
+          {frameId: sender.frameId}
+        );
+      }
+    }
   }
 }
 

@@ -14,19 +14,17 @@ const optionKeys = [
 ];
 
 const uploadUrl =
-  browser.extension.getURL('/src/upload/index.html') +
-  '?engine={engine}&dataKey={dataKey}';
+  browser.extension.getURL('/src/upload/index.html') + '?session={sessionKey}';
 
 const resultsUrl =
-  browser.extension.getURL('/src/results/index.html') +
-  '?engine={engine}&dataKey={dataKey}';
+  browser.extension.getURL('/src/results/index.html') + '?session={sessionKey}';
 
 const engines = {
   google: {
     url: {target: 'https://www.google.com/searchbyimage?image_url={imgUrl}'},
     upload: {
       target: uploadUrl,
-      isDataKey: true
+      isSessionKey: true
     }
   },
   bing: {
@@ -46,7 +44,7 @@ const engines = {
       target: 'https://yandex.com/images/search?url={imgUrl}&rpt=imageview'
     },
     upload: {
-      target: 'https://yandex.com/images/search',
+      target: 'https://yandex.com/images/',
       isExec: true
     }
   },
@@ -78,7 +76,7 @@ const engines = {
     url: {target: 'http://karmadecay.com/search?q={imgUrl}'},
     upload: {
       target: uploadUrl,
-      isDataKey: true
+      isSessionKey: true
     }
   },
   whatanime: {
@@ -92,7 +90,7 @@ const engines = {
     url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
     upload: {
       target: uploadUrl,
-      isDataKey: true
+      isSessionKey: true
     }
   },
   iqdb: {
@@ -142,11 +140,11 @@ const engines = {
   pinterest: {
     url: {
       target: resultsUrl,
-      isDataKey: true
+      isSessionKey: true
     },
     upload: {
       target: resultsUrl,
-      isDataKey: true
+      isSessionKey: true
     }
   },
   qihoo: {

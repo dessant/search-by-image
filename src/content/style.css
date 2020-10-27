@@ -1,0 +1,34 @@
+:host {
+  all: initial !important;
+  width: 0px !important;
+  height: 0px !important;
+}
+
+#select {
+  all: initial;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 416px;
+  height: 64px;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+}
+
+#capture,
+#confirm {
+  all: initial;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2147483647;
+}
+
+.hidden {
+  visibility: hidden !important;
+}

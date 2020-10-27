@@ -1,3 +1,5 @@
-* {
-  cursor: pointer !important;
+@media (hover: hover) {
+  * {
+    cursor: pointer !important;
+  }
 }

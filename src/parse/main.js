@@ -2,7 +2,6 @@ import browser from 'webextension-polyfill';
 import {uniqBy} from 'lodash-es';
 import {v4 as uuidv4} from 'uuid';
 
-import storage from 'storage/storage';
 import {
   hasUrlSupport,
   validateUrl,
@@ -14,7 +13,8 @@ import {
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   drawElementOnCanvas,
-  getAbsoluteUrl
+  getAbsoluteUrl,
+  getFilenameExtFromUrl
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
 
@@ -22,24 +22,6 @@ const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
 const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['img', 'video', 'iframe', 'embed'];
 const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
-
-function getFilenameExtFromUrl(url) {
-  const file = url
-    .split('/')
-    .pop()
-    .replace(/(?:#|\?).*?$/, '')
-    .split('.');
-  let filename = '';
-  let ext = '';
-  if (file.length === 1) {
-    filename = file[0];
-  } else {
-    filename = file.join('.');
-    ext = file.pop().toLowerCase();
-  }
-
-  return {filename, ext};
-}
 
 function fetchImage(url, {credentials = true, token = ''} = {}) {
   return new Promise(resolve => {
@@ -77,7 +59,7 @@ function extractCSSImages(cssProps, node, pseudo = null) {
     cssProps.push('content');
   }
 
-  const images = [];
+  const results = [];
   const style = window.getComputedStyle(node, pseudo);
 
   let match;
@@ -86,12 +68,12 @@ function extractCSSImages(cssProps, node, pseudo = null) {
     let value = style.getPropertyValue(prop);
     if (value && value !== 'none') {
       while ((match = rxCssUrl.exec(value)) !== null) {
-        images.push({data: match[1]});
+        results.push({data: match[1]});
       }
     }
   });
 
-  return images;
+  return results;
 }
 
 async function parseNode(node) {
@@ -179,6 +161,143 @@ async function parseNode(node) {
   return results;
 }
 
+async function processResults(results, task) {
+  results = uniqBy(results, 'data');
+
+  const daraUrls = results.filter(
+    item => item.data && item.data.startsWith('data:')
+  );
+  for (const item of daraUrls) {
+    const index = results.indexOf(item);
+    const {dataUrl, type, ext} = await normalizeImage({dataUrl: item.data});
+    if (dataUrl) {
+      results[index] = {
+        imageDataUrl: dataUrl,
+        imageFilename: normalizeFilename({ext}),
+        imageType: type,
+        imageExt: ext
+      };
+    } else {
+      results.splice(index, 1);
+    }
+  }
+
+  const isLocalDoc = window.location.href.startsWith('file://');
+  if (isLocalDoc) {
+    const fileUrls = results.filter(
+      item => item.data && item.data.startsWith('file://')
+    );
+    if (fileUrls.length) {
+      const cnv = document.createElement('canvas');
+      const ctx = cnv.getContext('2d');
+      for (const item of fileUrls) {
+        const url = item.data;
+        const img = await getImageElement(url);
+        if (img) {
+          let {filename, ext} = getFilenameExtFromUrl(url);
+          const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
+            ? 'image/jpeg'
+            : 'image/png';
+          cnv.width = img.naturalWidth;
+          cnv.height = img.naturalHeight;
+
+          if (drawElementOnCanvas(ctx, img)) {
+            const data = canvasToDataUrl(cnv, {ctx, type});
+            if (data) {
+              results[results.indexOf(item)] = {
+                imageDataUrl: data,
+                imageFilename: normalizeFilename({filename, ext}),
+                imageType: type,
+                imageExt: ext
+              };
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const blobUrls = results.filter(
+    item => item.data && item.data.startsWith('blob:')
+  );
+  if (blobUrls.length) {
+    const cnv = document.createElement('canvas');
+    const ctx = cnv.getContext('2d');
+
+    for (const item of blobUrls) {
+      const img = await getImageElement(item.data);
+      if (img) {
+        cnv.width = img.naturalWidth;
+        cnv.height = img.naturalHeight;
+
+        if (drawElementOnCanvas(ctx, img)) {
+          const data = canvasToDataUrl(cnv, {ctx});
+          if (data) {
+            const ext = 'png';
+            results[results.indexOf(item)] = {
+              imageDataUrl: data,
+              imageFilename: normalizeFilename({ext}),
+              imageType: 'image/png',
+              imageExt: ext
+            };
+          }
+        }
+      }
+    }
+  }
+
+  const mustUpload = task.searchMode === 'selectUpload';
+  const urlSupport = await hasUrlSupport(task.engineGroup || task.engines[0]);
+
+  const httpUrls = results.filter(item => item.data && validateUrl(item.data));
+  if (httpUrls.length) {
+    for (const item of httpUrls) {
+      const index = results.indexOf(item);
+      const url = item.data;
+      const {filename} = getFilenameExtFromUrl(url);
+      if (mustUpload || !urlSupport) {
+        let rsp;
+        if (targetEnv === 'firefox') {
+          const token = uuidv4();
+          await browser.runtime.sendMessage({
+            id: 'setRequestReferrer',
+            referrer: window.location.href,
+            token,
+            url
+          });
+          rsp = await fetchImage(url, {token});
+        } else {
+          rsp = await fetchImage(url);
+        }
+
+        if (!rsp || !rsp.response) {
+          results.splice(index, 1);
+          continue;
+        }
+
+        const {dataUrl, type, ext} = await normalizeImage({blob: rsp.response});
+        if (dataUrl) {
+          results[index] = {
+            imageUrl: url,
+            imageDataUrl: dataUrl,
+            imageFilename: normalizeFilename({filename, ext}),
+            imageType: type,
+            imageExt: ext,
+            imageSize: rsp.response.size,
+            mustUpload
+          };
+        } else {
+          results.splice(index, 1);
+        }
+      } else {
+        results[index] = {imageUrl: url};
+      }
+    }
+  }
+
+  return results.filter(item => !item.data);
+}
+
 async function parseDocument({root = null, touchRect = null} = {}) {
   const results = [];
 
@@ -206,7 +325,7 @@ async function parseDocument({root = null, touchRect = null} = {}) {
   return results;
 }
 
-async function parse() {
+async function parse(task) {
   if (typeof touchTarget === 'undefined' || !touchTarget.node) {
     throw new Error('Touch target missing');
   }
@@ -228,139 +347,20 @@ async function parse() {
 
   results.push(...(await parseNode(targetNode)));
 
-  const options = await storage.get(
-    ['imgFullParse', 'searchModeAction', 'searchModeContextMenu'],
-    'sync'
-  );
-
-  if (targetNode.nodeName.toLowerCase() !== 'img' || options.imgFullParse) {
+  if (
+    targetNode.nodeName.toLowerCase() !== 'img' ||
+    task.options.imgFullParse
+  ) {
     results.push(
       ...(await parseDocument({root: document, touchRect})).reverse()
     );
   }
 
-  results = uniqBy(results, 'data');
-
-  const daraUrls = results.filter(item => item.data.startsWith('data:'));
-  for (const item of daraUrls) {
-    const index = results.indexOf(item);
-    const {data, ext} = await normalizeImage({dataUrl: item.data});
-    if (data) {
-      results[index] = {data, filename: normalizeFilename({ext})};
-    } else {
-      results.splice(index, 1);
-    }
-  }
-
-  const isLocalDoc = window.location.href.startsWith('file://');
-  if (isLocalDoc) {
-    const fileUrls = results.filter(item => item.data.startsWith('file://'));
-    if (fileUrls.length) {
-      const cnv = document.createElement('canvas');
-      const ctx = cnv.getContext('2d');
-      for (const item of fileUrls) {
-        const url = item.data;
-        const img = await getImageElement(url);
-        if (img) {
-          let {filename, ext} = getFilenameExtFromUrl(url);
-          const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
-            ? 'image/jpeg'
-            : 'image/png';
-          cnv.width = img.naturalWidth;
-          cnv.height = img.naturalHeight;
-
-          if (drawElementOnCanvas(ctx, img)) {
-            const data = canvasToDataUrl(cnv, {ctx, type});
-            if (data) {
-              filename = normalizeFilename({filename, ext});
-              results[results.indexOf(item)] = {data, filename};
-            }
-          }
-        }
-      }
-    }
-  }
-
-  const blobUrls = results.filter(item => item.data.startsWith('blob:'));
-  if (blobUrls.length) {
-    const cnv = document.createElement('canvas');
-    const ctx = cnv.getContext('2d');
-    const filename = normalizeFilename({ext: 'png'});
-    for (const item of blobUrls) {
-      const img = await getImageElement(item.data);
-      if (img) {
-        cnv.width = img.naturalWidth;
-        cnv.height = img.naturalHeight;
-
-        if (drawElementOnCanvas(ctx, img)) {
-          const data = canvasToDataUrl(cnv, {ctx});
-          if (data) {
-            results[results.indexOf(item)] = {data, filename};
-          }
-        }
-      }
-    }
-  }
-
-  const searchMode =
-    frameStore.data.eventOrigin === 'action'
-      ? options.searchModeAction
-      : options.searchModeContextMenu;
-  const mustUpload = searchMode === 'selectUpload';
-  const urlSupport = await hasUrlSupport(frameStore.data.engine);
-
-  const httpUrls = results.filter(item => validateUrl(item.data));
-  if (httpUrls.length) {
-    for (const item of httpUrls) {
-      const index = results.indexOf(item);
-      const url = item.data;
-      if (mustUpload || !urlSupport) {
-        let rsp;
-        if (targetEnv === 'firefox') {
-          const token = uuidv4();
-          await browser.runtime.sendMessage({
-            id: 'setRequestReferrer',
-            referrer: window.location.href,
-            token,
-            url
-          });
-          rsp = await fetchImage(url, {token});
-        } else {
-          rsp = await fetchImage(url);
-        }
-
-        if (!rsp || !rsp.response) {
-          results.splice(index, 1);
-          continue;
-        }
-
-        const {data, ext} = await normalizeImage({blob: rsp.response});
-        if (data) {
-          let {filename} = getFilenameExtFromUrl(url);
-          filename = normalizeFilename({filename, ext});
-          results[index] = {url, data, filename, mustUpload};
-        } else {
-          results.splice(index, 1);
-        }
-      } else {
-        results[index] = {url};
-      }
-    }
-  }
-
-  return results.filter(item => validateSearchItem(item));
+  return processResults(results, task);
 }
 
-function validateSearchItem(item) {
-  if (item.data && !item.data.startsWith('data:')) {
-    return false;
-  }
-
-  return true;
-}
-
-self.initParse = async function initParse() {
-  const images = await parse().catch(err => {
+self.initParse = async function (task) {
+  const images = await parse(task).catch(err => {
     console.log(err.toString());
     browser.runtime.sendMessage({
       id: 'pageParseError'
@@ -369,8 +369,16 @@ self.initParse = async function initParse() {
   if (images) {
     browser.runtime.sendMessage({
       id: 'pageParseSubmit',
-      engine: frameStore.data.engine,
-      images
+      images,
+      task
     });
   }
 };
+
+function onMessage(request) {
+  if (request.id === 'parsePage') {
+    initParse(request.task);
+  }
+}
+
+browser.runtime.onMessage.addListener(onMessage);

@@ -128,8 +128,8 @@ async function blobToArray(blob) {
 function blobToDataUrl(blob) {
   return new Promise(resolve => {
     const reader = new FileReader();
-    reader.onload = e => {
-      resolve(e.target.result);
+    reader.onload = ev => {
+      resolve(ev.target.result);
     };
     reader.onerror = () => {
       resolve();
@@ -176,6 +176,66 @@ function getAbsoluteUrl(url) {
   const a = document.createElement('a');
   a.href = url;
   return a.href;
+}
+
+function getFilenameExtFromUrl(url) {
+  const file = url
+    .split('/')
+    .pop()
+    .replace(/(?:#|\?).*?$/, '')
+    .split('.');
+  let filename = '';
+  let ext = '';
+  if (file.length === 1) {
+    filename = file[0];
+  } else {
+    filename = file.join('.');
+    ext = file.pop().toLowerCase();
+  }
+
+  return {filename, ext};
+}
+
+function findNode(
+  selector,
+  {timeout = 60000, throwError = true, observerOptions = null} = {}
+) {
+  return new Promise((resolve, reject) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      resolve(el);
+      return;
+    }
+
+    const observer = new MutationObserver(function (mutations, obs) {
+      const el = document.querySelector(selector);
+      if (el) {
+        obs.disconnect();
+        window.clearTimeout(timeoutId);
+        resolve(el);
+      }
+    });
+
+    const options = {
+      childList: true,
+      subtree: true
+    };
+    if (observerOptions) {
+      Object.assign(options, observerOptions);
+    }
+
+    observer.observe(document, options);
+
+    const timeoutId = window.setTimeout(function () {
+      observer.disconnect();
+
+      if (throwError) {
+        reject(new Error(`DOM node not found: ${selector}`));
+      } else {
+        resolve();
+      }
+    }, timeout);
+  });
 }
 
 async function getActiveTab() {
@@ -237,8 +297,10 @@ export {
   canvasToDataUrl,
   drawElementOnCanvas,
   getAbsoluteUrl,
+  getFilenameExtFromUrl,
   getDataUrlMimeType,
   isAndroid,
+  findNode,
   getActiveTab,
   getPlatform,
   sleep

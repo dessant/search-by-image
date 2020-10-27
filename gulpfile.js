@@ -36,7 +36,7 @@ function jsWebpack(done) {
 }
 
 function jsBabel() {
-  return src(['src/content/**/*.js'], {base: '.'})
+  return src(['src/content/insert/script.js'], {base: '.'})
     .pipe(babel())
     .pipe(dest(distDir));
 }
@@ -52,11 +52,9 @@ function html() {
 function css() {
   return src(
     [
-      'src/select/frame.css',
+      'src/content/style.css',
       'src/select/pointer.css',
-      'src/confirm/frame.css',
-      'src/capture/frame.css',
-      'src/content/css/*.css'
+      'src/engines/css/*.css'
     ],
     {
       base: '.'
@@ -135,7 +133,9 @@ async function fonts(done) {
   });
 
   await new Promise(resolve => {
-    src('node_modules/fontsource-roboto/files/roboto-latin-@(400|500|700)-normal.woff2')
+    src(
+      'node_modules/fontsource-roboto/files/roboto-latin-@(400|500|700)-normal.woff2'
+    )
       .pipe(dest(path.join(distDir, 'src/fonts/files')))
       .on('error', done)
       .on('finish', resolve);
