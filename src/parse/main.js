@@ -375,7 +375,13 @@ self.initParse = async function (task) {
   }
 };
 
-function onMessage(request) {
+function onMessage(request, sender) {
+  // Samsung Internet 13: extension messages are sometimes also dispatched
+  // to the sender frame.
+  if (sender.url === document.URL) {
+    return;
+  }
+
   if (request.id === 'parsePage') {
     initParse(request.task);
   }

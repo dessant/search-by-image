@@ -52,13 +52,18 @@ export default {
   methods: {
     getText,
 
-    onMessage: function (request) {
+    onMessage: function (request, sender) {
+      // Samsung Internet 13: extension messages are sometimes also dispatched
+      // to the sender frame.
+      if (sender.url === document.URL) {
+        return;
+      }
+
       if (request.id === 'openView') {
         this.task = request.task;
         this.images = request.images;
         this.showDialog = true;
-      }
-      if (request.id === 'closeView') {
+      } else if (request.id === 'closeView') {
         this.showDialog = false;
       }
     },

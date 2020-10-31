@@ -735,6 +735,12 @@ function onMessage(request, sender) {
 }
 
 async function processMessage(request, sender) {
+  // Samsung Internet 13: extension messages are sometimes also dispatched
+  // to the sender frame.
+  if (sender.url === document.URL) {
+    return;
+  }
+
   if (
     targetEnv === 'samsung' &&
     sender.tab &&
