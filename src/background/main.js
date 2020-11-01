@@ -770,12 +770,6 @@ async function processMessage(request, sender) {
     initSearch(request.task, request.images);
   } else if (request.id === 'imageSelectionSubmit') {
     hideContentSelectionPointer(sender.tab.id);
-    browser.tabs.sendMessage(
-      sender.tab.id,
-      {id: 'messageView', message: {id: 'closeView'}},
-      {frameId: 0}
-    );
-
     searchClickTarget(request.task);
   } else if (request.id === 'imageConfirmationSubmit') {
     browser.tabs.sendMessage(
@@ -811,7 +805,7 @@ async function processMessage(request, sender) {
     if (request.task.taskOrigin === 'action' && request.images.length <= 1) {
       browser.tabs.sendMessage(
         sender.tab.id,
-        {id: 'closeView', view: request.view},
+        {id: 'closeView', view: 'select'},
         {frameId: 0}
       );
     }
@@ -821,7 +815,7 @@ async function processMessage(request, sender) {
     if (request.task.taskOrigin === 'action') {
       browser.tabs.sendMessage(
         sender.tab.id,
-        {id: 'closeView', view: request.view},
+        {id: 'closeView', view: 'select'},
         {frameId: 0}
       );
     }

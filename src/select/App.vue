@@ -53,6 +53,7 @@ export default {
       } else if (request.id === 'closeView') {
         this.snackbar.close();
       } else if (request.id === 'imageSelectionSubmit') {
+        this.snackbar.close();
         this.task.sourceFrameId = request.senderFrameId;
         browser.runtime.sendMessage({id: request.id, task: this.task});
       }
