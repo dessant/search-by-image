@@ -772,7 +772,7 @@ async function processMessage(request, sender) {
     hideContentSelectionPointer(sender.tab.id);
     browser.tabs.sendMessage(
       sender.tab.id,
-      {id: 'closeView', view: 'select', messageView: true},
+      {id: 'messageView', message: {id: 'closeView'}},
       {frameId: 0}
     );
 
@@ -808,8 +808,24 @@ async function processMessage(request, sender) {
 
     initSearch(request.task, image);
   } else if (request.id === 'pageParseSubmit') {
+    if (request.task.taskOrigin === 'action' && request.images.length <= 1) {
+      browser.tabs.sendMessage(
+        sender.tab.id,
+        {id: 'closeView', view: request.view},
+        {frameId: 0}
+      );
+    }
+
     handleParseResults(request.task, request.images);
   } else if (request.id === 'pageParseError') {
+    if (request.task.taskOrigin === 'action') {
+      browser.tabs.sendMessage(
+        sender.tab.id,
+        {id: 'closeView', view: request.view},
+        {frameId: 0}
+      );
+    }
+
     showNotification({messageId: 'error_internalError'});
   } else if (request.id === 'setRequestReferrer') {
     setRequestReferrer(request.url, request.referrer, request.token);

@@ -363,7 +363,8 @@ self.initParse = async function (task) {
   const images = await parse(task).catch(err => {
     console.log(err.toString());
     browser.runtime.sendMessage({
-      id: 'pageParseError'
+      id: 'pageParseError',
+      task
     });
   });
   if (images) {

@@ -32,10 +32,12 @@ function showView(view) {
   contentStorage.viewFrame.classList.remove('hidden');
 }
 
-function hideView() {
+function hideView(view) {
   window.setTimeout(function () {
-    contentStorage.viewFrame.classList.add('hidden');
-    document.body.focus();
+    if (contentStorage.viewFrame.id === view) {
+      contentStorage.viewFrame.classList.add('hidden');
+      document.body.focus();
+    }
   }, 300);
 }
 
@@ -65,12 +67,13 @@ function onMessage(request, sender) {
     if (request.messageView) {
       messageView({id: request.id});
     }
-    hideView();
+    hideView(request.view);
   } else if (request.id === 'messageView') {
     const message = request.message;
     if (request.flattenMessage) {
       delete request.id;
       delete request.message;
+      delete request.flattenMessage;
       Object.assign(message, request);
     }
 
