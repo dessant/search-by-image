@@ -287,6 +287,20 @@ function getMaxImageSize(engine) {
   }
 }
 
+async function hasBaseModule(tabId, frameId = 0) {
+  try {
+    const [isBaseModule] = await browser.tabs.executeScript(tabId, {
+      frameId,
+      runAt: 'document_start',
+      code: `typeof touchTarget !== 'undefined'`
+    });
+
+    if (isBaseModule) {
+      return true;
+    }
+  } catch (err) {}
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -304,5 +318,6 @@ export {
   captureVisibleTabArea,
   configTheme,
   getLargeImageMessage,
-  getMaxImageSize
+  getMaxImageSize,
+  hasBaseModule
 };

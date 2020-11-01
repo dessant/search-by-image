@@ -8,7 +8,6 @@ import {
   createTab,
   executeCode,
   executeFile,
-  scriptsAllowed,
   onComplete,
   dataUrlToBlob,
   isAndroid,
@@ -23,7 +22,8 @@ import {
   showContributePage,
   normalizeFilename,
   captureVisibleTabArea,
-  validateUrl
+  validateUrl,
+  hasBaseModule
 } from 'utils/app';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
@@ -477,7 +477,7 @@ async function onContextMenuItemClick(info, tab) {
   if (task.searchMode === 'capture') {
     await openContentView({task}, 'capture');
   } else {
-    if (!(await scriptsAllowed(task.sourceTabId, task.sourceFrameId))) {
+    if (!(await hasBaseModule(task.sourceTabId, task.sourceFrameId))) {
       if (
         info.srcUrl &&
         info.mediaType === 'image' &&
@@ -542,7 +542,7 @@ async function createTask(data) {
 async function openContentView(message, view) {
   const tabId = message.task.sourceTabId;
 
-  if (!(await scriptsAllowed(tabId))) {
+  if (!(await hasBaseModule(tabId))) {
     await showNotification({messageId: 'error_scriptsNotAllowed'});
     return;
   }
@@ -587,7 +587,7 @@ async function onActionClick(task, tabUrl) {
 
     await openContentView({task}, 'select');
 
-    if (await scriptsAllowed(task.sourceTabId)) {
+    if (await hasBaseModule(task.sourceTabId)) {
       await showContentSelectionPointer(task.sourceTabId);
     }
   }

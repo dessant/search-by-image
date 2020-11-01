@@ -67,17 +67,6 @@ function executeFile(file, tabId, frameId = 0, runAt = 'document_start') {
   });
 }
 
-async function scriptsAllowed(tabId, frameId = 0) {
-  try {
-    await browser.tabs.executeScript(tabId, {
-      frameId: frameId,
-      runAt: 'document_start',
-      code: 'true;'
-    });
-    return true;
-  } catch (err) {}
-}
-
 function getRandomString(length) {
   let text = '';
   const seed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -286,7 +275,6 @@ export {
   createTab,
   executeCode,
   executeFile,
-  scriptsAllowed,
   getRandomString,
   getRandomInt,
   dataUrlToArray,
