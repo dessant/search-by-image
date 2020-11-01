@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/dessant/search-by-image/compare/v3.2.0...v3.3.0) (2020-11-01)
+
+
+### Features
+
+* update engine icons ([adcc910](https://github.com/dessant/search-by-image/commit/adcc910409565b32814f23889d24e3be66cd0971))
+
+
+### Bug Fixes
+
+* don't hide content frame when switching between views ([3865bb4](https://github.com/dessant/search-by-image/commit/3865bb40a8625361923545f52c5fab346dd2a8be))
+* hide selection view after use ([2b2fd12](https://github.com/dessant/search-by-image/commit/2b2fd12a9bc43723bcbb3ad67fc3a43fbe4e90a5))
+* ignore messages sent by the current frame ([a93df98](https://github.com/dessant/search-by-image/commit/a93df9805ec6b28d20c83041c958c5c971de32c2))
+* only inject scripts if base script is present ([1124df3](https://github.com/dessant/search-by-image/commit/1124df3014e8057094cdfced418816d6cafdbbbd))
+* wait for Yandex challenge to be solved before searching ([6dc5d1f](https://github.com/dessant/search-by-image/commit/6dc5d1f163ef733839e96c8777bb8049d5dabec1))
+
 ## [3.2.0](https://github.com/dessant/search-by-image/compare/v3.1.0...v3.2.0) (2020-10-27)
 
 
