@@ -197,6 +197,104 @@ async function createMenu(options) {
   }
 }
 
+async function createTask(data) {
+  const task = {
+    taskOrigin: '',
+    taskType: 'search',
+    searchMode: '',
+    sourceTabId: -1,
+    sourceTabIndex: -1,
+    sourceFrameId: -1,
+    engineGroup: '',
+    engines: [],
+    options: {}
+  };
+
+  task.options = await storage.get(optionKeys, 'sync');
+
+  if (data.options) {
+    Object.assign(task.options, data.options);
+
+    delete data.options;
+  }
+
+  if (data.engine) {
+    if (data.engine === 'allEngines') {
+      const enabledEngines = await getEnabledEngines(task.options);
+      task.engineGroup = 'allEngines';
+      task.engines = enabledEngines;
+    } else {
+      task.engines.push(data.engine);
+    }
+
+    delete data.engine;
+  }
+
+  Object.assign(task, data);
+
+  if (!task.searchMode) {
+    task.searchMode =
+      task.taskOrigin === 'action'
+        ? task.options.searchModeAction
+        : task.options.searchModeContextMenu;
+  }
+
+  return task;
+}
+
+async function openContentView(message, view) {
+  const tabId = message.task.sourceTabId;
+
+  if (!(await hasBaseModule(tabId))) {
+    await showNotification({messageId: 'error_scriptsNotAllowed'});
+    return;
+  }
+
+  const [isContentModule] = await executeCode(
+    `typeof initContent !== 'undefined'`,
+    tabId
+  );
+  if (!isContentModule) {
+    await executeFile('/src/content/script.js', tabId);
+  }
+
+  await browser.tabs.sendMessage(
+    tabId,
+    {
+      id: 'openView',
+      ...message,
+      view
+    },
+    {frameId: 0}
+  );
+}
+
+async function showContentSelectionPointer(tabId) {
+  return browser.tabs.executeScript(tabId, {
+    allFrames: true,
+    runAt: 'document_start',
+    code: `
+      if (typeof addTouchListener !== 'undefined') {
+        addTouchListener();
+        showPointer();
+      }
+    `
+  });
+}
+
+async function hideContentSelectionPointer(tabId) {
+  return browser.tabs.executeScript(tabId, {
+    allFrames: true,
+    runAt: 'document_start',
+    code: `
+      if (typeof removeTouchListener !== 'undefined') {
+        removeTouchListener();
+        hidePointer();
+      }
+    `
+  });
+}
+
 async function getTabUrl(task, search, image, sessionKey) {
   const engine = search.engine;
   let tabUrl = engines[engine][search.method].target;
@@ -217,6 +315,21 @@ async function getTabUrl(task, search, image, sessionKey) {
   }
 
   return tabUrl;
+}
+
+async function initSearch(task, images) {
+  if (!Array.isArray(images)) {
+    images = [images];
+  }
+
+  const tab = await browser.tabs.get(task.sourceTabId);
+  task.sourceTabIndex = tab.index;
+
+  let firstBatchItem = true;
+  for (const image of images) {
+    await searchImage(task, image, firstBatchItem);
+    firstBatchItem = false;
+  }
 }
 
 async function searchImage(task, image, firstBatchItem = true) {
@@ -494,78 +607,6 @@ async function onContextMenuItemClick(info, tab) {
   }
 }
 
-async function createTask(data) {
-  const task = {
-    taskOrigin: '',
-    taskType: 'search',
-    searchMode: '',
-    sourceTabId: -1,
-    sourceTabIndex: -1,
-    sourceFrameId: -1,
-    engineGroup: '',
-    engines: [],
-    options: {}
-  };
-
-  task.options = await storage.get(optionKeys, 'sync');
-
-  if (data.options) {
-    Object.assign(task.options, data.options);
-
-    delete data.options;
-  }
-
-  if (data.engine) {
-    if (data.engine === 'allEngines') {
-      const enabledEngines = await getEnabledEngines(task.options);
-      task.engineGroup = 'allEngines';
-      task.engines = enabledEngines;
-    } else {
-      task.engines.push(data.engine);
-    }
-
-    delete data.engine;
-  }
-
-  Object.assign(task, data);
-
-  if (!task.searchMode) {
-    task.searchMode =
-      task.taskOrigin === 'action'
-        ? task.options.searchModeAction
-        : task.options.searchModeContextMenu;
-  }
-
-  return task;
-}
-
-async function openContentView(message, view) {
-  const tabId = message.task.sourceTabId;
-
-  if (!(await hasBaseModule(tabId))) {
-    await showNotification({messageId: 'error_scriptsNotAllowed'});
-    return;
-  }
-
-  const [isContentModule] = await executeCode(
-    `typeof initContent !== 'undefined'`,
-    tabId
-  );
-  if (!isContentModule) {
-    await executeFile('/src/content/script.js', tabId);
-  }
-
-  await browser.tabs.sendMessage(
-    tabId,
-    {
-      id: 'openView',
-      ...message,
-      view
-    },
-    {frameId: 0}
-  );
-}
-
 async function onActionClick(task, tabUrl) {
   if (task.searchMode === 'upload') {
     const browseUrl = browser.extension.getURL('/src/browse/index.html');
@@ -687,47 +728,6 @@ function setRequestReferrer(url, referrer, token) {
     },
     ['blocking', 'requestHeaders']
   );
-}
-
-async function showContentSelectionPointer(tabId) {
-  return browser.tabs.executeScript(tabId, {
-    allFrames: true,
-    runAt: 'document_start',
-    code: `
-      if (typeof addTouchListener !== 'undefined') {
-        addTouchListener();
-        showPointer();
-      }
-    `
-  });
-}
-
-async function hideContentSelectionPointer(tabId) {
-  return browser.tabs.executeScript(tabId, {
-    allFrames: true,
-    runAt: 'document_start',
-    code: `
-      if (typeof removeTouchListener !== 'undefined') {
-        removeTouchListener();
-        hidePointer();
-      }
-    `
-  });
-}
-
-async function initSearch(task, images) {
-  if (!Array.isArray(images)) {
-    images = [images];
-  }
-
-  const tab = await browser.tabs.get(task.sourceTabId);
-  task.sourceTabIndex = tab.index;
-
-  let firstBatchItem = true;
-  for (const image of images) {
-    await searchImage(task, image, firstBatchItem);
-    firstBatchItem = false;
-  }
 }
 
 function onMessage(request, sender) {
