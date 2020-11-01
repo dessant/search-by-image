@@ -72,7 +72,9 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  if (!window.location.pathname.startsWith('/showcaptcha')) {
+    initUpload(upload, engine, sessionKey);
+  }
 }
 
 init();
