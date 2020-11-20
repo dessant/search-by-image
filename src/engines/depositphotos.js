@@ -1,5 +1,5 @@
 import {validateUrl} from 'utils/app';
-import {getXHR, uploadCallback, initUpload} from 'utils/engines';
+import {getXHR, uploadCallback, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'depositphotos';
 
@@ -18,7 +18,7 @@ function showResults(xhr) {
   }
 }
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const url = 'https://msis.depositphotos.com/search';
 
   const data = new FormData();
@@ -26,6 +26,8 @@ async function upload({task, search, image}) {
 
   const xhr = getXHR();
   xhr.addEventListener('load', function () {
+    sendReceipt(storageKeys);
+
     uploadCallback(this, showResults, engine);
   });
   xhr.open('POST', url);
@@ -37,7 +39,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'madridMonitor';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   (await findNode('#imageModeLink')).click();
 
   await findNode('.fileTarget-open');
@@ -25,6 +25,8 @@ async function upload({task, search, image}) {
   (await findNode('a[data-hasqtip="87"]')).click();
   (await findNode('a[data-hasqtip="88"]')).click();
 
+  await sendReceipt(storageKeys);
+
   window.setTimeout(async () => {
     (
       await findNode('#image_search_container .searchButtonContainer a')
@@ -33,7 +35,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

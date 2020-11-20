@@ -27,7 +27,7 @@ export default {
   },
 
   methods: {
-    upload: async function ({task, search, image}) {
+    search: async function ({task, search, image}) {
       if (this.engine === 'google') {
         const data = new FormData();
         data.append('encoded_image', image.imageBlob, image.imageFilename);
@@ -80,6 +80,7 @@ export default {
     const session = await browser.runtime.sendMessage({
       id: 'storageRequest',
       asyncResponse: true,
+      saveReceipt: true,
       storageKey
     });
 
@@ -107,6 +108,7 @@ export default {
         const image = await browser.runtime.sendMessage({
           id: 'storageRequest',
           asyncResponse: true,
+          saveReceipt: true,
           storageKey: session.imageKey
         });
 
@@ -114,7 +116,7 @@ export default {
           if (session.search.method === 'upload') {
             image.imageBlob = dataUrlToBlob(image.imageDataUrl);
           }
-          await this.upload({
+          await this.search({
             task: session.task,
             search: session.search,
             image

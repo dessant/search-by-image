@@ -46,29 +46,25 @@ function addStorageItem(
   return storageKey;
 }
 
-function getStorageItem(storageKey, {saveReceipts = true} = {}) {
+function getStorageItem(storageKey, {saveReceipt = false} = {}) {
   const storedData = dataStorage[storageKey];
   if (storedData) {
-    if (saveReceipts && storedData.receipts) {
-      storedData.receipts.received += 1;
-      if (storedData.receipts.expected === storedData.receipts.received) {
-        deleteStorageItem(storageKey);
-      }
+    if (saveReceipt) {
+      saveStorageItemReceipt(storageKey);
     }
 
     return storedData.data;
   }
 }
 
-function updateStorageItem(storageKey, data) {
+function saveStorageItemReceipt(storageKey) {
   const storedData = dataStorage[storageKey];
-  if (storedData) {
-    Object.assign(storedData.data, data);
-  } else {
-    throw new Error('storage item does not exist');
+  if (storedData && storedData.receipts) {
+    storedData.receipts.received += 1;
+    if (storedData.receipts.expected === storedData.receipts.received) {
+      deleteStorageItem(storageKey);
+    }
   }
-
-  return storedData;
 }
 
 function deleteStorageItem(storageKey) {
@@ -860,7 +856,9 @@ async function processMessage(request, sender) {
   } else if (request.id === 'getPlatform') {
     return getPlatform();
   } else if (request.id === 'storageRequest') {
-    const data = getStorageItem(request.storageKey);
+    const data = getStorageItem(request.storageKey, {
+      saveReceipt: request.saveReceipt
+    });
     if (data) {
       if (request.asyncResponse) {
         return Promise.resolve(data);
@@ -871,6 +869,10 @@ async function processMessage(request, sender) {
           {frameId: sender.frameId}
         );
       }
+    }
+  } else if (request.id === 'storageReceipt') {
+    for (const storageKey of request.storageKeys) {
+      saveStorageItemReceipt(storageKey);
     }
   }
 }

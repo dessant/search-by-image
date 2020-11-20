@@ -149,7 +149,21 @@ function uploadCallback(xhr, callback, engine) {
   }
 }
 
-async function initUpload(uploadFunc, engine, sessionKey) {
+async function sendReceipt(storageKeys) {
+  if (storageKeys.length) {
+    const keys = [...storageKeys];
+    while (storageKeys.length) {
+      storageKeys.pop();
+    }
+
+    await browser.runtime.sendMessage({
+      id: 'storageReceipt',
+      storageKeys: keys
+    });
+  }
+}
+
+async function initSearch(searchFn, engine, sessionKey) {
   // Script may be injected multiple times
   if (typeof self.session === 'undefined') {
     self.session = null;
@@ -164,6 +178,8 @@ async function initUpload(uploadFunc, engine, sessionKey) {
   });
 
   if (session) {
+    const storageKeys = [sessionKey, session.imageKey];
+
     try {
       if (session.search.method === 'upload') {
         const maxSize = getMaxImageSize(engine);
@@ -186,11 +202,20 @@ async function initUpload(uploadFunc, engine, sessionKey) {
         if (session.search.method === 'upload') {
           image.imageBlob = dataUrlToBlob(image.imageDataUrl);
         }
-        await uploadFunc({task: session.task, search: session.search, image});
+        await searchFn({
+          task: session.task,
+          search: session.search,
+          image,
+          storageKeys
+        });
       } else {
+        await sendReceipt(storageKeys);
+
         showEngineError({errorId: 'error_sessionExpired', engine});
       }
     } catch (err) {
+      await sendReceipt(storageKeys);
+
       showEngineError({errorId: 'error_engine', engine});
 
       console.log(err.toString());
@@ -207,5 +232,6 @@ export {
   setFileInputData,
   showEngineError,
   uploadCallback,
-  initUpload
+  sendReceipt,
+  initSearch
 };

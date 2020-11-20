@@ -1,10 +1,10 @@
 import {validateUrl} from 'utils/app';
 import {findNode, isAndroid} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'baidu';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   if (await isAndroid()) {
     const data = new FormData();
     data.append('tn', 'pc');
@@ -31,6 +31,8 @@ async function upload({task, search, image}) {
 
     const tabUrl = (await rsp.json()).data.url;
 
+    await sendReceipt(storageKeys);
+
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
     }
@@ -43,10 +45,14 @@ async function upload({task, search, image}) {
 
       await setFileInputData(inputSelector, input, image);
 
+      await sendReceipt(storageKeys);
+
       input.dispatchEvent(new Event('change'));
     } else {
       const input = await findNode('input#soutu-url-kw');
       input.value = image.imageUrl;
+
+      await sendReceipt(storageKeys);
 
       (await findNode('.soutu-url-btn')).click();
     }
@@ -54,7 +60,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

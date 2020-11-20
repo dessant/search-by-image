@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'jpDesign';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const inputSelector = '#ImageFile';
   const input = await findNode(inputSelector);
 
@@ -13,12 +13,14 @@ async function upload({task, search, image}) {
 
   await findNode('#photo_image');
 
+  await sendReceipt(storageKeys);
+
   (await findNode('#searchForm')).removeAttribute('target');
   (await findNode('.action input[type=submit]')).click();
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

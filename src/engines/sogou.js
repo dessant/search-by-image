@@ -1,9 +1,9 @@
 import {findNode, isAndroid} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'sogou';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   let inputSelector;
   let input;
 
@@ -19,11 +19,13 @@ async function upload({task, search, image}) {
 
   await setFileInputData(inputSelector, input, image);
 
+  await sendReceipt(storageKeys);
+
   input.dispatchEvent(new Event('change'));
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

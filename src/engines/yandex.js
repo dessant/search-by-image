@@ -5,7 +5,8 @@ import {
   getValidHostname,
   setFileInputData,
   uploadCallback,
-  initUpload
+  initSearch,
+  sendReceipt
 } from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
@@ -38,7 +39,7 @@ function showResults(xhr) {
   }
 }
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   if (
     document.head.querySelector('meta[name="apple-mobile-web-app-capable"]') ||
     targetEnv === 'safari'
@@ -53,6 +54,8 @@ async function upload({task, search, image}) {
 
     const xhr = getXHR();
     xhr.addEventListener('load', function () {
+      sendReceipt(storageKeys);
+
       uploadCallback(this, showResults, engine);
     });
     xhr.open('POST', url);
@@ -70,13 +73,15 @@ async function upload({task, search, image}) {
 
     await setFileInputData(inputSelector, input, image);
 
+    await sendReceipt(storageKeys);
+
     input.dispatchEvent(new Event('change'));
   }
 }
 
 function init() {
   if (!window.location.pathname.startsWith('/showcaptcha')) {
-    initUpload(upload, engine, sessionKey);
+    initSearch(search, engine, sessionKey);
   }
 }
 

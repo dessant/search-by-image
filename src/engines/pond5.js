@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pond5';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   (
     await findNode('div#main form.SiteSearch div.js-reverseSearchInputIcon')
   ).click();
@@ -13,11 +13,13 @@ async function upload({task, search, image}) {
 
   await setFileInputData(inputSelector, input, image);
 
+  await sendReceipt(storageKeys);
+
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

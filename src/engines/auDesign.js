@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auDesign';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
 
@@ -12,6 +12,8 @@ async function upload({task, search, image}) {
   input.dispatchEvent(new Event('change'));
 
   (await findNode('.popup-content .buttons button')).click();
+
+  await sendReceipt(storageKeys);
 
   (
     await Promise.race([
@@ -22,7 +24,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

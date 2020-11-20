@@ -148,6 +148,7 @@ export default {
     const task = await browser.runtime.sendMessage({
       id: 'storageRequest',
       asyncResponse: true,
+      saveReceipt: true,
       storageKey
     });
 

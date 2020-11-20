@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pixta';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   (await findNode('div.search-form__search-by-image')).click();
 
   const inputSelector = 'input#image[type="file"]';
@@ -11,11 +11,13 @@ async function upload({task, search, image}) {
 
   await setFileInputData(inputSelector, input, image);
 
+  await sendReceipt(storageKeys);
+
   input.dispatchEvent(new Event('change'));
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

@@ -1,11 +1,11 @@
 import {validateUrl} from 'utils/app';
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
 const engine = 'ascii2d';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   if (targetEnv === 'safari') {
     const token = (await findNode('input[name="authenticity_token"]')).value;
 
@@ -26,6 +26,8 @@ async function upload({task, search, image}) {
 
     const tabUrl = rsp.url;
 
+    await sendReceipt(storageKeys);
+
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
     }
@@ -35,12 +37,14 @@ async function upload({task, search, image}) {
 
     await setFileInputData(inputSelector, input, image);
 
+    await sendReceipt(storageKeys);
+
     (await findNode('#file_upload')).submit();
   }
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

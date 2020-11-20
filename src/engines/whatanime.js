@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {initUpload} from 'utils/engines';
+import {initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'whatanime';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const img = new Image();
   img.onload = async function () {
     const cnv = document.createElement('canvas');
@@ -38,6 +38,8 @@ async function upload({task, search, image}) {
     ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
     const data = cnv.toDataURL('image/jpeg', 0.8);
 
+    await sendReceipt(storageKeys);
+
     (await findNode('#autoSearch')).checked = true;
     (await findNode('#originalImage')).src = data;
   };
@@ -45,7 +47,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

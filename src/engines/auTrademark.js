@@ -1,9 +1,21 @@
-import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {findNode, isAndroid} from 'utils/common';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auTrademark';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
+  if (await isAndroid()) {
+    if (document.cookie.match(/_fullMobile/)) {
+      if (document.location.pathname.endsWith('/quick')) {
+        (await findNode('a#goToAdvancedSearch')).click();
+        return;
+      }
+    } else {
+      (await findNode('#pageContent a[onclick^="document.cookie"]')).click();
+      return;
+    }
+  }
+
   const inputSelector = 'input.dz-hidden-input';
   const input = await findNode(inputSelector);
 
@@ -13,6 +25,8 @@ async function upload({task, search, image}) {
 
   await findNode('div.cropper-container');
 
+  await sendReceipt(storageKeys);
+
   (
     await findNode('#qa-search-submit:not(.disabled)', {
       observerOptions: {attributes: true, attributeFilter: ['class']}
@@ -21,7 +35,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

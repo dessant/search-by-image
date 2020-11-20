@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'alibabaChina';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const button = await findNode('#img-search-btn', {timeout: 120000});
 
   const inputSelector = 'input[type=file]';
@@ -17,13 +17,15 @@ async function upload({task, search, image}) {
 
   await setFileInputData(inputSelector, input, image);
 
+  await sendReceipt(storageKeys);
+
   window.setTimeout(() => {
     input.dispatchEvent(new Event('change'));
   }, 100);
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

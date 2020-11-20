@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'taobao';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const button = await findNode('div.drop-wrapper', {timeout: 120000});
 
   const inputSelector = 'input#J_IMGSeachUploadBtn';
@@ -17,11 +17,13 @@ async function upload({task, search, image}) {
 
   await setFileInputData(inputSelector, input, image);
 
+  await sendReceipt(storageKeys);
+
   input.dispatchEvent(new Event('change'));
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'tmview';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const inputSelector = 'input#economicDocuments';
   const input = await findNode(inputSelector);
 
@@ -13,11 +13,13 @@ async function upload({task, search, image}) {
 
   await findNode('img[alt=tmview]');
 
+  await sendReceipt(storageKeys);
+
   (await findNode('button[data-test-id=search-button]')).click();
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

@@ -1,19 +1,21 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'tineye';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   const inputSelector = 'input#upload_box';
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
 
+  await sendReceipt(storageKeys);
+
   input.dispatchEvent(new Event('change'));
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

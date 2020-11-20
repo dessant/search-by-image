@@ -1,11 +1,11 @@
 import {validateUrl} from 'utils/app';
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
 const engine = '123rf';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   if (targetEnv === 'safari') {
     const data = new FormData();
     data.append('file_upload', image.imageBlob, image.imageFilename);
@@ -23,6 +23,8 @@ async function upload({task, search, image}) {
 
     const tabUrl = rsp.url;
 
+    await sendReceipt(storageKeys);
+
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
     }
@@ -34,12 +36,14 @@ async function upload({task, search, image}) {
 
     await setFileInputData(inputSelector, input, image);
 
+    await sendReceipt(storageKeys);
+
     (await findNode('#btn_submit2')).click();
   }
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

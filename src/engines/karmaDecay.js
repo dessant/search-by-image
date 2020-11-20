@@ -1,11 +1,11 @@
 import {validateUrl} from 'utils/app';
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
 const engine = 'karmaDecay';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   if (targetEnv === 'safari') {
     const data = new FormData();
     data.append('image', image.imageBlob, image.imageFilename);
@@ -22,6 +22,8 @@ async function upload({task, search, image}) {
 
     const tabUrl = rsp.url;
 
+    await sendReceipt(storageKeys);
+
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
     }
@@ -30,6 +32,8 @@ async function upload({task, search, image}) {
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);
+
+    await sendReceipt(storageKeys);
 
     input.dispatchEvent(new Event('change'));
   }
@@ -40,7 +44,7 @@ function init() {
     !document.body.querySelector('form#challenge-form') ||
     !document.head.querySelector('meta[name="captcha-bypass"]')
   ) {
-    initUpload(upload, engine, sessionKey);
+    initSearch(search, engine, sessionKey);
   }
 }
 

@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'branddb';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   await Promise.race([
     findNode('tr[id="0"]'), // desktop
     findNode('.flowItemBox .flowItem[foo="0"]') // mobile
@@ -26,13 +26,15 @@ async function upload({task, search, image}) {
   // select Concept strategy
   (await findNode('a[data-hasqtip="52"]')).click();
 
+  await sendReceipt(storageKeys);
+
   window.setTimeout(async () => {
     (await findNode('#image_filter .addFilterButton')).click();
   }, 100);
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

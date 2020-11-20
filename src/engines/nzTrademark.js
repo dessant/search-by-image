@@ -1,9 +1,9 @@
 import {findNode} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'nzTrademark';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   (await findNode('#logoCheckButton')).click();
 
   const inputSelector = '#imageSearchDialogUploadButton';
@@ -12,6 +12,8 @@ async function upload({task, search, image}) {
   await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
+
+  await sendReceipt(storageKeys);
 
   (
     await findNode('#imageSearchDialogNextButton:not([disabled])', {
@@ -33,7 +35,7 @@ async function upload({task, search, image}) {
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();

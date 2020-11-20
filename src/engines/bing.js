@@ -1,9 +1,9 @@
 import {findNode, isAndroid} from 'utils/common';
-import {setFileInputData, initUpload} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'bing';
 
-async function upload({task, search, image}) {
+async function search({task, search, image, storageKeys}) {
   if (await isAndroid()) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
@@ -19,6 +19,8 @@ async function upload({task, search, image}) {
 
     form.appendChild(input);
     document.body.appendChild(form);
+
+    await sendReceipt(storageKeys);
 
     if (image.imageSize > 600 * 1024) {
       const img = new Image();
@@ -73,12 +75,14 @@ async function upload({task, search, image}) {
 
     await setFileInputData(inputSelector, input, image);
 
+    await sendReceipt(storageKeys);
+
     input.dispatchEvent(new Event('change'));
   }
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  initSearch(search, engine, sessionKey);
 }
 
 init();
