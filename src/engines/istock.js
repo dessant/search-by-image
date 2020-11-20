@@ -46,9 +46,10 @@ async function upload({task, search, image}) {
   } else {
     (await findNode('a.search-camera-icon')).click();
 
-    const input = await findNode('input[type=file]');
+    const inputSelector = 'input[type=file]';
+    const input = await findNode(inputSelector);
 
-    setFileInputData(input, image);
+    await setFileInputData(inputSelector, input, image);
 
     input.dispatchEvent(new Event('change'));
   }

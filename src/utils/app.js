@@ -79,6 +79,12 @@ function showNotification({message, messageId, title, type = 'info'}) {
   if (messageId) {
     message = getText(messageId);
   }
+
+  if (targetEnv === 'safari') {
+    console.log('notification', message);
+    return;
+  }
+
   return browser.notifications.create(`sbi-notification-${type}`, {
     type: 'basic',
     title: title,

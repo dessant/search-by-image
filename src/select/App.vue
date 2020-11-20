@@ -25,6 +25,7 @@ import {MDCSnackbar} from '@material/snackbar';
 import {IconButton} from 'ext-components';
 
 import {getText} from 'utils/common';
+import {targetEnv} from 'utils/config';
 
 export default {
   components: {
@@ -33,6 +34,8 @@ export default {
 
   data: function () {
     return {
+      contentMessagePort: null,
+
       task: null
     };
   },
@@ -43,7 +46,7 @@ export default {
     onMessage: function (request, sender) {
       // Samsung Internet 13: extension messages are sometimes also dispatched
       // to the sender frame.
-      if (sender.url === document.URL) {
+      if (sender && sender.url === document.URL) {
         return;
       }
 
@@ -65,18 +68,24 @@ export default {
     }
   },
 
-  mounted: function () {
+  mounted: async function () {
     this.snackbar = new MDCSnackbar(this.$refs.snackbar);
     this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
     this.snackbar.closeOnEscape = false;
 
-    browser.runtime.onMessage.addListener(this.onMessage);
-    browser.runtime.sendMessage({
-      id: 'routeMessage',
-      setSenderFrameId: true,
-      messageFrameId: 0,
-      message: {id: 'saveFrameId'}
-    });
+    if (targetEnv === 'safari') {
+      const tab = await browser.tabs.getCurrent();
+      this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
+      this.contentMessagePort.onMessage.addListener(this.onMessage);
+    } else {
+      browser.runtime.onMessage.addListener(this.onMessage);
+      browser.runtime.sendMessage({
+        id: 'routeMessage',
+        setSenderFrameId: true,
+        messageFrameId: 0,
+        message: {id: 'saveFrameId'}
+      });
+    }
   }
 };
 </script>

@@ -6,8 +6,10 @@ const engine = 'getty';
 async function upload({task, search, image}) {
   (await findNode('a.search-camera-icon')).click();
 
-  const input = await findNode('input[type=file]');
-  setFileInputData(input, image);
+  const inputSelector = 'input[type=file]';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

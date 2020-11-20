@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'jingdong';
 
 async function upload({task, search, image}) {
-  const input = await findNode('input.upload-trigger', {timeout: 10000});
-  setFileInputData(input, image);
+  const inputSelector = 'input[type=file]';
+  const input = await findNode(inputSelector, {timeout: 10000});
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

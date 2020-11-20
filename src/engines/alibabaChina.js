@@ -6,7 +6,8 @@ const engine = 'alibabaChina';
 async function upload({task, search, image}) {
   const button = await findNode('#img-search-btn', {timeout: 120000});
 
-  const input = await findNode('input[type=file]');
+  const inputSelector = 'input[type=file]';
+  const input = await findNode(inputSelector);
   input.addEventListener('click', ev => ev.preventDefault(), {
     capture: true,
     once: true
@@ -14,7 +15,7 @@ async function upload({task, search, image}) {
 
   button.click();
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   window.setTimeout(() => {
     input.dispatchEvent(new Event('change'));

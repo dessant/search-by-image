@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'iqdb';
 
 async function upload({task, search, image}) {
-  const input = await findNode('#file');
-  setFileInputData(input, image);
+  const inputSelector = '#file';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   (await findNode('form')).submit();
 }

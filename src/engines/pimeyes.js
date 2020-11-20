@@ -8,9 +8,10 @@ async function upload({task, search, image}) {
 
   (await findNode('.upload-bar button[aria-label="upload photo" i]')).click();
 
-  const input = await findNode('input#file-input');
+  const inputSelector = 'input#file-input';
+  const input = await findNode(inputSelector);
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

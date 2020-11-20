@@ -1,7 +1,9 @@
 import browser from 'webextension-polyfill';
+import {v4 as uuidv4} from 'uuid';
 
 import {getMaxImageSize, getLargeImageMessage} from 'utils/app';
 import {dataUrlToBlob} from 'utils/common';
+import {targetEnv} from 'utils/config';
 
 function getXHR() {
   try {
@@ -13,16 +15,6 @@ function getXHR() {
   }
 }
 
-function getDataTransfer() {
-  try {
-    // Firefox
-    return new window.wrappedJSObject.DataTransfer();
-  } catch (err) {
-    // Chrome
-    return new DataTransfer();
-  }
-}
-
 function getValidHostname(validHostnames, engine) {
   const hostname = window.location.hostname;
   if (!validHostnames.includes(hostname)) {
@@ -31,15 +23,105 @@ function getValidHostname(validHostnames, engine) {
   return hostname;
 }
 
-function setFileInputData(input, image) {
-  const fileData = new File([image.imageBlob], image.imageFilename, {
-    type: image.imageType
-  });
+async function setFileInputData(selector, input, image) {
+  if (targetEnv === 'safari') {
+    function patchInput(eventName) {
+      function dataUrlToFile(dataUrl, mimeType, filename) {
+        const [meta, data] = dataUrl.split(',');
 
-  const data = new DataTransfer();
-  data.items.add(fileData);
+        let byteString;
+        if (meta.endsWith(';base64')) {
+          byteString = atob(data);
+        } else {
+          byteString = unescape(data);
+        }
+        const length = byteString.length;
 
-  input.files = data.files;
+        const array = new Uint8Array(new ArrayBuffer(length));
+        for (let i = 0; i < length; i++) {
+          array[i] = byteString.charCodeAt(i);
+        }
+
+        return new File([array], filename, {type: mimeType});
+      }
+
+      function patchFileInputProperty(data) {
+        const fileData = dataUrlToFile(
+          data.imageDataUrl,
+          data.imageType,
+          data.imageFilename
+        );
+
+        class FileList extends Array {
+          item(index) {
+            return this[index];
+          }
+        }
+        const files = new FileList(fileData);
+
+        const descriptor = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'files'
+        );
+        const descriptorGet = descriptor.get;
+        descriptor.get = function () {
+          const input = document.querySelector(data.selector);
+          if (this.isSameNode(input)) {
+            return files;
+          } else {
+            return descriptorGet.apply(this);
+          }
+        };
+        Object.defineProperty(HTMLInputElement.prototype, 'files', descriptor);
+      }
+
+      const onMessage = function (ev) {
+        ev.stopImmediatePropagation();
+        window.clearTimeout(timeoutId);
+
+        patchFileInputProperty(ev.detail);
+      };
+
+      const timeoutId = window.setTimeout(function () {
+        document.removeEventListener(eventName, onMessage, {
+          capture: true,
+          once: true
+        });
+      }, 10000); // 10 seconds
+
+      document.addEventListener(eventName, onMessage, {
+        capture: true,
+        once: true
+      });
+    }
+
+    const eventName = uuidv4();
+
+    const script = document.createElement('script');
+    script.textContent = `(${patchInput.toString()})("${eventName}")`;
+    document.documentElement.appendChild(script);
+    script.remove();
+
+    document.dispatchEvent(
+      new CustomEvent(eventName, {
+        detail: {
+          selector,
+          imageDataUrl: image.imageDataUrl,
+          imageFilename: image.imageFilename,
+          imageType: image.imageType
+        }
+      })
+    );
+  } else {
+    const fileData = new File([image.imageBlob], image.imageFilename, {
+      type: image.imageType
+    });
+
+    const data = new DataTransfer();
+    data.items.add(fileData);
+
+    input.files = data.files;
+  }
 }
 
 function showEngineError({message, errorId, engine}) {
@@ -121,7 +203,6 @@ async function initUpload(uploadFunc, engine, sessionKey) {
 
 export {
   getXHR,
-  getDataTransfer,
   getValidHostname,
   setFileInputData,
   showEngineError,

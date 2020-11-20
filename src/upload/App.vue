@@ -50,20 +50,6 @@ export default {
         if (validateUrl(tabUrl)) {
           window.location.replace(tabUrl);
         }
-      } else if (this.engine === 'karmaDecay') {
-        const data = new FormData();
-        data.append('image', image.imageBlob, image.imageFilename);
-        const rsp = await fetch('http://karmadecay.com/index/', {
-          referrer: '',
-          mode: 'cors',
-          method: 'POST',
-          body: data
-        });
-        const tabUrl = rsp.url;
-
-        if (validateUrl(tabUrl)) {
-          window.location.replace(tabUrl);
-        }
       } else if (this.engine === 'saucenao') {
         const data = new FormData();
         data.append('file', image.imageBlob, 'Image');

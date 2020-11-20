@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'auDesign';
 
 async function upload({task, search, image}) {
-  const input = await findNode('input[type=file]');
-  setFileInputData(input, image);
+  const inputSelector = 'input[type=file]';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 

@@ -3,18 +3,14 @@ import {findNode} from 'utils/common';
 import {setFileInputData, initUpload} from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
-const engine = 'ascii2d';
+const engine = 'karmaDecay';
 
 async function upload({task, search, image}) {
   if (targetEnv === 'safari') {
-    const token = (await findNode('input[name="authenticity_token"]')).value;
-
     const data = new FormData();
-    data.append('utf8', '✓');
-    data.append('authenticity_token', token);
-    data.append('file', image.imageBlob, image.imageFilename);
+    data.append('image', image.imageBlob, image.imageFilename);
 
-    const rsp = await fetch('https://ascii2d.net/search/file', {
+    const rsp = await fetch('http://karmadecay.com/index/', {
       mode: 'cors',
       method: 'POST',
       body: data
@@ -30,17 +26,22 @@ async function upload({task, search, image}) {
       window.location.replace(tabUrl);
     }
   } else {
-    const inputSelector = '#file-form';
+    const inputSelector = 'input#image';
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);
 
-    (await findNode('#file_upload')).submit();
+    input.dispatchEvent(new Event('change'));
   }
 }
 
 function init() {
-  initUpload(upload, engine, sessionKey);
+  if (
+    !document.body.querySelector('form#challenge-form') ||
+    !document.head.querySelector('meta[name="captcha-bypass"]')
+  ) {
+    initUpload(upload, engine, sessionKey);
+  }
 }
 
 init();

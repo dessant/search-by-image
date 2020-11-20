@@ -6,9 +6,10 @@ const engine = 'pixta';
 async function upload({task, search, image}) {
   (await findNode('div.search-form__search-by-image')).click();
 
-  const input = await findNode('input#image[type="file"]');
+  const inputSelector = 'input#image[type="file"]';
+  const input = await findNode(inputSelector);
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

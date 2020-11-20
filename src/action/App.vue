@@ -258,7 +258,13 @@ export default {
 
     closeAction: async function () {
       const currentTab = await browser.tabs.getCurrent();
-      if (currentTab && currentTab.id !== browser.tabs.TAB_ID_NONE) {
+
+      // Safari: tabs.getCurrent returns active tab instead of undefined
+      if (
+        currentTab &&
+        currentTab.id !== browser.tabs.TAB_ID_NONE &&
+        targetEnv !== 'safari'
+      ) {
         browser.tabs.remove(currentTab.id);
       } else {
         window.close();

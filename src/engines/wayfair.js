@@ -1,19 +1,17 @@
-import {findNode} from 'utils/common';
+import {findNode, isAndroid} from 'utils/common';
 import {setFileInputData, initUpload} from 'utils/engines';
 
 const engine = 'wayfair';
 
 async function upload({task, search, image}) {
-  (
-    await findNode('nav.Header-primaryNav button.SearchWithPhotoButton')
-  ).click();
+  (await findNode('header#store_nav button.SearchWithPhotoButton')).click();
 
-  const input = await Promise.race([
-    findNode('input#FileUpload-input0'), // desktop
-    findNode('input#MODAL_CAMERA') // mobile
-  ]);
+  const inputSelector = (await isAndroid())
+    ? 'input#MODAL_CAMERA'
+    : 'input#FileUpload-input0';
+  const input = await findNode(inputSelector);
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }

@@ -8,8 +8,10 @@ async function upload({task, search, image}) {
 
   await findNode('.fileTarget-open');
 
-  const input = await findNode('input#imageFileUpload');
-  setFileInputData(input, image);
+  const inputSelector = 'input#imageFileUpload';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 

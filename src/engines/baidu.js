@@ -1,11 +1,11 @@
 import {validateUrl} from 'utils/app';
-import {findNode} from 'utils/common';
+import {findNode, isAndroid} from 'utils/common';
 import {setFileInputData, initUpload} from 'utils/engines';
 
 const engine = 'baidu';
 
 async function upload({task, search, image}) {
-  if (window.screen.width < 1024) {
+  if (await isAndroid()) {
     const data = new FormData();
     data.append('tn', 'pc');
     data.append('from', 'pc');
@@ -38,8 +38,10 @@ async function upload({task, search, image}) {
     (await findNode('.soutu-btn', {timeout: 120000})).click();
 
     if (search.method === 'upload') {
-      const input = await findNode('input.upload-pic');
-      setFileInputData(input, image);
+      const inputSelector = 'input.upload-pic';
+      const input = await findNode(inputSelector);
+
+      await setFileInputData(inputSelector, input, image);
 
       input.dispatchEvent(new Event('change'));
     } else {

@@ -6,8 +6,10 @@ const engine = 'mailru';
 async function upload({task, search, image}) {
   (await findNode('button.MainSearchFieldContainer-buttonCamera')).click();
 
-  const input = await findNode('#ImageUploadBlock-inputFile');
-  setFileInputData(input, image);
+  const inputSelector = '#ImageUploadBlock-inputFile';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }

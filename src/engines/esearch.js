@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'esearch';
 
 async function upload({task, search, image}) {
-  const input = await findNode('input.fileUploader-basic');
-  setFileInputData(input, image);
+  const inputSelector = 'input.fileUploader-basic';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 

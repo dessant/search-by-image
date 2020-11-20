@@ -1,8 +1,11 @@
 import browser from 'webextension-polyfill';
 
+import {targetEnv} from 'utils/config';
+
 var contentStorage = {
   viewFrame: null,
   viewFrameId: 0,
+  viewMessagePort: null,
   queuedMessage: null
 };
 
@@ -10,6 +13,7 @@ function showView(view) {
   const currentView = contentStorage.viewFrame.id;
   if (currentView !== view) {
     contentStorage.viewFrameId = 0;
+    contentStorage.viewMessagePort = null;
 
     if (currentView) {
       window.setTimeout(function () {
@@ -41,6 +45,13 @@ function hideView(view) {
   }, 300);
 }
 
+function sendQueuedMessage() {
+  if (contentStorage.queuedMessage) {
+    messageView(contentStorage.queuedMessage);
+    contentStorage.queuedMessage = null;
+  }
+}
+
 function messageView(message) {
   if (contentStorage.viewFrameId) {
     browser.runtime.sendMessage({
@@ -48,6 +59,8 @@ function messageView(message) {
       messageFrameId: contentStorage.viewFrameId,
       message
     });
+  } else if (contentStorage.viewMessagePort) {
+    contentStorage.viewMessagePort.postMessage(message);
   } else {
     contentStorage.queuedMessage = message;
   }
@@ -76,17 +89,16 @@ function onMessage(request, sender) {
       delete request.flattenMessage;
       Object.assign(message, request);
     }
-
     messageView(message);
   } else if (request.id === 'saveFrameId') {
-    if (!contentStorage.viewFrameId) {
-      contentStorage.viewFrameId = request.senderFrameId;
-      if (contentStorage.queuedMessage) {
-        messageView(contentStorage.queuedMessage);
-        contentStorage.queuedMessage = null;
-      }
-    }
+    contentStorage.viewFrameId = request.senderFrameId;
+    sendQueuedMessage();
   }
+}
+
+function onConnect(messagePort) {
+  contentStorage.viewMessagePort = messagePort;
+  sendQueuedMessage();
 }
 
 self.initContent = function () {
@@ -110,6 +122,9 @@ self.initContent = function () {
   contentStorage.viewFrame = viewFrame;
 
   browser.runtime.onMessage.addListener(onMessage);
+  if (targetEnv === 'safari') {
+    browser.runtime.onConnect.addListener(onConnect);
+  }
 };
 
 initContent();

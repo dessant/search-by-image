@@ -6,8 +6,10 @@ const engine = 'nzTrademark';
 async function upload({task, search, image}) {
   (await findNode('#logoCheckButton')).click();
 
-  const input = await findNode('#imageSearchDialogUploadButton');
-  setFileInputData(input, image);
+  const inputSelector = '#imageSearchDialogUploadButton';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 

@@ -35,6 +35,7 @@ import browser from 'webextension-polyfill';
 import {Dialog} from 'ext-components';
 
 import {getText} from 'utils/common';
+import {targetEnv} from 'utils/config';
 
 export default {
   components: {
@@ -44,6 +45,8 @@ export default {
   data: function () {
     return {
       showDialog: false,
+      contentMessagePort: null,
+
       task: null,
       images: []
     };
@@ -55,7 +58,7 @@ export default {
     onMessage: function (request, sender) {
       // Samsung Internet 13: extension messages are sometimes also dispatched
       // to the sender frame.
-      if (sender.url === document.URL) {
+      if (sender && sender.url === document.URL) {
         return;
       }
 
@@ -83,14 +86,20 @@ export default {
     }
   },
 
-  created: async function () {
-    browser.runtime.onMessage.addListener(this.onMessage);
-    browser.runtime.sendMessage({
-      id: 'routeMessage',
-      setSenderFrameId: true,
-      messageFrameId: 0,
-      message: {id: 'saveFrameId'}
-    });
+  mounted: async function () {
+    if (targetEnv === 'safari') {
+      const tab = await browser.tabs.getCurrent();
+      this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
+      this.contentMessagePort.onMessage.addListener(this.onMessage);
+    } else {
+      browser.runtime.onMessage.addListener(this.onMessage);
+      browser.runtime.sendMessage({
+        id: 'routeMessage',
+        setSenderFrameId: true,
+        messageFrameId: 0,
+        message: {id: 'saveFrameId'}
+      });
+    }
   }
 };
 </script>

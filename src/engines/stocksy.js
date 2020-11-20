@@ -10,9 +10,10 @@ async function upload({task, search, image}) {
     observerOptions: {attributes: true, attributeFilter: ['aria-hidden']}
   });
 
-  const input = await findNode('input#vs-file');
+  const inputSelector = 'input#vs-file';
+  const input = await findNode(inputSelector);
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

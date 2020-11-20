@@ -4,6 +4,8 @@ node_modules/
 artifacts/
 dist/
 
+.vscode
+
 web-ext-config.js
 
 npm-debug.log

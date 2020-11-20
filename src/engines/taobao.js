@@ -6,7 +6,8 @@ const engine = 'taobao';
 async function upload({task, search, image}) {
   const button = await findNode('div.drop-wrapper', {timeout: 120000});
 
-  const input = await findNode('input#J_IMGSeachUploadBtn');
+  const inputSelector = 'input#J_IMGSeachUploadBtn';
+  const input = await findNode(inputSelector);
   input.addEventListener('click', ev => ev.preventDefault(), {
     capture: true,
     once: true
@@ -14,7 +15,7 @@ async function upload({task, search, image}) {
 
   button.click();
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

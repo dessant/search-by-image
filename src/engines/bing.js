@@ -1,10 +1,10 @@
-import {findNode} from 'utils/common';
+import {findNode, isAndroid} from 'utils/common';
 import {setFileInputData, initUpload} from 'utils/engines';
 
 const engine = 'bing';
 
 async function upload({task, search, image}) {
-  if (window.screen.width < 1024) {
+  if (await isAndroid()) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
     form.id = 'sbi-upload-form';
@@ -68,8 +68,10 @@ async function upload({task, search, image}) {
   } else {
     (await findNode('#sb_sbi')).click();
 
-    const input = await findNode('input#sb_fileinput');
-    setFileInputData(input, image);
+    const inputSelector = 'input#sb_fileinput';
+    const input = await findNode(inputSelector);
+
+    await setFileInputData(inputSelector, input, image);
 
     input.dispatchEvent(new Event('change'));
   }

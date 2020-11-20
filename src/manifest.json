@@ -11,6 +11,9 @@
     "gecko": {
       "id": "{2e5ff8c8-32fe-46d0-9fc8-6b8986621f3c}",
       "strict_min_version": "68.0"
+    },
+    "safari": {
+      "strict_min_version": "14.0"
     }
   },
   "minimum_chrome_version": "76.0",

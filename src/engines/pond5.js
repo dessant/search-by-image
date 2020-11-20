@@ -8,9 +8,10 @@ async function upload({task, search, image}) {
     await findNode('div#main form.SiteSearch div.js-reverseSearchInputIcon')
   ).click();
 
-  const input = await findNode('input#vissimFileSelector');
+  const inputSelector = 'input#vissimFileSelector';
+  const input = await findNode(inputSelector);
 
-  setFileInputData(input, image);
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }

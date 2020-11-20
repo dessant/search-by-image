@@ -6,8 +6,10 @@ const engine = 'alamy';
 async function upload({task, search, image}) {
   (await findNode('div.visual-image-search-holder')).click();
 
-  const input = await findNode('#fileupload');
-  setFileInputData(input, image);
+  const inputSelector = '#fileupload';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

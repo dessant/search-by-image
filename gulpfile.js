@@ -196,23 +196,48 @@ function manifest() {
             );
           }
 
-          if (['chrome', 'edge', 'firefox', 'opera'].includes(targetEnv)) {
+          if (
+            ['chrome', 'edge', 'firefox', 'opera', 'safari'].includes(targetEnv)
+          ) {
             parsedJson.permissions = parsedJson.permissions.filter(
               item => item !== 'webNavigation'
             );
           }
 
-          if (['chrome', 'edge', 'firefox', 'samsung'].includes(targetEnv)) {
+          if (
+            ['chrome', 'edge', 'firefox', 'safari', 'samsung'].includes(
+              targetEnv
+            )
+          ) {
             delete parsedJson.minimum_opera_version;
           }
 
-          if (['firefox', 'opera'].includes(targetEnv)) {
+          if (['firefox', 'opera', 'safari'].includes(targetEnv)) {
             delete parsedJson.minimum_chrome_version;
           }
 
-          if (targetEnv === 'firefox') {
+          if (['firefox', 'safari'].includes(targetEnv)) {
             delete parsedJson.options_ui.chrome_style;
             delete parsedJson.incognito;
+          }
+
+          if (targetEnv === 'firefox') {
+            delete parsedJson.browser_specific_settings.safari;
+          }
+
+          if (targetEnv === 'safari') {
+            delete parsedJson.browser_specific_settings.gecko;
+            delete parsedJson.content_security_policy;
+            parsedJson.permissions = parsedJson.permissions.filter(
+              item =>
+                !['notifications', 'webRequest', 'webRequestBlocking'].includes(
+                  item
+                )
+            );
+            const urlPatterns = parsedJson.content_scripts[0].matches;
+            parsedJson.content_scripts[0].matches = urlPatterns.filter(
+              item => item !== 'file:///*'
+            );
           }
 
           parsedJson.version = require('./package.json').version;

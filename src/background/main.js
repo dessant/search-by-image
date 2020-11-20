@@ -657,7 +657,7 @@ async function onActionButtonClick(tab) {
 
   const enabledEngines = await getEnabledEngines(task.options);
 
-  if (enabledEngines.length === 0) {
+  if (!enabledEngines.length) {
     await showNotification({messageId: 'error_allEnginesDisabled'});
     return;
   }
@@ -730,8 +730,17 @@ function setRequestReferrer(url, referrer, token) {
   );
 }
 
-function onMessage(request, sender) {
-  return processMessage(request, sender);
+function onMessage(request, sender, sendResponse) {
+  const response = processMessage(request, sender);
+
+  if (targetEnv === 'safari') {
+    response.then(function (result) {
+      sendResponse(result);
+    });
+    return true;
+  } else {
+    return response;
+  }
 }
 
 async function processMessage(request, sender) {
@@ -831,10 +840,6 @@ async function processMessage(request, sender) {
       type: request.type
     });
   } else if (request.id === 'routeMessage') {
-    const params = [
-      request.messageTabId ? request.messageTabId : sender.tab.id
-    ];
-
     const routedMessage = request.message;
     if (request.setSenderTabId) {
       routedMessage.senderTabId = sender.tab.id;
@@ -842,8 +847,11 @@ async function processMessage(request, sender) {
     if (request.setSenderFrameId) {
       routedMessage.senderFrameId = sender.frameId;
     }
-    params.push(routedMessage);
 
+    const params = [
+      request.messageTabId ? request.messageTabId : sender.tab.id,
+      routedMessage
+    ];
     if (request.hasOwnProperty('messageFrameId')) {
       params.push({frameId: request.messageFrameId});
     }
@@ -932,7 +940,7 @@ async function setBrowserAction() {
   }
 
   browser.browserAction.setTitle({title: getText('extensionName')});
-  if (enEngines.length === 0) {
+  if (!enEngines.length) {
     if (!hasListener) {
       browser.browserAction.onClicked.addListener(onActionButtonClick);
     }

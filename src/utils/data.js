@@ -75,8 +75,8 @@ const engines = {
   karmaDecay: {
     url: {target: 'http://karmadecay.com/search?q={imgUrl}'},
     upload: {
-      target: uploadUrl,
-      isSessionKey: true
+      target: 'http://karmadecay.com/',
+      isExec: true
     }
   },
   whatanime: {
@@ -149,7 +149,7 @@ const engines = {
   },
   qihoo: {
     upload: {
-      target: 'https://image.so.com/',
+      target: 'https://st.so.com/',
       isExec: true
     }
   },

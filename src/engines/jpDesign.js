@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'jpDesign';
 
 async function upload({task, search, image}) {
-  const input = await findNode('#ImageFile');
-  setFileInputData(input, image);
+  const inputSelector = '#ImageFile';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 

@@ -7,6 +7,7 @@ import {
   uploadCallback,
   initUpload
 } from 'utils/engines';
+import {targetEnv} from 'utils/config';
 
 const engine = 'yandex';
 
@@ -39,7 +40,8 @@ function showResults(xhr) {
 
 async function upload({task, search, image}) {
   if (
-    document.head.querySelector('meta[name="apple-mobile-web-app-capable"]')
+    document.head.querySelector('meta[name="apple-mobile-web-app-capable"]') ||
+    targetEnv === 'safari'
   ) {
     const hostname = getHostname();
     const url =
@@ -63,9 +65,10 @@ async function upload({task, search, image}) {
   } else {
     (await findNode('.input__cbir-button button')).click();
 
-    const input = await findNode('.cbir-panel__file-input');
+    const inputSelector = '.cbir-panel__file-input';
+    const input = await findNode(inputSelector);
 
-    setFileInputData(input, image);
+    await setFileInputData(inputSelector, input, image);
 
     input.dispatchEvent(new Event('change'));
   }

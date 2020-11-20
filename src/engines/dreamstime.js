@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'dreamstime';
 
 async function upload({task, search, image}) {
-  const input = await findNode('input.puzzle-file');
-  setFileInputData(input, image);
+  const inputSelector = 'input.puzzle-file';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 }

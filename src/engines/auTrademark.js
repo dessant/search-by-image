@@ -4,8 +4,10 @@ import {setFileInputData, initUpload} from 'utils/engines';
 const engine = 'auTrademark';
 
 async function upload({task, search, image}) {
-  const input = await findNode('input.dz-hidden-input');
-  setFileInputData(input, image);
+  const inputSelector = 'input.dz-hidden-input';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 
