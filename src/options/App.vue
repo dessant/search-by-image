@@ -50,7 +50,7 @@
           >
           </v-select>
         </div>
-        <div class="option select">
+        <div class="option select" v-if="searchAllEnginesEnabled">
           <v-select
             :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesContextMenu"
@@ -80,7 +80,7 @@
           >
           </v-select>
         </div>
-        <div class="option select">
+        <div class="option select" v-if="searchAllEnginesEnabled">
           <v-select
             :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesAction"
@@ -191,6 +191,7 @@ export default {
         )
       },
       contextMenuEnabled: true,
+      searchAllEnginesEnabled: true,
 
       options: {
         engines: [],
@@ -236,8 +237,12 @@ export default {
       });
     }
 
-    if (targetEnv !== 'samsung' && this.$isAndroid) {
-      this.contextMenuEnabled = false;
+    if (targetEnv === 'samsung') {
+      this.searchAllEnginesEnabled = false;
+    } else {
+      if (this.$isAndroid) {
+        this.contextMenuEnabled = false;
+      }
     }
 
     document.title = getText('pageTitle', [

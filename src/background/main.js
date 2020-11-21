@@ -153,32 +153,34 @@ async function createMenu(options) {
   }
 
   if (enEngines.length > 1) {
-    const searchAllEngines = options.searchAllEnginesContextMenu;
+    if (targetEnv !== 'samsung') {
+      const searchAllEngines = options.searchAllEnginesContextMenu;
 
-    if (searchAllEngines === 'main') {
-      createMenuItem({
-        id: 'allEngines',
-        title: getText('mainMenuItemTitle_allEngines'),
-        contexts,
-        urlPatterns
-      });
-      return;
-    }
+      if (searchAllEngines === 'main') {
+        createMenuItem({
+          id: 'allEngines',
+          title: getText('mainMenuItemTitle_allEngines'),
+          contexts,
+          urlPatterns
+        });
+        return;
+      }
 
-    if (searchAllEngines === 'sub') {
-      createMenuItem({
-        id: 'allEngines',
-        title: getText('menuItemTitle_allEngines'),
-        contexts,
-        urlPatterns,
-        icons: setIcons && getEngineMenuIcons('allEngines')
-      });
-      createMenuItem({
-        id: 'sep-1',
-        contexts,
-        type: 'separator',
-        urlPatterns
-      });
+      if (searchAllEngines === 'sub') {
+        createMenuItem({
+          id: 'allEngines',
+          title: getText('menuItemTitle_allEngines'),
+          contexts,
+          urlPatterns,
+          icons: setIcons && getEngineMenuIcons('allEngines')
+        });
+        createMenuItem({
+          id: 'sep-1',
+          contexts,
+          type: 'separator',
+          urlPatterns
+        });
+      }
     }
 
     enEngines.forEach(function (engine) {

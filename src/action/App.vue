@@ -335,7 +335,8 @@ export default {
     }
 
     this.engines = enEngines;
-    this.searchAllEngines = options.searchAllEnginesAction === 'sub';
+    this.searchAllEngines =
+      options.searchAllEnginesAction === 'sub' && targetEnv !== 'samsung';
     this.searchModeAction = options.searchModeAction;
 
     this.$watch('searchModeAction', async function (value) {
