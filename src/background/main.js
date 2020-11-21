@@ -979,7 +979,7 @@ async function onInstall(details) {
       browser.tabs.executeScript(tab.id, {
         allFrames: true,
         runAt: 'document_start',
-        file: '/src/content/insert.js'
+        file: '/src/content/insert/script.js'
       });
     }
   }
