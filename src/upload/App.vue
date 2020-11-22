@@ -38,6 +38,10 @@ export default {
           body: data
         });
 
+        if (rsp.status !== 200) {
+          throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+        }
+
         let tabUrl = rsp.url;
 
         if (!task.options.localGoogle) {
@@ -59,11 +63,37 @@ export default {
           method: 'POST',
           body: data
         });
+
+        if (rsp.status !== 200) {
+          throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+        }
+
         const imgUrl = (await rsp.json()).url;
         const tabUrl = engines.saucenao.url.target.replace(
           '{imgUrl}',
           encodeURIComponent(imgUrl)
         );
+
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
+      } else if (this.engine === 'sogou') {
+        const data = new FormData();
+        data.append('flag', '1');
+        data.append('pic_path', image.imageBlob, image.imageFilename);
+
+        const rsp = await fetch('https://pic.sogou.com/ris_upload', {
+          referrer: '',
+          mode: 'cors',
+          method: 'POST',
+          body: data
+        });
+
+        if (rsp.status !== 200) {
+          throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+        }
+
+        const tabUrl = rsp.url;
 
         if (validateUrl(tabUrl)) {
           window.location.replace(tabUrl);

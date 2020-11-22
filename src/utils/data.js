@@ -1,5 +1,7 @@
 import browser from 'webextension-polyfill';
 
+import {targetEnv} from 'utils/config';
+
 const optionKeys = [
   'engines',
   'disabledEngines',
@@ -275,6 +277,13 @@ const engines = {
     }
   }
 };
+
+if (targetEnv === 'safari') {
+  engines.sogou.upload = {
+    target: uploadUrl,
+    isSessionKey: true
+  };
+}
 
 const censoredEngines = [
   'baidu',
