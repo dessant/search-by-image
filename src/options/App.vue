@@ -106,6 +106,17 @@
         </div>
         <div class="option">
           <v-form-field
+            input-id="bih"
+            :label="getText('optionTitle_bypassImageHostBlocking')"
+          >
+            <v-switch
+              id="bih"
+              v-model="options.bypassImageHostBlocking"
+            ></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option">
+          <v-form-field
             input-id="ifp"
             :label="getText('optionTitle_imgFullParse')"
           >
@@ -203,7 +214,8 @@ export default {
         localGoogle: false,
         imgFullParse: false,
         searchModeAction: '',
-        searchModeContextMenu: ''
+        searchModeContextMenu: '',
+        bypassImageHostBlocking: false
       }
     };
   },

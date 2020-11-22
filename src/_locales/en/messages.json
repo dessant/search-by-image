@@ -791,6 +791,11 @@
     "description": "Title of the option."
   },
 
+  "optionTitle_bypassImageHostBlocking": {
+    "message": "Bypass image host blocking",
+    "description": "Title of the option."
+  },
+
   "dialogTitle_imageConfirmation": {
     "message": "Select an image",
     "description": "Title of the dialog."

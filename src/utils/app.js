@@ -15,7 +15,7 @@ import {
   isAndroid
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
-import {engines, imageMimeTypes, projectUrl} from 'utils/data';
+import {engines, censoredEngines, imageMimeTypes, projectUrl} from 'utils/data';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
@@ -24,12 +24,13 @@ async function getEnabledEngines(options) {
   return difference(options.engines, options.disabledEngines);
 }
 
-async function getSupportedEngines(image, engines) {
+async function getSupportedEngines(image, engines, searchMode) {
   const supportedEngines = [];
   for (const engine of engines) {
     if (
       image.hasOwnProperty('imageDataUrl') ||
-      (image.hasOwnProperty('imageUrl') && (await hasUrlSupport(engine)))
+      (image.hasOwnProperty('imageUrl') &&
+        (await hasUrlSupport(engine, {bypassBlocking: searchMode !== 'url'})))
     ) {
       supportedEngines.push(engine);
     }
@@ -38,10 +39,12 @@ async function getSupportedEngines(image, engines) {
   return supportedEngines;
 }
 
-async function getSearches(image, targetEngines) {
+async function getSearches(image, targetEngines, searchMode) {
   const searches = [];
   for (const engine of targetEngines) {
-    const method = (await isUploadSearch(image, engine)) ? 'upload' : 'url';
+    const method = (await isUploadSearch(image, engine, searchMode))
+      ? 'upload'
+      : 'url';
     const isExec = engines[engine][method].isExec;
     const isSessionKey = engines[engine][method].isSessionKey;
     searches.push({
@@ -56,15 +59,29 @@ async function getSearches(image, targetEngines) {
   return searches;
 }
 
-async function isUploadSearch(image, engine) {
-  return image.mustUpload || !image.imageUrl || !(await hasUrlSupport(engine));
+async function isUploadSearch(image, engine, searchMode) {
+  return (
+    image.mustUpload ||
+    !image.imageUrl ||
+    !(await hasUrlSupport(engine, {bypassBlocking: searchMode !== 'url'}))
+  );
 }
 
-async function hasUrlSupport(engine) {
-  let targetEngines =
+async function hasUrlSupport(engine, {bypassBlocking = true} = {}) {
+  const targetEngines =
     engine === 'allEngines' ? await getEnabledEngines() : [engine];
+  const {bypassImageHostBlocking} = await storage.get(
+    'bypassImageHostBlocking',
+    'sync'
+  );
+
   for (const engine of targetEngines) {
-    if (!engines[engine].url) {
+    if (
+      !engines[engine].url ||
+      (bypassBlocking &&
+        bypassImageHostBlocking &&
+        censoredEngines.includes(engine))
+    ) {
       return false;
     }
   }

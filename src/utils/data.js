@@ -10,7 +10,8 @@ const optionKeys = [
   'localGoogle',
   'imgFullParse',
   'searchModeAction',
-  'searchModeContextMenu'
+  'searchModeContextMenu',
+  'bypassImageHostBlocking'
 ];
 
 const uploadUrl =
@@ -275,6 +276,15 @@ const engines = {
   }
 };
 
+const censoredEngines = [
+  'baidu',
+  'sogou',
+  'qihoo',
+  'jingdong',
+  'taobao',
+  'alibabaChina'
+];
+
 // https://github.com/jshttp/mime-db
 const imageMimeTypes = {
   'image/apng': 'apng',
@@ -343,6 +353,7 @@ const projectUrl = 'https://github.com/dessant/search-by-image';
 export {
   optionKeys,
   engines,
+  censoredEngines,
   imageMimeTypes,
   chromeDesktopUA,
   chromeMobileUA,

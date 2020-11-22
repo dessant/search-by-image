@@ -353,7 +353,11 @@ async function searchImage(task, image, firstBatchItem = true) {
     image.imageSize = blob.size;
   }
 
-  const supportedEngines = await getSupportedEngines(image, task.engines);
+  const supportedEngines = await getSupportedEngines(
+    image,
+    task.engines,
+    task.searchMode
+  );
   const unsupportedEngines = task.engines.filter(
     item => !supportedEngines.includes(item)
   );
@@ -364,7 +368,7 @@ async function searchImage(task, image, firstBatchItem = true) {
     });
   }
 
-  const searches = await getSearches(image, supportedEngines);
+  const searches = await getSearches(image, supportedEngines, task.searchMode);
 
   const receiptSearches = searches.filter(item => item.sendsReceipt);
   receiptSearches.forEach(item => {
