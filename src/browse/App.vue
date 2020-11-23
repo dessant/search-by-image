@@ -1,9 +1,9 @@
 <template>
-  <div id="app" v-show="dataLoaded">
+  <div id="app" v-if="dataLoaded">
     <input
       class="drop-zone"
       ref="dropZone"
-      v-show="!showSpinner && !error"
+      v-show="dropEnabled && !showSpinner && !error"
       @cut.prevent
       @copy.prevent
       @paste.prevent="handleFiles($event, 'paste')"
@@ -21,7 +21,11 @@
       />
 
       <div class="drop-zone-text">
-        {{ getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`) }}
+        {{
+          dropEnabled
+            ? getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`)
+            : getText('pageContent_browse')
+        }}
       </div>
 
       <div class="browse-button-wrap">
@@ -57,7 +61,7 @@ import browser from 'webextension-polyfill';
 import {Button} from 'ext-components';
 
 import {getEnabledEngines, normalizeFilename, normalizeImage} from 'utils/app';
-import {getText} from 'utils/common';
+import {getText, isAndroid} from 'utils/common';
 
 export default {
   components: {
@@ -70,6 +74,7 @@ export default {
 
       showSpinner: false,
       dropState: false,
+      dropEnabled: false,
       error: '',
       task: null
     };
@@ -157,6 +162,10 @@ export default {
       this.$nextTick(() => this.$refs.dropZone.focus());
     } else {
       this.error = getText('error_invalidPageUrl');
+    }
+
+    if (!(await isAndroid())) {
+      this.dropEnabled = true;
     }
 
     this.dataLoaded = true;

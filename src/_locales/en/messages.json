@@ -826,6 +826,11 @@
     "description": "Text of the button."
   },
 
+  "pageContent_browse": {
+    "message": "Select an image",
+    "description": "Page content."
+  },
+
   "pageContent_browse_drag": {
     "message": "Drag or paste images here",
     "description": "Page content."
