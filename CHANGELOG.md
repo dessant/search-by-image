@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.1](https://github.com/dessant/search-by-image/compare/v3.4.0...v3.4.1) (2020-11-23)
+
+
+### Bug Fixes
+
+* disable contributions for Safari and Samsung Internet ([12dc4ac](https://github.com/dessant/search-by-image/commit/12dc4ac5f5eabbad3b0acfd35079a6431a414e9e))
+* disable drag and drop on Android ([918fe96](https://github.com/dessant/search-by-image/commit/918fe96fe7a41594b5b039f87bb63c5665d150e7))
+
 ## [3.4.0](https://github.com/dessant/search-by-image/compare/v3.3.0...v3.4.0) (2020-11-23)
 
 
