@@ -334,7 +334,7 @@ async function searchImage(task, image, firstBatchItem = true) {
   let tabActive = firstBatchItem;
 
   let contributePageTabId;
-  if (firstBatchItem) {
+  if (firstBatchItem && !['safari', 'samsung'].includes(targetEnv)) {
     let {searchCount} = await storage.get('searchCount', 'sync');
     searchCount += 1;
     await storage.set({searchCount}, 'sync');

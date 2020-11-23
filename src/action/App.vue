@@ -18,6 +18,7 @@
         ></v-icon-button>
 
         <v-icon-button
+          v-if="contributionsEnabled"
           class="contribute-button"
           src="/src/contribute/assets/heart.svg"
           @click="showContribute"
@@ -180,7 +181,8 @@ export default {
       hasScrollBar: false,
 
       engines: [],
-      searchAllEngines: false
+      searchAllEngines: false,
+      contributionsEnabled: false
     };
   },
 
@@ -338,6 +340,7 @@ export default {
     this.searchAllEngines =
       options.searchAllEnginesAction === 'sub' && targetEnv !== 'samsung';
     this.searchModeAction = options.searchModeAction;
+    this.contributionsEnabled = !['safari', 'samsung'].includes(targetEnv);
 
     this.$watch('searchModeAction', async function (value) {
       await storage.set({searchModeAction: value}, 'sync');
@@ -431,11 +434,11 @@ body {
 }
 
 .contribute-button {
-  margin-right: 4px;
+  margin-left: 12px;
 }
 
-.search-mode-button {
-  margin-right: 12px;
+.menu-button {
+  margin-left: 4px;
 }
 
 .search-mode-menu {

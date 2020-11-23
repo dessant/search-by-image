@@ -27,9 +27,13 @@ const enginesRootDir = path.join(__dirname, 'src/engines');
 const engines = readdirSync(enginesRootDir)
   .filter(file => lstatSync(path.join(enginesRootDir, file)).isFile())
   .map(file => file.split('.')[0]);
-const engineEntries = Object.fromEntries(
+const entries = Object.fromEntries(
   engines.map(engine => [engine, `./src/engines/${engine}.js`])
 );
+
+if (!['safari', 'samsung'].includes(targetEnv)) {
+  entries.contribute = './src/contribute/main.js';
+}
 
 module.exports = {
   mode: isProduction ? 'production' : 'development',
@@ -43,10 +47,9 @@ module.exports = {
     browse: './src/browse/main.js',
     select: './src/select/main.js',
     capture: './src/capture/main.js',
-    contribute: './src/contribute/main.js',
     content: './src/content/main.js',
     parse: './src/parse/main.js',
-    ...engineEntries
+    ...entries
   },
   output: {
     path: path.resolve(__dirname, 'dist', targetEnv, 'src'),
