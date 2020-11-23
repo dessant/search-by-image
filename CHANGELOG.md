@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.4.0](https://github.com/dessant/search-by-image/compare/v3.3.0...v3.4.0) (2020-11-23)
+
+
+### Features
+
+* add option to always upload images to search engines that may block URLs ([b6b818b](https://github.com/dessant/search-by-image/commit/b6b818b7c9f6524d615d5f8cc85836edb6db69b9))
+* add support for Safari ([2e22de6](https://github.com/dessant/search-by-image/commit/2e22de69d3d02d7f0f6ca73cdd42ba4123583290))
+* configure default search engines ([763ee0a](https://github.com/dessant/search-by-image/commit/763ee0a0986cd33bfdffd5021cdae1e2c557f17e))
+
+
+### Bug Fixes
+
+* disable searching with all engines on Samsung Internet ([e855e39](https://github.com/dessant/search-by-image/commit/e855e39cbb4470baeac30b69b351dfc53ec7bfa8))
+* poll tab availability on Samsung Internet ([48d7bce](https://github.com/dessant/search-by-image/commit/48d7bce2c78b62394abf68d765fa519fd3cb0eaf))
+* unregister scripts only before image submission ([de2f709](https://github.com/dessant/search-by-image/commit/de2f70934c0f2ab8483483b97e6d111fcb32b459))
+* update Depositphotos ([7341c28](https://github.com/dessant/search-by-image/commit/7341c283bbf96de1d4f403f35f85c36a9a832c70))
+* update script path ([477aff8](https://github.com/dessant/search-by-image/commit/477aff8ba6907795076405e178389a034443d3db))
+* update Sogou ([723699c](https://github.com/dessant/search-by-image/commit/723699c6c9085ad9e7a275ac30c8b6b84b24e751))
+
 ## [3.3.0](https://github.com/dessant/search-by-image/compare/v3.2.0...v3.3.0) (2020-11-01)
 
 
