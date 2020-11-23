@@ -1,41 +1,48 @@
+import {findNode, isAndroid} from 'utils/common';
 import {validateUrl} from 'utils/app';
-import {getXHR, uploadCallback, initSearch, sendReceipt} from 'utils/engines';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'depositphotos';
 
-function showResults(xhr) {
-  if (xhr.status !== 200) {
-    throw new Error('bad response');
-  }
-
-  const results = JSON.parse(xhr.responseText).data.items;
-  const ids = encodeURIComponent(results.map(item => item.id).join(','));
-
-  const tabUrl = `https://depositphotos.com/search/by-images.html?idList=[${ids}]`;
-
-  if (validateUrl(tabUrl)) {
-    window.location.replace(tabUrl);
-  }
-}
-
 async function search({task, search, image, storageKeys}) {
-  const url = 'https://msis.depositphotos.com/search';
+  if (await isAndroid()) {
+    const data = new FormData();
+    data.append('file', image.imageBlob, image.imageFilename);
 
-  const data = new FormData();
-  data.append('file', image.imageBlob, image.imageFilename);
+    const rsp = await fetch('https://msis.depositphotos.com/search', {
+      mode: 'cors',
+      method: 'POST',
+      body: data
+    });
 
-  const xhr = getXHR();
-  xhr.addEventListener('load', function () {
-    sendReceipt(storageKeys);
+    if (rsp.status !== 200) {
+      throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+    }
 
-    uploadCallback(this, showResults, engine);
-  });
-  xhr.open('POST', url);
-  xhr.setRequestHeader(
-    'Accept',
-    'application/json, text/javascript, */*; q=0.01'
-  );
-  xhr.send(data);
+    const results = (await rsp.json()).data.items;
+    const ids = encodeURIComponent(results.map(item => item.id).join(','));
+
+    const tabUrl = `https://depositphotos.com/search/by-images.html?idList=[${ids}]`;
+
+    await sendReceipt(storageKeys);
+
+    if (validateUrl(tabUrl)) {
+      window.location.replace(tabUrl);
+    }
+  } else {
+    (await findNode('button.button-search-by-images')).click();
+
+    (await findNode('li[data-key="image"] a.cmp-tabs__label')).click();
+
+    const inputSelector = 'input[type=file]';
+    const input = await findNode(inputSelector);
+
+    await setFileInputData(inputSelector, input, image);
+
+    await sendReceipt(storageKeys);
+
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+  }
 }
 
 function init() {
