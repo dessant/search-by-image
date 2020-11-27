@@ -13,6 +13,11 @@
     <img src="https://i.imgur.com/wK10qEV.png" alt="Opera add-ons"></a>
   </br></br>
 </p>
+<p align="center">
+  <a href="https://galaxy.store/ravr">
+    <img src="https://i.imgur.com/uUjUDYf.png" alt="Galaxy Store"></a>
+  </br></br>
+</p>
 
 ## Supporting the Project
 
