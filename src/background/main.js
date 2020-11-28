@@ -26,7 +26,7 @@ import {
   hasBaseModule
 } from 'utils/app';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
-import {targetEnv} from 'utils/config';
+import {targetEnv, enableContributions} from 'utils/config';
 
 const dataStorage = {};
 
@@ -334,7 +334,7 @@ async function searchImage(task, image, firstBatchItem = true) {
   let tabActive = firstBatchItem;
 
   let contributePageTabId;
-  if (firstBatchItem && !['safari', 'samsung'].includes(targetEnv)) {
+  if (enableContributions && firstBatchItem) {
     let {searchCount} = await storage.get('searchCount', 'sync');
     searchCount += 1;
     await storage.set({searchCount}, 'sync');

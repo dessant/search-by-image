@@ -1,3 +1,5 @@
 const targetEnv = process.env.TARGET_ENV;
 
-export {targetEnv};
+const enableContributions = process.env.ENABLE_CONTRIBUTIONS === 'true';
+
+export {targetEnv, enableContributions};

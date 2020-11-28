@@ -17,7 +17,10 @@ const sharp = require('sharp');
 
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
+const enableContributions =
+  (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
 const distDir = path.join('dist', targetEnv);
+
 
 function clean() {
   return del([distDir]);
@@ -44,7 +47,12 @@ function jsBabel() {
 const js = parallel(jsWebpack, jsBabel);
 
 function html() {
-  return src('src/**/*.html', {base: '.'})
+  return src(
+    enableContributions
+      ? 'src/**/*.html'
+      : ['src/**/*.html', '!src/contribute/*.html'],
+    {base: '.'}
+  )
     .pipe(gulpif(isProduction, htmlmin({collapseWhitespace: true})))
     .pipe(dest(distDir));
 }
@@ -114,7 +122,7 @@ async function images(done) {
       .on('finish', resolve);
   });
 
-  if (!['safari', 'samsung'].includes(targetEnv)) {
+  if (enableContributions) {
     await new Promise(resolve => {
       src('node_modules/ext-contribute/src/assets/*.@(jpg|png|svg)')
         .pipe(gulpif(isProduction, imagemin()))

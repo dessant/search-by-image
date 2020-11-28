@@ -8,11 +8,14 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
+const enableContributions =
+  (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
 
 const plugins = [
   new webpack.DefinePlugin({
     'process.env': {
-      TARGET_ENV: JSON.stringify(targetEnv)
+      TARGET_ENV: JSON.stringify(targetEnv),
+      ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
     },
     global: {}
   }),
@@ -31,7 +34,7 @@ const entries = Object.fromEntries(
   engines.map(engine => [engine, `./src/engines/${engine}.js`])
 );
 
-if (!['safari', 'samsung'].includes(targetEnv)) {
+if (enableContributions) {
   entries.contribute = './src/contribute/main.js';
 }
 

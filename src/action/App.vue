@@ -18,7 +18,7 @@
         ></v-icon-button>
 
         <v-icon-button
-          v-if="contributionsEnabled"
+          v-if="enableContributions"
           class="contribute-button"
           src="/src/contribute/assets/heart.svg"
           @click="showContribute"
@@ -136,7 +136,7 @@ import {
   showProjectPage
 } from 'utils/app';
 import {getText, getActiveTab, createTab} from 'utils/common';
-import {targetEnv} from 'utils/config';
+import {targetEnv, enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
 import DenseSelect from './components/DenseSelect';
@@ -182,7 +182,7 @@ export default {
 
       engines: [],
       searchAllEngines: false,
-      contributionsEnabled: false
+      enableContributions
     };
   },
 
@@ -340,7 +340,6 @@ export default {
     this.searchAllEngines =
       options.searchAllEnginesAction === 'sub' && targetEnv !== 'samsung';
     this.searchModeAction = options.searchModeAction;
-    this.contributionsEnabled = !['safari', 'samsung'].includes(targetEnv);
 
     this.$watch('searchModeAction', async function (value) {
       await storage.set({searchModeAction: value}, 'sync');
