@@ -1,7 +1,6 @@
-import {validateUrl} from 'utils/app';
+import {validateUrl, getContentXHR} from 'utils/app';
 import {findNode} from 'utils/common';
 import {
-  getXHR,
   getValidHostname,
   setFileInputData,
   uploadCallback,
@@ -52,7 +51,7 @@ async function search({task, search, image, storageKeys}) {
     const data = new FormData();
     data.append('upfile', image.imageBlob);
 
-    const xhr = getXHR();
+    const xhr = getContentXHR();
     xhr.addEventListener('load', function () {
       sendReceipt(storageKeys);
 

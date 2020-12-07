@@ -10,6 +10,7 @@ import {
   executeFile,
   onComplete,
   dataUrlToBlob,
+  blobToDataUrl,
   isAndroid,
   getActiveTab,
   getPlatform
@@ -23,7 +24,8 @@ import {
   normalizeFilename,
   captureVisibleTabArea,
   validateUrl,
-  hasBaseModule
+  hasBaseModule,
+  fetchImage
 } from 'utils/app';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv, enableContributions} from 'utils/config';
@@ -76,6 +78,138 @@ function deleteStorageItem(storageKey) {
     delete dataStorage[storageKey];
     return storedData.data;
   }
+}
+
+function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
+  let requestId;
+  let origin;
+
+  const requestCallback = function (details) {
+    const tokenHeader = details.requestHeaders.find(
+      header =>
+        header.name.toLowerCase() === 'accept' &&
+        header.value === token &&
+        details.url === url &&
+        details.method === 'GET'
+    );
+    if (tokenHeader) {
+      tokenHeader.value = '*/*';
+    }
+
+    if (tokenHeader || details.requestId === requestId) {
+      requestId = details.requestId;
+
+      if (referrer) {
+        const referrerHeader = details.requestHeaders.find(
+          header => header.name.toLowerCase() === 'referer'
+        );
+
+        if (referrerHeader) {
+          referrerHeader.value = referrer;
+        } else {
+          details.requestHeaders.push({
+            name: 'Referer',
+            value: referrer
+          });
+        }
+      }
+
+      const originHeader = details.requestHeaders.find(
+        header => header.name.toLowerCase() === 'origin'
+      );
+
+      if (originHeader) {
+        origin = originHeader.value;
+      }
+
+      return {requestHeaders: details.requestHeaders};
+    }
+  };
+
+  const requestExtraInfo = ['blocking', 'requestHeaders'];
+  if (targetEnv !== 'firefox') {
+    requestExtraInfo.push('extraHeaders');
+  }
+
+  browser.webRequest.onBeforeSendHeaders.addListener(
+    requestCallback,
+    {
+      urls: ['<all_urls>'],
+      types: ['xmlhttprequest']
+    },
+    requestExtraInfo
+  );
+
+  const responseCallback = function (details) {
+    if (details.requestId === requestId && origin) {
+      const allowOriginHeader = details.responseHeaders.find(
+        header => header.name.toLowerCase() === 'access-control-allow-origin'
+      );
+
+      if (allowOriginHeader) {
+        allowOriginHeader.value = origin;
+      } else {
+        details.responseHeaders.push({
+          name: 'Access-Control-Allow-Origin',
+          value: origin
+        });
+      }
+
+      const allowCredentialsHeader = details.responseHeaders.find(
+        header =>
+          header.name.toLowerCase() === 'access-control-allow-credentials'
+      );
+
+      if (allowCredentialsHeader) {
+        allowCredentialsHeader.value = 'true';
+      } else {
+        details.responseHeaders.push({
+          name: 'Access-Control-Allow-Credentials',
+          value: 'true'
+        });
+      }
+
+      return {responseHeaders: details.responseHeaders};
+    }
+  };
+
+  const responseExtraInfo = ['blocking', 'responseHeaders'];
+  if (targetEnv !== 'firefox') {
+    responseExtraInfo.push('extraHeaders');
+  }
+
+  browser.webRequest.onHeadersReceived.addListener(
+    responseCallback,
+    {
+      urls: ['<all_urls>'],
+      types: ['xmlhttprequest']
+    },
+    responseExtraInfo
+  );
+
+  const completeCallback = function (details) {
+    if (details.requestId === requestId) {
+      removeCallbacks();
+    }
+  };
+
+  const removeCallbacks = function () {
+    window.clearTimeout(timeoutId);
+    browser.webRequest.onBeforeSendHeaders.removeListener(requestCallback);
+    browser.webRequest.onHeadersReceived.removeListener(responseCallback);
+    browser.webRequest.onCompleted.removeListener(completeCallback);
+    browser.webRequest.onErrorOccurred.removeListener(completeCallback);
+  };
+  const timeoutId = window.setTimeout(removeCallbacks, 120000); // 2 minutes
+
+  browser.webRequest.onCompleted.addListener(completeCallback, {
+    urls: ['<all_urls>'],
+    types: ['xmlhttprequest']
+  });
+  browser.webRequest.onErrorOccurred.addListener(completeCallback, {
+    urls: ['<all_urls>'],
+    types: ['xmlhttprequest']
+  });
 }
 
 function getEngineMenuIcons(engine) {
@@ -697,41 +831,6 @@ async function onActionPopupClick(engine, imageUrl) {
   }
 }
 
-function setRequestReferrer(url, referrer, token) {
-  const requestCallback = function (details) {
-    const headers = details.requestHeaders;
-    for (const header of headers) {
-      if (
-        header.name.toLowerCase() === 'x-sbi-token' &&
-        header.value === token
-      ) {
-        headers.splice(headers.indexOf(header), 1);
-        headers.push({
-          name: 'Referer',
-          value: referrer
-        });
-        removeCallbacks();
-        return {requestHeaders: headers};
-      }
-    }
-  };
-
-  const removeCallbacks = function () {
-    window.clearTimeout(timeoutId);
-    browser.webRequest.onBeforeSendHeaders.removeListener(requestCallback);
-  };
-  const timeoutId = window.setTimeout(removeCallbacks, 10000); // 10 seconds
-
-  browser.webRequest.onBeforeSendHeaders.addListener(
-    requestCallback,
-    {
-      urls: [url],
-      types: ['xmlhttprequest']
-    },
-    ['blocking', 'requestHeaders']
-  );
-}
-
 function onMessage(request, sender, sendResponse) {
   const response = processMessage(request, sender);
 
@@ -832,8 +931,14 @@ async function processMessage(request, sender) {
     }
 
     showNotification({messageId: 'error_internalError'});
-  } else if (request.id === 'setRequestReferrer') {
-    setRequestReferrer(request.url, request.referrer, request.token);
+  } else if (request.id === 'setContentRequestHeaders') {
+    setContentRequestHeaders(request.token, request.url, {
+      referrer: request.referrer
+    });
+  } else if (request.id === 'fetchImage') {
+    const imageBlob = await fetchImage(request.url, {credentials: true});
+    const imageDataUrl = imageBlob && (await blobToDataUrl(imageBlob));
+    return Promise.resolve(imageDataUrl);
   } else if (request.id === 'notification') {
     showNotification({
       message: request.message,

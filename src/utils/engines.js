@@ -5,16 +5,6 @@ import {getMaxImageSize, getLargeImageMessage} from 'utils/app';
 import {dataUrlToBlob} from 'utils/common';
 import {targetEnv} from 'utils/config';
 
-function getXHR() {
-  try {
-    // Firefox
-    return new content.XMLHttpRequest();
-  } catch (err) {
-    // Chrome
-    return new XMLHttpRequest();
-  }
-}
-
 function getValidHostname(validHostnames, engine) {
   const hostname = window.location.hostname;
   if (!validHostnames.includes(hostname)) {
@@ -227,7 +217,6 @@ async function initSearch(searchFn, engine, sessionKey) {
 }
 
 export {
-  getXHR,
   getValidHostname,
   setFileInputData,
   showEngineError,

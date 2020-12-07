@@ -9,6 +9,7 @@ import {
   getActiveTab,
   getDataUrlMimeType,
   dataUrlToArray,
+  dataUrlToBlob,
   blobToArray,
   blobToDataUrl,
   canvasToDataUrl,
@@ -254,6 +255,57 @@ async function configTheme() {
   }
 }
 
+function getContentXHR() {
+  try {
+    // Firefox
+    return new content.XMLHttpRequest();
+  } catch (err) {
+    // Chrome
+    return new XMLHttpRequest();
+  }
+}
+
+function fetchImage(url, {credentials = false, token = ''} = {}) {
+  return new Promise(resolve => {
+    const xhr = getContentXHR();
+
+    xhr.open('GET', url);
+    xhr.timeout = 1200000; // 2 minutes
+    xhr.responseType = 'blob';
+    xhr.withCredentials = credentials;
+
+    if (token) {
+      xhr.setRequestHeader('Accept', token);
+    }
+
+    xhr.onload = () => {
+      resolve(xhr.response);
+    };
+    xhr.onerror = () => {
+      resolve();
+    };
+    xhr.onabort = () => {
+      resolve();
+    };
+    xhr.ontimeout = () => {
+      resolve();
+    };
+
+    xhr.send();
+  });
+}
+
+async function fetchImageFromBackgroundScript(url) {
+  const imageDataUrl = await browser.runtime.sendMessage({
+    id: 'fetchImage',
+    url
+  });
+
+  if (imageDataUrl) {
+    return dataUrlToBlob(imageDataUrl);
+  }
+}
+
 function getLargeImageMessage(engine, maxSize) {
   return browser.i18n.getMessage('error_invalidImageSize', [
     browser.i18n.getMessage(`engineName_${engine}`),
@@ -339,6 +391,9 @@ export {
   normalizeImage,
   getImageElement,
   captureVisibleTabArea,
+  getContentXHR,
+  fetchImage,
+  fetchImageFromBackgroundScript,
   configTheme,
   getLargeImageMessage,
   getMaxImageSize,

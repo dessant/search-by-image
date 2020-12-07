@@ -7,7 +7,9 @@ import {
   validateUrl,
   normalizeFilename,
   normalizeImage,
-  getImageElement
+  getImageElement,
+  fetchImage,
+  fetchImageFromBackgroundScript
 } from 'utils/app';
 import {
   getBlankCanvasDataUrl,
@@ -23,34 +25,37 @@ const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['img', 'video', 'iframe', 'embed'];
 const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
 
-function fetchImage(url, {credentials = true, token = ''} = {}) {
-  return new Promise(resolve => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.timeout = 1200000; // 2 minutes
-    xhr.responseType = 'blob';
-    if (credentials) {
-      xhr.withCredentials = true;
-    }
-    if (token) {
-      xhr.setRequestHeader('x-sbi-token', token);
-    }
+async function downloadImage(url) {
+  let imageBlob;
 
-    xhr.onload = () => {
-      resolve(xhr);
-    };
-    xhr.onerror = () => {
-      resolve();
-    };
-    xhr.onabort = () => {
-      resolve();
-    };
-    xhr.ontimeout = () => {
-      resolve();
-    };
+  if (new URL(url).origin === window.location.origin) {
+    imageBlob = await fetchImage(url, {credentials: true});
+  }
 
-    xhr.send();
-  });
+  if (!imageBlob) {
+    if (targetEnv === 'safari') {
+      imageBlob = await fetchImage(url);
+
+      if (!imageBlob) {
+        imageBlob = await fetchImageFromBackgroundScript(url);
+      }
+    } else {
+      const token = uuidv4();
+      await browser.runtime.sendMessage({
+        id: 'setContentRequestHeaders',
+        token,
+        url
+      });
+
+      imageBlob = await fetchImage(url, {credentials: true, token});
+
+      if (!imageBlob) {
+        imageBlob = await fetchImageFromBackgroundScript(url);
+      }
+    }
+  }
+
+  return imageBlob;
 }
 
 function extractCSSImages(cssProps, node, pseudo = null) {
@@ -253,29 +258,21 @@ async function processResults(results, task) {
   if (httpUrls.length) {
     for (const item of httpUrls) {
       const index = results.indexOf(item);
-      const url = item.data;
+      let url = item.data;
       const {filename} = getFilenameExtFromUrl(url);
       if (mustUpload || !urlSupport) {
-        let rsp;
-        if (targetEnv === 'firefox') {
-          const token = uuidv4();
-          await browser.runtime.sendMessage({
-            id: 'setRequestReferrer',
-            referrer: window.location.href,
-            token,
-            url
-          });
-          rsp = await fetchImage(url, {token});
-        } else {
-          rsp = await fetchImage(url);
+        let imageBlob = await downloadImage(url);
+        if (!imageBlob && window.isSecureContext && url.match(/^http:/i)) {
+          url = url.replace(/^http:/i, 'https:');
+          imageBlob = await downloadImage(url);
         }
 
-        if (!rsp || !rsp.response) {
+        if (!imageBlob) {
           results.splice(index, 1);
           continue;
         }
 
-        const {dataUrl, type, ext} = await normalizeImage({blob: rsp.response});
+        const {dataUrl, type, ext} = await normalizeImage({blob: imageBlob});
         if (dataUrl) {
           results[index] = {
             imageUrl: url,
@@ -283,7 +280,7 @@ async function processResults(results, task) {
             imageFilename: normalizeFilename({filename, ext}),
             imageType: type,
             imageExt: ext,
-            imageSize: rsp.response.size,
+            imageSize: imageBlob.size,
             mustUpload
           };
         } else {
