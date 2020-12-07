@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.2](https://github.com/dessant/search-by-image/compare/v3.4.1...v3.4.2) (2020-12-07)
+
+
+### Bug Fixes
+
+* attempt to download images using fallback methods ([020ba13](https://github.com/dessant/search-by-image/commit/020ba13a9c8178243bb5861f78973b4b5b425175))
+
 ### [3.4.1](https://github.com/dessant/search-by-image/compare/v3.4.0...v3.4.1) (2020-11-23)
 
 
