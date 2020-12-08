@@ -6,6 +6,7 @@ const {series, parallel, src, dest} = require('gulp');
 const babel = require('gulp-babel');
 const postcss = require('gulp-postcss');
 const gulpif = require('gulp-if');
+const rename = require('gulp-rename');
 const jsonMerge = require('gulp-merge-json');
 const jsonmin = require('gulp-jsonmin');
 const htmlmin = require('gulp-htmlmin');
@@ -20,7 +21,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
 const distDir = path.join('dist', targetEnv);
-
 
 function clean() {
   return del([distDir]);
@@ -191,70 +191,8 @@ async function locale(done) {
 }
 
 function manifest() {
-  return src('src/manifest.json')
-    .pipe(
-      jsonMerge({
-        fileName: 'manifest.json',
-        edit: (parsedJson, file) => {
-          if (['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)) {
-            delete parsedJson.browser_specific_settings;
-            delete parsedJson.browser_action.browser_style;
-            delete parsedJson.options_ui.browser_style;
-            const urlPatterns = parsedJson.content_scripts[0].matches;
-            parsedJson.content_scripts[0].matches = urlPatterns.filter(
-              item => item !== 'file:///*'
-            );
-          }
-
-          if (
-            ['chrome', 'edge', 'firefox', 'opera', 'safari'].includes(targetEnv)
-          ) {
-            parsedJson.permissions = parsedJson.permissions.filter(
-              item => item !== 'webNavigation'
-            );
-          }
-
-          if (
-            ['chrome', 'edge', 'firefox', 'safari', 'samsung'].includes(
-              targetEnv
-            )
-          ) {
-            delete parsedJson.minimum_opera_version;
-          }
-
-          if (['firefox', 'opera', 'safari'].includes(targetEnv)) {
-            delete parsedJson.minimum_chrome_version;
-          }
-
-          if (['firefox', 'safari'].includes(targetEnv)) {
-            delete parsedJson.options_ui.chrome_style;
-            delete parsedJson.incognito;
-          }
-
-          if (targetEnv === 'firefox') {
-            delete parsedJson.browser_specific_settings.safari;
-          }
-
-          if (targetEnv === 'safari') {
-            delete parsedJson.browser_specific_settings.gecko;
-            delete parsedJson.content_security_policy;
-            parsedJson.permissions = parsedJson.permissions.filter(
-              item =>
-                !['notifications', 'webRequest', 'webRequestBlocking'].includes(
-                  item
-                )
-            );
-            const urlPatterns = parsedJson.content_scripts[0].matches;
-            parsedJson.content_scripts[0].matches = urlPatterns.filter(
-              item => item !== 'file:///*'
-            );
-          }
-
-          parsedJson.version = require('./package.json').version;
-          return parsedJson;
-        }
-      })
-    )
+  return src(`src/manifest/${targetEnv}.json`)
+    .pipe(rename('manifest.json'))
     .pipe(gulpif(isProduction, jsonmin()))
     .pipe(dest(distDir));
 }

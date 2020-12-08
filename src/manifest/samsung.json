@@ -7,17 +7,7 @@
   "homepage_url": "https://github.com/dessant/search-by-image",
   "default_locale": "en",
 
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{2e5ff8c8-32fe-46d0-9fc8-6b8986621f3c}",
-      "strict_min_version": "68.0"
-    },
-    "safari": {
-      "strict_min_version": "14.0"
-    }
-  },
   "minimum_chrome_version": "76.0",
-  "minimum_opera_version": "63.0",
 
   "permissions": [
     "contextMenus",
@@ -56,13 +46,11 @@
       "64": "src/icons/app/icon-64.png",
       "96": "src/icons/app/icon-96.png",
       "128": "src/icons/app/icon-128.png"
-    },
-    "browser_style": false
+    }
   },
 
   "options_ui": {
     "page": "src/options/index.html",
-    "browser_style": false,
     "chrome_style": false,
     "open_in_tab": true
   },
@@ -73,7 +61,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "matches": ["http://*/*", "https://*/*"],
       "all_frames": true,
       "run_at": "document_start",
       "js": ["src/content/insert/script.js"]
@@ -84,7 +72,6 @@
     "src/content/style.css",
     "src/select/pointer.css",
     "src/select/index.html",
-    "src/capture/index.html",
     "src/confirm/index.html"
   ],
 
