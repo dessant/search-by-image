@@ -31,7 +31,10 @@
     "48": "src/icons/app/icon-48.png",
     "64": "src/icons/app/icon-64.png",
     "96": "src/icons/app/icon-96.png",
-    "128": "src/icons/app/icon-128.png"
+    "128": "src/icons/app/icon-128.png",
+    "256": "src/icons/app/icon-256.png",
+    "512": "src/icons/app/icon-512.png",
+    "1024": "src/icons/app/icon-1024.png"
   },
 
   "browser_action": {

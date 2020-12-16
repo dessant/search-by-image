@@ -76,6 +76,9 @@ async function images(done) {
   ensureDirSync(path.join(distDir, 'src/icons/app'));
   const appIconSvg = readFileSync('src/icons/app/icon.svg');
   const appIconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
+  if (targetEnv === 'safari') {
+    appIconSizes.push(256, 512, 1024);
+  }
   for (const size of appIconSizes) {
     await sharp(appIconSvg, {density: (72 * size) / 24})
       .resize(size)
