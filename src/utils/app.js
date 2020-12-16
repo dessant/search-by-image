@@ -99,16 +99,18 @@ function showNotification({message, messageId, title, type = 'info'}) {
   }
 
   if (targetEnv === 'safari') {
-    console.log('notification', message);
-    return;
+    return browser.runtime.sendNativeMessage('application.id', {
+      id: 'notification',
+      message
+    });
+  } else {
+    return browser.notifications.create(`sbi-notification-${type}`, {
+      type: 'basic',
+      title,
+      message,
+      iconUrl: '/src/icons/app/icon-64.png'
+    });
   }
-
-  return browser.notifications.create(`sbi-notification-${type}`, {
-    type: 'basic',
-    title: title,
-    message: message,
-    iconUrl: '/src/icons/app/icon-48.png'
-  });
 }
 
 function getListItems(data, {scope = '', shortScope = ''} = {}) {

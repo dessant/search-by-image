@@ -1,4 +1,5 @@
 .assets/
+app/
 
 node_modules/
 artifacts/

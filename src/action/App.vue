@@ -261,7 +261,7 @@ export default {
     closeAction: async function () {
       const currentTab = await browser.tabs.getCurrent();
 
-      // Safari: tabs.getCurrent returns active tab instead of undefined
+      // Safari 14: tabs.getCurrent returns active tab instead of undefined
       if (
         currentTab &&
         currentTab.id !== browser.tabs.TAB_ID_NONE &&
