@@ -70,6 +70,8 @@
     <transition
       name="settings"
       v-if="dataLoaded"
+      @before-enter="settingsBeforeEnter"
+      @before-leave="settingsBeforeLeave"
       @after-enter="settingsAfterEnter"
       @after-leave="settingsAfterLeave"
     >
@@ -93,14 +95,11 @@
         {{ getText('menuItemTitle_allEngines') }}
       </li>
     </ul>
-    <ul
-      class="mdc-list list list-separator"
-      v-if="searchAllEngines || hasScrollBar"
-    >
+    <ul class="mdc-list list list-separator" :class="separatorClasses">
       <li role="separator" class="mdc-list-divider"></li>
     </ul>
-    <div class="list-items-wrap" ref="items">
-      <resize-observer @notify="handleSizeChange"></resize-observer>
+    <div class="list-items-wrap" ref="items" @scroll="onListScroll">
+      <resize-observer @notify="onListSizeChange"></resize-observer>
       <ul class="mdc-list list list-items">
         <li
           class="mdc-list-item list-item"
@@ -184,6 +183,14 @@ export default {
       searchAllEngines: false,
       enableContributions
     };
+  },
+
+  computed: {
+    separatorClasses: function () {
+      return {
+        visible: this.searchAllEngines || this.hasScrollBar
+      };
+    }
   },
 
   methods: {
@@ -277,19 +284,56 @@ export default {
       this.$refs.imageUrlInput.$refs.input.focus();
     },
 
+    settingsBeforeEnter: function () {
+      this.lockPopupHeight();
+    },
+
+    settingsBeforeLeave: function () {
+      this.lockPopupHeight();
+    },
+
     settingsAfterEnter: function () {
-      this.handleSizeChange();
+      this.configureScrollBar();
       this.focusImageUrlInput();
     },
 
     settingsAfterLeave: function () {
-      this.handleSizeChange();
+      this.unlockPopupHeight();
+      this.configureScrollBar();
       this.imageUrl = '';
     },
 
-    handleSizeChange: function () {
-      const items = this.$refs.items;
-      this.hasScrollBar = items.scrollHeight > items.clientHeight;
+    onListSizeChange: function () {
+      this.configureScrollBar();
+    },
+
+    onListScroll: function () {
+      this.configureScrollBar();
+    },
+
+    configureScrollBar: function () {
+      if (this.$isAndroid || targetEnv === 'safari') {
+        this.hasScrollBar = this.$refs.items.scrollTop;
+      } else {
+        const items = this.$refs.items;
+        this.hasScrollBar = items.scrollHeight > items.clientHeight;
+      }
+    },
+
+    lockPopupHeight: function () {
+      if (this.$isAndroid && !document.documentElement.style.height) {
+        const {height} = document.documentElement.getBoundingClientRect();
+        document.documentElement.style.height = `${height}px`;
+      }
+    },
+
+    unlockPopupHeight: function () {
+      if (
+        this.$isAndroid &&
+        document.documentElement.style.height.endsWith('px')
+      ) {
+        document.documentElement.style.height = '';
+      }
     },
 
     setViewportSize: async function () {
@@ -303,6 +347,7 @@ export default {
           document.body.style.minWidth = '354px';
         }
         this.$el.style.maxHeight = `${activeTab.height - 40}px`;
+        document.documentElement.style.height = '';
       } else if (
         !this.$isAndroid &&
         activeTab &&
@@ -311,6 +356,7 @@ export default {
         // desktop popup
         this.$refs.items.style.maxHeight = '392px';
       } else {
+        // full page
         document.body.style.minWidth = 'initial';
         document.documentElement.style.height = '100%';
       }
@@ -501,6 +547,12 @@ body {
 .list-separator {
   position: relative;
   height: 1px;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.visible {
+  opacity: 1;
 }
 
 .list-items-wrap {
