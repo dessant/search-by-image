@@ -6,7 +6,6 @@ const {series, parallel, src, dest} = require('gulp');
 const babel = require('gulp-babel');
 const postcss = require('gulp-postcss');
 const gulpif = require('gulp-if');
-const rename = require('gulp-rename');
 const jsonMerge = require('gulp-merge-json');
 const jsonmin = require('gulp-jsonmin');
 const htmlmin = require('gulp-htmlmin');
@@ -195,7 +194,15 @@ async function locale(done) {
 
 function manifest() {
   return src(`src/manifest/${targetEnv}.json`)
-    .pipe(rename('manifest.json'))
+    .pipe(
+      jsonMerge({
+        fileName: 'manifest.json',
+        edit: (parsedJson, file) => {
+          parsedJson.version = require('./package.json').version;
+          return parsedJson;
+        }
+      })
+    )
     .pipe(gulpif(isProduction, jsonmin()))
     .pipe(dest(distDir));
 }
