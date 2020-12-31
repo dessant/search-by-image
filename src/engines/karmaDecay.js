@@ -40,6 +40,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
+  // skip Cloudflare pages
   if (
     !document.body.querySelector('form#challenge-form') ||
     !document.head.querySelector('meta[name="captcha-bypass"]')

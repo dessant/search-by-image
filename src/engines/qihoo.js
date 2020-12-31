@@ -35,9 +35,11 @@ async function search({task, search, image, storageKeys}) {
     let inputSelector;
     let input;
     if (document.head.querySelector('meta[name^="apple-mobile"]')) {
+      // mobile
       inputSelector = '#search-box input[type="file"]';
       input = await findNode(inputSelector, {timeout: 120000});
     } else {
+      // desktop
       inputSelector = 'input#stUpload';
       input = await findNode(inputSelector);
     }

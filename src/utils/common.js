@@ -231,6 +231,45 @@ function findNode(
   });
 }
 
+async function processNode(
+  selector,
+  taskFn,
+  {
+    timeout = 60000,
+    throwError = true,
+    observerOptions = null,
+    reprocess = false
+  } = {}
+) {
+  let node = await findNode(selector, {timeout, throwError, observerOptions});
+
+  if (reprocess) {
+    const observer = new MutationObserver(function (mutations, obs) {
+      const el = document.querySelector(selector);
+      if (el && !el.isSameNode(node)) {
+        node = el;
+        taskFn(node);
+      }
+    });
+
+    const options = {
+      childList: true,
+      subtree: true
+    };
+    if (observerOptions) {
+      Object.assign(options, observerOptions);
+    }
+
+    observer.observe(document, options);
+
+    window.setTimeout(function () {
+      observer.disconnect();
+    }, timeout);
+  }
+
+  return taskFn(node);
+}
+
 async function getActiveTab() {
   const [tab] = await browser.tabs.query({
     lastFocusedWindow: true,
@@ -293,6 +332,7 @@ export {
   getDataUrlMimeType,
   isAndroid,
   findNode,
+  processNode,
   getActiveTab,
   getPlatform,
   sleep

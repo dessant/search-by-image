@@ -1,19 +1,21 @@
-import {findNode, isAndroid} from 'utils/common';
+import {findNode, processNode, isAndroid} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auTrademark';
 
 async function search({task, search, image, storageKeys}) {
   if (await isAndroid()) {
-    if (document.cookie.match(/_fullMobile/)) {
-      if (document.location.pathname.endsWith('/quick')) {
-        (await findNode('a#goToAdvancedSearch')).click();
-        return;
-      }
-    } else {
-      (await findNode('#pageContent a[onclick^="document.cookie"]')).click();
-      return;
-    }
+    // go to desktop version
+    processNode(
+      '#pageContent a[onclick^="document.cookie"]',
+      node => node.click(),
+      {throwError: false}
+    );
+
+    // go to advanced search
+    processNode('a#goToAdvancedSearch', node => node.click(), {
+      throwError: false
+    });
   }
 
   const inputSelector = 'input.dz-hidden-input';

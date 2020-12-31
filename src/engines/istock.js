@@ -1,11 +1,11 @@
 import {validateUrl} from 'utils/app';
-import {findNode} from 'utils/common';
+import {findNode, isAndroid} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'istock';
 
 async function search({task, search, image, storageKeys}) {
-  if (window.screen.width < 1024) {
+  if (await isAndroid()) {
     let rsp = await fetch(
       'https://www.istockphoto.com/search/search-by-image/upload_data/' +
         new Date().getTime()

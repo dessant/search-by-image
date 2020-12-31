@@ -1,12 +1,12 @@
 import {validateUrl} from 'utils/app';
-import {findNode} from 'utils/common';
+import {findNode, isAndroid} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
 const engine = '123rf';
 
 async function search({task, search, image, storageKeys}) {
-  if (targetEnv === 'safari') {
+  if ((await isAndroid()) || targetEnv === 'safari') {
     const data = new FormData();
     data.append('file_upload', image.imageBlob, image.imageFilename);
     data.append('btn_submit', 'Search by image');
@@ -29,16 +29,22 @@ async function search({task, search, image, storageKeys}) {
       window.location.replace(tabUrl);
     }
   } else {
-    (await findNode('#cam_sim')).click();
+    (await findNode('#Main-Searchbar-reverseSearch-btn')).click();
 
-    const inputSelector = '#file_upload';
+    const inputSelector = '#searchbar-draganddrop-input';
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);
 
     await sendReceipt(storageKeys);
 
-    (await findNode('#btn_submit2')).click();
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+
+    await findNode('.DragAndDrop__previewImage');
+
+    window.setTimeout(async () => {
+      (await findNode('#searchbar-draganddrop-submit')).click();
+    }, 100);
   }
 }
 

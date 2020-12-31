@@ -4,6 +4,9 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'jpDesign';
 
 async function search({task, search, image, storageKeys}) {
+  // wait for page
+  await findNode('#photo > img');
+
   const inputSelector = '#ImageFile';
   const input = await findNode(inputSelector);
 

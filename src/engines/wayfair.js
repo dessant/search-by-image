@@ -1,15 +1,32 @@
-import {findNode, isAndroid} from 'utils/common';
+import {findNode, processNode} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'wayfair';
 
 async function search({task, search, image, storageKeys}) {
-  (await findNode('header#store_nav button.SearchWithPhotoButton')).click();
+  // elements may be recreated
+  await processNode(
+    'header#store_nav button.SearchWithPhotoButton',
+    node => node.click(),
+    {reprocess: true}
+  );
 
-  const inputSelector = (await isAndroid())
-    ? 'input#MODAL_CAMERA'
-    : 'input#FileUpload-input0';
-  const input = await findNode(inputSelector);
+  const {selector: inputSelector, node: input} = await Promise.race([
+    // desktop
+    new Promise((resolve, reject) => {
+      const selector = 'input#FileUpload-input0';
+      findNode(selector)
+        .then(node => resolve({selector, node}))
+        .catch(err => reject(err));
+    }),
+    // mobile
+    new Promise((resolve, reject) => {
+      const selector = 'input#MODAL_CAMERA';
+      findNode(selector)
+        .then(node => resolve({selector, node}))
+        .catch(err => reject(err));
+    })
+  ]);
 
   await setFileInputData(inputSelector, input, image);
 
