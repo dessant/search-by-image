@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.3](https://github.com/dessant/search-by-image/compare/v3.4.2...v3.4.3) (2021-01-01)
+
+
+### Bug Fixes
+
+* correct capitalization for locale strings on Safari ([6f181fd](https://github.com/dessant/search-by-image/commit/6f181fdc9c691e4593b80dd850598b61978930bb))
+* include larger icons in Safari package ([fe95f0a](https://github.com/dessant/search-by-image/commit/fe95f0ade65f3a87888e85bbdf7b06bb011e6453))
+* lock popup size on Android during viewport size changes ([34eec40](https://github.com/dessant/search-by-image/commit/34eec405d9b4826738bf45bf10926402510af533))
+* set package version in manifest ([e922cfd](https://github.com/dessant/search-by-image/commit/e922cfddbed3b6e75a3f8084bfd2560623f2ceb6))
+* show native notifications in Safari ([e0a27fc](https://github.com/dessant/search-by-image/commit/e0a27fce6b728ceb195771658e22ad703d24c2f3))
+* update search engines ([c73e7b2](https://github.com/dessant/search-by-image/commit/c73e7b25eb562327735b1759ad44b2b90118fa3c))
+
 ### [3.4.2](https://github.com/dessant/search-by-image/compare/v3.4.1...v3.4.2) (2020-12-07)
 
 
