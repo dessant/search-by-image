@@ -230,7 +230,7 @@ body {
   }
 }
 
-.firefox-android {
+.firefox.android {
   & .cropper-point,
   & .cropper-point.point-se:before,
   & .cropper-line {

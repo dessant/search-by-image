@@ -268,7 +268,7 @@ body {
   margin-top: 36px;
 }
 
-.firefox-android {
+.firefox.android {
   & .error-text,
   & .drop-zone-text {
     @include mdc-theme-prop(color, #20123a);

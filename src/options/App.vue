@@ -351,7 +351,7 @@ body {
   }
 }
 
-.firefox-android {
+.firefox.android {
   & .section-title,
   & .section-desc,
   & .mdc-form-field,

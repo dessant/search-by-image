@@ -411,7 +411,7 @@ body {
   opacity: 0.7;
 }
 
-.firefox-android {
+.firefox.android {
   & .title,
   & .grid-item-footer-text {
     @include mdc-theme-prop(color, #312a65);

@@ -252,8 +252,10 @@ async function captureVisibleTabArea(area) {
 }
 
 async function configTheme() {
-  if (targetEnv === 'firefox' && (await isAndroid())) {
-    document.documentElement.classList.add('firefox-android');
+  document.documentElement.classList.add(targetEnv);
+
+  if (await isAndroid()) {
+    document.documentElement.classList.add('android');
   }
 }
 

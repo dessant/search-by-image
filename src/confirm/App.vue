@@ -164,7 +164,7 @@ body {
   }
 }
 
-.firefox-android {
+.firefox.android {
   & .mdc-dialog__title {
     @include mdc-theme-prop(color, #20123a);
   }

@@ -573,11 +573,21 @@ body {
   margin-right: 16px !important;
 }
 
-html.firefox-android {
+html.firefox.android {
   height: 100%;
 }
 
-.firefox-android {
+.safari {
+  & .list-item:hover::before {
+    opacity: 0 !important;
+  }
+
+  & .search-mode-menu {
+    right: 52px;
+  }
+}
+
+.firefox.android {
   & .mdc-list-item {
     @include mdc-theme-prop(color, #20123a);
   }

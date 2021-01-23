@@ -214,7 +214,7 @@ body {
   margin-top: 24px;
 }
 
-.firefox-android {
+.firefox.android {
   & .error-text {
     @include mdc-theme-prop(color, #20123a);
   }

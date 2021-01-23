@@ -125,7 +125,7 @@ body {
   }
 }
 
-.firefox-android {
+.firefox.android {
   & .mdc-snackbar {
     @include mdc-snackbar-fill-color(#312a65);
     @include mdc-snackbar-shape-radius(8px);
