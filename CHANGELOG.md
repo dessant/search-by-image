@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.5.2](https://github.com/dessant/search-by-image/compare/v3.5.1...v3.5.2) (2021-01-28)
+
+
+### Bug Fixes
+
+* shorten description for Safari ([06ecfc5](https://github.com/dessant/search-by-image/commit/06ecfc5f6d12915712823798402db1b90966d6cb))
+
 ### [3.5.1](https://github.com/dessant/search-by-image/compare/v3.5.0...v3.5.1) (2021-01-28)
 
 
