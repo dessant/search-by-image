@@ -1,4 +1,9 @@
 {
+  "extensionDescription": {
+    "message": "Effortless reverse image searches, with support for a vast selection of search engines.",
+    "description": "Description of the extension."
+  },
+
   "menuItemTitle_allEngines": {
     "message": "All Search Engines",
     "description": "Title of the menu item."

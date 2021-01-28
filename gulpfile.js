@@ -173,7 +173,7 @@ async function locale(done) {
           jsonMerge({
             fileName: 'messages.json',
             edit: (parsedJson, file) => {
-              if (isProduction && targetEnv !== 'safari') {
+              if (isProduction) {
                 for (let [key, value] of Object.entries(parsedJson)) {
                   if (value.hasOwnProperty('description')) {
                     delete parsedJson[key].description;
