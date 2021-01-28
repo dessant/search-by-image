@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.5.1](https://github.com/dessant/search-by-image/compare/v3.5.0...v3.5.1) (2021-01-28)
+
+
+### Bug Fixes
+
+* keep descriptions of localized messages for Safari ([1295937](https://github.com/dessant/search-by-image/commit/1295937ea39cdf0c38819f64e2a6dcf431563487))
+
 ## [3.5.0](https://github.com/dessant/search-by-image/compare/v3.4.3...v3.5.0) (2021-01-28)
 
 
