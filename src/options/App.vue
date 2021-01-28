@@ -1,6 +1,6 @@
 <template>
-  <div id="app" v-if="dataLoaded">
-    <div class="section">
+  <div id="app" v-if="dataLoaded" :class="appClasses">
+    <div class="section-engines">
       <div class="section-title" v-once>
         {{ getText('optionSectionTitle_engines') }}
       </div>
@@ -29,7 +29,7 @@
       </v-draggable>
     </div>
 
-    <div class="section" v-if="contextMenuEnabled">
+    <div class="section-context-menu" v-if="contextMenuEnabled">
       <div class="section-title" v-once>
         {{ getText('optionSectionTitle_contextmenu') }}
       </div>
@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section-toolbar">
       <div class="section-title" v-once>
         {{
           getText(
@@ -91,7 +91,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section-misc">
       <div class="section-title" v-once>
         {{ getText('optionSectionTitle_misc') }}
       </div>
@@ -133,6 +133,8 @@
         </div>
       </div>
     </div>
+
+    <div class="section-placeholder"></div>
   </div>
 </template>
 
@@ -220,6 +222,14 @@ export default {
     };
   },
 
+  computed: {
+    appClasses: function () {
+      return {
+        'feature-context-menu': this.contextMenuEnabled
+      };
+    }
+  },
+
   methods: {
     getText,
 
@@ -287,6 +297,7 @@ body {
 #app {
   display: grid;
   grid-row-gap: 32px;
+  grid-column-gap: 48px;
   padding: 24px;
 }
 
@@ -310,6 +321,10 @@ body {
 .section-desc {
   @include mdc-typography(body2);
   padding-top: 8px;
+}
+
+.section-placeholder {
+  display: none;
 }
 
 .option-wrap {
@@ -384,6 +399,47 @@ body {
       filter: brightness(0) saturate(100%) invert(10%) sepia(43%)
         saturate(1233%) hue-rotate(225deg) brightness(97%) contrast(105%);
     }
+  }
+}
+
+@media (min-width: 1024px) {
+  #app {
+    grid-template-columns: 464px 464px;
+    grid-template-rows: min-content min-content 1fr;
+    grid-template-areas:
+      'engines toolbar'
+      'engines misc'
+      'engines placeholder';
+
+    &.feature-context-menu {
+      grid-template-rows: min-content min-content min-content 1fr;
+      grid-template-areas:
+        'engines context-menu'
+        'engines toolbar'
+        'engines misc'
+        'engines placeholder';
+    }
+  }
+
+  .section-engines {
+    grid-area: engines;
+  }
+
+  .section-context-menu {
+    grid-area: context-menu;
+  }
+
+  .section-toolbar {
+    grid-area: toolbar;
+  }
+
+  .section-misc {
+    grid-area: misc;
+  }
+
+  .section-placeholder {
+    grid-area: placeholder;
+    display: initial;
   }
 }
 </style>
