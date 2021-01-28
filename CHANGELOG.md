@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.5.0](https://github.com/dessant/search-by-image/compare/v3.4.3...v3.5.0) (2021-01-28)
+
+
+### Features
+
+* show options in two columns on larger screens ([d4b6996](https://github.com/dessant/search-by-image/commit/d4b6996c23c73043684927f4658325acd5c9eec9))
+
+
+### Bug Fixes
+
+* style improvements on Safari ([03275a0](https://github.com/dessant/search-by-image/commit/03275a02b6d8cdd5346221ec698690e6bb0f2864))
+
 ### [3.4.3](https://github.com/dessant/search-by-image/compare/v3.4.2...v3.4.3) (2021-01-01)
 
 
