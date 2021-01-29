@@ -16,6 +16,8 @@
 <p align="center">
   <a href="https://galaxy.store/ravr">
     <img src="https://i.imgur.com/uUjUDYf.png" alt="Galaxy Store"></a>
+  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106">
+    <img src="https://i.imgur.com/APuaioW.png" alt="Mac App Store"></a>
   </br></br>
 </p>
 
