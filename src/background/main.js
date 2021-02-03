@@ -679,7 +679,8 @@ async function execEngine(tabId, engine, sessionKey) {
 async function searchClickTarget(task) {
   const [isParseModule] = await executeCode(
     `typeof initParse !== 'undefined'`,
-    task.sourceTabId
+    task.sourceTabId,
+    task.sourceFrameId
   );
   if (!isParseModule) {
     await executeFile(
