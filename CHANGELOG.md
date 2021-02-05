@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.6.0](https://github.com/dessant/search-by-image/compare/v3.5.2...v3.6.0) (2021-02-05)
+
+
+### Features
+
+* search on IKEA, Birch Lane, AllModern, Joss & Main and Perigold ([9a668bb](https://github.com/dessant/search-by-image/commit/9a668bbc06f68c7618e5700e7ba1676e999a1d8d))
+
+
+### Bug Fixes
+
+* check script presence in correct frame ([68a1267](https://github.com/dessant/search-by-image/commit/68a1267c686d0bf18dbc88285e3a26d68beed42f)), closes [#111](https://github.com/dessant/search-by-image/issues/111)
+
 ### [3.5.2](https://github.com/dessant/search-by-image/compare/v3.5.1...v3.5.2) (2021-01-28)
 
 
