@@ -199,6 +199,31 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_birchlane": {
+    "message": "Birch Lane",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_allmodern": {
+    "message": "AllModern",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_jossandmain": {
+    "message": "Joss & Main",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_perigold": {
+    "message": "Perigold",
+    "description": "Name of the search engine."
+  },
+
+  "engineName_ikea": {
+    "message": "IKEA",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -407,6 +432,31 @@
 
   "menuItemTitle_wayfair": {
     "message": "Wayfair",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_birchlane": {
+    "message": "Birch Lane",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_allmodern": {
+    "message": "AllModern",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_jossandmain": {
+    "message": "Joss & Main",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_perigold": {
+    "message": "Perigold",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_ikea": {
+    "message": "IKEA",
     "description": "Title of the menu item."
   },
 
@@ -628,6 +678,31 @@
 
   "optionTitle_wayfair": {
     "message": "Wayfair",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_birchlane": {
+    "message": "Birch Lane",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_allmodern": {
+    "message": "AllModern",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_jossandmain": {
+    "message": "Joss & Main",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_perigold": {
+    "message": "Perigold",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_ikea": {
+    "message": "IKEA",
     "description": "Title of the option."
   },
 

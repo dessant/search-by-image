@@ -1,7 +1,7 @@
 import {findNode, processNode} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
-const engine = 'wayfair';
+const engine = 'birchlane';
 
 async function search({task, search, image, storageKeys}) {
   // elements may be recreated
