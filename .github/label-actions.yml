@@ -1,10 +1,9 @@
 # Configuration for Label Actions - https://github.com/dessant/label-actions
 
-issues:
-  actions:
-    incomplete:
-      comment: >
-        @{issue-author}, the issue does not contain enough information
-        to reproduce the bug. Please open a new bug report and fill out
-        the issue template with the requested data.
-      close: true
+incomplete:
+  issues:
+    comment: >
+      @{issue-author}, the issue does not contain enough information
+      to reproduce the bug. Please open a new bug report and fill out
+      the issue template with the requested data.
+    close: true
