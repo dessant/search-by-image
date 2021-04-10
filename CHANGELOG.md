@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.6.1](https://github.com/dessant/search-by-image/compare/v3.6.0...v3.6.1) (2021-04-10)
+
+
+### Bug Fixes
+
+* update Adobe Stock ([1200658](https://github.com/dessant/search-by-image/commit/120065896bba625320bca8a3f392ec2771d3056a))
+* update Depositphotos ([2634ab2](https://github.com/dessant/search-by-image/commit/2634ab2a003475e4046d38fc9177d0ea9274a7af))
+* update PimEyes ([140940b](https://github.com/dessant/search-by-image/commit/140940b2809f19c7f7dde6f411c04a123533070b))
+* update PIXTA ([531dc7e](https://github.com/dessant/search-by-image/commit/531dc7e8701d8ecf728d4aa8f973689b1c922809))
+* update Shutterstock ([5bd13bf](https://github.com/dessant/search-by-image/commit/5bd13bfed8b91e284fc388bf3c34df2eea8b3881))
+* wait for Yandex page to initialize ([dd98639](https://github.com/dessant/search-by-image/commit/dd98639bdefc3d9fbc8c1a52cd3a3ef360986ed9)), closes [#118](https://github.com/dessant/search-by-image/issues/118)
+
 ## [3.6.0](https://github.com/dessant/search-by-image/compare/v3.5.2...v3.6.0) (2021-02-05)
 
 
