@@ -1,9 +1,14 @@
-import {findNode} from 'utils/common';
+import {findNode, isAndroid} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'shutterstock';
 
 async function search({task, search, image, storageKeys}) {
+  if (await isAndroid()) {
+    // some elements are loaded only after the first user interaction
+    window.dispatchEvent(new Event('touchstart'));
+  }
+
   (
     await findNode('button[data-track-label="reverseImageSearchButton"]')
   ).click();
