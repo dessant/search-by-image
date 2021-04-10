@@ -30,7 +30,11 @@ async function search({task, search, image, storageKeys}) {
       window.location.replace(tabUrl);
     }
   } else {
-    (await findNode('button.button-search-by-images')).click();
+    (
+      await findNode(
+        'body:not(.preload) div.enable-transition button.button-search-by-images'
+      )
+    ).click();
 
     (await findNode('li[data-key="image"] a.cmp-tabs__label')).click();
 
