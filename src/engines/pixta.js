@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'pixta';
 
 async function search({task, search, image, storageKeys}) {
-  (await findNode('div.search-form__search-by-image')).click();
+  (await findNode('div.search-image-button.search-image-button--top')).click();
 
   const inputSelector = 'input#image[type="file"]';
   const input = await findNode(inputSelector);
