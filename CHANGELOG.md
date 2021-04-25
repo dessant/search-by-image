@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.6.2](https://github.com/dessant/search-by-image/compare/v3.6.1...v3.6.2) (2021-04-25)
+
+
+### Bug Fixes
+
+* listen for element attribute changes on Yandex ([94ec883](https://github.com/dessant/search-by-image/commit/94ec883dcf8e9e0b8a2852b5710f64c4d8230133)), closes [#121](https://github.com/dessant/search-by-image/issues/121)
+
 ### [3.6.1](https://github.com/dessant/search-by-image/compare/v3.6.0...v3.6.1) (2021-04-10)
 
 
