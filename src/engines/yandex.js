@@ -65,11 +65,17 @@ async function search({task, search, image, storageKeys}) {
     );
     xhr.send(data);
   } else {
-    (await findNode('.input_js_inited .input__cbir-button button')).click();
+    (
+      await findNode('.input_js_inited .input__cbir-button button', {
+        observerOptions: {attributes: true, attributeFilter: ['class']}
+      })
+    ).click();
 
     const inputSelector =
       '.cbir-panel_visibility_visible input.cbir-panel__file-input';
-    const input = await findNode(inputSelector);
+    const input = await findNode(inputSelector, {
+      observerOptions: {attributes: true, attributeFilter: ['class']}
+    });
 
     await setFileInputData(inputSelector, input, image);
 
