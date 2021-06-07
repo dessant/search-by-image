@@ -248,7 +248,7 @@ const engines = {
   },
   pimeyes: {
     upload: {
-      target: 'https://pimeyes.com/en/search',
+      target: 'https://pimeyes.com/en',
       isExec: true
     }
   },
