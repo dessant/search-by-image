@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.6.3](https://github.com/dessant/search-by-image/compare/v3.6.2...v3.6.3) (2021-06-13)
+
+
+### Bug Fixes
+
+* hide unavailable engines ([aba15ab](https://github.com/dessant/search-by-image/commit/aba15ab913b7854a22e9c7277f15ae2a5f627aff))
+* update PimEyes ([2cae8bd](https://github.com/dessant/search-by-image/commit/2cae8bd008a9b0d5e7b2635995f6d8110bcc3ac7))
+
 ### [3.6.2](https://github.com/dessant/search-by-image/compare/v3.6.1...v3.6.2) (2021-04-25)
 
 
