@@ -71,11 +71,29 @@ async function search({task, search, image, storageKeys}) {
       })
     ).click();
 
-    const inputSelector =
-      '.cbir-panel_visibility_visible input.cbir-panel__file-input';
-    const input = await findNode(inputSelector, {
-      observerOptions: {attributes: true, attributeFilter: ['class']}
-    });
+    await Promise.race([
+      findNode('div.cbir-panel_visibility_visible', {
+        observerOptions: {attributes: true, attributeFilter: ['class']}
+      }), // old layout
+      findNode('div.CbirPanel-PopupBody') // new layout
+    ]);
+
+    const {selector: inputSelector, node: input} = await Promise.race([
+      // old layout
+      new Promise((resolve, reject) => {
+        const selector = 'input.cbir-panel__file-input';
+        findNode(selector)
+          .then(node => resolve({selector, node}))
+          .catch(err => reject(err));
+      }),
+      // new layout
+      new Promise((resolve, reject) => {
+        const selector = 'input.CbirCore-FileInput';
+        findNode(selector)
+          .then(node => resolve({selector, node}))
+          .catch(err => reject(err));
+      })
+    ]);
 
     await setFileInputData(inputSelector, input, image);
 
