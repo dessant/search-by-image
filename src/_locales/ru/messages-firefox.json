@@ -1,0 +1,47 @@
+{
+  "menuItemTitle_allEngines": {
+    "message": "Все поисковые системы",
+    "description": "Название пункта меню."
+  },
+
+  "optionValue_action_searchModeAction_selectUpload": {
+    "message": "Выбрать и загрузить",
+    "description": "Значение настройки."
+  },
+
+  "mainMenuItemTitle_allEngines": {
+    "message": "Найти изображение во всех системах",
+    "description": "Название пункта меню."
+  },
+
+  "mainMenuItemTitle_engine": {
+    "message": "Найти изображение в $ENGINE$",
+    "description": "Название пункта меню.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
+  "optionSectionTitle_engines": {
+    "message": "Поисковые системы",
+    "description": "Название секции настроек."
+  },
+
+  "optionSectionTitle_contextmenu": {
+    "message": "Контекстное меню",
+    "description": "Название секции настроек."
+  },
+
+  "optionSectionTitle_toolbar": {
+    "message": "Панель инструментов браузера",
+    "description": "Название секции настроек."
+  },
+
+  "error_optionsNotApplied": {
+    "message": "Перезапустите браузер для применения изменений.",
+    "description": "Сообщение об ошибке."
+  }
+}
