@@ -65,6 +65,48 @@ async function search({task, search, image, storageKeys}) {
     );
     xhr.send(data);
   } else {
+    // new layout: hide onboarding popup
+    localStorage.setItem(
+      'cbir:uploader_onboarded_photo',
+      `{"count":1,"last":${Date.now()}}`
+    );
+    const watchedItem = localStorage.getItem('ludca');
+
+    const {selector: inputSelector, node: input, layout} = await Promise.race([
+      // old layout
+      new Promise((resolve, reject) => {
+        const selector = 'input.cbir-panel__file-input';
+        findNode(selector)
+          .then(node => resolve({selector, node, layout: 'old'}))
+          .catch(err => reject(err));
+      }),
+      // new layout
+      new Promise((resolve, reject) => {
+        const selector = 'input.CbirCore-FileInput';
+        findNode(selector)
+          .then(node => resolve({selector, node, layout: 'new'}))
+          .catch(err => reject(err));
+      })
+    ]);
+
+    if (layout === 'new') {
+      // wait for search service to load
+      await new Promise(resolve => {
+        const stop = () => {
+          window.clearTimeout(timeoutId);
+          window.clearInterval(intervalId);
+          resolve();
+        };
+
+        const timeoutId = setTimeout(stop, 10000); // 10 seconds
+        const intervalId = setInterval(() => {
+          if (watchedItem !== localStorage.getItem('ludca')) {
+            stop();
+          }
+        }, 50);
+      });
+    }
+
     (
       await findNode('.input_js_inited .input__cbir-button button', {
         observerOptions: {attributes: true, attributeFilter: ['class']}
@@ -78,28 +120,11 @@ async function search({task, search, image, storageKeys}) {
       findNode('div.CbirPanel-PopupBody') // new layout
     ]);
 
-    const {selector: inputSelector, node: input} = await Promise.race([
-      // old layout
-      new Promise((resolve, reject) => {
-        const selector = 'input.cbir-panel__file-input';
-        findNode(selector)
-          .then(node => resolve({selector, node}))
-          .catch(err => reject(err));
-      }),
-      // new layout
-      new Promise((resolve, reject) => {
-        const selector = 'input.CbirCore-FileInput';
-        findNode(selector)
-          .then(node => resolve({selector, node}))
-          .catch(err => reject(err));
-      })
-    ]);
-
     await setFileInputData(inputSelector, input, image);
 
     await sendReceipt(storageKeys);
 
-    input.dispatchEvent(new Event('change'));
+    input.dispatchEvent(new Event('change', {bubbles: true}));
   }
 }
 
