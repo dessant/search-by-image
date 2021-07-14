@@ -207,22 +207,28 @@ function manifest() {
     .pipe(dest(distDir));
 }
 
-function license() {
+function license(done) {
   let year = '2017';
   const currentYear = new Date().getFullYear().toString();
   if (year !== currentYear) {
     year = `${year}-${currentYear}`;
   }
 
-  const notice = `Search by Image
+  let notice = `Search by Image
 Copyright (c) ${year} Armin Sebastian
+`;
 
+  if (['safari', 'samsung'].includes(targetEnv)) {
+    writeFileSync(path.join(distDir, 'NOTICE'), notice);
+    done();
+  } else {
+    notice = `${notice}
 This software is released under the terms of the GNU General Public License v3.0.
 See the LICENSE file for further information.
 `;
-
-  writeFileSync(path.join(distDir, 'NOTICE'), notice);
-  return src(['LICENSE']).pipe(dest(distDir));
+    writeFileSync(path.join(distDir, 'NOTICE'), notice);
+    return src(['LICENSE']).pipe(dest(distDir));
+  }
 }
 
 function zip(done) {
