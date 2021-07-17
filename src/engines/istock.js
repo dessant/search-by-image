@@ -15,20 +15,20 @@ async function search({task, search, image, storageKeys}) {
       throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
     }
 
-    const aws = await rsp.json();
+    const api = await rsp.json();
 
     const data = new FormData();
-    data.append('key', aws.key);
-    data.append('AWSAccessKeyId', aws.AWSAccessKeyId);
-    data.append('acl', aws.acl);
-    data.append('policy', aws.policy);
-    data.append('signature', aws.signature);
+    data.append('key', api.awsData.key);
+    data.append('AWSAccessKeyId', api.awsData.AWSAccessKeyId);
+    data.append('acl', api.awsData.acl);
+    data.append('policy', api.awsData.policy);
+    data.append('signature', api.awsData.signature);
     data.append('Content-Type', image.imageType);
-    data.append('success_action_redirect', aws.success_action_redirect);
-    data.append('success_action_status', aws.success_action_status);
+    data.append('success_action_redirect', api.awsData.success_action_redirect);
+    data.append('success_action_status', api.awsData.success_action_status);
     data.append('file', image.imageBlob, image.imageFilename);
 
-    rsp = await fetch(aws.url, {
+    rsp = await fetch(api.url, {
       mode: 'cors',
       method: 'POST',
       body: data
@@ -38,7 +38,7 @@ async function search({task, search, image, storageKeys}) {
       throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
     }
 
-    const tabUrl = 'https://www.istockphoto.com' + aws.presigned_url;
+    const tabUrl = 'https://www.istockphoto.com' + api.presigned_url;
 
     await sendReceipt(storageKeys);
 
