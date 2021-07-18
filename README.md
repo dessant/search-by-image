@@ -1,23 +1,23 @@
-<p align="center"><img src="https://i.imgur.com/7eMgOtm.png"></p>
+<p align="center"><img width="128" height="128" src="https://i.imgur.com/yT1aANZ.png"></p>
 <h1 align="center">Search by Image</h1>
 
 <p align="center">
   </br></br>
   <a href="https://chrome.google.com/webstore/detail/cnojnbdhbhnkbcieeekonklommdnndci">
-    <img src="https://i.imgur.com/B0i5sn3.png" alt="Chrome Web Store"></a>
+    <img height="58" src="https://i.imgur.com/K9Yh8G9.png" alt="Chrome Web Store"></a>
   <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
-    <img src="https://i.imgur.com/kMH6r1a.png" alt="Firefox add-ons"></a>
+    <img height="58" src="https://i.imgur.com/MVSgje2.png" alt="Firefox add-ons"></a>
   <a href="https://microsoftedge.microsoft.com/addons/detail/hckehkfhdkpmdlonmjaagiodlpjbonmc">
-    <img src="https://i.imgur.com/n49Wiu2.png" alt="Microsoft Store"></a>
+    <img height="58" src="https://i.imgur.com/es2YFRA.png" alt="Microsoft Store"></a>
   <a href="https://addons.opera.com/en/extensions/details/search-by-image/">
-    <img src="https://i.imgur.com/wK10qEV.png" alt="Opera add-ons"></a>
+    <img height="58" src="https://i.imgur.com/IYYsrwg.png" alt="Opera add-ons"></a>
   </br></br>
 </p>
 <p align="center">
   <a href="https://galaxy.store/ravr">
-    <img src="https://i.imgur.com/uUjUDYf.png" alt="Galaxy Store"></a>
+    <img height="58" src="https://i.imgur.com/UT5Rgrw.png" alt="Galaxy Store"></a>
   <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106">
-    <img src="https://i.imgur.com/APuaioW.png" alt="Mac App Store"></a>
+    <img height="58" src="https://i.imgur.com/JGvQ2Zc.png" alt="Mac App Store"></a>
   </br></br>
 </p>
 
@@ -55,28 +55,28 @@ The extension offers a handful of search modes which serve different use cases.
 The search mode can be set independently for the context menu
 and browser toolbar from the options page.
 
-* **Select** (context menu and toolbar): select an image on the page, then search
+- **Select** (context menu and toolbar): select an image on the page, then search
   for the image URL, whenever possible. Blob and data URLs will still be
   handled as image uploads. This is the default search mode.
-* **Select & upload** (context menu and toolbar): select an image on the page,
+- **Select & upload** (context menu and toolbar): select an image on the page,
   then fetch the image, possibly from the browser cache, and upload it.
   This search mode is preferred for sites which do not allow direct linking
   of images or are otherwise private.
-* **Capture** (context menu and toolbar): create an image by selecting
+- **Capture** (context menu and toolbar): create an image by selecting
   and capturing a page area, then upload it.
-* **Upload** (toolbar): select or drop an image from your device, or paste it from
+- **Upload** (toolbar): select or drop an image from your device, or paste it from
   the clipboard, then upload it.
-* **URL** (toolbar): search for an image URL.
+- **URL** (toolbar): search for an image URL.
 
 #### Features
 
-* Search with a single engine, or all enabled ones, directly from the top-level
+- Search with a single engine, or all enabled ones, directly from the top-level
   context menu item, or the browser toolbar button (see options)
-* Detect any image on the page, including those declared in CSS and pseudo-elements
-* Select the desired image from a dialog when multiple images are found
-* Search for images from private sites (see search modes)
-* Search for local images
-* Search for the current video frame
+- Detect any image on the page, including those declared in CSS and pseudo-elements
+- Select the desired image from a dialog when multiple images are found
+- Search for images from private sites (see search modes)
+- Search for local images
+- Search for the current video frame
 
 ## Screenshots
 
