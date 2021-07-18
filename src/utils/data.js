@@ -305,6 +305,18 @@ const engines = {
       target: 'https://www.ikea.com/',
       isExec: true
     }
+  },
+  repostSleuth: {
+    url: {
+      target:
+        'https://repostsleuth.com/search?targetImageMatch=60&filterSameAuthor=false',
+      isExec: true
+    },
+    upload: {
+      target:
+        'https://repostsleuth.com/search?targetImageMatch=60&filterSameAuthor=false',
+      isExec: true
+    }
   }
 };
 

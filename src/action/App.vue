@@ -198,7 +198,11 @@ export default {
 
     getEngineIcon: function (engine) {
       let ext = 'svg';
-      if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
+      if (
+        ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
+          engine
+        )
+      ) {
         ext = 'png';
       } else if (['branddb', 'madridMonitor'].includes(engine)) {
         engine = 'wipo';

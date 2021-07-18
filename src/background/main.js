@@ -213,7 +213,11 @@ function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
 }
 
 function getEngineMenuIcons(engine) {
-  if (['iqdb', 'karmaDecay', 'tineye', 'whatanime'].includes(engine)) {
+  if (
+    ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
+      engine
+    )
+  ) {
     return {
       16: `src/icons/engines/${engine}-16.png`,
       32: `src/icons/engines/${engine}-32.png`
