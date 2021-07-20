@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.7.0](https://github.com/dessant/search-by-image/compare/v3.6.5...v3.7.0) (2021-07-20)
+
+
+### Features
+
+* search with Reddit Repost Sleuth ([872ef2d](https://github.com/dessant/search-by-image/commit/872ef2d0aeb716e54ad7129c5a9738e62bf38141)), closes [#132](https://github.com/dessant/search-by-image/issues/132)
+
+
+### Bug Fixes
+
+* update iStock ([50ccbce](https://github.com/dessant/search-by-image/commit/50ccbcee0e4f315c2f9ca1868b695622a0b27fdd))
+* update search engine icons ([a417355](https://github.com/dessant/search-by-image/commit/a4173557a4f62b3c62261c7730d246ef4537e694))
+
 ### [3.6.5](https://github.com/dessant/search-by-image/compare/v3.6.4...v3.6.5) (2021-07-14)
 
 
