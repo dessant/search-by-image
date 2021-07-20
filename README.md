@@ -6,7 +6,7 @@
   <a href="https://chrome.google.com/webstore/detail/cnojnbdhbhnkbcieeekonklommdnndci">
     <img height="58" src="https://i.imgur.com/K9Yh8G9.png" alt="Chrome Web Store"></a>
   <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
-    <img height="58" src="https://i.imgur.com/MVSgje2.png" alt="Firefox add-ons"></a>
+    <img height="58" src="https://i.imgur.com/2jJOtTI.png" alt="Firefox add-ons"></a>
   <a href="https://microsoftedge.microsoft.com/addons/detail/hckehkfhdkpmdlonmjaagiodlpjbonmc">
     <img height="58" src="https://i.imgur.com/es2YFRA.png" alt="Microsoft Store"></a>
   <a href="https://addons.opera.com/en/extensions/details/search-by-image/">
