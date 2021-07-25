@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.7.1](https://github.com/dessant/search-by-image/compare/v3.7.0...v3.7.1) (2021-07-25)
+
+
+### Bug Fixes
+
+* update Yandex ([3d8df37](https://github.com/dessant/search-by-image/commit/3d8df378a36430173372373850bd75eadb34a202))
+
 ## [3.7.0](https://github.com/dessant/search-by-image/compare/v3.6.5...v3.7.0) (2021-07-20)
 
 
