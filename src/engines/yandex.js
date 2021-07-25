@@ -70,7 +70,6 @@ async function search({task, search, image, storageKeys}) {
       'cbir:uploader_onboarded_photo',
       `{"count":1,"last":${Date.now()}}`
     );
-    const watchedItem = localStorage.getItem('ludca');
 
     const {selector: inputSelector, node: input, layout} = await Promise.race([
       // old layout
@@ -91,19 +90,54 @@ async function search({task, search, image, storageKeys}) {
 
     if (layout === 'new') {
       // wait for search service to load
-      await new Promise(resolve => {
-        const stop = () => {
+      await new Promise((resolve, reject) => {
+        const onServiceReady = function () {
           window.clearTimeout(timeoutId);
-          window.clearInterval(intervalId);
           resolve();
         };
 
-        const timeoutId = setTimeout(stop, 10000); // 10 seconds
-        const intervalId = setInterval(() => {
-          if (watchedItem !== localStorage.getItem('ludca')) {
-            stop();
-          }
-        }, 50);
+        const stop = function () {
+          document.removeEventListener('___serviceReady', onServiceReady, {
+            capture: true,
+            once: true
+          });
+          reject(new Error('Search service is not ready'));
+        };
+        const timeoutId = window.setTimeout(stop, 60000); // 1 minute
+
+        document.addEventListener('___serviceReady', onServiceReady, {
+          capture: true,
+          once: true
+        });
+
+        function serviceObserver() {
+          let stop;
+
+          const checkService = function () {
+            if (
+              window.Ya?.reactBus?.e['cbir:search-by-image:start']?.length >= 4
+            ) {
+              window.clearTimeout(timeoutId);
+              document.dispatchEvent(new Event('___serviceReady'));
+            } else if (!stop) {
+              window.setTimeout(checkService, 200);
+            }
+          };
+
+          const timeoutId = window.setTimeout(function () {
+            stop = true;
+          }, 60000); // 1 minute
+
+          checkService();
+        }
+
+        const script = document.createElement('script');
+        if (targetEnv === 'firefox') {
+          script.nonce = document.querySelector('script[nonce]').nonce;
+        }
+        script.textContent = `(${serviceObserver.toString()})()`;
+        document.documentElement.appendChild(script);
+        script.remove();
       });
     }
 
@@ -117,7 +151,9 @@ async function search({task, search, image, storageKeys}) {
       findNode('div.cbir-panel_visibility_visible', {
         observerOptions: {attributes: true, attributeFilter: ['class']}
       }), // old layout
-      findNode('div.CbirPanel-PopupBody') // new layout
+      findNode('div.CbirPanel-Popup.Popup2_visible', {
+        observerOptions: {attributes: true, attributeFilter: ['class']}
+      }) // new layout
     ]);
 
     await setFileInputData(inputSelector, input, image);
