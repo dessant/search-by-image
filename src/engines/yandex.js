@@ -96,14 +96,14 @@ async function search({task, search, image, storageKeys}) {
           resolve();
         };
 
-        const stop = function () {
+        const timeoutId = window.setTimeout(function () {
           document.removeEventListener('___serviceReady', onServiceReady, {
             capture: true,
             once: true
           });
+
           reject(new Error('Search service is not ready'));
-        };
-        const timeoutId = window.setTimeout(stop, 60000); // 1 minute
+        }, 60000); // 1 minute
 
         document.addEventListener('___serviceReady', onServiceReady, {
           capture: true,
