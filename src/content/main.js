@@ -28,7 +28,7 @@ function showView(view) {
       contentStorage.viewFrame.id = view;
     }
 
-    contentStorage.viewFrame.src = browser.extension.getURL(
+    contentStorage.viewFrame.src = browser.runtime.getURL(
       `/src/${view}/index.html`
     );
   }
@@ -107,7 +107,7 @@ self.initContent = function () {
 
   const css = document.createElement('link');
   css.setAttribute('rel', 'stylesheet');
-  css.setAttribute('href', browser.extension.getURL('/src/content/style.css'));
+  css.setAttribute('href', browser.runtime.getURL('/src/content/style.css'));
   shadowRoot.appendChild(css);
 
   const viewFrame = document.createElement('iframe');

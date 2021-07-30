@@ -750,7 +750,7 @@ async function onContextMenuItemClick(info, tab) {
 
 async function onActionClick(task, tabUrl) {
   if (task.searchMode === 'upload') {
-    const browseUrl = browser.extension.getURL('/src/browse/index.html');
+    const browseUrl = browser.runtime.getURL('/src/browse/index.html');
     const sessionKey = addStorageItem(task, {
       receipts: {expected: 1, received: 0},
       expiryTime: 60000 // 1 minute

@@ -57,7 +57,7 @@ function removeTouchListener() {
 function showPointer() {
   if (!pointerCss) {
     pointerCss = document.createElement('link');
-    pointerCss.href = chrome.extension.getURL('/src/select/pointer.css');
+    pointerCss.href = chrome.runtime.getURL('/src/select/pointer.css');
     pointerCss.rel = 'stylesheet';
     document.head.appendChild(pointerCss);
   }

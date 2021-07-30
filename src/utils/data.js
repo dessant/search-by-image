@@ -17,10 +17,10 @@ const optionKeys = [
 ];
 
 const uploadUrl =
-  browser.extension.getURL('/src/upload/index.html') + '?session={sessionKey}';
+  browser.runtime.getURL('/src/upload/index.html') + '?session={sessionKey}';
 
 const resultsUrl =
-  browser.extension.getURL('/src/results/index.html') + '?session={sessionKey}';
+  browser.runtime.getURL('/src/results/index.html') + '?session={sessionKey}';
 
 const engines = {
   google: {

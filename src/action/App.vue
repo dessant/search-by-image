@@ -236,7 +236,7 @@ export default {
     showOptions: async function () {
       if (targetEnv === 'samsung') {
         // Samsung Internet 13: runtime.openOptionsPage fails.
-        await createTab(browser.extension.getURL('/src/options/index.html'));
+        await createTab(browser.runtime.getURL('/src/options/index.html'));
       } else {
         await browser.runtime.openOptionsPage();
       }
