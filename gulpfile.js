@@ -26,11 +26,7 @@ function clean() {
 }
 
 function jsWebpack(done) {
-  exec('webpack-cli --display-error-details --bail --colors', function (
-    err,
-    stdout,
-    stderr
-  ) {
+  exec('webpack-cli build --color', function (err, stdout, stderr) {
     console.log(stdout);
     console.log(stderr);
     done(err);
@@ -146,7 +142,7 @@ async function fonts(done) {
 
   await new Promise(resolve => {
     src(
-      'node_modules/fontsource-roboto/files/roboto-latin-@(400|500|700)-normal.woff2'
+      'node_modules/@fontsource/roboto/files/roboto-latin-@(400|500|700)-normal.woff2'
     )
       .pipe(dest(path.join(distDir, 'src/fonts/files')))
       .on('error', done)

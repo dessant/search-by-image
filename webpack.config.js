@@ -16,8 +16,10 @@ const plugins = [
     'process.env': {
       TARGET_ENV: JSON.stringify(targetEnv),
       ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
-    },
-    global: {}
+    }
+  }),
+  new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer']
   }),
   new VueLoaderPlugin(),
   new MiniCssExtractPlugin({
@@ -119,7 +121,8 @@ module.exports = {
             loader: 'sass-loader',
             options: {
               sassOptions: {
-                includePaths: ['node_modules']
+                includePaths: ['node_modules'],
+                quietDeps: true
               }
             }
           }
@@ -129,9 +132,9 @@ module.exports = {
   },
   resolve: {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
-    extensions: ['.js', '.json', '.css', '.scss', '.vue']
+    extensions: ['.js', '.json', '.css', '.scss', '.vue'],
+    fallback: {fs: false}
   },
   devtool: false,
-  node: {fs: 'empty'},
   plugins
 };
