@@ -51,8 +51,7 @@ module.exports = {
     background: './src/background/main.js',
     options: './src/options/main.js',
     action: './src/action/main.js',
-    upload: './src/upload/main.js',
-    results: './src/results/main.js',
+    search: './src/search/main.js',
     confirm: './src/confirm/main.js',
     browse: './src/browse/main.js',
     select: './src/select/main.js',
@@ -84,8 +83,7 @@ module.exports = {
               'browse',
               'select',
               'capture',
-              'upload',
-              'results',
+              'search',
               'confirm',
               'contribute'
             ].includes(chunk.name);

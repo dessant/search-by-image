@@ -931,7 +931,7 @@
     "description": "Page content."
   },
 
-  "pageContent_results_title": {
+  "pageContent_search_title": {
     "message": "Search results from $ENGINE$",
     "description": "Page content.",
     "placeholders": {

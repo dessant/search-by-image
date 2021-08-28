@@ -16,16 +16,13 @@ const optionKeys = [
   'bypassImageHostBlocking'
 ];
 
-const uploadUrl = browser.runtime.getURL('/src/upload/index.html') + '?id={id}';
-
-const resultsUrl =
-  browser.runtime.getURL('/src/results/index.html') + '?id={id}';
+const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
 
 const engines = {
   google: {
     url: {target: 'https://www.google.com/searchbyimage?image_url={imgUrl}'},
     upload: {
-      target: uploadUrl,
+      target: searchUrl,
       isTaskId: true
     }
   },
@@ -91,7 +88,7 @@ const engines = {
   saucenao: {
     url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
     upload: {
-      target: uploadUrl,
+      target: searchUrl,
       isTaskId: true
     }
   },
@@ -141,11 +138,11 @@ const engines = {
   },
   pinterest: {
     url: {
-      target: resultsUrl,
+      target: searchUrl,
       isTaskId: true
     },
     upload: {
-      target: resultsUrl,
+      target: searchUrl,
       isTaskId: true
     }
   },
@@ -321,7 +318,7 @@ const engines = {
 
 if (targetEnv === 'safari') {
   engines.sogou.upload = {
-    target: uploadUrl,
+    target: searchUrl,
     isTaskId: true
   };
 }
