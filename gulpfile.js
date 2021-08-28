@@ -3,7 +3,6 @@ const {exec} = require('child_process');
 const {lstatSync, readdirSync, readFileSync, writeFileSync} = require('fs');
 
 const {series, parallel, src, dest} = require('gulp');
-const babel = require('gulp-babel');
 const postcss = require('gulp-postcss');
 const gulpif = require('gulp-if');
 const jsonMerge = require('gulp-merge-json');
@@ -25,21 +24,13 @@ function clean() {
   return del([distDir]);
 }
 
-function jsWebpack(done) {
+function js(done) {
   exec('webpack-cli build --color', function (err, stdout, stderr) {
     console.log(stdout);
     console.log(stderr);
     done(err);
   });
 }
-
-function jsBabel() {
-  return src(['src/content/insert/script.js'], {base: '.'})
-    .pipe(babel())
-    .pipe(dest(distDir));
-}
-
-const js = parallel(jsWebpack, jsBabel);
 
 function html() {
   return src(

@@ -13,14 +13,14 @@ import {
   blobToArray,
   blobToDataUrl,
   canvasToDataUrl,
-  isAndroid
+  getPlatform
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
 import {engines, censoredEngines, imageMimeTypes, projectUrl} from 'utils/data';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
-    options = await storage.get(['engines', 'disabledEngines'], 'sync');
+    options = await storage.get(['engines', 'disabledEngines']);
   }
   return difference(options.engines, options.disabledEngines);
 }
@@ -47,13 +47,13 @@ async function getSearches(image, targetEngines, searchMode) {
       ? 'upload'
       : 'url';
     const isExec = engines[engine][method].isExec;
-    const isSessionKey = engines[engine][method].isSessionKey;
+    const isTaskId = engines[engine][method].isTaskId;
     searches.push({
       engine,
       method,
       isExec,
-      isSessionKey,
-      sendsReceipt: isExec || isSessionKey
+      isTaskId,
+      sendsReceipt: isExec || isTaskId
     });
   }
 
@@ -72,8 +72,7 @@ async function hasUrlSupport(engine, {bypassBlocking = true} = {}) {
   const targetEngines =
     engine === 'allEngines' ? await getEnabledEngines() : [engine];
   const {bypassImageHostBlocking} = await storage.get(
-    'bypassImageHostBlocking',
-    'sync'
+    'bypassImageHostBlocking'
   );
 
   for (const engine of targetEngines) {
@@ -132,7 +131,7 @@ function getListItems(data, {scope = '', shortScope = ''} = {}) {
 }
 
 async function showContributePage(action = '') {
-  await storage.set({contribPageLastOpen: new Date().getTime()}, 'sync');
+  await storage.set({contribPageLastOpen: new Date().getTime()});
   const activeTab = await getActiveTab();
   let url = browser.runtime.getURL('/src/contribute/index.html');
   if (action) {
@@ -251,11 +250,17 @@ async function captureVisibleTabArea(area) {
   return canvasToDataUrl(cnv, {ctx});
 }
 
-async function configTheme() {
-  document.documentElement.classList.add(targetEnv);
+async function configUI(Vue) {
+  const {os} = await getPlatform();
 
-  if (await isAndroid()) {
-    document.documentElement.classList.add('android');
+  document.documentElement.classList.add(targetEnv, os);
+
+  if (Vue) {
+    Vue.prototype.$isWindows = os === 'windows';
+    Vue.prototype.$isMacos = os === 'macos';
+    Vue.prototype.$isLinux = os === 'linux';
+    Vue.prototype.$isAndroid = os === 'android';
+    Vue.prototype.$isIos = os === 'ios';
   }
 }
 
@@ -398,7 +403,7 @@ export {
   getContentXHR,
   fetchImage,
   fetchImageFromBackgroundScript,
-  configTheme,
+  configUI,
   getLargeImageMessage,
   getMaxImageSize,
   hasBaseModule

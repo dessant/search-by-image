@@ -16,18 +16,17 @@ const optionKeys = [
   'bypassImageHostBlocking'
 ];
 
-const uploadUrl =
-  browser.runtime.getURL('/src/upload/index.html') + '?session={sessionKey}';
+const uploadUrl = browser.runtime.getURL('/src/upload/index.html') + '?id={id}';
 
 const resultsUrl =
-  browser.runtime.getURL('/src/results/index.html') + '?session={sessionKey}';
+  browser.runtime.getURL('/src/results/index.html') + '?id={id}';
 
 const engines = {
   google: {
     url: {target: 'https://www.google.com/searchbyimage?image_url={imgUrl}'},
     upload: {
       target: uploadUrl,
-      isSessionKey: true
+      isTaskId: true
     }
   },
   bing: {
@@ -93,7 +92,7 @@ const engines = {
     url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
     upload: {
       target: uploadUrl,
-      isSessionKey: true
+      isTaskId: true
     }
   },
   iqdb: {
@@ -143,11 +142,11 @@ const engines = {
   pinterest: {
     url: {
       target: resultsUrl,
-      isSessionKey: true
+      isTaskId: true
     },
     upload: {
       target: resultsUrl,
-      isSessionKey: true
+      isTaskId: true
     }
   },
   qihoo: {
@@ -323,7 +322,7 @@ const engines = {
 if (targetEnv === 'safari') {
   engines.sogou.upload = {
     target: uploadUrl,
-    isSessionKey: true
+    isTaskId: true
   };
 }
 
@@ -394,10 +393,10 @@ const imageMimeTypes = {
 };
 
 const chromeDesktopUA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36';
 
 const chromeMobileUA =
-  'Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36';
+  'Mozilla/5.0 (Linux; Android 11; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36';
 
 const projectUrl = 'https://github.com/dessant/search-by-image';
 

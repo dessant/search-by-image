@@ -3,7 +3,7 @@ import {initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'whatanime';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   const img = new Image();
   img.onload = async function () {
     const cnv = document.createElement('canvas');
@@ -38,7 +38,7 @@ async function search({task, search, image, storageKeys}) {
     ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
     const data = cnv.toDataURL('image/jpeg', 0.8);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     (await findNode('#autoSearch')).checked = true;
     (await findNode('#originalImage')).src = data;
@@ -47,7 +47,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

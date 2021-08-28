@@ -1,7 +1,8 @@
 import browser from 'webextension-polyfill';
-import {v4 as uuidv4} from 'uuid';
+import Queue from 'p-queue';
 
-import {initStorage} from 'storage/init';
+import {initStorage, migrateLegacyStorage} from 'storage/init';
+import {isStorageReady} from 'storage/storage';
 import storage from 'storage/storage';
 import {
   getText,
@@ -27,58 +28,11 @@ import {
   hasBaseModule,
   fetchImage
 } from 'utils/app';
+import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv, enableContributions} from 'utils/config';
 
-const dataStorage = {};
-
-function addStorageItem(
-  data,
-  {deleteFn, receipts = null, expiryTime = 0} = {}
-) {
-  const storageKey = uuidv4();
-  dataStorage[storageKey] = {data, deleteFn, receipts};
-
-  if (expiryTime) {
-    window.setTimeout(function () {
-      deleteStorageItem(storageKey);
-    }, expiryTime);
-  }
-
-  return storageKey;
-}
-
-function getStorageItem(storageKey, {saveReceipt = false} = {}) {
-  const storedData = dataStorage[storageKey];
-  if (storedData) {
-    if (saveReceipt) {
-      saveStorageItemReceipt(storageKey);
-    }
-
-    return storedData.data;
-  }
-}
-
-function saveStorageItemReceipt(storageKey) {
-  const storedData = dataStorage[storageKey];
-  if (storedData && storedData.receipts) {
-    storedData.receipts.received += 1;
-    if (storedData.receipts.expected === storedData.receipts.received) {
-      deleteStorageItem(storageKey);
-    }
-  }
-}
-
-function deleteStorageItem(storageKey) {
-  const storedData = dataStorage[storageKey];
-  if (storedData) {
-    if (storedData.deleteFn) {
-      storedData.deleteFn(storedData.data);
-    }
-    delete dataStorage[storageKey];
-    return storedData.data;
-  }
-}
+const queue = new Queue({concurrency: 1});
 
 function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
   let requestId;
@@ -212,6 +166,36 @@ function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
   });
 }
 
+function setUserAgentHeader(engine, tabId) {
+  let userAgent;
+  if (engine === 'google') {
+    userAgent = chromeMobileUA;
+  } else if (['mailru'].includes(engine)) {
+    userAgent = chromeDesktopUA;
+  }
+
+  if (userAgent) {
+    const engineRequestCallback = function (details) {
+      for (const header of details.requestHeaders) {
+        if (header.name.toLowerCase() === 'user-agent') {
+          header.value = userAgent;
+          break;
+        }
+      }
+      return {requestHeaders: details.requestHeaders};
+    };
+
+    browser.webRequest.onBeforeSendHeaders.addListener(
+      engineRequestCallback,
+      {
+        urls: ['http://*/*', 'https://*/*'],
+        tabId
+      },
+      ['blocking', 'requestHeaders']
+    );
+  }
+}
+
 function getEngineMenuIcons(engine) {
   if (
     ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
@@ -333,10 +317,10 @@ async function createMenu(options) {
   }
 }
 
-async function createTask(data) {
-  const task = {
-    taskOrigin: '',
-    taskType: 'search',
+async function createSession(data) {
+  const session = {
+    sessionOrigin: '',
+    sessionType: 'search',
     searchMode: '',
     sourceTabId: -1,
     sourceTabIndex: -1,
@@ -346,40 +330,40 @@ async function createTask(data) {
     options: {}
   };
 
-  task.options = await storage.get(optionKeys, 'sync');
+  session.options = await storage.get(optionKeys);
 
   if (data.options) {
-    Object.assign(task.options, data.options);
+    Object.assign(session.options, data.options);
 
     delete data.options;
   }
 
   if (data.engine) {
     if (data.engine === 'allEngines') {
-      const enabledEngines = await getEnabledEngines(task.options);
-      task.engineGroup = 'allEngines';
-      task.engines = enabledEngines;
+      const enabledEngines = await getEnabledEngines(session.options);
+      session.engineGroup = 'allEngines';
+      session.engines = enabledEngines;
     } else {
-      task.engines.push(data.engine);
+      session.engines.push(data.engine);
     }
 
     delete data.engine;
   }
 
-  Object.assign(task, data);
+  Object.assign(session, data);
 
-  if (!task.searchMode) {
-    task.searchMode =
-      task.taskOrigin === 'action'
-        ? task.options.searchModeAction
-        : task.options.searchModeContextMenu;
+  if (!session.searchMode) {
+    session.searchMode =
+      session.sessionOrigin === 'action'
+        ? session.options.searchModeAction
+        : session.options.searchModeContextMenu;
   }
 
-  return task;
+  return session;
 }
 
 async function openContentView(message, view) {
-  const tabId = message.task.sourceTabId;
+  const tabId = message.session.sourceTabId;
 
   if (!(await hasBaseModule(tabId))) {
     await showNotification({messageId: 'error_scriptsNotAllowed'});
@@ -431,21 +415,21 @@ async function hideContentSelectionPointer(tabId) {
   });
 }
 
-async function getTabUrl(task, search, image, sessionKey) {
+async function getTabUrl(session, search, image, taskId) {
   const engine = search.engine;
   let tabUrl = engines[engine][search.method].target;
 
-  if (sessionKey) {
-    tabUrl = tabUrl.replace('{sessionKey}', sessionKey);
+  if (search.isTaskId) {
+    tabUrl = tabUrl.replace('{id}', taskId);
   }
 
-  if (!search.isExec && !search.isSessionKey) {
+  if (!search.isExec && !search.isTaskId) {
     let imgUrl = image.imageUrl;
     if (engine !== 'ascii2d') {
       imgUrl = encodeURIComponent(imgUrl);
     }
     tabUrl = tabUrl.replace('{imgUrl}', imgUrl);
-    if (engine === 'google' && !task.options.localGoogle) {
+    if (engine === 'google' && !session.options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
     }
   }
@@ -453,38 +437,38 @@ async function getTabUrl(task, search, image, sessionKey) {
   return tabUrl;
 }
 
-async function initSearch(task, images) {
+async function initSearch(session, images) {
   if (!Array.isArray(images)) {
     images = [images];
   }
 
-  const tab = await browser.tabs.get(task.sourceTabId);
-  task.sourceTabIndex = tab.index;
+  const tab = await browser.tabs.get(session.sourceTabId);
+  session.sourceTabIndex = tab.index;
 
   let firstBatchItem = true;
   for (const image of images) {
-    await searchImage(task, image, firstBatchItem);
+    await searchImage(session, image, firstBatchItem);
     firstBatchItem = false;
   }
 }
 
-async function searchImage(task, image, firstBatchItem = true) {
+async function searchImage(session, image, firstBatchItem = true) {
   let tabActive = firstBatchItem;
 
   let contributePageTabId;
   if (enableContributions && firstBatchItem) {
-    let {searchCount} = await storage.get('searchCount', 'sync');
+    let {searchCount} = await storage.get('searchCount');
     searchCount += 1;
-    await storage.set({searchCount}, 'sync');
+    await storage.set({searchCount});
     if ([10, 100].includes(searchCount)) {
       const tab = await showContributePage('search');
       contributePageTabId = tab.id;
-      task.sourceTabIndex += 1;
+      session.sourceTabIndex += 1;
       tabActive = false;
     }
   }
 
-  tabActive = !task.options.tabInBackgound && tabActive;
+  tabActive = !session.options.tabInBackgound && tabActive;
 
   if (image.hasOwnProperty('imageDataUrl') && !image.imageSize) {
     const blob = dataUrlToBlob(image.imageDataUrl);
@@ -493,10 +477,10 @@ async function searchImage(task, image, firstBatchItem = true) {
 
   const supportedEngines = await getSupportedEngines(
     image,
-    task.engines,
-    task.searchMode
+    session.engines,
+    session.searchMode
   );
-  const unsupportedEngines = task.engines.filter(
+  const unsupportedEngines = session.engines.filter(
     item => !supportedEngines.includes(item)
   );
   if (unsupportedEngines.length) {
@@ -506,7 +490,11 @@ async function searchImage(task, image, firstBatchItem = true) {
     });
   }
 
-  const searches = await getSearches(image, supportedEngines, task.searchMode);
+  const searches = await getSearches(
+    image,
+    supportedEngines,
+    session.searchMode
+  );
 
   const receiptSearches = searches.filter(item => item.sendsReceipt);
   receiptSearches.forEach(item => {
@@ -515,19 +503,23 @@ async function searchImage(task, image, firstBatchItem = true) {
     }
   });
 
-  const imageKey = addStorageItem(image, {
-    receipts: {expected: receiptSearches.length || 1, received: 0},
-    expiryTime: 600000 // 10 minutes
-  });
+  let imageId;
+  if (receiptSearches.length) {
+    imageId = await registry.addStorageItem(image, {
+      receipts: {expected: receiptSearches.length, received: 0},
+      expiryTime: 10.0,
+      area: 'indexeddb'
+    });
+  }
 
   let firstEngine = firstBatchItem;
   for (const search of searches) {
-    task.sourceTabIndex += 1;
-    await searchEngine(task, search, image, imageKey, tabActive);
+    session.sourceTabIndex += 1;
+    await searchEngine(session, search, image, imageId, tabActive);
 
-    if (firstEngine && task.searchMode === 'upload') {
-      await browser.tabs.remove(task.sourceTabId);
-      task.sourceTabIndex -= 1;
+    if (firstEngine && session.searchMode === 'upload') {
+      await browser.tabs.remove(session.sourceTabId);
+      session.sourceTabIndex -= 1;
     }
 
     tabActive = false;
@@ -539,135 +531,41 @@ async function searchImage(task, image, firstBatchItem = true) {
   }
 }
 
-async function searchEngine(task, search, image, imageKey, tabActive) {
-  let sessionKey;
-  if (search.isSessionKey) {
-    sessionKey = addStorageItem(
-      {task, search, imageKey},
+async function searchEngine(session, search, image, imageId, tabActive) {
+  let taskId;
+  if (search.sendsReceipt) {
+    taskId = await registry.addStorageItem(
+      {session, search, imageId},
       {
         receipts: {expected: 1, received: 0},
-        expiryTime: 600000 // 10 minutes
+        expiryTime: 10.0,
+        isTask: true
       }
     );
   }
 
-  const tabUrl = await getTabUrl(task, search, image, sessionKey);
-
-  let tabId;
-  const engine = search.engine;
-
-  if (search.isExec) {
-    let registeredScript;
-
-    if (targetEnv === 'samsung') {
-      // Samsung Internet 13: tabs.onUpdated does not fire on `complete` status,
-      // while webNavigation.onCompleted will provide an incorrect tab ID.
-      // Both APIs are used to associate the correct tab ID
-      // with the onCompleted event.
-      let internalTabId;
-
-      const navCompleteCallback = function (details) {
-        if (details.tabId === internalTabId) {
-          execEngine(tabId, engine, sessionKey);
-        }
-      };
-      const removeNavCallbacks = function () {
-        window.clearTimeout(navTimeoutId);
-        browser.webNavigation.onCompleted.removeListener(navCompleteCallback);
-      };
-      const navTimeoutId = window.setTimeout(removeNavCallbacks, 360000); // 6 minutes
-
-      browser.webNavigation.onCompleted.addListener(navCompleteCallback);
-
-      registeredScript = {unregister: removeNavCallbacks};
-
-      const tabUpdateCallback = function (eventTabId, changes, tab) {
-        if (tab.id === tabId) {
-          internalTabId = eventTabId;
-          removeTabCallbacks();
-        }
-      };
-      const removeTabCallbacks = function () {
-        window.clearTimeout(tabTimeoutId);
-        browser.tabs.onUpdated.removeListener(tabUpdateCallback);
-      };
-      const tabTimeoutId = window.setTimeout(removeTabCallbacks, 360000); // 6 minutes
-
-      browser.tabs.onUpdated.addListener(tabUpdateCallback);
-    } else {
-      const tabUpdateCallback = function (eventTabId, changes, tab) {
-        if (tab.id === tabId && changes.status === 'complete') {
-          execEngine(tabId, engine, sessionKey);
-        }
-      };
-      const removeCallbacks = function () {
-        window.clearTimeout(timeoutId);
-        browser.tabs.onUpdated.removeListener(tabUpdateCallback);
-      };
-      const timeoutId = window.setTimeout(removeCallbacks, 360000); // 6 minutes
-
-      browser.tabs.onUpdated.addListener(tabUpdateCallback);
-
-      registeredScript = {unregister: removeCallbacks};
-    }
-
-    sessionKey = addStorageItem(
-      {task, search, scripts: [registeredScript], imageKey},
-      {
-        deleteFn: function (data) {
-          for (const script of data.scripts) {
-            script.unregister();
-          }
-          delete data.scripts;
-        },
-        receipts: {expected: 1, received: 0},
-        expiryTime: 600000 // 10 minutes
-      }
-    );
-  }
+  const tabUrl = await getTabUrl(session, search, image, taskId);
 
   const tab = await createTab(tabUrl, {
-    index: task.sourceTabIndex,
+    index: session.sourceTabIndex,
     active: tabActive
   });
-  tabId = tab.id;
+  const tabId = tab.id;
+
+  if (search.sendsReceipt) {
+    await registry.addTaskRegistryItem({taskId, tabId});
+  }
 
   // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID
   // returns requests from different tab.
-  if ((await isAndroid()) && targetEnv !== 'samsung') {
+  if ((await isAndroid()) && targetEnv === 'firefox') {
     // Google only works with a Chrome user agent on Firefox for Android,
     // while other search engines may need a desktop user agent.
-    let userAgent;
-    if (engine === 'google' && targetEnv === 'firefox') {
-      userAgent = chromeMobileUA;
-    } else if (['mailru'].includes(engine)) {
-      userAgent = chromeDesktopUA;
-    }
-
-    if (userAgent) {
-      const engineRequestCallback = function (details) {
-        for (const header of details.requestHeaders) {
-          if (header.name.toLowerCase() === 'user-agent') {
-            header.value = userAgent;
-            break;
-          }
-        }
-        return {requestHeaders: details.requestHeaders};
-      };
-
-      browser.webRequest.onBeforeSendHeaders.addListener(
-        engineRequestCallback,
-        {
-          urls: ['http://*/*', 'https://*/*'],
-          tabId
-        },
-        ['blocking', 'requestHeaders']
-      );
-    }
+    setUserAgentHeader(search.engine, tabId);
   }
 }
 
-async function execEngine(tabId, engine, sessionKey) {
+async function execEngine(tabId, engine, taskId) {
   if (['bing'].includes(engine)) {
     await browser.tabs.insertCSS(tabId, {
       runAt: 'document_start',
@@ -675,42 +573,42 @@ async function execEngine(tabId, engine, sessionKey) {
     });
   }
 
-  await executeCode(`var sessionKey = '${sessionKey}';`, tabId);
+  await executeCode(`var taskId = '${taskId}';`, tabId);
   await executeFile(`/src/commons-engine/script.js`, tabId);
   await executeFile(`/src/engines/${engine}/script.js`, tabId);
 }
 
-async function searchClickTarget(task) {
+async function searchClickTarget(session) {
   const [isParseModule] = await executeCode(
     `typeof initParse !== 'undefined'`,
-    task.sourceTabId,
-    task.sourceFrameId
+    session.sourceTabId,
+    session.sourceFrameId
   );
   if (!isParseModule) {
     await executeFile(
       '/src/parse/script.js',
-      task.sourceTabId,
-      task.sourceFrameId
+      session.sourceTabId,
+      session.sourceFrameId
     );
   }
 
   await browser.tabs.sendMessage(
-    task.sourceTabId,
+    session.sourceTabId,
     {
       id: 'parsePage',
-      task
+      session
     },
-    {frameId: task.sourceFrameId}
+    {frameId: session.sourceFrameId}
   );
 }
 
-async function handleParseResults(task, images) {
+async function handleParseResults(session, images) {
   if (!images.length) {
     await showNotification({messageId: 'error_imageNotFound'});
   } else if (images.length > 1) {
-    await openContentView({task, images}, 'confirm');
+    await openContentView({session, images}, 'confirm');
   } else {
-    await initSearch(task, images);
+    await initSearch(session, images);
   }
 }
 
@@ -720,57 +618,57 @@ async function onContextMenuItemClick(info, tab) {
     tab = await browser.tabs.get(tab.id);
   }
 
-  const task = await createTask({
-    taskOrigin: 'context',
+  const session = await createSession({
+    sessionOrigin: 'context',
     sourceTabId: tab.id,
     sourceTabIndex: tab.index,
     sourceFrameId: typeof info.frameId !== 'undefined' ? info.frameId : 0,
     engine: info.menuItemId
   });
 
-  if (task.searchMode === 'capture') {
-    await openContentView({task}, 'capture');
+  if (session.searchMode === 'capture') {
+    await openContentView({session}, 'capture');
   } else {
-    if (!(await hasBaseModule(task.sourceTabId, task.sourceFrameId))) {
+    if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
       if (
         info.srcUrl &&
         info.mediaType === 'image' &&
         validateUrl(info.srcUrl)
       ) {
-        await initSearch(task, {imageUrl: info.srcUrl});
+        await initSearch(session, {imageUrl: info.srcUrl});
       } else {
         await showNotification({messageId: 'error_scriptsNotAllowed'});
       }
       return;
     }
 
-    await searchClickTarget(task);
+    await searchClickTarget(session);
   }
 }
 
-async function onActionClick(task, tabUrl) {
-  if (task.searchMode === 'upload') {
+async function onActionClick(session, tabUrl) {
+  if (session.searchMode === 'upload') {
     const browseUrl = browser.runtime.getURL('/src/browse/index.html');
-    const sessionKey = addStorageItem(task, {
+    const storageId = await registry.addStorageItem(session, {
       receipts: {expected: 1, received: 0},
-      expiryTime: 60000 // 1 minute
+      expiryTime: 1.0
     });
-    await createTab(`${browseUrl}?session=${sessionKey}`, {
-      index: task.sourceTabIndex + 1,
-      openerTabId: task.sourceTabId
+    await createTab(`${browseUrl}?id=${storageId}`, {
+      index: session.sourceTabIndex + 1,
+      openerTabId: session.sourceTabId
     });
-  } else if (task.searchMode === 'capture') {
-    await openContentView({task}, 'capture');
-  } else if (['select', 'selectUpload'].includes(task.searchMode)) {
+  } else if (session.searchMode === 'capture') {
+    await openContentView({session}, 'capture');
+  } else if (['select', 'selectUpload'].includes(session.searchMode)) {
     if (tabUrl.startsWith('file://') && targetEnv !== 'firefox') {
       await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
       return;
     }
 
-    await openContentView({task}, 'select');
+    await openContentView({session}, 'select');
 
-    if (await hasBaseModule(task.sourceTabId)) {
-      await showContentSelectionPointer(task.sourceTabId);
+    if (await hasBaseModule(session.sourceTabId)) {
+      await showContentSelectionPointer(session.sourceTabId);
     }
   }
 }
@@ -781,13 +679,13 @@ async function onActionButtonClick(tab) {
     tab = await browser.tabs.get(tab.id);
   }
 
-  const task = await createTask({
-    taskOrigin: 'action',
+  const session = await createSession({
+    sessionOrigin: 'action',
     sourceTabId: tab.id,
     sourceTabIndex: tab.index
   });
 
-  if (task.searchMode === 'url') {
+  if (session.searchMode === 'url') {
     await showNotification({
       messageId: (await isAndroid())
         ? 'error_invalidSearchModeMobile_url'
@@ -796,7 +694,7 @@ async function onActionButtonClick(tab) {
     return;
   }
 
-  const enabledEngines = await getEnabledEngines(task.options);
+  const enabledEngines = await getEnabledEngines(session.options);
 
   if (!enabledEngines.length) {
     await showNotification({messageId: 'error_allEnginesDisabled'});
@@ -804,25 +702,25 @@ async function onActionButtonClick(tab) {
   }
 
   if (
-    task.options.searchAllEnginesAction === 'main' &&
+    session.options.searchAllEnginesAction === 'main' &&
     enabledEngines.length > 1
   ) {
-    task.engineGroup = 'allEngines';
-    task.engines = enabledEngines;
+    session.engineGroup = 'allEngines';
+    session.engines = enabledEngines;
   } else {
-    task.engines.push(enabledEngines[0]);
+    session.engines.push(enabledEngines[0]);
   }
 
-  onActionClick(task, tab.url);
+  onActionClick(session, tab.url);
 }
 
 async function onActionPopupClick(engine, imageUrl) {
-  const {searchModeAction} = await storage.get('searchModeAction', 'sync');
+  const {searchModeAction} = await storage.get('searchModeAction');
 
   const tab = await getActiveTab();
 
-  const task = await createTask({
-    taskOrigin: 'action',
+  const session = await createSession({
+    sessionOrigin: 'action',
     searchMode: searchModeAction,
     sourceTabId: tab.id,
     sourceTabIndex: tab.index,
@@ -830,22 +728,62 @@ async function onActionPopupClick(engine, imageUrl) {
   });
 
   if (searchModeAction === 'url') {
-    await initSearch(task, {imageUrl});
+    await initSearch(session, {imageUrl});
   } else {
-    onActionClick(task, tab.url);
+    onActionClick(session, tab.url);
   }
 }
 
-function onMessage(request, sender, sendResponse) {
-  const response = processMessage(request, sender);
+async function setContextMenu({removeFirst = true} = {}) {
+  if (
+    !browser.contextMenus ||
+    ((await isAndroid()) && targetEnv !== 'samsung')
+  ) {
+    return;
+  }
 
-  if (targetEnv === 'safari') {
-    response.then(function (result) {
-      sendResponse(result);
+  if (removeFirst) {
+    await browser.contextMenus.removeAll();
+  }
+
+  const options = await storage.get(optionKeys);
+  if (options.showInContextMenu === true) {
+    await createMenu(options);
+  }
+}
+
+async function setBrowserAction() {
+  const options = await storage.get([
+    'engines',
+    'disabledEngines',
+    'searchAllEnginesAction'
+  ]);
+  const enEngines = await getEnabledEngines(options);
+
+  if (enEngines.length === 1) {
+    browser.browserAction.setTitle({
+      title: getText(
+        'actionTitle_engine',
+        getText(`menuItemTitle_${enEngines[0]}`)
+      )
     });
-    return true;
+    browser.browserAction.setPopup({popup: ''});
+    return;
+  }
+
+  if (options.searchAllEnginesAction === 'main' && enEngines.length > 1) {
+    browser.browserAction.setTitle({
+      title: getText('actionTitle_allEngines')
+    });
+    browser.browserAction.setPopup({popup: ''});
+    return;
+  }
+
+  browser.browserAction.setTitle({title: getText('extensionName')});
+  if (!enEngines.length) {
+    browser.browserAction.setPopup({popup: ''});
   } else {
-    return response;
+    browser.browserAction.setPopup({popup: '/src/action/index.html'});
   }
 }
 
@@ -881,18 +819,18 @@ async function processMessage(request, sender) {
   } else if (request.id === 'actionPopupSubmit') {
     onActionPopupClick(request.engine, request.imageUrl);
   } else if (request.id === 'imageUploadSubmit') {
-    request.task.sourceTabId = sender.tab.id;
-    initSearch(request.task, request.images);
+    request.session.sourceTabId = sender.tab.id;
+    initSearch(request.session, request.images);
   } else if (request.id === 'imageSelectionSubmit') {
     hideContentSelectionPointer(sender.tab.id);
-    searchClickTarget(request.task);
+    searchClickTarget(request.session);
   } else if (request.id === 'imageConfirmationSubmit') {
     browser.tabs.sendMessage(
       sender.tab.id,
       {id: 'closeView', view: 'confirm'},
       {frameId: 0}
     );
-    initSearch(request.task, request.image);
+    initSearch(request.session, request.image);
   } else if (request.id === 'imageCaptureSubmit') {
     const tabId = sender.tab.id;
     browser.tabs.sendMessage(
@@ -915,9 +853,12 @@ async function processMessage(request, sender) {
       imageExt: 'png'
     };
 
-    initSearch(request.task, image);
+    initSearch(request.session, image);
   } else if (request.id === 'pageParseSubmit') {
-    if (request.task.taskOrigin === 'action' && request.images.length <= 1) {
+    if (
+      request.session.sessionOrigin === 'action' &&
+      request.images.length <= 1
+    ) {
       browser.tabs.sendMessage(
         sender.tab.id,
         {id: 'closeView', view: 'select'},
@@ -925,9 +866,9 @@ async function processMessage(request, sender) {
       );
     }
 
-    handleParseResults(request.task, request.images);
+    handleParseResults(request.session, request.images);
   } else if (request.id === 'pageParseError') {
-    if (request.task.taskOrigin === 'action') {
+    if (request.session.sessionOrigin === 'action') {
       browser.tabs.sendMessage(
         sender.tab.id,
         {id: 'closeView', view: 'select'},
@@ -970,9 +911,10 @@ async function processMessage(request, sender) {
 
     browser.tabs.sendMessage(...params);
   } else if (request.id === 'getPlatform') {
-    return getPlatform();
+    return getPlatform({fallback: false});
   } else if (request.id === 'storageRequest') {
-    const data = getStorageItem(request.storageKey, {
+    const data = await registry.getStorageItem({
+      storageId: request.storageId,
       saveReceipt: request.saveReceipt
     });
     if (data) {
@@ -987,88 +929,78 @@ async function processMessage(request, sender) {
       }
     }
   } else if (request.id === 'storageReceipt') {
-    for (const storageKey of request.storageKeys) {
-      saveStorageItemReceipt(storageKey);
+    for (const storageId of request.storageIds) {
+      await registry.saveStorageItemReceipt({storageId});
+    }
+  } else if (request.id === 'taskRequest') {
+    const taskIndex = await registry.getTaskRegistryItem({
+      tabId: sender.tab.id
+    });
+    if (taskIndex && Date.now() - taskIndex.addTime < 600000) {
+      const task = await registry.getStorageItem({storageId: taskIndex.taskId});
+      if (task && task.search.isExec) {
+        execEngine(sender.tab.id, task.search.engine, taskIndex.taskId);
+      }
     }
   }
 }
 
 async function onStorageChange(changes, area) {
-  await setContextMenu({removeFirst: true});
-  await setBrowserAction();
-}
-
-async function setContextMenu({removeFirst = false} = {}) {
-  if (targetEnv !== 'samsung' && (await isAndroid())) {
-    return;
-  }
-
-  if (removeFirst) {
-    await browser.contextMenus.removeAll();
-  }
-  const options = await storage.get(optionKeys, 'sync');
-  const hasListener = browser.contextMenus.onClicked.hasListener(
-    onContextMenuItemClick
-  );
-  if (options.showInContextMenu === true) {
-    if (!hasListener) {
-      browser.contextMenus.onClicked.addListener(onContextMenuItemClick);
-    }
-    await createMenu(options);
-  } else {
-    if (hasListener) {
-      browser.contextMenus.onClicked.removeListener(onContextMenuItemClick);
-    }
+  if (area === 'local' && (await isStorageReady())) {
+    await queue.addAll([setContextMenu, setBrowserAction]);
   }
 }
 
-async function setBrowserAction() {
-  const options = await storage.get(
-    ['engines', 'disabledEngines', 'searchAllEnginesAction'],
-    'sync'
-  );
-  const enEngines = await getEnabledEngines(options);
-  const hasListener = browser.browserAction.onClicked.hasListener(
-    onActionButtonClick
-  );
+function onMessage(request, sender, sendResponse) {
+  const response = processMessage(request, sender);
 
-  if (enEngines.length === 1) {
-    if (!hasListener) {
-      browser.browserAction.onClicked.addListener(onActionButtonClick);
-    }
-    browser.browserAction.setTitle({
-      title: getText(
-        'actionTitle_engine',
-        getText(`menuItemTitle_${enEngines[0]}`)
-      )
+  if (targetEnv === 'safari') {
+    response.then(function (result) {
+      sendResponse(result);
     });
-    browser.browserAction.setPopup({popup: ''});
-    return;
-  }
-
-  if (options.searchAllEnginesAction === 'main' && enEngines.length > 1) {
-    if (!hasListener) {
-      browser.browserAction.onClicked.addListener(onActionButtonClick);
-    }
-    browser.browserAction.setTitle({
-      title: getText('actionTitle_allEngines')
-    });
-    browser.browserAction.setPopup({popup: ''});
-    return;
-  }
-
-  browser.browserAction.setTitle({title: getText('extensionName')});
-  if (!enEngines.length) {
-    if (!hasListener) {
-      browser.browserAction.onClicked.addListener(onActionButtonClick);
-    }
-    browser.browserAction.setPopup({popup: ''});
+    return true;
   } else {
-    if (hasListener) {
-      browser.browserAction.onClicked.removeListener(onActionButtonClick);
-    }
-    browser.browserAction.setPopup({popup: '/src/action/index.html'});
+    return response;
   }
+}
+
+async function onAlarm({name}) {
+  if (name.startsWith('delete-storage-item')) {
+    const [_, storageId] = name.split('_');
+    await registry.deleteStorageItem({storageId});
+  }
+}
+
+async function onInstall(details) {
+  if (['install', 'update'].includes(details.reason)) {
+    await migrateLegacyStorage();
+    await initStorage();
+
+    if (['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)) {
+      const tabs = await browser.tabs.query({
+        url: ['http://*/*', 'https://*/*'],
+        windowType: 'normal'
+      });
+
+      for (const tab of tabs) {
+        browser.tabs.executeScript(tab.id, {
+          allFrames: true,
+          runAt: 'document_start',
+          file: '/src/content/insert/script.js'
+        });
+      }
+    }
+  }
+}
+
+function addContextMenuListener() {
+  if (browser.contextMenus) {
+    browser.contextMenus.onClicked.addListener(onContextMenuItemClick);
+  }
+}
+
+function addBrowserActionListener() {
+  browser.browserAction.onClicked.addListener(onActionButtonClick);
 }
 
 function addStorageListener() {
@@ -1079,34 +1011,28 @@ function addMessageListener() {
   browser.runtime.onMessage.addListener(onMessage);
 }
 
-async function onInstall(details) {
-  if (
-    ['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv) &&
-    ['install', 'update'].includes(details.reason)
-  ) {
-    const tabs = await browser.tabs.query({
-      url: ['http://*/*', 'https://*/*'],
-      windowType: 'normal'
-    });
-
-    for (const tab of tabs) {
-      browser.tabs.executeScript(tab.id, {
-        allFrames: true,
-        runAt: 'document_start',
-        file: '/src/content/insert/script.js'
-      });
-    }
-  }
+function addAlarmListener() {
+  browser.alarms.onAlarm.addListener(onAlarm);
 }
 
-async function onLoad() {
-  await initStorage('sync');
-  await setContextMenu();
-  await setBrowserAction();
+function addInstallListener() {
+  browser.runtime.onInstalled.addListener(onInstall);
+}
+
+async function setup() {
+  await queue.addAll([setContextMenu, setBrowserAction]);
+  await registry.cleanupRegistry();
+}
+
+function init() {
+  addContextMenuListener();
+  addBrowserActionListener();
   addStorageListener();
   addMessageListener();
+  addAlarmListener();
+  addInstallListener();
+
+  setup();
 }
 
-browser.runtime.onInstalled.addListener(onInstall);
-
-document.addEventListener('DOMContentLoaded', onLoad);
+init();

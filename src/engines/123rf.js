@@ -5,7 +5,7 @@ import {targetEnv} from 'utils/config';
 
 const engine = '123rf';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if ((await isAndroid()) || targetEnv === 'safari') {
     const data = new FormData();
     data.append('file_upload', image.imageBlob, image.imageFilename);
@@ -23,7 +23,7 @@ async function search({task, search, image, storageKeys}) {
 
     const tabUrl = rsp.url;
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
@@ -36,7 +36,7 @@ async function search({task, search, image, storageKeys}) {
 
     await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change', {bubbles: true}));
 
@@ -49,7 +49,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

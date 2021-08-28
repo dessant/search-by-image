@@ -10,8 +10,10 @@
   "minimum_chrome_version": "76.0",
 
   "permissions": [
+    "alarms",
     "contextMenus",
     "storage",
+    "unlimitedStorage",
     "tabs",
     "activeTab",
     "notifications",
@@ -63,7 +65,7 @@
       "matches": ["http://*/*", "https://*/*"],
       "all_frames": true,
       "run_at": "document_start",
-      "js": ["src/content/insert/script.js"]
+      "js": ["src/insert/script.js"]
     }
   ],
 

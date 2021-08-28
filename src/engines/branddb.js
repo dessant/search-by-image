@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'branddb';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   await Promise.race([
     findNode('tr[id="0"]'), // desktop
     findNode('.flowItemBox .flowItem[foo="0"]') // mobile
@@ -26,7 +26,7 @@ async function search({task, search, image, storageKeys}) {
   // select Concept strategy
   (await findNode('a[data-hasqtip="52"]')).click();
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   window.setTimeout(async () => {
     (await findNode('#image_filter .addFilterButton')).click();
@@ -34,7 +34,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

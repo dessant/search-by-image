@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auTrademark';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (await isAndroid()) {
     // go to desktop version
     processNode(
@@ -27,7 +27,7 @@ async function search({task, search, image, storageKeys}) {
 
   await findNode('div.cropper-container');
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   (
     await findNode('#qa-search-submit:not(.disabled)', {
@@ -37,7 +37,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

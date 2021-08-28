@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'depositphotos';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (await isAndroid()) {
     const data = new FormData();
     data.append('file', image.imageBlob, image.imageFilename);
@@ -24,7 +24,7 @@ async function search({task, search, image, storageKeys}) {
 
     const tabUrl = `https://depositphotos.com/search/by-images.html?idList=[${ids}]`;
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
@@ -43,14 +43,14 @@ async function search({task, search, image, storageKeys}) {
 
     await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change', {bubbles: true}));
   }
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

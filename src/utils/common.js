@@ -233,7 +233,7 @@ function findNode(
 
 async function processNode(
   selector,
-  taskFn,
+  actionFn,
   {
     timeout = 60000,
     throwError = true,
@@ -248,7 +248,7 @@ async function processNode(
       const el = document.querySelector(selector);
       if (el && !el.isSameNode(node)) {
         node = el;
-        taskFn(node);
+        actionFn(node);
       }
     });
 
@@ -267,7 +267,7 @@ async function processNode(
     }, timeout);
   }
 
-  return taskFn(node);
+  return actionFn(node);
 }
 
 async function getActiveTab() {
@@ -278,13 +278,23 @@ async function getActiveTab() {
   return tab;
 }
 
-async function getPlatform() {
+async function getPlatform({fallback = true} = {}) {
   if (targetEnv === 'samsung') {
     // Samsung Internet 13: runtime.getPlatformInfo fails.
     return {os: 'android', arch: ''};
   }
 
-  let {os, arch} = await browser.runtime.getPlatformInfo();
+  let os, arch;
+  try {
+    ({os, arch} = await browser.runtime.getPlatformInfo());
+  } catch (err) {
+    if (fallback) {
+      ({os, arch} = await browser.runtime.sendMessage({id: 'getPlatform'}));
+    } else {
+      throw err;
+    }
+  }
+
   if (os === 'win') {
     os = 'windows';
   } else if (os === 'mac') {
@@ -295,19 +305,15 @@ async function getPlatform() {
     arch = '386';
   } else if (arch === 'x86-64') {
     arch = 'amd64';
+  } else if (arch.startsWith('arm')) {
+    arch = 'arm';
   }
 
   return {os, arch};
 }
 
 async function isAndroid() {
-  let os;
-  try {
-    ({os} = await getPlatform());
-  } catch (err) {
-    ({os} = await browser.runtime.sendMessage({id: 'getPlatform'}));
-  }
-
+  const {os} = await getPlatform();
   return os === 'android';
 }
 

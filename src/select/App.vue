@@ -36,7 +36,7 @@ export default {
     return {
       contentMessagePort: null,
 
-      task: null
+      session: null
     };
   },
 
@@ -51,14 +51,14 @@ export default {
       }
 
       if (request.id === 'openView') {
-        this.task = request.task;
+        this.session = request.session;
         this.snackbar.open();
       } else if (request.id === 'closeView') {
         this.snackbar.close();
       } else if (request.id === 'imageSelectionSubmit') {
         this.snackbar.close();
-        this.task.sourceFrameId = request.senderFrameId;
-        browser.runtime.sendMessage({id: request.id, task: this.task});
+        this.session.sourceFrameId = request.senderFrameId;
+        browser.runtime.sendMessage({id: request.id, session: this.session});
       }
     },
 

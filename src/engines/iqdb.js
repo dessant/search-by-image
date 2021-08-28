@@ -3,19 +3,19 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'iqdb';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   const inputSelector = '#file';
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   (await findNode('form')).submit();
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

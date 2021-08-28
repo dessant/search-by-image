@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'jpDesign';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   // wait for page
   await findNode('#photo > img');
 
@@ -16,14 +16,14 @@ async function search({task, search, image, storageKeys}) {
 
   await findNode('#photo_image');
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   (await findNode('#searchForm')).removeAttribute('target');
   (await findNode('.action input[type=submit]')).click();
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

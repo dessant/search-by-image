@@ -47,7 +47,7 @@ export default {
       showDialog: false,
       contentMessagePort: null,
 
-      task: null,
+      session: null,
       images: []
     };
   },
@@ -63,7 +63,7 @@ export default {
       }
 
       if (request.id === 'openView') {
-        this.task = request.task;
+        this.session = request.session;
         this.images = request.images;
         this.showDialog = true;
       } else if (request.id === 'closeView') {
@@ -81,7 +81,7 @@ export default {
       browser.runtime.sendMessage({
         id: 'imageConfirmationSubmit',
         image: Object.assign({}, this.images[ev.target.dataset.index]),
-        task: this.task
+        session: this.session
       });
     }
   },

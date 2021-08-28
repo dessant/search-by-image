@@ -6,6 +6,8 @@ const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const storageRevisions = require('./src/storage/config.json').revisions;
+
 const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
@@ -15,6 +17,9 @@ const plugins = [
   new webpack.DefinePlugin({
     'process.env': {
       TARGET_ENV: JSON.stringify(targetEnv),
+      STORAGE_REVISION_LOCAL: JSON.stringify(
+        storageRevisions.local[storageRevisions.local.length - 1]
+      ),
       ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
     }
   }),
@@ -53,6 +58,7 @@ module.exports = {
     select: './src/select/main.js',
     capture: './src/capture/main.js',
     content: './src/content/main.js',
+    insert: './src/insert/main.js',
     parse: './src/parse/main.js',
     ...entries
   },

@@ -1,4 +1,8 @@
-var touchTarget = {
+import browser from 'webextension-polyfill';
+
+import storage from 'storage/storage';
+
+self.touchTarget = {
   node: null,
   dx: 0,
   dy: 0,
@@ -32,7 +36,7 @@ function onClick(ev) {
       ev.preventDefault();
       ev.stopImmediatePropagation();
 
-      chrome.runtime.sendMessage({
+      browser.runtime.sendMessage({
         id: 'routeMessage',
         setSenderFrameId: true,
         messageFrameId: 0,
@@ -46,37 +50,56 @@ function onClick(ev) {
   }
 }
 
-function addTouchListener() {
+self.addTouchListener = function () {
   handleTouch = true;
-}
+};
 
-function removeTouchListener() {
+self.removeTouchListener = function () {
   handleTouch = false;
-}
+};
 
-function showPointer() {
+self.showPointer = function () {
   if (!pointerCss) {
     pointerCss = document.createElement('link');
     pointerCss.href = chrome.runtime.getURL('/src/select/pointer.css');
     pointerCss.rel = 'stylesheet';
     document.head.appendChild(pointerCss);
   }
-}
+};
 
-function hidePointer() {
+self.hidePointer = function () {
   if (pointerCss) {
     pointerCss.remove();
     pointerCss = null;
   }
+};
+
+async function checkTask() {
+  const {taskRegistry} = await storage.get('taskRegistry');
+  if (Date.now() - taskRegistry.lastTaskStart < 600000) {
+    await browser.runtime.sendMessage({id: 'taskRequest'});
+  }
 }
 
-window.addEventListener('contextmenu', saveTouchTarget, {
-  capture: true,
-  passive: true
-});
+function init() {
+  window.addEventListener('contextmenu', saveTouchTarget, {
+    capture: true,
+    passive: true
+  });
 
-window.addEventListener('mousedown', onMouseDown, {
-  capture: true,
-  passive: true
-});
-window.addEventListener('click', onClick, {capture: true, passive: false});
+  window.addEventListener('mousedown', onMouseDown, {
+    capture: true,
+    passive: true
+  });
+  window.addEventListener('click', onClick, {capture: true, passive: false});
+
+  if (window.top === window) {
+    if (document.readyState === 'complete') {
+      checkTask();
+    } else {
+      window.addEventListener('load', checkTask);
+    }
+  }
+}
+
+init();

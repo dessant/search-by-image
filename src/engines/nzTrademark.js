@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'nzTrademark';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   (await findNode('#logoCheckButton')).click();
 
   const inputSelector = '#imageSearchDialogUploadButton';
@@ -13,7 +13,7 @@ async function search({task, search, image, storageKeys}) {
 
   input.dispatchEvent(new Event('change'));
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   (
     await findNode('#imageSearchDialogNextButton:not([disabled])', {
@@ -35,7 +35,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'alibabaChina';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   const button = await findNode('#img-search-btn', {timeout: 120000});
 
   const inputSelector = 'input[type=file]';
@@ -17,7 +17,7 @@ async function search({task, search, image, storageKeys}) {
 
   await setFileInputData(inputSelector, input, image);
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   window.setTimeout(() => {
     input.dispatchEvent(new Event('change'));
@@ -25,7 +25,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

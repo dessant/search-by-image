@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'bing';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (await isAndroid()) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
@@ -20,7 +20,7 @@ async function search({task, search, image, storageKeys}) {
     form.appendChild(input);
     document.body.appendChild(form);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     if (image.imageSize > 600 * 1024) {
       const img = new Image();
@@ -75,14 +75,14 @@ async function search({task, search, image, storageKeys}) {
 
     await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change'));
   }
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

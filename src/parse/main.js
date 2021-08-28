@@ -33,7 +33,7 @@ async function downloadImage(url) {
   }
 
   if (!imageBlob) {
-    if (targetEnv === 'safari') {
+    if (['chrome', 'safari'].includes(targetEnv)) {
       imageBlob = await fetchImage(url);
 
       if (!imageBlob) {
@@ -166,7 +166,7 @@ async function parseNode(node) {
   return results;
 }
 
-async function processResults(results, task) {
+async function processResults(results, session) {
   results = uniqBy(results, 'data');
 
   const daraUrls = results.filter(
@@ -251,8 +251,10 @@ async function processResults(results, task) {
     }
   }
 
-  const mustUpload = task.searchMode === 'selectUpload';
-  const urlSupport = await hasUrlSupport(task.engineGroup || task.engines[0]);
+  const mustUpload = session.searchMode === 'selectUpload';
+  const urlSupport = await hasUrlSupport(
+    session.engineGroup || session.engines[0]
+  );
 
   const httpUrls = results.filter(item => item.data && validateUrl(item.data));
   if (httpUrls.length) {
@@ -322,7 +324,7 @@ async function parseDocument({root = null, touchRect = null} = {}) {
   return results;
 }
 
-async function parse(task) {
+async function parse(session) {
   if (typeof touchTarget === 'undefined' || !touchTarget.node) {
     throw new Error('Touch target missing');
   }
@@ -346,29 +348,29 @@ async function parse(task) {
 
   if (
     targetNode.nodeName.toLowerCase() !== 'img' ||
-    task.options.imgFullParse
+    session.options.imgFullParse
   ) {
     results.push(
       ...(await parseDocument({root: document, touchRect})).reverse()
     );
   }
 
-  return processResults(results, task);
+  return processResults(results, session);
 }
 
-self.initParse = async function (task) {
-  const images = await parse(task).catch(err => {
+self.initParse = async function (session) {
+  const images = await parse(session).catch(err => {
     console.log(err.toString());
     browser.runtime.sendMessage({
       id: 'pageParseError',
-      task
+      session
     });
   });
   if (images) {
     browser.runtime.sendMessage({
       id: 'pageParseSubmit',
       images,
-      task
+      session
     });
   }
 };
@@ -381,7 +383,7 @@ function onMessage(request, sender) {
   }
 
   if (request.id === 'parsePage') {
-    initParse(request.task);
+    initParse(request.session);
   }
 }
 

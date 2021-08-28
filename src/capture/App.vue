@@ -49,7 +49,7 @@ export default {
     return {
       contentMessagePort: null,
 
-      task: null
+      session: null
     };
   },
 
@@ -64,7 +64,7 @@ export default {
       }
 
       if (request.id === 'openView') {
-        this.task = request.task;
+        this.session = request.session;
         this.showCapture();
       } else if (request.id === 'closeView') {
         this.hideCapture();
@@ -96,7 +96,7 @@ export default {
       this.hideCapture();
       browser.runtime.sendMessage({
         id: 'imageCaptureSubmit',
-        task: this.task,
+        session: this.session,
         area
       });
     },

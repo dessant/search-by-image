@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'madridMonitor';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   (await findNode('#imageModeLink')).click();
 
   await findNode('.fileTarget-open');
@@ -25,7 +25,7 @@ async function search({task, search, image, storageKeys}) {
   (await findNode('a[data-hasqtip="87"]')).click();
   (await findNode('a[data-hasqtip="88"]')).click();
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   window.setTimeout(async () => {
     (
@@ -35,7 +35,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

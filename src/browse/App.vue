@@ -60,8 +60,8 @@
 import browser from 'webextension-polyfill';
 import {Button} from 'ext-components';
 
-import {getEnabledEngines, normalizeFilename, normalizeImage} from 'utils/app';
-import {getText, isAndroid} from 'utils/common';
+import {normalizeFilename, normalizeImage} from 'utils/app';
+import {getText} from 'utils/common';
 
 export default {
   components: {
@@ -76,7 +76,7 @@ export default {
       dropState: false,
       dropEnabled: false,
       error: '',
-      task: null
+      session: null
     };
   },
 
@@ -122,7 +122,7 @@ export default {
         browser.runtime.sendMessage({
           id: 'imageUploadSubmit',
           images,
-          task: this.task
+          session: this.session
         });
         this.showSpinner = true;
       } else {
@@ -146,25 +146,23 @@ export default {
   },
 
   mounted: async function () {
-    const storageKey = new URL(window.location.href).searchParams.get(
-      'session'
-    );
+    const storageId = new URL(window.location.href).searchParams.get('id');
 
-    const task = await browser.runtime.sendMessage({
+    const session = await browser.runtime.sendMessage({
       id: 'storageRequest',
       asyncResponse: true,
       saveReceipt: true,
-      storageKey
+      storageId
     });
 
-    if (task) {
-      this.task = task;
+    if (session) {
+      this.session = session;
       this.$nextTick(() => this.$refs.dropZone.focus());
     } else {
       this.error = getText('error_invalidPageUrl');
     }
 
-    if (!(await isAndroid())) {
+    if (!this.$isAndroid) {
       this.dropEnabled = true;
     }
 

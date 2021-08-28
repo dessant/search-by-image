@@ -250,12 +250,12 @@ export default {
   },
 
   created: async function () {
-    const options = await storage.get(optionKeys, 'sync');
+    const options = await storage.get(optionKeys);
 
     for (const option of Object.keys(this.options)) {
       this.options[option] = options[option];
       this.$watch(`options.${option}`, async function (value) {
-        await storage.set({[option]: value}, 'sync');
+        await storage.set({[option]: value});
       });
     }
 

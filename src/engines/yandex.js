@@ -38,7 +38,7 @@ function showResults(xhr) {
   }
 }
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (
     document.head.querySelector('meta[name="apple-mobile-web-app-capable"]') ||
     targetEnv === 'safari'
@@ -53,7 +53,7 @@ async function search({task, search, image, storageKeys}) {
 
     const xhr = getContentXHR();
     xhr.addEventListener('load', function () {
-      sendReceipt(storageKeys);
+      sendReceipt(storageIds);
 
       uploadCallback(this, showResults, engine);
     });
@@ -70,8 +70,16 @@ async function search({task, search, image, storageKeys}) {
       'cbir:uploader_onboarded_photo',
       `{"count":1,"last":${Date.now()}}`
     );
+    localStorage.setItem(
+      'cbir:uploader_onboarded_drag',
+      `{"count":1,"last":${Date.now()}}`
+    );
 
-    const {selector: inputSelector, node: input, layout} = await Promise.race([
+    const {
+      selector: inputSelector,
+      node: input,
+      layout
+    } = await Promise.race([
       // old layout
       new Promise((resolve, reject) => {
         const selector = 'input.cbir-panel__file-input';
@@ -158,7 +166,7 @@ async function search({task, search, image, storageKeys}) {
 
     await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change', {bubbles: true}));
   }
@@ -166,7 +174,7 @@ async function search({task, search, image, storageKeys}) {
 
 function init() {
   if (!window.location.pathname.startsWith('/showcaptcha')) {
-    initSearch(search, engine, sessionKey);
+    initSearch(search, engine, taskId);
   }
 }
 

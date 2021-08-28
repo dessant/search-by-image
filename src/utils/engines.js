@@ -139,41 +139,41 @@ function uploadCallback(xhr, callback, engine) {
   }
 }
 
-async function sendReceipt(storageKeys) {
-  if (storageKeys.length) {
-    const keys = [...storageKeys];
-    while (storageKeys.length) {
-      storageKeys.pop();
+async function sendReceipt(storageIds) {
+  if (storageIds.length) {
+    const keys = [...storageIds];
+    while (storageIds.length) {
+      storageIds.pop();
     }
 
     await browser.runtime.sendMessage({
       id: 'storageReceipt',
-      storageKeys: keys
+      storageIds: keys
     });
   }
 }
 
-async function initSearch(searchFn, engine, sessionKey) {
+async function initSearch(searchFn, engine, taskId) {
   // Script may be injected multiple times
-  if (typeof self.session === 'undefined') {
-    self.session = null;
+  if (typeof self.task === 'undefined') {
+    self.task = null;
   } else {
     return;
   }
 
-  self.session = await browser.runtime.sendMessage({
+  self.task = await browser.runtime.sendMessage({
     id: 'storageRequest',
     asyncResponse: true,
-    storageKey: sessionKey
+    storageId: taskId
   });
 
-  if (session) {
-    const storageKeys = [sessionKey, session.imageKey];
+  if (task) {
+    const storageIds = [taskId, task.imageId];
 
     try {
-      if (session.search.method === 'upload') {
+      if (task.search.method === 'upload') {
         const maxSize = getMaxImageSize(engine);
-        if (session.search.imageSize > maxSize) {
+        if (task.search.imageSize > maxSize) {
           showEngineError({
             message: getLargeImageMessage(engine, maxSize),
             engine
@@ -185,26 +185,26 @@ async function initSearch(searchFn, engine, sessionKey) {
       const image = await browser.runtime.sendMessage({
         id: 'storageRequest',
         asyncResponse: true,
-        storageKey: session.imageKey
+        storageId: task.imageId
       });
 
       if (image) {
-        if (session.search.method === 'upload') {
+        if (task.search.method === 'upload') {
           image.imageBlob = dataUrlToBlob(image.imageDataUrl);
         }
         await searchFn({
-          task: session.task,
-          search: session.search,
+          session: task.session,
+          search: task.search,
           image,
-          storageKeys
+          storageIds
         });
       } else {
-        await sendReceipt(storageKeys);
+        await sendReceipt(storageIds);
 
         showEngineError({errorId: 'error_sessionExpired', engine});
       }
     } catch (err) {
-      await sendReceipt(storageKeys);
+      await sendReceipt(storageIds);
 
       showEngineError({errorId: 'error_engine', engine});
 

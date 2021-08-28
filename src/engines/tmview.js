@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'tmview';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   // previous search may be cached
   processNode(
     '.image-remove button',
@@ -24,13 +24,13 @@ async function search({task, search, image, storageKeys}) {
 
   await findNode('.image-tools');
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   (await findNode('button[data-test-id=search-button]')).click();
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'baidu';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (await isAndroid()) {
     const data = new FormData();
     data.append('tn', 'pc');
@@ -31,7 +31,7 @@ async function search({task, search, image, storageKeys}) {
 
     const tabUrl = (await rsp.json()).data.url;
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
@@ -45,14 +45,14 @@ async function search({task, search, image, storageKeys}) {
 
       await setFileInputData(inputSelector, input, image);
 
-      await sendReceipt(storageKeys);
+      await sendReceipt(storageIds);
 
       input.dispatchEvent(new Event('change'));
     } else {
       const input = await findNode('input#soutu-url-kw');
       input.value = image.imageUrl;
 
-      await sendReceipt(storageKeys);
+      await sendReceipt(storageIds);
 
       (await findNode('.soutu-url-btn')).click();
     }
@@ -60,7 +60,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

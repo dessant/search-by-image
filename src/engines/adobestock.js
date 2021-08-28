@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'adobestock';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   (await findNode('button.js-camera-icon')).click();
 
   const inputSelector = '#js-vsupload';
@@ -11,13 +11,13 @@ async function search({task, search, image, storageKeys}) {
 
   await setFileInputData(inputSelector, input, image);
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   input.dispatchEvent(new Event('change'));
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

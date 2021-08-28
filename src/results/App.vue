@@ -81,7 +81,7 @@ export default {
   methods: {
     getText,
 
-    search: async function ({task, search, image}) {
+    search: async function ({session, search, image}) {
       if (this.engine === 'pinterest') {
         let rsp;
         if (search.method === 'upload') {
@@ -172,29 +172,27 @@ export default {
   },
 
   created: async function () {
-    const storageKey = new URL(window.location.href).searchParams.get(
-      'session'
-    );
+    const storageId = new URL(window.location.href).searchParams.get('id');
 
-    const session = await browser.runtime.sendMessage({
+    const task = await browser.runtime.sendMessage({
       id: 'storageRequest',
       asyncResponse: true,
       saveReceipt: true,
-      storageKey
+      storageId
     });
 
-    if (session) {
+    if (task) {
       try {
-        this.engine = session.search.engine;
+        this.engine = task.search.engine;
 
         document.title = getText('pageTitle', [
           getText(`optionTitle_${this.engine}`),
           getText('extensionName')
         ]);
 
-        if (session.search.method === 'upload') {
+        if (task.search.method === 'upload') {
           const maxSize = getMaxImageSize(this.engine);
-          if (session.search.imageSize > maxSize) {
+          if (task.search.imageSize > maxSize) {
             this.error = getLargeImageMessage(this.engine, maxSize);
             this.dataLoaded = true;
             return;
@@ -208,16 +206,16 @@ export default {
           id: 'storageRequest',
           asyncResponse: true,
           saveReceipt: true,
-          storageKey: session.imageKey
+          storageId: task.imageId
         });
 
         if (image) {
-          if (session.search.method === 'upload') {
+          if (task.search.method === 'upload') {
             image.imageBlob = dataUrlToBlob(image.imageDataUrl);
           }
           await this.search({
-            task: session.task,
-            search: session.search,
+            session: task.session,
+            search: task.search,
             image
           });
         } else {

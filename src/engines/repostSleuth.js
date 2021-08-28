@@ -3,14 +3,14 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'repostSleuth';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (search.method === 'upload') {
     const inputSelector = 'input[type=file]';
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change'));
   } else {
@@ -18,7 +18,7 @@ async function search({task, search, image, storageKeys}) {
 
     input.value = image.imageUrl;
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('input'));
   }
@@ -27,7 +27,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

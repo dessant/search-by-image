@@ -373,7 +373,7 @@ export default {
       window.setTimeout(this.setViewportSize, 1000)
     );
 
-    const options = await storage.get(optionKeys, 'sync');
+    const options = await storage.get(optionKeys);
     const enEngines = await getEnabledEngines(options);
 
     if (
@@ -392,7 +392,7 @@ export default {
     this.searchModeAction = options.searchModeAction;
 
     this.$watch('searchModeAction', async function (value) {
-      await storage.set({searchModeAction: value}, 'sync');
+      await storage.set({searchModeAction: value});
     });
 
     this.dataLoaded = true;

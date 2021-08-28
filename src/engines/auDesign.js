@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auDesign';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
 
@@ -13,7 +13,7 @@ async function search({task, search, image, storageKeys}) {
 
   (await findNode('.popup-content .buttons button')).click();
 
-  await sendReceipt(storageKeys);
+  await sendReceipt(storageIds);
 
   (
     await Promise.race([
@@ -24,7 +24,7 @@ async function search({task, search, image, storageKeys}) {
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

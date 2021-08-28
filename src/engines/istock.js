@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'istock';
 
-async function search({task, search, image, storageKeys}) {
+async function search({session, search, image, storageIds}) {
   if (await isAndroid()) {
     let rsp = await fetch(
       'https://www.istockphoto.com/search/search-by-image/upload_data/' +
@@ -40,7 +40,7 @@ async function search({task, search, image, storageKeys}) {
 
     const tabUrl = 'https://www.istockphoto.com' + api.presigned_url;
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     if (validateUrl(tabUrl)) {
       window.location.replace(tabUrl);
@@ -53,14 +53,14 @@ async function search({task, search, image, storageKeys}) {
 
     await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageKeys);
+    await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change'));
   }
 }
 
 function init() {
-  initSearch(search, engine, sessionKey);
+  initSearch(search, engine, taskId);
 }
 
 init();

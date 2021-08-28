@@ -1,10 +1,10 @@
 import Vue from 'vue';
 
-import {configTheme} from 'utils/app';
+import {configUI} from 'utils/app';
 import App from './App';
 
 async function init() {
-  await configTheme();
+  await configUI(Vue);
 
   new Vue({
     el: '#app',
