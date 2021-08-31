@@ -167,32 +167,38 @@ function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
 }
 
 function setUserAgentHeader(engine, tabId) {
-  let userAgent;
-  if (engine === 'google') {
-    userAgent = chromeMobileUA;
-  } else if (['mailru'].includes(engine)) {
-    userAgent = chromeDesktopUA;
-  }
+  // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID
+  // returns requests from different tab.
+  if (targetEnv === 'firefox') {
+    // Google only works with a Chrome user agent on Firefox for Android,
+    // while other search engines may need a desktop user agent.
+    let userAgent;
+    if (['google', 'ikea'].includes(engine)) {
+      userAgent = chromeMobileUA;
+    } else if (['mailru'].includes(engine)) {
+      userAgent = chromeDesktopUA;
+    }
 
-  if (userAgent) {
-    const engineRequestCallback = function (details) {
-      for (const header of details.requestHeaders) {
-        if (header.name.toLowerCase() === 'user-agent') {
-          header.value = userAgent;
-          break;
+    if (userAgent) {
+      const engineRequestCallback = function (details) {
+        for (const header of details.requestHeaders) {
+          if (header.name.toLowerCase() === 'user-agent') {
+            header.value = userAgent;
+            break;
+          }
         }
-      }
-      return {requestHeaders: details.requestHeaders};
-    };
+        return {requestHeaders: details.requestHeaders};
+      };
 
-    browser.webRequest.onBeforeSendHeaders.addListener(
-      engineRequestCallback,
-      {
-        urls: ['http://*/*', 'https://*/*'],
-        tabId
-      },
-      ['blocking', 'requestHeaders']
-    );
+      browser.webRequest.onBeforeSendHeaders.addListener(
+        engineRequestCallback,
+        {
+          urls: ['http://*/*', 'https://*/*'],
+          tabId
+        },
+        ['blocking', 'requestHeaders']
+      );
+    }
   }
 }
 
@@ -552,16 +558,12 @@ async function searchEngine(session, search, image, imageId, tabActive) {
   });
   const tabId = tab.id;
 
-  if (search.sendsReceipt) {
-    await registry.addTaskRegistryItem({taskId, tabId});
+  if (await isAndroid()) {
+    setUserAgentHeader(search.engine, tabId);
   }
 
-  // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID
-  // returns requests from different tab.
-  if ((await isAndroid()) && targetEnv === 'firefox') {
-    // Google only works with a Chrome user agent on Firefox for Android,
-    // while other search engines may need a desktop user agent.
-    setUserAgentHeader(search.engine, tabId);
+  if (search.sendsReceipt) {
+    await registry.addTaskRegistryItem({taskId, tabId});
   }
 }
 
