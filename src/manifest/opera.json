@@ -25,28 +25,28 @@
   "content_security_policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src * blob:; object-src 'none';",
 
   "icons": {
-    "16": "src/icons/app/icon-16.png",
-    "19": "src/icons/app/icon-19.png",
-    "24": "src/icons/app/icon-24.png",
-    "32": "src/icons/app/icon-32.png",
-    "38": "src/icons/app/icon-38.png",
-    "48": "src/icons/app/icon-48.png",
-    "64": "src/icons/app/icon-64.png",
-    "96": "src/icons/app/icon-96.png",
-    "128": "src/icons/app/icon-128.png"
+    "16": "src/assets/icons/app/icon-16.png",
+    "19": "src/assets/icons/app/icon-19.png",
+    "24": "src/assets/icons/app/icon-24.png",
+    "32": "src/assets/icons/app/icon-32.png",
+    "38": "src/assets/icons/app/icon-38.png",
+    "48": "src/assets/icons/app/icon-48.png",
+    "64": "src/assets/icons/app/icon-64.png",
+    "96": "src/assets/icons/app/icon-96.png",
+    "128": "src/assets/icons/app/icon-128.png"
   },
 
   "browser_action": {
     "default_icon": {
-      "16": "src/icons/app/icon-16.png",
-      "19": "src/icons/app/icon-19.png",
-      "24": "src/icons/app/icon-24.png",
-      "32": "src/icons/app/icon-32.png",
-      "38": "src/icons/app/icon-38.png",
-      "48": "src/icons/app/icon-48.png",
-      "64": "src/icons/app/icon-64.png",
-      "96": "src/icons/app/icon-96.png",
-      "128": "src/icons/app/icon-128.png"
+      "16": "src/assets/icons/app/icon-16.png",
+      "19": "src/assets/icons/app/icon-19.png",
+      "24": "src/assets/icons/app/icon-24.png",
+      "32": "src/assets/icons/app/icon-32.png",
+      "38": "src/assets/icons/app/icon-38.png",
+      "48": "src/assets/icons/app/icon-48.png",
+      "64": "src/assets/icons/app/icon-64.png",
+      "96": "src/assets/icons/app/icon-96.png",
+      "128": "src/assets/icons/app/icon-128.png"
     }
   },
 

@@ -208,15 +208,15 @@ function getEngineMenuIcons(engine) {
     )
   ) {
     return {
-      16: `src/icons/engines/${engine}-16.png`,
-      32: `src/icons/engines/${engine}-32.png`
+      16: `src/assets/icons/engines/${engine}-16.png`,
+      32: `src/assets/icons/engines/${engine}-32.png`
     };
   } else {
     if (['branddb', 'madridMonitor'].includes(engine)) {
       engine = 'wipo';
     }
     return {
-      16: `src/icons/engines/${engine}.svg`
+      16: `src/assets/icons/engines/${engine}.svg`
     };
   }
 }

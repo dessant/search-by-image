@@ -13,7 +13,7 @@
         <v-icon-button
           v-if="!$isAndroid"
           class="search-mode-button"
-          :src="`/src/icons/modes/${searchModeAction}.svg`"
+          :src="`/src/assets/icons/modes/${searchModeAction}.svg`"
           @click="showSearchModeMenu"
         ></v-icon-button>
 
@@ -26,7 +26,7 @@
 
         <v-icon-button
           class="menu-button"
-          src="/src/icons/misc/more.svg"
+          src="/src/assets/icons/misc/more.svg"
           @click="showActionMenu"
         >
         </v-icon-button>
@@ -51,7 +51,7 @@
           >
             <img
               class="mdc-list-item__graphic item-icon"
-              :src="`/src/icons/modes/${item.id}.svg`"
+              :src="`/src/assets/icons/modes/${item.id}.svg`"
             />
             <span class="mdc-list-item__text">{{ item.label }}</span>
           </li>
@@ -207,7 +207,7 @@ export default {
       } else if (['branddb', 'madridMonitor'].includes(engine)) {
         engine = 'wipo';
       }
-      return `/src/icons/engines/${engine}.${ext}`;
+      return `/src/assets/icons/engines/${engine}.${ext}`;
     },
 
     selectItem: function (engine) {

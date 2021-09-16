@@ -1,14 +1,14 @@
-.assets/
-app/
+/.assets/
+/app/
 
 node_modules/
-artifacts/
-dist/
+/artifacts/
+/dist/
 
-.vscode
+/.vscode
 
-web-ext-config.js
+/web-ext-config.js
 
-npm-debug.log
+/npm-debug.log
 
-report.json
+/report.json

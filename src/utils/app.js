@@ -107,7 +107,7 @@ function showNotification({message, messageId, title, type = 'info'}) {
       type: 'basic',
       title,
       message,
-      iconUrl: '/src/icons/app/icon-64.png'
+      iconUrl: '/src/assets/icons/app/icon-64.png'
     });
   }
 }

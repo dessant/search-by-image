@@ -20,7 +20,7 @@
           <v-icon-button
             class="cancel-button"
             :ripple="false"
-            src="/src/icons/misc/close.svg"
+            src="/src/assets/icons/misc/close.svg"
             @click="onCancel"
           >
           </v-icon-button>

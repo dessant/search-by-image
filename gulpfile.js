@@ -59,8 +59,8 @@ function css() {
 }
 
 async function images(done) {
-  ensureDirSync(path.join(distDir, 'src/icons/app'));
-  const appIconSvg = readFileSync('src/icons/app/icon.svg');
+  ensureDirSync(path.join(distDir, 'src/assets/icons/app'));
+  const appIconSvg = readFileSync('src/assets/icons/app/icon.svg');
   const appIconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
   if (targetEnv === 'safari') {
     appIconSizes.push(256, 512, 1024);
@@ -68,12 +68,12 @@ async function images(done) {
   for (const size of appIconSizes) {
     await sharp(appIconSvg, {density: (72 * size) / 24})
       .resize(size)
-      .toFile(path.join(distDir, `src/icons/app/icon-${size}.png`));
+      .toFile(path.join(distDir, `src/assets/icons/app/icon-${size}.png`));
   }
   // Chrome Web Store does not correctly display optimized icons
   if (isProduction && targetEnv !== 'chrome') {
     await new Promise(resolve => {
-      src(path.join(distDir, 'src/icons/app/*.png'), {base: '.'})
+      src(path.join(distDir, 'src/assets/icons/app/*.png'), {base: '.'})
         .pipe(imagemin())
         .pipe(dest('.'))
         .on('error', done)
@@ -82,8 +82,10 @@ async function images(done) {
   }
 
   if (targetEnv === 'firefox') {
-    ensureDirSync(path.join(distDir, 'src/icons/engines'));
-    const pngPaths = await recursiveReadDir('src/icons/engines', ['*.!(png)']);
+    ensureDirSync(path.join(distDir, 'src/assets/icons/engines'));
+    const pngPaths = await recursiveReadDir('src/assets/icons/engines', [
+      '*.!(png)'
+    ]);
     const menuIconSizes = [16, 32];
     for (const pngPath of pngPaths) {
       for (const size of menuIconSizes) {
@@ -94,7 +96,7 @@ async function images(done) {
     }
     if (isProduction) {
       await new Promise(resolve => {
-        src(path.join(distDir, 'src/icons/engines/*.png'), {base: '.'})
+        src(path.join(distDir, 'src/assets/icons/engines/*.png'), {base: '.'})
           .pipe(imagemin())
           .pipe(dest('.'))
           .on('error', done)
@@ -104,7 +106,9 @@ async function images(done) {
   }
 
   await new Promise(resolve => {
-    src('src/icons/@(app|browse|engines|modes|misc)/*.@(png|svg)', {base: '.'})
+    src('src/assets/icons/@(app|browse|engines|modes|misc)/*.@(png|svg)', {
+      base: '.'
+    })
       .pipe(gulpif(isProduction, imagemin()))
       .pipe(dest(distDir))
       .on('error', done)
@@ -124,7 +128,7 @@ async function images(done) {
 
 async function fonts(done) {
   await new Promise(resolve => {
-    src('src/fonts/roboto.css', {base: '.'})
+    src('src/assets/fonts/roboto.css', {base: '.'})
       .pipe(postcss())
       .pipe(dest(distDir))
       .on('error', done)
@@ -135,7 +139,7 @@ async function fonts(done) {
     src(
       'node_modules/@fontsource/roboto/files/roboto-latin-@(400|500|700)-normal.woff2'
     )
-      .pipe(dest(path.join(distDir, 'src/fonts/files')))
+      .pipe(dest(path.join(distDir, 'src/assets/fonts/files')))
       .on('error', done)
       .on('finish', resolve);
   });

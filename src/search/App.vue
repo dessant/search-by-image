@@ -31,7 +31,7 @@
             <div class="grid-item-footer-text">{{ item.text }}</div>
             <img
               class="grid-item-footer-button"
-              src="/src/icons/misc/image.svg"
+              src="/src/assets/icons/misc/image.svg"
               :data-index="index"
               @click="openImage"
             />

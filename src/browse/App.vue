@@ -17,7 +17,9 @@
     <div class="drop-zone-content" v-show="!showSpinner && !error">
       <img
         class="drop-zone-icon"
-        :src="`/src/icons/browse/drop-zone-${dropState ? 'drop' : 'drag'}.svg`"
+        :src="`/src/assets/icons/browse/drop-zone-${
+          dropState ? 'drop' : 'drag'
+        }.svg`"
       />
 
       <div class="drop-zone-text">
