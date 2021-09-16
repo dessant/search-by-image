@@ -90,7 +90,7 @@ async function addStorageItem(
   data,
   {receipts = null, expiryTime = 0, area = 'local', isTask = false} = {}
 ) {
-  if (area === 'indexeddb' && !['chrome', 'safari'].includes(targetEnv)) {
+  if (area === 'indexeddb' && !['safari'].includes(targetEnv)) {
     area = 'memory';
   }
 

@@ -17,6 +17,8 @@
     "tabs",
     "activeTab",
     "notifications",
+    "webRequest",
+    "webRequestBlocking",
     "<all_urls>"
   ],
 
@@ -55,8 +57,7 @@
   },
 
   "background": {
-    "page": "src/background/index.html",
-    "persistent": false
+    "page": "src/background/index.html"
   },
 
   "content_scripts": [

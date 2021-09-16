@@ -166,38 +166,37 @@ function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
   });
 }
 
-function setUserAgentHeader(engine, tabId) {
+function setUserAgentHeader(tabId, userAgent) {
+  const engineRequestCallback = function (details) {
+    for (const header of details.requestHeaders) {
+      if (header.name.toLowerCase() === 'user-agent') {
+        header.value = userAgent;
+        break;
+      }
+    }
+    return {requestHeaders: details.requestHeaders};
+  };
+
+  browser.webRequest.onBeforeSendHeaders.addListener(
+    engineRequestCallback,
+    {
+      urls: ['http://*/*', 'https://*/*'],
+      tabId
+    },
+    ['blocking', 'requestHeaders']
+  );
+}
+
+async function getRequiredUserAgent(engine) {
   // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID
   // returns requests from different tab.
-  if (targetEnv === 'firefox') {
+  if (targetEnv !== 'samsung' && (await isAndroid())) {
     // Google only works with a Chrome user agent on Firefox for Android,
     // while other search engines may need a desktop user agent.
-    let userAgent;
-    if (['google', 'ikea'].includes(engine)) {
-      userAgent = chromeMobileUA;
+    if (targetEnv === 'firefox' && ['google', 'ikea'].includes(engine)) {
+      return chromeMobileUA;
     } else if (['mailru'].includes(engine)) {
-      userAgent = chromeDesktopUA;
-    }
-
-    if (userAgent) {
-      const engineRequestCallback = function (details) {
-        for (const header of details.requestHeaders) {
-          if (header.name.toLowerCase() === 'user-agent') {
-            header.value = userAgent;
-            break;
-          }
-        }
-        return {requestHeaders: details.requestHeaders};
-      };
-
-      browser.webRequest.onBeforeSendHeaders.addListener(
-        engineRequestCallback,
-        {
-          urls: ['http://*/*', 'https://*/*'],
-          tabId
-        },
-        ['blocking', 'requestHeaders']
-      );
+      return chromeDesktopUA;
     }
   }
 }
@@ -558,8 +557,9 @@ async function searchEngine(session, search, image, imageId, tabActive) {
   });
   const tabId = tab.id;
 
-  if (await isAndroid()) {
-    setUserAgentHeader(search.engine, tabId);
+  const userAgent = await getRequiredUserAgent(search.engine);
+  if (userAgent) {
+    setUserAgentHeader(tabId, userAgent);
   }
 
   if (search.sendsReceipt) {

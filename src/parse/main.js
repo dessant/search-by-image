@@ -33,7 +33,7 @@ async function downloadImage(url) {
   }
 
   if (!imageBlob) {
-    if (['chrome', 'safari'].includes(targetEnv)) {
+    if (['safari'].includes(targetEnv)) {
       imageBlob = await fetchImage(url);
 
       if (!imageBlob) {
