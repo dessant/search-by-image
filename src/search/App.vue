@@ -31,7 +31,11 @@
             <div class="grid-item-footer-text">{{ item.text }}</div>
             <img
               class="grid-item-footer-button"
-              src="/src/assets/icons/misc/image.svg"
+              :src="
+                $isSamsung
+                  ? '/src/assets/samsung/icons/misc/image.svg'
+                  : '/src/assets/icons/misc/image.svg'
+              "
               :data-index="index"
               @click="openImage"
             />
@@ -475,9 +479,17 @@ body {
 .grid-item-footer-button {
   width: 24px;
   height: 24px;
-  margin-left: 24px;
+  margin-left: 12px;
   cursor: pointer;
   opacity: 0.7;
+}
+
+.samsung {
+  & .title,
+  & .error-text,
+  & .grid-item-footer-text {
+    @include mdc-theme-prop(color, #252525);
+  }
 }
 
 .firefox.android {

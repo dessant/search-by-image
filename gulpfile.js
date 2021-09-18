@@ -106,9 +106,15 @@ async function images(done) {
   }
 
   await new Promise(resolve => {
-    src('src/assets/icons/@(app|browse|engines|modes|misc)/*.@(png|svg)', {
-      base: '.'
-    })
+    src(
+      [
+        'src/assets/icons/@(app|browse|engines|modes|misc)/*.@(png|svg)',
+        'src/assets/samsung/icons/@(browse|misc)/*.@(png|svg)'
+      ],
+      {
+        base: '.'
+      }
+    )
       .pipe(gulpif(isProduction, imagemin()))
       .pipe(dest(distDir))
       .on('error', done)

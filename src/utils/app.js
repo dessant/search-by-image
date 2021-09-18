@@ -256,6 +256,13 @@ async function configUI(Vue) {
   document.documentElement.classList.add(targetEnv, os);
 
   if (Vue) {
+    Vue.prototype.$isChrome = targetEnv === 'chrome';
+    Vue.prototype.$isEdge = targetEnv === 'edge';
+    Vue.prototype.$isFirefox = targetEnv === 'firefox';
+    Vue.prototype.$isOpera = targetEnv === 'opera';
+    Vue.prototype.$isSafari = targetEnv === 'safari';
+    Vue.prototype.$isSamsung = targetEnv === 'samsung';
+
     Vue.prototype.$isWindows = os === 'windows';
     Vue.prototype.$isMacos = os === 'macos';
     Vue.prototype.$isLinux = os === 'linux';

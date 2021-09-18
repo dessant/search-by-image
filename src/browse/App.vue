@@ -17,9 +17,15 @@
     <div class="drop-zone-content" v-show="!showSpinner && !error">
       <img
         class="drop-zone-icon"
-        :src="`/src/assets/icons/browse/drop-zone-${
-          dropState ? 'drop' : 'drag'
-        }.svg`"
+        :src="
+          $isSamsung
+            ? `/src/assets/samsung/icons/browse/drop-zone-${
+                dropState ? 'drop' : 'drag'
+              }.svg`
+            : `/src/assets/icons/browse/drop-zone-${
+                dropState ? 'drop' : 'drag'
+              }.svg`
+        "
       />
 
       <div class="drop-zone-text">
@@ -266,6 +272,22 @@ body {
 .error-text {
   max-width: 520px;
   margin-top: 36px;
+}
+
+.samsung {
+  & .error-text,
+  & .drop-zone-text {
+    @include mdc-theme-prop(color, #252525);
+  }
+
+  & .browse-button {
+    @include mdc-button-ink-color(#4e5bb6);
+    @include mdc-button-outline-color(#4e5bb6);
+
+    & .mdc-button__ripple {
+      @include mdc-states-base-color(#8188e9);
+    }
+  }
 }
 
 .firefox.android {

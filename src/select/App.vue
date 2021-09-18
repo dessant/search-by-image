@@ -9,7 +9,11 @@
           <v-icon-button
             class="cancel-button"
             :ripple="false"
-            src="/src/assets/icons/misc/close.svg"
+            :src="
+              $isSamsung
+                ? '/src/assets/samsung/icons/misc/close.svg'
+                : '/src/assets/icons/misc/close.svg'
+            "
             @click="onCancel"
           >
           </v-icon-button>
@@ -122,6 +126,22 @@ body {
 @media (min-width: 480px) {
   .mdc-snackbar__surface {
     min-width: 400px !important;
+  }
+}
+
+.samsung {
+  & .mdc-snackbar {
+    @include mdc-snackbar-fill-color(#4e5bb6);
+    @include mdc-snackbar-shape-radius(8px);
+  }
+
+  & .mdc-snackbar__label {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  & .cancel-button {
+    @include mdc-icon-button-icon-size(24px, 24px, 6px);
   }
 }
 

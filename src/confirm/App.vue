@@ -164,6 +164,20 @@ body {
   }
 }
 
+.samsung {
+  & .mdc-dialog__title {
+    @include mdc-theme-prop(color, #252525);
+  }
+
+  & .mdc-dialog__button {
+    @include mdc-button-ink-color(#4e5bb6);
+
+    & .mdc-button__ripple {
+      @include mdc-states-base-color(#8188e9);
+    }
+  }
+}
+
 .firefox.android {
   & .mdc-dialog__title {
     @include mdc-theme-prop(color, #20123a);
