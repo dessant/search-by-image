@@ -55,7 +55,7 @@
   },
 
   "engineName_iqdb": {
-    "message": "Iqdb",
+    "message": "IQDB",
     "description": "Name of the search engine."
   },
 
@@ -296,7 +296,7 @@
   },
 
   "menuItemTitle_iqdb": {
-    "message": "Iqdb",
+    "message": "IQDB",
     "description": "Title of the menu item."
   },
 
@@ -552,7 +552,7 @@
   },
 
   "optionTitle_iqdb": {
-    "message": "Iqdb",
+    "message": "IQDB",
     "description": "Title of the option."
   },
 
