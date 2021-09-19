@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.0](https://github.com/dessant/search-by-image/compare/v3.8.0...v3.9.0) (2021-09-19)
+
+
+### Features
+
+* add options for sharing images from Samsung Internet ([06b4f03](https://github.com/dessant/search-by-image/commit/06b4f03971dc6e619a5695929baefabdd9339a08))
+
+
+### Bug Fixes
+
+* update engine name ([1141c61](https://github.com/dessant/search-by-image/commit/1141c6142f3a5ba6dcfcbc916fb2d721d5ff1962))
+
 ## [3.8.0](https://github.com/dessant/search-by-image/compare/v3.7.1...v3.8.0) (2021-09-19)
 
 
