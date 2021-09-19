@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.8.0](https://github.com/dessant/search-by-image/compare/v3.7.1...v3.8.0) (2021-09-19)
+
+
+### Features
+
+* add theme for Samsung Internet ([77f6eb9](https://github.com/dessant/search-by-image/commit/77f6eb99fd68e123dd8aeb1993a7c4cba6fc2a15))
+* share images from Samsung Internet ([6ae3cc3](https://github.com/dessant/search-by-image/commit/6ae3cc3633171a4001ef03becc38971e6333202c))
+* support non-persistent background page ([9ef0972](https://github.com/dessant/search-by-image/commit/9ef09721d5c08b454b74471ec590cd30855807a1))
+
+
+### Bug Fixes
+
+* adjust popup style for Samsung Internet ([ee0f8b9](https://github.com/dessant/search-by-image/commit/ee0f8b97107190b77acacf991a3759c96fcd4e75))
+* enable Ikea on Firefox for Android ([949ce92](https://github.com/dessant/search-by-image/commit/949ce927917f5012daa50dc1f17825796b36100d))
+* increase favicon resolution ([67cf111](https://github.com/dessant/search-by-image/commit/67cf111fde64ab29ce4aa77303d01f4e6fc9d598))
+* insert base module on startup ([4ab3eef](https://github.com/dessant/search-by-image/commit/4ab3eefc81c6b46eaf151d3e5ed8029d7c282ec9))
+* revert to persistent background page on Chrome and set request headers ([15955c1](https://github.com/dessant/search-by-image/commit/15955c1441cd9fd072a627dbe50eff96b3a878ac))
+* update deprecated API call ([d9fe080](https://github.com/dessant/search-by-image/commit/d9fe0800f9fe1c011a0d48283c36cfc9bdad2535))
+
 ### [3.7.1](https://github.com/dessant/search-by-image/compare/v3.7.0...v3.7.1) (2021-07-25)
 
 
