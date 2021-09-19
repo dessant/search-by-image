@@ -165,6 +165,10 @@ body {
 }
 
 .samsung {
+  & .mdc-dialog__surface {
+    border-radius: 16px;
+  }
+
   & .mdc-dialog__title {
     @include mdc-theme-prop(color, #252525);
   }
