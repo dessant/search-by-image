@@ -826,6 +826,11 @@
     "description": "Value of the option."
   },
 
+  "optionTitle_shareImageAction": {
+    "message": "Share images",
+    "description": "Title of the option."
+  },
+
   "optionSectionTitle_contextmenu": {
     "message": "Context menu",
     "description": "Title of the options section."
@@ -866,6 +871,11 @@
     "description": "Value of the option."
   },
 
+  "optionTitle_shareImageContextMenu": {
+    "message": "Share images",
+    "description": "Title of the option."
+  },
+
   "optionSectionTitle_misc": {
     "message": "Miscellaneous",
     "description": "Title of the options section."
@@ -888,6 +898,11 @@
 
   "optionTitle_bypassImageHostBlocking": {
     "message": "Bypass image host blocking",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_convertSharedImage": {
+    "message": "Convert shared images",
     "description": "Title of the option."
   },
 

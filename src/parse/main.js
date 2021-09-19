@@ -169,7 +169,8 @@ async function parseNode(node) {
 async function processResults(results, session) {
   results = uniqBy(results, 'data');
 
-  const convertImage = session.sessionType === 'share';
+  const convertImage =
+    session.sessionType === 'share' && session.options.convertSharedImage;
 
   const daraUrls = results.filter(
     item => item.data && item.data.startsWith('data:')

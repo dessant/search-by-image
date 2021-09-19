@@ -13,7 +13,10 @@ const optionKeys = [
   'imgFullParse',
   'searchModeAction',
   'searchModeContextMenu',
-  'bypassImageHostBlocking'
+  'bypassImageHostBlocking',
+  'shareImageContextMenu',
+  'shareImageAction',
+  'convertSharedImage'
 ];
 
 const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';

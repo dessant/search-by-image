@@ -25,7 +25,7 @@
         ></v-icon-button>
 
         <v-icon-button
-          v-if="$isSamsung"
+          v-if="$isSamsung && shareImageAction"
           class="share-button"
           src="/src/assets/samsung/icons/misc/share.svg"
           @click="shareImage"
@@ -192,6 +192,7 @@ export default {
 
       engines: [],
       searchAllEngines: false,
+      shareImageAction: false,
       enableContributions
     };
   },
@@ -407,6 +408,7 @@ export default {
     this.searchAllEngines =
       options.searchAllEnginesAction === 'sub' && targetEnv !== 'samsung';
     this.searchModeAction = options.searchModeAction;
+    this.shareImageAction = options.shareImageAction;
 
     this.$watch('searchModeAction', async function (value) {
       await storage.set({searchModeAction: value});

@@ -282,13 +282,15 @@ async function createMenu(options) {
 
   if (enEngines.length > 1) {
     if (targetEnv === 'samsung') {
-      createMenuItem({
-        id: 'share',
-        title: getText('menuItemTitle_shareImage'),
-        contexts,
-        urlPatterns
-      });
-      // Samsung Internet: separator not visible, creates gap that responds to input
+      if (options.shareImageContextMenu) {
+        createMenuItem({
+          id: 'share',
+          title: getText('menuItemTitle_shareImage'),
+          contexts,
+          urlPatterns
+        });
+        // Samsung Internet: separator not visible, creates gap that responds to input
+      }
     } else {
       const searchAllEngines = options.searchAllEnginesContextMenu;
 

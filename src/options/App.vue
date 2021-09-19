@@ -58,6 +58,17 @@
           >
           </v-select>
         </div>
+        <div class="option" v-if="$isSamsung">
+          <v-form-field
+            input-id="sicm"
+            :label="getText('optionTitle_shareImageContextMenu')"
+          >
+            <v-switch
+              id="sicm"
+              v-model="options.shareImageContextMenu"
+            ></v-switch>
+          </v-form-field>
+        </div>
       </div>
     </div>
 
@@ -87,6 +98,14 @@
             :options="listItems.searchAllEnginesAction"
           >
           </v-select>
+        </div>
+        <div class="option" v-if="$isSamsung">
+          <v-form-field
+            input-id="sia"
+            :label="getText('optionTitle_shareImageAction')"
+          >
+            <v-switch id="sia" v-model="options.shareImageAction"></v-switch>
+          </v-form-field>
         </div>
       </div>
     </div>
@@ -121,6 +140,14 @@
             :label="getText('optionTitle_imgFullParse')"
           >
             <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option" v-if="$isSamsung">
+          <v-form-field
+            input-id="csi"
+            :label="getText('optionTitle_convertSharedImage')"
+          >
+            <v-switch id="csi" v-model="options.convertSharedImage"></v-switch>
           </v-form-field>
         </div>
         <div class="option">
@@ -217,7 +244,10 @@ export default {
         imgFullParse: false,
         searchModeAction: '',
         searchModeContextMenu: '',
-        bypassImageHostBlocking: false
+        bypassImageHostBlocking: false,
+        shareImageContextMenu: false,
+        shareImageAction: false,
+        convertSharedImage: false
       }
     };
   },
