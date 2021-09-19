@@ -26,6 +26,7 @@ import {
   captureVisibleTabArea,
   validateUrl,
   hasBaseModule,
+  insertBaseModule,
   fetchImage
 } from 'utils/app';
 import registry from 'utils/registry';
@@ -1047,19 +1048,14 @@ async function onInstall(details) {
     await initStorage();
 
     if (['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)) {
-      const tabs = await browser.tabs.query({
-        url: ['http://*/*', 'https://*/*'],
-        windowType: 'normal'
-      });
-
-      for (const tab of tabs) {
-        browser.tabs.executeScript(tab.id, {
-          allFrames: true,
-          runAt: 'document_start',
-          file: '/src/content/insert/script.js'
-        });
-      }
+      await insertBaseModule();
     }
+  }
+}
+
+async function onStartup() {
+  if (['samsung'].includes(targetEnv)) {
+    await insertBaseModule();
   }
 }
 
@@ -1089,6 +1085,11 @@ function addInstallListener() {
   browser.runtime.onInstalled.addListener(onInstall);
 }
 
+function addStartupListener() {
+  // not fired in private browsing mode
+  browser.runtime.onStartup.addListener(onStartup);
+}
+
 async function setup() {
   await queue.addAll([setContextMenu, setBrowserAction]);
   await registry.cleanupRegistry();
@@ -1101,6 +1102,7 @@ function init() {
   addMessageListener();
   addAlarmListener();
   addInstallListener();
+  addStartupListener();
 
   setup();
 }

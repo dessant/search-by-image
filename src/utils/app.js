@@ -407,6 +407,21 @@ async function hasBaseModule(tabId, frameId = 0) {
   } catch (err) {}
 }
 
+async function insertBaseModule() {
+  const tabs = await browser.tabs.query({
+    url: ['http://*/*', 'https://*/*'],
+    windowType: 'normal'
+  });
+
+  for (const tab of tabs) {
+    browser.tabs.executeScript(tab.id, {
+      allFrames: true,
+      runAt: 'document_start',
+      file: '/src/insert/script.js'
+    });
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -428,5 +443,6 @@ export {
   configUI,
   getLargeImageMessage,
   getMaxImageSize,
-  hasBaseModule
+  hasBaseModule,
+  insertBaseModule
 };
