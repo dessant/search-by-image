@@ -9,6 +9,11 @@
     "description": "Title of the menu item."
   },
 
+  "menuItemTitle_shareImage": {
+    "message": "Share Image",
+    "description": "Title of the menu item."
+  },
+
   "optionValue_action_searchModeAction_selectUpload": {
     "message": "Select & Upload",
     "description": "Value of the option."

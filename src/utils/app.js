@@ -171,7 +171,7 @@ function normalizeFilename({filename, ext} = {}) {
   return filename;
 }
 
-async function normalizeImage({blob, dataUrl} = {}) {
+async function normalizeImage({blob, dataUrl, convertImage = false} = {}) {
   let data = blob || dataUrl;
   let type = blob ? data.type : getDataUrlMimeType(data);
   const array = blob ? await blobToArray(data) : dataUrlToArray(data);
@@ -192,6 +192,21 @@ async function normalizeImage({blob, dataUrl} = {}) {
 
   if (data instanceof Blob) {
     data = await blobToDataUrl(data);
+  }
+
+  if (convertImage && ['image/webp'].includes(type)) {
+    const img = await getImageElement(data, {query: false});
+
+    const cnv = document.createElement('canvas');
+    const ctx = cnv.getContext('2d');
+
+    cnv.width = img.naturalWidth;
+    cnv.height = img.naturalHeight;
+
+    ctx.drawImage(img, 0, 0);
+
+    type = 'image/png';
+    data = canvasToDataUrl(cnv, {ctx, type});
   }
 
   const ext = imageMimeTypes[type];

@@ -475,6 +475,11 @@
     "description": "Title of the menu item."
   },
 
+  "menuItemTitle_shareImage": {
+    "message": "Share image",
+    "description": "Title of the menu item."
+  },
+
   "mainMenuItemTitle_allEngines": {
     "message": "Search all engines for image",
     "description": "Title of the menu item."
@@ -1077,6 +1082,11 @@
 
   "error_imageNotFound": {
     "message": "No image found. Try searching again by placing the cursor above the image.",
+    "description": "Error message."
+  },
+
+  "error_imageShareNotSupported": {
+    "message": "The selected image cannot be shared.",
     "description": "Error message."
   },
 

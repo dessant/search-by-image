@@ -268,7 +268,7 @@ async function createMenu(options) {
   if (enEngines.length === 1) {
     const engine = enEngines[0];
     createMenuItem({
-      id: engine,
+      id: `search_${engine}`,
       title: getText(
         'mainMenuItemTitle_engine',
         getText(`menuItemTitle_${engine}`)
@@ -280,12 +280,20 @@ async function createMenu(options) {
   }
 
   if (enEngines.length > 1) {
-    if (targetEnv !== 'samsung') {
+    if (targetEnv === 'samsung') {
+      createMenuItem({
+        id: 'share',
+        title: getText('menuItemTitle_shareImage'),
+        contexts,
+        urlPatterns
+      });
+      // Samsung Internet: separator not visible, creates gap that responds to input
+    } else {
       const searchAllEngines = options.searchAllEnginesContextMenu;
 
       if (searchAllEngines === 'main') {
         createMenuItem({
-          id: 'allEngines',
+          id: 'search_allEngines',
           title: getText('mainMenuItemTitle_allEngines'),
           contexts,
           urlPatterns
@@ -295,7 +303,7 @@ async function createMenu(options) {
 
       if (searchAllEngines === 'sub') {
         createMenuItem({
-          id: 'allEngines',
+          id: 'search_allEngines',
           title: getText('menuItemTitle_allEngines'),
           contexts,
           urlPatterns,
@@ -312,7 +320,7 @@ async function createMenu(options) {
 
     enEngines.forEach(function (engine) {
       createMenuItem({
-        id: engine,
+        id: `search_${engine}`,
         title: getText(`menuItemTitle_${engine}`),
         contexts,
         urlPatterns,
@@ -610,7 +618,11 @@ async function handleParseResults(session, images) {
   } else if (images.length > 1) {
     await openContentView({session, images}, 'confirm');
   } else {
-    await initSearch(session, images);
+    if (session.sessionType === 'share') {
+      await shareImage(images[0]);
+    } else {
+      await initSearch(session, images);
+    }
   }
 }
 
@@ -620,31 +632,48 @@ async function onContextMenuItemClick(info, tab) {
     tab = await browser.tabs.get(tab.id);
   }
 
-  const session = await createSession({
+  const [sessionType, engine] = info.menuItemId.split('_');
+
+  const sessionData = {
     sessionOrigin: 'context',
+    sessionType,
     sourceTabId: tab.id,
     sourceTabIndex: tab.index,
-    sourceFrameId: typeof info.frameId !== 'undefined' ? info.frameId : 0,
-    engine: info.menuItemId
-  });
+    sourceFrameId: typeof info.frameId !== 'undefined' ? info.frameId : 0
+  };
+  if (sessionType === 'share') {
+    sessionData.searchMode = 'selectUpload';
+  } else if (sessionType === 'search') {
+    sessionData.engine = engine;
+  }
 
-  if (session.searchMode === 'capture') {
-    await openContentView({session}, 'capture');
-  } else {
+  const session = await createSession(sessionData);
+
+  if (sessionType === 'share') {
     if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
-      if (
-        info.srcUrl &&
-        info.mediaType === 'image' &&
-        validateUrl(info.srcUrl)
-      ) {
-        await initSearch(session, {imageUrl: info.srcUrl});
-      } else {
-        await showNotification({messageId: 'error_scriptsNotAllowed'});
-      }
-      return;
+      await showNotification({messageId: 'error_scriptsNotAllowed'});
+    } else {
+      await searchClickTarget(session);
     }
+  } else {
+    if (session.searchMode === 'capture') {
+      await openContentView({session}, 'capture');
+    } else {
+      if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
+        if (
+          info.srcUrl &&
+          info.mediaType === 'image' &&
+          validateUrl(info.srcUrl)
+        ) {
+          await initSearch(session, {imageUrl: info.srcUrl});
+        } else {
+          await showNotification({messageId: 'error_scriptsNotAllowed'});
+        }
+        return;
+      }
 
-    await searchClickTarget(session);
+      await searchClickTarget(session);
+    }
   }
 }
 
@@ -733,6 +762,38 @@ async function onActionPopupClick(engine, imageUrl) {
     await initSearch(session, {imageUrl});
   } else {
     onActionClick(session, tab.url);
+  }
+}
+
+async function initShare() {
+  const tab = await getActiveTab();
+
+  const session = await createSession({
+    sessionOrigin: 'action',
+    sessionType: 'share',
+    searchMode: 'selectUpload',
+    sourceTabId: tab.id,
+    sourceTabIndex: tab.index
+  });
+
+  await openContentView({session}, 'select');
+
+  if (await hasBaseModule(session.sourceTabId)) {
+    await showContentSelectionPointer(session.sourceTabId);
+  }
+}
+
+async function shareImage(image) {
+  const files = [
+    new File([dataUrlToBlob(image.imageDataUrl)], image.imageFilename, {
+      type: image.imageType
+    })
+  ];
+
+  if (navigator.canShare && navigator.canShare({files})) {
+    await navigator.share({title: image.imageFilename, files});
+  } else {
+    await showNotification({messageId: 'error_imageShareNotSupported'});
   }
 }
 
@@ -832,7 +893,12 @@ async function processMessage(request, sender) {
       {id: 'closeView', view: 'confirm'},
       {frameId: 0}
     );
-    initSearch(request.session, request.image);
+
+    if (request.session.sessionType === 'share') {
+      shareImage(request.image);
+    } else {
+      initSearch(request.session, request.image);
+    }
   } else if (request.id === 'imageCaptureSubmit') {
     const tabId = sender.tab.id;
     browser.tabs.sendMessage(
@@ -869,6 +935,8 @@ async function processMessage(request, sender) {
     }
 
     handleParseResults(request.session, request.images);
+  } else if (request.id === 'initShare') {
+    initShare();
   } else if (request.id === 'pageParseError') {
     if (request.session.sessionOrigin === 'action') {
       browser.tabs.sendMessage(

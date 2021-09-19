@@ -25,6 +25,13 @@
         ></v-icon-button>
 
         <v-icon-button
+          v-if="$isSamsung"
+          class="share-button"
+          src="/src/assets/samsung/icons/misc/share.svg"
+          @click="shareImage"
+        ></v-icon-button>
+
+        <v-icon-button
           class="menu-button"
           :src="
             $isSamsung
@@ -228,6 +235,12 @@ export default {
         engine,
         imageUrl: this.imageUrl
       });
+
+      this.closeAction();
+    },
+
+    shareImage: function () {
+      browser.runtime.sendMessage({id: 'initShare'});
 
       this.closeAction();
     },
@@ -475,6 +488,7 @@ body {
 
 .contribute-button,
 .search-mode-button,
+.share-button,
 .menu-button {
   @include mdc-icon-button-icon-size(24px, 24px, 6px);
 
@@ -487,6 +501,11 @@ body {
 }
 
 .contribute-button {
+  margin-left: 12px;
+}
+
+.share-button {
+  @include mdc-icon-button-icon-size(20px, 20px, 8px);
   margin-left: 12px;
 }
 
