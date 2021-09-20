@@ -152,7 +152,7 @@ async function fonts(done) {
 }
 
 async function locale(done) {
-  const localesRootDir = path.join(__dirname, 'src/_locales');
+  const localesRootDir = path.join(__dirname, 'src/assets/locales');
   const localeDirs = readdirSync(localesRootDir).filter(function (file) {
     return lstatSync(path.join(localesRootDir, file)).isDirectory();
   });
@@ -190,7 +190,7 @@ async function locale(done) {
 }
 
 function manifest() {
-  return src(`src/manifest/${targetEnv}.json`)
+  return src(`src/assets/manifest/${targetEnv}.json`)
     .pipe(
       jsonMerge({
         fileName: 'manifest.json',
