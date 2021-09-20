@@ -146,7 +146,7 @@ import {
   showProjectPage
 } from 'utils/app';
 import {getText, getActiveTab, createTab} from 'utils/common';
-import {targetEnv, enableContributions} from 'utils/config';
+import {enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
 import DenseSelect from './components/DenseSelect';
@@ -168,7 +168,7 @@ export default {
       'upload',
       'url'
     ];
-    if (targetEnv === 'samsung') {
+    if (this.$isSamsung) {
       // Samsung Internet 13: tabs.captureVisibleTab fails.
       searchModeAction = searchModeAction.filter(item => item !== 'capture');
     }
@@ -252,7 +252,7 @@ export default {
     },
 
     showOptions: async function () {
-      if (targetEnv === 'samsung') {
+      if (this.$isSamsung) {
         // Samsung Internet 13: runtime.openOptionsPage fails.
         await createTab(browser.runtime.getURL('/src/options/index.html'));
       } else {
@@ -294,7 +294,7 @@ export default {
       if (
         currentTab &&
         currentTab.id !== browser.tabs.TAB_ID_NONE &&
-        targetEnv !== 'safari'
+        !this.$isSafari
       ) {
         browser.tabs.remove(currentTab.id);
       } else {
@@ -334,7 +334,7 @@ export default {
     },
 
     configureScrollBar: function () {
-      if (this.$isAndroid || targetEnv === 'safari') {
+      if (this.$isAndroid || this.$isSafari) {
         this.hasScrollBar = this.$refs.items.scrollTop;
       } else {
         const items = this.$refs.items;
@@ -343,7 +343,10 @@ export default {
     },
 
     lockPopupHeight: function () {
-      if (this.$isAndroid && !document.documentElement.style.height) {
+      if (
+        (this.$isAndroid || this.$isFirefox) &&
+        !document.documentElement.style.height
+      ) {
         const {height} = document.documentElement.getBoundingClientRect();
         document.documentElement.style.height = `${height}px`;
       }
@@ -351,7 +354,7 @@ export default {
 
     unlockPopupHeight: function () {
       if (
-        this.$isAndroid &&
+        (this.$isAndroid || this.$isFirefox) &&
         document.documentElement.style.height.endsWith('px')
       ) {
         document.documentElement.style.height = '';
@@ -395,7 +398,7 @@ export default {
     const enEngines = await getEnabledEngines(options);
 
     if (
-      targetEnv === 'firefox' &&
+      this.$isFirefox &&
       this.$isAndroid &&
       (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
     ) {
@@ -406,7 +409,7 @@ export default {
 
     this.engines = enEngines;
     this.searchAllEngines =
-      options.searchAllEnginesAction === 'sub' && targetEnv !== 'samsung';
+      options.searchAllEnginesAction === 'sub' && !this.$isSamsung;
     this.searchModeAction = options.searchModeAction;
     this.shareImageAction = options.shareImageAction;
 
