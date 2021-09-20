@@ -430,6 +430,13 @@ export default {
           MDCRipple.attachTo(el);
         }
       }
+
+      if (
+        this.searchModeAction === 'url' &&
+        !(this.$isAndroid || this.$isIos)
+      ) {
+        this.focusImageUrlInput();
+      }
     }, 500);
   }
 };
