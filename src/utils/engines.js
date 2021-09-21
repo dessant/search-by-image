@@ -2,8 +2,7 @@ import browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
 
 import {getMaxImageSize, getLargeImageMessage} from 'utils/app';
-import {dataUrlToBlob} from 'utils/common';
-import {targetEnv} from 'utils/config';
+import {dataUrlToBlob, getdataTransfer} from 'utils/common';
 
 function getValidHostname(validHostnames, engine) {
   const hostname = window.location.hostname;
@@ -14,7 +13,17 @@ function getValidHostname(validHostnames, engine) {
 }
 
 async function setFileInputData(selector, input, image) {
-  if (targetEnv === 'safari') {
+  const dt = getdataTransfer();
+  if (dt) {
+    const fileData = new File([image.imageBlob], image.imageFilename, {
+      type: image.imageType
+    });
+
+    dt.items.add(fileData);
+
+    input.files = dt.files;
+  } else {
+    // Safari < 14.1 does not support the DataTransfer constructor
     function patchInput(eventName) {
       function dataUrlToFile(dataUrl, mimeType, filename) {
         const [meta, data] = dataUrl.split(',');
@@ -102,15 +111,6 @@ async function setFileInputData(selector, input, image) {
         }
       })
     );
-  } else {
-    const fileData = new File([image.imageBlob], image.imageFilename, {
-      type: image.imageType
-    });
-
-    const data = new DataTransfer();
-    data.items.add(fileData);
-
-    input.files = data.files;
   }
 }
 

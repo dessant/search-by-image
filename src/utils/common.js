@@ -317,6 +317,12 @@ async function isAndroid() {
   return os === 'android';
 }
 
+function getdataTransfer() {
+  try {
+    return new DataTransfer();
+  } catch (err) {}
+}
+
 export {
   onError,
   onComplete,
@@ -341,5 +347,6 @@ export {
   processNode,
   getActiveTab,
   getPlatform,
+  getdataTransfer,
   sleep
 };
