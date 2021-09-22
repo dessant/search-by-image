@@ -1045,13 +1045,11 @@ async function onAlarm({name}) {
 }
 
 async function onInstall(details) {
-  if (['install', 'update'].includes(details.reason)) {
-    await migrateLegacyStorage();
-    await initStorage();
-
-    if (['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)) {
-      await insertBaseModule();
-    }
+  if (
+    ['install', 'update'].includes(details.reason) &&
+    ['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)
+  ) {
+    await insertBaseModule();
   }
 }
 
@@ -1093,6 +1091,11 @@ function addStartupListener() {
 }
 
 async function setup() {
+  if (!(await isStorageReady())) {
+    await migrateLegacyStorage();
+    await initStorage();
+  }
+
   await queue.addAll([setContextMenu, setBrowserAction]);
   await registry.cleanupRegistry();
 }
