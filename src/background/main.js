@@ -1055,7 +1055,8 @@ async function onInstall(details) {
 
 async function onStartup() {
   if (['samsung'].includes(targetEnv)) {
-    await insertBaseModule();
+    // Samsung Internet: Content script is not always run in active tab on startup
+    await insertBaseModule({activeTab: true});
   }
 }
 

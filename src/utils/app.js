@@ -407,11 +407,21 @@ async function hasBaseModule(tabId, frameId = 0) {
   } catch (err) {}
 }
 
-async function insertBaseModule() {
-  const tabs = await browser.tabs.query({
-    url: ['http://*/*', 'https://*/*'],
-    windowType: 'normal'
-  });
+async function insertBaseModule({activeTab = false} = {}) {
+  const tabs = [];
+  if (activeTab) {
+    const tab = await getActiveTab();
+    if (tab) {
+      tabs.push(tab);
+    }
+  } else {
+    tabs.push(
+      ...(await browser.tabs.query({
+        url: ['http://*/*', 'https://*/*'],
+        windowType: 'normal'
+      }))
+    );
+  }
 
   for (const tab of tabs) {
     browser.tabs.executeScript(tab.id, {
