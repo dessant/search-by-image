@@ -398,7 +398,7 @@ async function hasBaseModule(tabId, frameId = 0) {
     const [isBaseModule] = await browser.tabs.executeScript(tabId, {
       frameId,
       runAt: 'document_start',
-      code: `typeof touchTarget !== 'undefined'`
+      code: `typeof baseModule !== 'undefined'`
     });
 
     if (isBaseModule) {
