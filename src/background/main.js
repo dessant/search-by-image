@@ -1031,6 +1031,10 @@ function onMessage(request, sender, sendResponse) {
 
   if (targetEnv === 'safari') {
     response.then(function (result) {
+      // Safari 15: undefined response will cause sendMessage to never resolve
+      if (result === undefined) {
+        result = null;
+      }
       sendResponse(result);
     });
     return true;
