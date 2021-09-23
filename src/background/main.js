@@ -1015,6 +1015,8 @@ async function processMessage(request, sender) {
         execEngine(sender.tab.id, task.search.engine, taskIndex.taskId);
       }
     }
+  } else if (request.id === 'storageChange') {
+    await onStorageChange({}, request.area);
   }
 }
 
@@ -1071,7 +1073,10 @@ function addBrowserActionListener() {
 }
 
 function addStorageListener() {
-  browser.storage.onChanged.addListener(onStorageChange);
+  if (targetEnv !== 'safari') {
+    // Safari 15: storage.onChanged is not always fired
+    browser.storage.onChanged.addListener(onStorageChange);
+  }
 }
 
 function addMessageListener() {

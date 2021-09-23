@@ -286,6 +286,12 @@ export default {
       this.options[option] = options[option];
       this.$watch(`options.${option}`, async function (value) {
         await storage.set({[option]: value});
+        if (targetEnv === 'safari') {
+          await browser.runtime.sendMessage({
+            id: 'storageChange',
+            area: 'local'
+          });
+        }
       });
     }
 
