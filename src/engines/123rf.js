@@ -8,20 +8,25 @@ const engine = '123rf';
 async function search({session, search, image, storageIds}) {
   if ((await isAndroid()) || targetEnv === 'safari') {
     const data = new FormData();
-    data.append('file_upload', image.imageBlob, image.imageFilename);
-    data.append('btn_submit', 'Search by image');
+    data.append('image_base64', image.imageDataUrl);
 
-    const rsp = await fetch('https://www.123rf.com/reversesearch/', {
-      mode: 'cors',
-      method: 'POST',
-      body: data
-    });
+    const rsp = await fetch(
+      'https://www.123rf.com/apicore/search/reverse/upload',
+      {
+        mode: 'cors',
+        method: 'POST',
+        body: data
+      }
+    );
 
     if (rsp.status !== 200) {
       throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
     }
 
-    const tabUrl = rsp.url;
+    const searchData = await rsp.json();
+
+    const tabUrl =
+      'https://www.123rf.com/reverse-search/?fid=' + searchData.data.fid;
 
     await sendReceipt(storageIds);
 
