@@ -1,12 +1,12 @@
 import {validateUrl} from 'utils/app';
 import {findNode} from 'utils/common';
+import {dataTransferConstructor} from 'utils/detect';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
-import {targetEnv} from 'utils/config';
 
 const engine = 'qihoo';
 
 async function search({session, search, image, storageIds}) {
-  if (targetEnv === 'safari') {
+  if (!dataTransferConstructor()) {
     const data = new FormData();
     data.append('upload', image.imageBlob, image.imageFilename);
     data.append('imgurl', '');

@@ -1,5 +1,6 @@
 import {validateUrl, getContentXHR} from 'utils/app';
 import {findNode} from 'utils/common';
+import {dataTransferConstructor} from 'utils/detect';
 import {
   getValidHostname,
   setFileInputData,
@@ -41,7 +42,7 @@ function showResults(xhr) {
 async function search({session, search, image, storageIds}) {
   if (
     document.head.querySelector('meta[name="apple-mobile-web-app-capable"]') ||
-    targetEnv === 'safari'
+    !dataTransferConstructor()
   ) {
     const hostname = getHostname();
     const url =
@@ -140,7 +141,7 @@ async function search({session, search, image, storageIds}) {
         }
 
         const script = document.createElement('script');
-        if (targetEnv === 'firefox') {
+        if (['firefox', 'safari'].includes(targetEnv)) {
           script.nonce = document.querySelector('script[nonce]').nonce;
         }
         script.textContent = `(${serviceObserver.toString()})()`;

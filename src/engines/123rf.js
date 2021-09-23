@@ -1,12 +1,12 @@
 import {validateUrl} from 'utils/app';
 import {findNode, isAndroid} from 'utils/common';
+import {dataTransferConstructor} from 'utils/detect';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
-import {targetEnv} from 'utils/config';
 
 const engine = '123rf';
 
 async function search({session, search, image, storageIds}) {
-  if ((await isAndroid()) || targetEnv === 'safari') {
+  if ((await isAndroid()) || !dataTransferConstructor()) {
     const data = new FormData();
     data.append('image_base64', image.imageDataUrl);
 

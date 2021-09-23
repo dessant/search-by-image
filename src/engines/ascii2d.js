@@ -1,12 +1,12 @@
 import {validateUrl} from 'utils/app';
 import {findNode} from 'utils/common';
+import {dataTransferConstructor} from 'utils/detect';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
-import {targetEnv} from 'utils/config';
 
 const engine = 'ascii2d';
 
 async function search({session, search, image, storageIds}) {
-  if (targetEnv === 'safari') {
+  if (!dataTransferConstructor()) {
     const token = (await findNode('input[name="authenticity_token"]')).value;
 
     const data = new FormData();
