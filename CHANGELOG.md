@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.9.1](https://github.com/dessant/search-by-image/compare/v3.9.0...v3.9.1) (2021-09-23)
+
+
+### Bug Fixes
+
+* always check if storage needs to be initialized ([8f00d1e](https://github.com/dessant/search-by-image/commit/8f00d1ef73de65e405325d5729ec851d327e03c8))
+* detect DataTransfer constructor support ([172fd70](https://github.com/dessant/search-by-image/commit/172fd701d025b897be330ed6995c0d1833bba526))
+* do not return undefined response for sendMessage in Safari ([f65ee77](https://github.com/dessant/search-by-image/commit/f65ee77ac79a97a7f2607e99d77b4a341611a071))
+* focus popup input on open in desktop browsers ([cb4de8c](https://github.com/dessant/search-by-image/commit/cb4de8c036354e99543e91fe36f05adf7d0205d4))
+* guard against repeated base module runs ([95a5a57](https://github.com/dessant/search-by-image/commit/95a5a5745bdadc86b9c9171875f7ad6bc843eddb))
+* insert base module in active tab only on startup in Samsung Internet ([abae75f](https://github.com/dessant/search-by-image/commit/abae75f6065974aa34867426f4602e431d540858))
+* mitigate brower action popup trembling during resize in Firefox ([af4b719](https://github.com/dessant/search-by-image/commit/af4b719738d283f5632ae68f3c406cbb2d888b1a))
+* notify background script about option changes in Safari ([37be6b7](https://github.com/dessant/search-by-image/commit/37be6b72594c5696e09a591285094ed45647a9c5))
+* only patch file input when the DataTransfer constructor is not supported ([f7575b4](https://github.com/dessant/search-by-image/commit/f7575b444f6a10ab774d31a1cf47241c7f714a2f))
+* update 123RF ([ac67ad3](https://github.com/dessant/search-by-image/commit/ac67ad3df4d42ab8b7ee7b4b1500b44bf9dae002))
+* update Global Brand Database ([3935005](https://github.com/dessant/search-by-image/commit/39350058ba1c53850b924c57746c7e88fb57ce15))
+* update iStock ([b2f66cf](https://github.com/dessant/search-by-image/commit/b2f66cfab938d6adcdf2d23eb6dafe3bdc65a127))
+* update Madrid Monitor ([49208ce](https://github.com/dessant/search-by-image/commit/49208cecc7e1c348b44d149f92c468f0047023ed))
+
 ## [3.9.0](https://github.com/dessant/search-by-image/compare/v3.8.0...v3.9.0) (2021-09-19)
 
 
