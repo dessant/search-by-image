@@ -48,7 +48,7 @@ async function search({session, search, image, storageIds}) {
   } else {
     (await findNode('a.search-camera-icon')).click();
 
-    const inputSelector = 'input[type=file]';
+    const inputSelector = 'input[type=file][ng-model=file]';
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);
