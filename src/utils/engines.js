@@ -12,9 +12,14 @@ function getValidHostname(validHostnames, engine) {
   return hostname;
 }
 
-async function setFileInputData(selector, input, image) {
+async function setFileInputData(
+  selector,
+  input,
+  image,
+  {mustPatchInput = false} = {}
+) {
   const dt = getdataTransfer();
-  if (dt) {
+  if (dt && !mustPatchInput) {
     const fileData = new File([image.imageBlob], image.imageFilename, {
       type: image.imageType
     });

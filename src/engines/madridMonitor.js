@@ -1,5 +1,6 @@
 import {findNode} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
+import {targetEnv} from 'utils/config';
 
 const engine = 'madridMonitor';
 
@@ -11,7 +12,9 @@ async function search({session, search, image, storageIds}) {
   const inputSelector = 'input#imageFileUpload';
   const input = await findNode(inputSelector);
 
-  await setFileInputData(inputSelector, input, image);
+  await setFileInputData(inputSelector, input, image, {
+    mustPatchInput: targetEnv === 'safari'
+  });
 
   input.dispatchEvent(new Event('change'));
 
