@@ -229,6 +229,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_unsplash": {
+    "message": "Unsplash",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -467,6 +472,11 @@
 
   "menuItemTitle_repostSleuth": {
     "message": "Reddit Repost Sleuth",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_unsplash": {
+    "message": "Unsplash",
     "description": "Title of the menu item."
   },
 
@@ -723,6 +733,11 @@
 
   "optionTitle_repostSleuth": {
     "message": "Reddit Repost Sleuth",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_unsplash": {
+    "message": "Unsplash",
     "description": "Title of the option."
   },
 

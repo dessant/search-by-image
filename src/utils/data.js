@@ -316,6 +316,12 @@ const engines = {
         'https://repostsleuth.com/search?targetImageMatch=60&filterSameAuthor=false',
       isExec: true
     }
+  },
+  unsplash: {
+    upload: {
+      target: 'https://unsplash.com/',
+      isExec: true
+    }
   }
 };
 
