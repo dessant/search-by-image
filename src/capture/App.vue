@@ -88,11 +88,6 @@ export default {
         return;
       }
 
-      area.left += 3;
-      area.top += 3;
-      area.width -= 6;
-      area.height -= 6;
-
       this.hideCapture();
       browser.runtime.sendMessage({
         id: 'imageCaptureSubmit',
@@ -181,40 +176,145 @@ body {
 
 .canvas-wrap {
   width: 100%;
-  height: calc(100% - 64px);
+  height: calc(100% - calc(64px + env(safe-area-inset-bottom, 0px)));
 }
 
-.cropper-point,
-.cropper-point.point-se:before,
+.cropper-modal,
+.cropper-view-box,
 .cropper-line {
-  background-color: #1abc9c;
-}
-
-.cropper-line {
-  opacity: 0.3;
-}
-
-.cropper-view-box {
-  outline-color: transparent;
-}
-
-.cropper-modal {
-  background-color: transparent;
-}
-
-.cropper-point.point-se {
-  height: 5px;
-  width: 5px;
+  display: none;
 }
 
 .cropper-crop-box::before {
   content: ' ';
   position: absolute;
-  top: -3px;
-  left: -3px;
-  width: calc(100% + 6px);
-  height: calc(100% + 6px);
+  width: 100%;
+  height: 100%;
   box-shadow: 0 0 0 20000px rgba(0, 0, 0, 0.4);
+}
+
+.cropper-point {
+  background-color: transparent;
+
+  &.point-e,
+  &.point-w {
+    top: 0;
+    margin-top: 16px;
+    width: 32px;
+    height: calc(100% - 32px);
+    cursor: ew-resize;
+  }
+
+  &.point-n,
+  &.point-s {
+    left: 0;
+    margin-left: 16px;
+    width: calc(100% - 32px);
+    height: 32px;
+    cursor: ns-resize;
+  }
+
+  &.point-e {
+    right: -16px;
+  }
+
+  &.point-n {
+    top: -16px;
+  }
+
+  &.point-w {
+    left: -16px;
+  }
+
+  &.point-s {
+    bottom: -16px;
+  }
+
+  &.point-ne,
+  &.point-nw,
+  &.point-sw,
+  &.point-se {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+
+    user-select: none;
+    touch-action: none;
+    opacity: 1;
+
+    &::before {
+      all: initial;
+    }
+
+    &::after {
+      position: absolute;
+      box-sizing: border-box;
+      width: 16px;
+      height: 16px;
+      content: '';
+      color: #1abc9c;
+    }
+  }
+
+  &.point-ne {
+    top: -16px;
+    right: -16px;
+    cursor: nesw-resize;
+
+    &::after {
+      top: 14px;
+      right: 14px;
+      border-top: 4px solid;
+      border-right: 4px solid;
+      border-top-right-radius: 4px;
+    }
+  }
+
+  &.point-nw {
+    top: -16px;
+    left: -16px;
+    cursor: nwse-resize;
+
+    &::after {
+      top: 14px;
+      left: 14px;
+      border-top: 4px solid;
+      border-left: 4px solid;
+      border-top-left-radius: 4px;
+    }
+  }
+
+  &.point-sw {
+    bottom: -16px;
+    left: -16px;
+    cursor: nesw-resize;
+
+    &::after {
+      bottom: 14px;
+      left: 14px;
+      border-bottom: 4px solid;
+      border-left: 4px solid;
+      border-bottom-left-radius: 4px;
+    }
+  }
+
+  &.point-se {
+    right: -16px;
+    bottom: -16px;
+    cursor: nwse-resize;
+
+    &::after {
+      right: 14px;
+      bottom: 14px;
+      border-right: 4px solid;
+      border-bottom: 4px solid;
+      border-bottom-right-radius: 4px;
+    }
+  }
+}
+
+.mdc-snackbar {
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .cancel-button {
@@ -231,10 +331,15 @@ body {
 }
 
 .firefox.android {
-  & .cropper-point,
-  & .cropper-point.point-se:before,
-  & .cropper-line {
-    background-color: #312a65;
+  & .cropper-point {
+    &.point-ne,
+    &.point-nw,
+    &.point-sw,
+    &.point-se {
+      &::after {
+        color: #8188e9;
+      }
+    }
   }
 
   & .mdc-snackbar {
