@@ -241,19 +241,18 @@ async function captureVisibleTabArea(area) {
   const tabData = await browser.tabs.captureVisibleTab({format: 'png'});
   const img = await getImageElement(tabData, {query: false});
 
-  const {left, top, width, height, surfaceWidth, surfaceHeight} = area;
-  const scaleX = img.naturalWidth / surfaceWidth;
-  const scaleY = img.naturalHeight / surfaceHeight;
+  const {left, top, width, height, surfaceWidth} = area;
+  const scale = img.naturalWidth / surfaceWidth;
 
   const cnv = document.createElement('canvas');
   const ctx = cnv.getContext('2d');
-  cnv.width = width * scaleX;
-  cnv.height = height * scaleY;
+  cnv.width = width * scale;
+  cnv.height = height * scale;
 
   ctx.drawImage(
     img,
-    left * scaleX,
-    top * scaleY,
+    left * scale,
+    top * scale,
     cnv.width,
     cnv.height,
     0,

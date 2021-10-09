@@ -910,11 +910,8 @@ async function processMessage(request, sender) {
       {frameId: 0}
     );
 
-    const [[surfaceWidth, surfaceHeight]] = await executeCode(
-      `[window.innerWidth, window.innerHeight];`,
-      tabId
-    );
-    const area = {...request.area, surfaceWidth, surfaceHeight};
+    const [surfaceWidth] = await executeCode(`window.innerWidth;`, tabId);
+    const area = {...request.area, surfaceWidth};
 
     const captureData = await captureVisibleTabArea(area);
     const image = {
