@@ -155,6 +155,12 @@ async function parseNode(node) {
     cssProps.push('list-style-image');
   }
 
+  if (nodeName === 'input' && node.type === 'image') {
+    if (node.src) {
+      results.push({data: node.src});
+    }
+  }
+
   results.push(...extractCSSImages(cssProps, node));
 
   if (!replacedElements.includes(nodeName)) {
