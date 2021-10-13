@@ -257,20 +257,18 @@ async function processResults(results, session) {
     }
   }
 
-  let mustUpload = session.searchMode === 'selectUpload';
-  if (!mustUpload) {
-    mustUpload = !(await hasUrlSupport(
-      session.engineGroup || session.engines[0]
-    ));
-  }
-
   const httpUrls = results.filter(item => item.data && validateUrl(item.data));
   if (httpUrls.length) {
+    const mustDownload =
+      session.sessionType === 'share' ||
+      session.searchMode === 'selectUpload' ||
+      !(await hasUrlSupport(session.engineGroup || session.engines[0]));
+
     for (const item of httpUrls) {
       const index = results.indexOf(item);
       let url = item.data;
       const {filename} = getFilenameExtFromUrl(url);
-      if (mustUpload) {
+      if (mustDownload) {
         let imageBlob = await downloadImage(url);
         if (!imageBlob && window.isSecureContext && url.match(/^http:/i)) {
           url = url.replace(/^http:/i, 'https:');
@@ -293,8 +291,7 @@ async function processResults(results, session) {
             imageFilename: normalizeFilename({filename, ext}),
             imageType: type,
             imageExt: ext,
-            imageSize: imageBlob.size,
-            mustUpload
+            imageSize: imageBlob.size
           };
         } else {
           results.splice(index, 1);

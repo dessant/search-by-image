@@ -62,7 +62,7 @@ async function getSearches(image, targetEngines, searchMode) {
 
 async function isUploadSearch(image, engine, searchMode) {
   return (
-    image.mustUpload ||
+    searchMode === 'selectUpload' ||
     !image.imageUrl ||
     !(await hasUrlSupport(engine, {bypassBlocking: searchMode !== 'url'}))
   );
