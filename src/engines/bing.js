@@ -1,10 +1,10 @@
-import {findNode, isAndroid} from 'utils/common';
+import {findNode, isMobile} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'bing';
 
 async function search({session, search, image, storageIds}) {
-  if (await isAndroid()) {
+  if (await isMobile()) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
     form.id = 'sbi-upload-form';

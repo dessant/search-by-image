@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill';
 import storage from 'storage/storage';
 
 function main() {
-  // Script may be injected multiple times
+  // Script may be injected multiple times.
   if (self.baseModule) {
     return;
   } else {
@@ -21,29 +21,41 @@ function main() {
   self.pointerCss = null;
   self.handleTouch = false;
 
+  function stopEvent(ev) {
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+  }
+
   function saveTouchTarget(ev) {
     touchTarget.ux = ev.pageX;
     touchTarget.uy = ev.pageY;
     touchTarget.node = ev.composedPath()[0];
   }
 
-  function onMouseDown(ev) {
+  function ignoreEvent(ev) {
     if (handleTouch) {
-      touchTarget.dx = ev.pageX;
-      touchTarget.dy = ev.pageY;
+      stopEvent(ev);
     }
   }
 
-  function onClick(ev) {
+  function onPointerDown(ev) {
+    if (handleTouch) {
+      touchTarget.dx = ev.pageX;
+      touchTarget.dy = ev.pageY;
+
+      stopEvent(ev);
+    }
+  }
+
+  function onPointerUp(ev) {
     if (handleTouch) {
       saveTouchTarget(ev);
+      stopEvent(ev);
+
       if (
         Math.abs(touchTarget.dx - touchTarget.ux) <= 24 &&
         Math.abs(touchTarget.dy - touchTarget.uy) <= 24
       ) {
-        ev.preventDefault();
-        ev.stopImmediatePropagation();
-
         browser.runtime.sendMessage({
           id: 'routeMessage',
           setSenderFrameId: true,
@@ -83,6 +95,11 @@ function main() {
   };
 
   async function checkTask() {
+    if (document.readyState !== 'complete') {
+      document.addEventListener('readystatechange', checkTask, {once: true});
+      return;
+    }
+
     const {taskRegistry} = await storage.get('taskRegistry');
     if (Date.now() - taskRegistry.lastTaskStart < 600000) {
       await browser.runtime.sendMessage({id: 'taskRequest'});
@@ -94,18 +111,31 @@ function main() {
     passive: true
   });
 
-  window.addEventListener('mousedown', onMouseDown, {
+  window.addEventListener('pointerdown', onPointerDown, {
     capture: true,
-    passive: true
+    passive: false
   });
-  window.addEventListener('click', onClick, {capture: true, passive: false});
+  window.addEventListener('pointerup', onPointerUp, {
+    capture: true,
+    passive: false
+  });
+
+  const extraEvents = [
+    // 'touchstart', // prevents scrolling on mobile
+    'touchend',
+    'mousedown',
+    'mouseup',
+    'click'
+  ];
+  for (const event of extraEvents) {
+    window.addEventListener(event, ignoreEvent, {
+      capture: true,
+      passive: false
+    });
+  }
 
   if (window.top === window) {
-    if (document.readyState === 'complete') {
-      checkTask();
-    } else {
-      window.addEventListener('load', checkTask);
-    }
+    checkTask();
   }
 }
 

@@ -170,7 +170,7 @@ export default {
       this.error = getText('error_invalidPageUrl');
     }
 
-    if (!this.$isAndroid) {
+    if (!this.$isMobile) {
       this.dropEnabled = true;
     }
 

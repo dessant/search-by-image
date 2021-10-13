@@ -60,7 +60,7 @@ import imagesLoaded from 'imagesloaded';
 
 import {validateUrl, getMaxImageSize, getLargeImageMessage} from 'utils/app';
 import {getText, createTab, getActiveTab, dataUrlToBlob} from 'utils/common';
-import {engines} from 'utils/data';
+import {searchGoogle, searchPinterest} from 'utils/engines';
 
 export default {
   data: function () {
@@ -86,122 +86,46 @@ export default {
   methods: {
     getText,
 
-    search: async function ({session, search, image}) {
+    search: async function ({session, search, image} = {}) {
       if (this.engine === 'pinterest') {
-        let rsp;
-        if (search.method === 'upload') {
-          const data = new FormData();
-          data.append('image', image.imageBlob, image.imageFilename);
-          data.append('x', '0');
-          data.append('y', '0');
-          data.append('w', '1');
-          data.append('h', '1');
-          data.append('base_scheme', 'https');
-          rsp = await fetch(
-            'https://api.pinterest.com/v3/visual_search/extension/image/',
-            {
-              referrer: '',
-              mode: 'cors',
-              method: 'PUT',
-              body: data
-            }
-          );
+        if (this.$isSafari && this.$isMobile) {
+          // Safari 15: cross-origin request from extension page is blocked on mobile.
+          const rsp = await browser.runtime.sendMessage({
+            id: 'searchImage',
+            session,
+            search,
+            image
+          });
+
+          if (rsp.error) {
+            throw new Error(rsp.error);
+          }
+
+          this.results = rsp.data;
         } else {
-          rsp = await fetch(
-            'https://api.pinterest.com/v3/visual_search/flashlight/url/' +
-              `?url=${encodeURIComponent(image.imageUrl)}` +
-              '&x=0&y=0&w=1&h=1&base_scheme=https',
-            {
-              referrer: '',
-              mode: 'cors'
-            }
-          );
+          this.results = await searchPinterest({session, search, image});
         }
-
-        const response = await rsp.json();
-
-        if (
-          rsp.status !== 200 ||
-          response.status !== 'success' ||
-          !response.data ||
-          !response.data.length
-        ) {
-          throw new Error('search failed');
-        }
-
-        this.results = response.data.map(item => ({
-          page: `https://pinterest.com/pin/${item.id}/`,
-          image: item.image_large_url,
-          text: item.description
-        }));
 
         this.layoutGrid();
       } else if (this.engine === 'google') {
-        const data = new FormData();
-        data.append('encoded_image', image.imageBlob, image.imageFilename);
-        const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
-          referrer: '',
-          mode: 'cors',
-          method: 'POST',
-          body: data
-        });
+        let tabUrl;
+        if (this.$isSafari && this.$isMobile) {
+          // Safari 15: cross-origin request from extension page is blocked on mobile.
+          const rsp = await browser.runtime.sendMessage({
+            id: 'searchImage',
+            session,
+            search,
+            image
+          });
 
-        if (rsp.status !== 200) {
-          throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+          if (rsp.error) {
+            throw new Error(rsp.error);
+          }
+
+          tabUrl = rsp.data;
+        } else {
+          tabUrl = await searchGoogle({session, search, image});
         }
-
-        let tabUrl = rsp.url;
-
-        if (!session.options.localGoogle) {
-          tabUrl = tabUrl.replace(
-            /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
-            '$1com$2&gl=US'
-          );
-        }
-
-        if (validateUrl(tabUrl)) {
-          window.location.replace(tabUrl);
-        }
-      } else if (this.engine === 'saucenao') {
-        const data = new FormData();
-        data.append('file', image.imageBlob, 'Image');
-        const rsp = await fetch('https://tmp.saucenao.com', {
-          referrer: '',
-          mode: 'cors',
-          method: 'POST',
-          body: data
-        });
-
-        if (rsp.status !== 200) {
-          throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
-        }
-
-        const imgUrl = (await rsp.json()).url;
-        const tabUrl = engines.saucenao.url.target.replace(
-          '{imgUrl}',
-          encodeURIComponent(imgUrl)
-        );
-
-        if (validateUrl(tabUrl)) {
-          window.location.replace(tabUrl);
-        }
-      } else if (this.engine === 'sogou') {
-        const data = new FormData();
-        data.append('flag', '1');
-        data.append('pic_path', image.imageBlob, image.imageFilename);
-
-        const rsp = await fetch('https://pic.sogou.com/ris_upload', {
-          referrer: '',
-          mode: 'cors',
-          method: 'POST',
-          body: data
-        });
-
-        if (rsp.status !== 200) {
-          throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
-        }
-
-        const tabUrl = rsp.url;
 
         if (validateUrl(tabUrl)) {
           window.location.replace(tabUrl);
@@ -285,7 +209,10 @@ export default {
         });
 
         if (image) {
-          if (task.search.method === 'upload') {
+          if (
+            task.search.method === 'upload' &&
+            !(this.$isSafari && this.$isMobile)
+          ) {
             image.imageBlob = dataUrlToBlob(image.imageDataUrl);
           }
           await this.search({

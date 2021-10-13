@@ -1,11 +1,11 @@
-import {findNode, isAndroid} from 'utils/common';
+import {findNode, isMobile} from 'utils/common';
 import {validateUrl} from 'utils/app';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'depositphotos';
 
 async function search({session, search, image, storageIds}) {
-  if (await isAndroid()) {
+  if (await isMobile()) {
     const data = new FormData();
     data.append('file', image.imageBlob, image.imageFilename);
 

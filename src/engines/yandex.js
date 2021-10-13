@@ -1,6 +1,5 @@
 import {validateUrl, getContentXHR} from 'utils/app';
 import {findNode} from 'utils/common';
-import {dataTransferConstructor} from 'utils/detect';
 import {
   getValidHostname,
   setFileInputData,
@@ -41,8 +40,7 @@ function showResults(xhr) {
 
 async function search({session, search, image, storageIds}) {
   if (
-    document.head.querySelector('meta[name="apple-mobile-web-app-capable"]') ||
-    !dataTransferConstructor()
+    document.head.querySelector('meta[name="apple-mobile-web-app-capable"]')
   ) {
     const hostname = getHostname();
     const url =
@@ -68,11 +66,7 @@ async function search({session, search, image, storageIds}) {
   } else {
     // new layout: hide onboarding popup
     localStorage.setItem(
-      'cbir:uploader_onboarded_photo',
-      `{"count":1,"last":${Date.now()}}`
-    );
-    localStorage.setItem(
-      'cbir:uploader_onboarded_drag',
+      'cbir:uploader_onboarded',
       `{"count":1,"last":${Date.now()}}`
     );
 

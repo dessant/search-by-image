@@ -1,9 +1,9 @@
 <template>
   <div id="app" v-show="dataLoaded">
     <div class="header">
-      <div v-if="!$isAndroid" class="title">{{ getText('extensionName') }}</div>
+      <div v-if="!$isMobile" class="title">{{ getText('extensionName') }}</div>
       <v-dense-select
-        v-if="$isAndroid"
+        v-if="$isMobile"
         class="search-mode-menu-mobile"
         v-model="searchModeAction"
         :options="listItems.searchModeAction"
@@ -11,7 +11,7 @@
       </v-dense-select>
       <div class="header-buttons">
         <v-icon-button
-          v-if="!$isAndroid"
+          v-if="!$isMobile"
           class="search-mode-button"
           :src="`/src/assets/icons/modes/${searchModeAction}.svg`"
           @click="showSearchModeMenu"
@@ -44,7 +44,7 @@
       </div>
 
       <v-menu
-        v-if="!$isAndroid"
+        v-if="!$isMobile"
         ref="searchModeMenu"
         class="search-mode-menu"
         :items="listItems.searchModeAction"
@@ -168,8 +168,9 @@ export default {
       'upload',
       'url'
     ];
-    if (this.$isSamsung) {
+    if (this.$isSamsung || (this.$isSafari && this.$isMobile)) {
       // Samsung Internet 13: tabs.captureVisibleTab fails.
+      // Safari 15: captured tab image is padded on mobile.
       searchModeAction = searchModeAction.filter(item => item !== 'capture');
     }
 
@@ -290,7 +291,7 @@ export default {
     closeAction: async function () {
       const currentTab = await browser.tabs.getCurrent();
 
-      // Safari 14: tabs.getCurrent returns active tab instead of undefined
+      // Safari 14: tabs.getCurrent returns active tab instead of undefined.
       if (
         currentTab &&
         currentTab.id !== browser.tabs.TAB_ID_NONE &&
@@ -327,6 +328,10 @@ export default {
 
     onListSizeChange: function () {
       this.configureScrollBar();
+      if (this.$isMobile && this.$isSafari) {
+        // Safari 15: window.onresize is not always fired on mobile.
+        this.setViewportSize();
+      }
     },
 
     onListScroll: function () {
@@ -363,36 +368,47 @@ export default {
 
     setViewportSize: async function () {
       const activeTab = await getActiveTab();
+      const actionWidth = window.innerWidth;
 
-      if (this.$isAndroid && activeTab && activeTab.width > window.innerWidth) {
-        // mobile popup
-        if (activeTab.width < 394) {
-          document.body.style.minWidth = `${activeTab.width - 40}px`;
+      if (activeTab && actionWidth && activeTab.width > actionWidth) {
+        // popup
+        if (this.$isMobile) {
+          // mobile popup
+          if (activeTab.width < 394) {
+            document.body.style.minWidth = `${activeTab.width - 40}px`;
+          } else {
+            document.body.style.minWidth = '354px';
+          }
+          this.$el.style.maxHeight = `${activeTab.height - 40}px`;
+          document.documentElement.style.height = '';
+
+          if (this.$isIpados) {
+            this.$refs.items.style.maxHeight = '392px';
+          }
         } else {
-          document.body.style.minWidth = '354px';
+          // desktop popup
+          this.$refs.items.style.maxHeight = '392px';
         }
-        this.$el.style.maxHeight = `${activeTab.height - 40}px`;
-        document.documentElement.style.height = '';
-      } else if (
-        !this.$isAndroid &&
-        activeTab &&
-        activeTab.width > window.innerWidth
-      ) {
-        // desktop popup
-        this.$refs.items.style.maxHeight = '392px';
       } else {
-        // full page
-        document.body.style.minWidth = 'initial';
+        // full-width page
         document.documentElement.style.height = '100%';
+        if (activeTab && activeTab.width >= 354) {
+          document.body.style.minWidth = '354px';
+        } else {
+          document.body.style.minWidth = 'initial';
+        }
+        this.$el.style.maxHeight = 'initial';
+        this.$refs.items.style.maxHeight = 'initial';
       }
     }
   },
 
   created: async function () {
-    await this.setViewportSize();
+    window.addEventListener('resize', this.setViewportSize);
     window.addEventListener('orientationchange', () =>
       window.setTimeout(this.setViewportSize, 1000)
     );
+    await this.setViewportSize();
 
     const options = await storage.get(optionKeys);
     const enEngines = await getEnabledEngines(options);
@@ -402,7 +418,7 @@ export default {
       this.$isAndroid &&
       (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
     ) {
-      // Removing the action popup has no effect on Firefox for Android
+      // Firefox for Android: removing the action popup has no effect.
       showNotification({messageId: 'error_optionsNotApplied'});
       return;
     }
@@ -431,11 +447,13 @@ export default {
         }
       }
 
-      if (
-        this.searchModeAction === 'url' &&
-        !(this.$isAndroid || this.$isIos)
-      ) {
+      if (this.searchModeAction === 'url' && !this.$isMobile) {
         this.focusImageUrlInput();
+      }
+
+      if (this.$isMobile && this.$isSafari) {
+        // Safari 15: window.onresize is not always fired on mobile.
+        this.setViewportSize();
       }
     }, 500);
   }

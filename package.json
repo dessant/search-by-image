@@ -45,9 +45,9 @@
     "Chrome >= 76",
     "Edge >= 79",
     "Firefox >= 68",
-    "FirefoxAndroid >= 68",
+    "FirefoxAndroid >= 79",
     "Opera >= 63",
-    "Safari >= 14",
+    "Safari >= 14.1",
     "Samsung >= 13"
   ],
   "dependencies": {

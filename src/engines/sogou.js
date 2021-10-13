@@ -1,10 +1,10 @@
-import {findNode, isAndroid} from 'utils/common';
+import {findNode, isMobile} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'sogou';
 
 async function search({session, search, image, storageIds}) {
-  if (!(await isAndroid())) {
+  if (!(await isMobile())) {
     (await findNode('a#cameraIco', {timeout: 120000})).click();
   }
 

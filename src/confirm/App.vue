@@ -35,7 +35,6 @@ import browser from 'webextension-polyfill';
 import {Dialog} from 'ext-components';
 
 import {getText} from 'utils/common';
-import {targetEnv} from 'utils/config';
 
 export default {
   components: {
@@ -87,7 +86,7 @@ export default {
   },
 
   mounted: async function () {
-    if (targetEnv === 'safari') {
+    if (this.$isSafari) {
       const tab = await browser.tabs.getCurrent();
       this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
       this.contentMessagePort.onMessage.addListener(this.onMessage);

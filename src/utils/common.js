@@ -301,6 +301,13 @@ async function getPlatform({fallback = true} = {}) {
     os = 'macos';
   }
 
+  if (
+    navigator.platform === 'MacIntel' &&
+    (os === 'ios' || typeof navigator.standalone !== 'undefined')
+  ) {
+    os = 'ipados';
+  }
+
   if (arch === 'x86-32') {
     arch = '386';
   } else if (arch === 'x86-64') {
@@ -317,10 +324,9 @@ async function isAndroid() {
   return os === 'android';
 }
 
-function getdataTransfer() {
-  try {
-    return new DataTransfer();
-  } catch (err) {}
+async function isMobile() {
+  const {os} = await getPlatform();
+  return ['android', 'ios', 'ipados'].includes(os);
 }
 
 export {
@@ -343,10 +349,10 @@ export {
   getFilenameExtFromUrl,
   getDataUrlMimeType,
   isAndroid,
+  isMobile,
   findNode,
   processNode,
   getActiveTab,
   getPlatform,
-  getdataTransfer,
   sleep
 };

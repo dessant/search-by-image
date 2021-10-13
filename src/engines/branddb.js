@@ -18,7 +18,7 @@ async function search({session, search, image, storageIds}) {
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image, {
-    mustPatchInput: targetEnv === 'safari'
+    patchInput: targetEnv === 'safari'
   });
 
   input.dispatchEvent(new Event('change'));

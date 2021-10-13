@@ -29,7 +29,6 @@ import {MDCSnackbar} from '@material/snackbar';
 import {IconButton} from 'ext-components';
 
 import {getText} from 'utils/common';
-import {targetEnv} from 'utils/config';
 
 export default {
   components: {
@@ -77,7 +76,7 @@ export default {
     this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
     this.snackbar.closeOnEscape = false;
 
-    if (targetEnv === 'safari') {
+    if (this.$isSafari) {
       const tab = await browser.tabs.getCurrent();
       this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
       this.contentMessagePort.onMessage.addListener(this.onMessage);

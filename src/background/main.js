@@ -13,6 +13,7 @@ import {
   dataUrlToBlob,
   blobToDataUrl,
   isAndroid,
+  isMobile,
   getActiveTab,
   getPlatform
 } from 'utils/common';
@@ -29,6 +30,7 @@ import {
   insertBaseModule,
   fetchImage
 } from 'utils/app';
+import {searchGoogle, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv, enableContributions} from 'utils/config';
@@ -289,7 +291,7 @@ async function createMenu(options) {
           contexts,
           urlPatterns
         });
-        // Samsung Internet: separator not visible, creates gap that responds to input
+        // Samsung Internet: separator not visible, creates gap that responds to input.
       }
     } else {
       const searchAllEngines = options.searchAllEnginesContextMenu;
@@ -721,7 +723,7 @@ async function onActionButtonClick(tab) {
 
   if (session.searchMode === 'url') {
     await showNotification({
-      messageId: (await isAndroid())
+      messageId: (await isMobile())
         ? 'error_invalidSearchModeMobile_url'
         : 'error_invalidSearchMode_url'
     });
@@ -1014,6 +1016,24 @@ async function processMessage(request, sender) {
     }
   } else if (request.id === 'storageChange') {
     await onStorageChange({}, request.area);
+  } else if (request.id === 'searchImage') {
+    const {session, search, image} = request;
+    if (search.method === 'upload') {
+      image.imageBlob = dataUrlToBlob(image.imageDataUrl);
+    }
+
+    try {
+      let data;
+      if (search.engine === 'google') {
+        data = await searchGoogle({session, search, image});
+      } else if (search.engine === 'pinterest') {
+        data = await searchPinterest({session, search, image});
+      }
+
+      return Promise.resolve({data});
+    } catch (err) {
+      return Promise.resolve({error: err.toString()});
+    }
   }
 }
 
@@ -1028,7 +1048,7 @@ function onMessage(request, sender, sendResponse) {
 
   if (targetEnv === 'safari') {
     response.then(function (result) {
-      // Safari 15: undefined response will cause sendMessage to never resolve
+      // Safari 15: undefined response will cause sendMessage to never resolve.
       if (result === undefined) {
         result = null;
       }
@@ -1058,7 +1078,7 @@ async function onInstall(details) {
 
 async function onStartup() {
   if (['samsung'].includes(targetEnv)) {
-    // Samsung Internet: Content script is not always run in active tab on startup
+    // Samsung Internet: Content script is not always run in active tab on startup.
     await insertBaseModule({activeTab: true});
   }
 }
@@ -1075,7 +1095,7 @@ function addBrowserActionListener() {
 
 function addStorageListener() {
   if (targetEnv !== 'safari') {
-    // Safari 15: storage.onChanged is not always fired
+    // Safari 15: storage.onChanged is not always fired.
     browser.storage.onChanged.addListener(onStorageChange);
   }
 }
@@ -1093,7 +1113,7 @@ function addInstallListener() {
 }
 
 function addStartupListener() {
-  // not fired in private browsing mode
+  // Not fired in private browsing mode.
   browser.runtime.onStartup.addListener(onStartup);
 }
 

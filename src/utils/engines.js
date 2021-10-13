@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
 
 import {getMaxImageSize, getLargeImageMessage} from 'utils/app';
-import {dataUrlToBlob, getdataTransfer} from 'utils/common';
+import {dataUrlToBlob} from 'utils/common';
 
 function getValidHostname(validHostnames, engine) {
   const hostname = window.location.hostname;
@@ -16,20 +16,10 @@ async function setFileInputData(
   selector,
   input,
   image,
-  {mustPatchInput = false} = {}
+  {patchInput = false} = {}
 ) {
-  const dt = getdataTransfer();
-  if (dt && !mustPatchInput) {
-    const fileData = new File([image.imageBlob], image.imageFilename, {
-      type: image.imageType
-    });
-
-    dt.items.add(fileData);
-
-    input.files = dt.files;
-  } else {
-    // Safari < 14.1 does not support the DataTransfer constructor
-    function patchInput(eventName) {
+  if (patchInput) {
+    function patch(eventName) {
       function dataUrlToFile(dataUrl, mimeType, filename) {
         const [meta, data] = dataUrl.split(',');
 
@@ -102,7 +92,7 @@ async function setFileInputData(
     const eventName = uuidv4();
 
     const script = document.createElement('script');
-    script.textContent = `(${patchInput.toString()})("${eventName}")`;
+    script.textContent = `(${patch.toString()})("${eventName}")`;
     document.documentElement.appendChild(script);
     script.remove();
 
@@ -116,6 +106,15 @@ async function setFileInputData(
         }
       })
     );
+  } else {
+    const fileData = new File([image.imageBlob], image.imageFilename, {
+      type: image.imageType
+    });
+
+    const dt = new DataTransfer();
+    dt.items.add(fileData);
+
+    input.files = dt.files;
   }
 }
 
@@ -159,7 +158,7 @@ async function sendReceipt(storageIds) {
 }
 
 async function initSearch(searchFn, engine, taskId) {
-  // Script may be injected multiple times
+  // Script may be injected multiple times.
   if (typeof self.task === 'undefined') {
     self.task = null;
   } else {
@@ -221,11 +220,77 @@ async function initSearch(searchFn, engine, taskId) {
   }
 }
 
+async function searchGoogle({session, search, image} = {}) {
+  const data = new FormData();
+  data.append('encoded_image', image.imageBlob, image.imageFilename);
+  const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
+    referrer: '',
+    mode: 'cors',
+    method: 'POST',
+    body: data
+  });
+
+  if (rsp.status !== 200) {
+    throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+  }
+
+  let tabUrl = rsp.url;
+
+  if (!session.options.localGoogle) {
+    tabUrl = tabUrl.replace(
+      /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
+      '$1com$2&gl=US'
+    );
+  }
+
+  return tabUrl;
+}
+
+async function searchPinterest({session, search, image} = {}) {
+  const data = new FormData();
+  data.append('image', image.imageBlob, image.imageFilename);
+  data.append('x', '0');
+  data.append('y', '0');
+  data.append('w', '1');
+  data.append('h', '1');
+  data.append('base_scheme', 'https');
+  const rsp = await fetch(
+    'https://api.pinterest.com/v3/visual_search/extension/image/',
+    {
+      referrer: '',
+      mode: 'cors',
+      method: 'PUT',
+      body: data
+    }
+  );
+
+  const response = await rsp.json();
+
+  if (
+    rsp.status !== 200 ||
+    response.status !== 'success' ||
+    !response.data ||
+    !response.data.length
+  ) {
+    throw new Error('search failed');
+  }
+
+  const results = response.data.map(item => ({
+    page: `https://pinterest.com/pin/${item.id}/`,
+    image: item.image_large_url,
+    text: item.description
+  }));
+
+  return results;
+}
+
 export {
   getValidHostname,
   setFileInputData,
   showEngineError,
   uploadCallback,
   sendReceipt,
-  initSearch
+  initSearch,
+  searchGoogle,
+  searchPinterest
 };

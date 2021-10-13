@@ -7,12 +7,7 @@
       <div class="section-desc" v-once>
         {{ getText('optionSectionDescription_engines') }}
       </div>
-      <v-draggable
-        class="option-wrap"
-        :list="options.engines"
-        :delay="120"
-        :delay-on-touch-only="true"
-      >
+      <v-draggable class="option-wrap" :list="options.engines" :delay="120">
         <div class="option" v-for="engine in options.engines" :key="engine.id">
           <v-form-field
             :input-id="engine"
@@ -76,7 +71,7 @@
       <div class="section-title" v-once>
         {{
           getText(
-            $isAndroid
+            $isMobile
               ? 'optionSectionTitleMobile_toolbar'
               : 'optionSectionTitle_toolbar'
           )
@@ -175,7 +170,6 @@ import storage from 'storage/storage';
 import {getListItems} from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
-import {targetEnv} from 'utils/config';
 
 export default {
   components: {
@@ -195,8 +189,9 @@ export default {
       'upload',
       'url'
     ];
-    if (targetEnv === 'samsung') {
+    if (this.$isSamsung || (this.$isSafari && this.$isMobile)) {
       // Samsung Internet 13: tabs.captureVisibleTab fails.
+      // Safari 15: captured tab image is padded on mobile.
       searchModeContextMenu = searchModeContextMenu.filter(
         item => item !== 'capture'
       );
@@ -220,7 +215,7 @@ export default {
         ...getListItems(
           {searchAllEnginesAction: ['main', 'sub', 'false']},
           {
-            scope: this.$isAndroid
+            scope: this.$isMobile
               ? 'optionValue_searchAllEnginesActionMobile'
               : 'optionValue_searchAllEnginesAction'
           }
@@ -286,7 +281,8 @@ export default {
       this.options[option] = options[option];
       this.$watch(`options.${option}`, async function (value) {
         await storage.set({[option]: value});
-        if (targetEnv === 'safari') {
+        if (this.$isSafari) {
+          // Safari 15: storage.onChanged is not always fired.
           await browser.runtime.sendMessage({
             id: 'storageChange',
             area: 'local'
@@ -295,10 +291,10 @@ export default {
       });
     }
 
-    if (targetEnv === 'samsung') {
+    if (this.$isSamsung) {
       this.searchAllEnginesEnabled = false;
     } else {
-      if (this.$isAndroid) {
+      if (this.$isMobile) {
         this.contextMenuEnabled = false;
       }
     }

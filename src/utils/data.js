@@ -1,7 +1,5 @@
 import browser from 'webextension-polyfill';
 
-import {targetEnv} from 'utils/config';
-
 const optionKeys = [
   'engines',
   'disabledEngines',
@@ -91,8 +89,8 @@ const engines = {
   saucenao: {
     url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
     upload: {
-      target: searchUrl,
-      isTaskId: true
+      target: 'https://saucenao.com/',
+      isExec: true
     }
   },
   iqdb: {
@@ -140,10 +138,6 @@ const engines = {
     }
   },
   pinterest: {
-    url: {
-      target: searchUrl,
-      isTaskId: true
-    },
     upload: {
       target: searchUrl,
       isTaskId: true
@@ -324,13 +318,6 @@ const engines = {
     }
   }
 };
-
-if (targetEnv === 'safari') {
-  engines.sogou.upload = {
-    target: searchUrl,
-    isTaskId: true
-  };
-}
 
 const censoredEngines = [
   'baidu',

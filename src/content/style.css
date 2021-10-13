@@ -7,7 +7,7 @@
 #select {
   all: initial;
   position: fixed;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
   left: 50%;
   width: 100%;
   max-width: 416px;

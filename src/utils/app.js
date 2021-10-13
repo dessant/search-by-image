@@ -282,6 +282,9 @@ async function configUI(Vue) {
     Vue.prototype.$isLinux = os === 'linux';
     Vue.prototype.$isAndroid = os === 'android';
     Vue.prototype.$isIos = os === 'ios';
+    Vue.prototype.$isIpados = os === 'ipados';
+
+    Vue.prototype.$isMobile = ['android', 'ios', 'ipados'].includes(os);
   }
 }
 

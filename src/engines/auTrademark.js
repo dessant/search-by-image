@@ -1,22 +1,22 @@
-import {findNode, processNode, isAndroid} from 'utils/common';
+import {findNode, processNode} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auTrademark';
 
 async function search({session, search, image, storageIds}) {
-  if (await isAndroid()) {
-    // go to desktop version
-    processNode(
-      '#pageContent a[onclick^="document.cookie"]',
-      node => node.click(),
-      {throwError: false}
-    );
+  // go to desktop version on mobile
+  processNode(
+    '#pageContent a[onclick^="document.cookie=\'_fullMobile=true"]',
+    node => node.click(),
+    {throwError: false}
+  );
 
-    // go to advanced search
-    processNode('a#goToAdvancedSearch', node => node.click(), {
-      throwError: false
-    });
+  // go to advanced search on mobile
+  if (window.location.pathname.startsWith('/trademarks/search/quick')) {
+    await processNode('a#goToAdvancedSearch', node => node.click());
   }
+
+  await findNode('.advanced-search div#sideImageUpload');
 
   const inputSelector = 'input.dz-hidden-input';
   const input = await findNode(inputSelector);

@@ -1,12 +1,11 @@
 import {validateUrl} from 'utils/app';
-import {findNode, isAndroid} from 'utils/common';
-import {dataTransferConstructor} from 'utils/detect';
+import {findNode, isMobile} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = '123rf';
 
 async function search({session, search, image, storageIds}) {
-  if ((await isAndroid()) || !dataTransferConstructor()) {
+  if (await isMobile()) {
     const data = new FormData();
     data.append('image_base64', image.imageDataUrl);
 
