@@ -17,15 +17,9 @@
     <div class="drop-zone-content" v-show="!showSpinner && !error">
       <img
         class="drop-zone-icon"
-        :src="
-          $isSamsung
-            ? `/src/assets/samsung/icons/browse/drop-zone-${
-                dropState ? 'drop' : 'drag'
-              }.svg`
-            : `/src/assets/icons/browse/drop-zone-${
-                dropState ? 'drop' : 'drag'
-              }.svg`
-        "
+        :src="`/src/assets/icons/browse/drop-zone-${
+          dropState ? 'drop' : 'drag'
+        }.svg`"
       />
 
       <div class="drop-zone-text">
@@ -182,7 +176,6 @@ export default {
 <style lang="scss">
 $spinkit-size: 36px;
 $spinkit-spinner-color: #e74c3c;
-$mdc-theme-primary: #1abc9c;
 
 @import 'spinkit/scss/spinners/1-rotating-plane';
 @import '@material/button/mixins';
@@ -237,17 +230,23 @@ body {
 }
 
 .drop-zone-text {
-  margin-top: 24px;
+  margin-top: 16px;
+  @media (min-height: 480px) {
+    margin-top: 24px;
+  }
 }
 
 .drop-zone-icon {
-  width: 96px;
-  height: 96px;
+  width: 128px;
+  height: 128px;
 }
 
 .browse-button-wrap {
   height: 36px;
-  margin-top: 56px;
+  margin-top: 72px;
+  @media (min-height: 480px) {
+    margin-top: 96px;
+  }
 }
 
 .image-input {
@@ -256,12 +255,20 @@ body {
 
 .browse-button {
   pointer-events: auto;
+
+  @include mdc-button-ink-color(#4e5bb6);
+  @include mdc-button-outline-color(#4e5bb6);
+  @include mdc-button-shape-radius(16px);
+
+  & .mdc-button__ripple {
+    @include mdc-states-base-color(#8188e9);
+  }
 }
 
 .error-text,
 .drop-zone-text {
   @include mdc-typography(subtitle1);
-  @include mdc-theme-prop(color, text-primary-on-light);
+  @include mdc-theme-prop(color, #252525);
 }
 
 .error-icon {
@@ -274,35 +281,13 @@ body {
   margin-top: 36px;
 }
 
-.samsung {
-  & .error-text,
-  & .drop-zone-text {
-    @include mdc-theme-prop(color, #252525);
-  }
-
+.safari {
   & .browse-button {
-    @include mdc-button-ink-color(#4e5bb6);
-    @include mdc-button-outline-color(#4e5bb6);
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#8188e9);
-    }
-  }
-}
-
-.firefox.android {
-  & .error-text,
-  & .drop-zone-text {
-    @include mdc-theme-prop(color, #20123a);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
   }
 
-  & .browse-button {
-    @include mdc-button-ink-color(#20123a);
-    @include mdc-button-outline-color(#20123a);
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#312a65);
-    }
+  &.macos .browse-button {
+    transform: translate3d(0px, 0px, 0px);
   }
 }
 </style>

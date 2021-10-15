@@ -42,6 +42,7 @@
             :label="getText('optionTitle_searchMode')"
             v-model="options.searchModeContextMenu"
             :options="listItems.searchModeContextMenu"
+            outlined
           >
           </v-select>
         </div>
@@ -50,10 +51,11 @@
             :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesContextMenu"
             :options="listItems.searchAllEnginesContextMenu"
+            outlined
           >
           </v-select>
         </div>
-        <div class="option" v-if="$isSamsung">
+        <div class="option" v-if="shareImageEnabled">
           <v-form-field
             input-id="sicm"
             :label="getText('optionTitle_shareImageContextMenu')"
@@ -83,6 +85,7 @@
             :label="getText('optionTitle_searchMode')"
             v-model="options.searchModeAction"
             :options="listItems.searchModeAction"
+            outlined
           >
           </v-select>
         </div>
@@ -91,10 +94,11 @@
             :label="getText('optionTitle_searchAllEngines')"
             v-model="options.searchAllEnginesAction"
             :options="listItems.searchAllEnginesAction"
+            outlined
           >
           </v-select>
         </div>
-        <div class="option" v-if="$isSamsung">
+        <div class="option" v-if="shareImageEnabled">
           <v-form-field
             input-id="sia"
             :label="getText('optionTitle_shareImageAction')"
@@ -137,7 +141,7 @@
             <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
           </v-form-field>
         </div>
-        <div class="option" v-if="$isSamsung">
+        <div class="option" v-if="shareImageEnabled">
           <v-form-field
             input-id="csi"
             :label="getText('optionTitle_convertSharedImage')"
@@ -227,6 +231,7 @@ export default {
       },
       contextMenuEnabled: true,
       searchAllEnginesEnabled: true,
+      shareImageEnabled: true,
 
       options: {
         engines: [],
@@ -299,6 +304,8 @@ export default {
       }
     }
 
+    this.shareImageEnabled = this.$isSamsung;
+
     document.title = getText('pageTitle', [
       getText('pageTitle_options'),
       getText('extensionName')
@@ -310,8 +317,6 @@ export default {
 </script>
 
 <style lang="scss">
-$mdc-theme-primary: #1abc9c;
-
 @import '@material/select/mdc-select';
 @import '@material/checkbox/mixins';
 @import '@material/switch/mixins';
@@ -334,16 +339,49 @@ body {
 }
 
 .mdc-checkbox {
+  @include mdc-checkbox-container-colors(#8188e9, #00000000, #8188e9, #8188e9);
+  @include mdc-checkbox-focus-indicator-color(#8188e9);
   margin-right: 4px;
 }
 
 .mdc-switch {
+  @include mdc-switch-toggled-on-color(#8188e9);
   margin-right: 16px;
 }
 
+.mdc-select {
+  @include mdc-select-ink-color(#252525);
+  @include mdc-select-focused-label-color(#252525);
+  @include mdc-select-bottom-line-color(#4e5bb6);
+  @include mdc-select-focused-bottom-line-color(#8188e9);
+  @include mdc-select-focused-outline-color(#8188e9);
+  @include mdc-select-outline-shape-radius(16px);
+
+  & .mdc-select__dropdown-icon {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%23454545'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z'/%3E%3C/svg%3E")
+      no-repeat center !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+  }
+
+  &.mdc-select--activated .mdc-select__dropdown-icon {
+    transform: rotate(180deg) translateY(50%);
+  }
+
+  & .mdc-list {
+    padding: 0 !important;
+  }
+
+  & .mdc-menu-surface {
+    border-radius: 16px !important;
+  }
+}
+
 .section-title,
-.section-desc {
-  @include mdc-theme-prop(color, text-primary-on-light);
+.section-desc,
+.mdc-form-field,
+.mdc-list-item {
+  @include mdc-theme-prop(color, #252525);
 }
 
 .section-title {
@@ -395,78 +433,6 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-  }
-}
-
-.samsung {
-  & .section-title,
-  & .section-desc,
-  & .mdc-form-field,
-  & .mdc-list-item {
-    @include mdc-theme-prop(color, #252525);
-  }
-
-  & .mdc-checkbox {
-    @include mdc-checkbox-container-colors(
-      #8188e9,
-      #00000000,
-      #8188e9,
-      #8188e9
-    );
-    @include mdc-checkbox-focus-indicator-color(#8188e9);
-  }
-
-  & .mdc-switch {
-    @include mdc-switch-toggled-on-color(#8188e9);
-  }
-
-  & .mdc-select {
-    @include mdc-select-ink-color(#252525);
-    @include mdc-select-focused-label-color(#252525);
-    @include mdc-select-bottom-line-color(#4e5bb6);
-    @include mdc-select-focused-bottom-line-color(#8188e9);
-    @include mdc-select-focused-outline-color(#8188e9);
-
-    & .mdc-select__dropdown-icon {
-      background: url('data:image/svg+xml,%3Csvg%20width%3D%2210px%22%20height%3D%225px%22%20viewBox%3D%227%2010%2010%205%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%0A%20%20%20%20%3Cpolygon%20id%3D%22Shape%22%20stroke%3D%22none%22%20fill%3D%22%23454545%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%20points%3D%227%2010%2012%2015%2017%2010%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E')
-        no-repeat center !important;
-    }
-  }
-}
-
-.firefox.android {
-  & .section-title,
-  & .section-desc,
-  & .mdc-form-field,
-  & .mdc-list-item {
-    @include mdc-theme-prop(color, #20123a);
-  }
-
-  & .mdc-checkbox {
-    @include mdc-checkbox-container-colors(
-      #312a65,
-      #00000000,
-      #312a65,
-      #312a65
-    );
-    @include mdc-checkbox-focus-indicator-color(#312a65);
-  }
-
-  & .mdc-switch {
-    @include mdc-switch-toggled-on-color(#312a65);
-  }
-
-  & .mdc-select {
-    @include mdc-select-ink-color(#20123a);
-    @include mdc-select-focused-label-color(#20123a);
-    @include mdc-select-bottom-line-color(#20123a);
-    @include mdc-select-focused-bottom-line-color(#312a65);
-    @include mdc-select-focused-outline-color(#312a65);
-
-    &.mdc-select--focused .mdc-select__dropdown-icon {
-      filter: brightness(0) saturate(100%) invert(10%) sepia(43%)
-        saturate(1233%) hue-rotate(225deg) brightness(97%) contrast(105%);
-    }
   }
 }
 

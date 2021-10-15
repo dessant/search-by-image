@@ -31,11 +31,7 @@
             <div class="grid-item-footer-text">{{ item.text }}</div>
             <img
               class="grid-item-footer-button"
-              :src="
-                $isSamsung
-                  ? '/src/assets/samsung/icons/misc/image.svg'
-                  : '/src/assets/icons/misc/image.svg'
-              "
+              src="/src/assets/icons/misc/image.svg"
               :data-index="index"
               @click="openImage"
             />
@@ -244,7 +240,6 @@ export default {
 <style lang="scss">
 $spinkit-size: 36px;
 $spinkit-spinner-color: #e74c3c;
-$mdc-theme-primary: #1abc9c;
 
 @import 'spinkit/scss/spinners/1-rotating-plane';
 @import '@material/theme/mixins';
@@ -293,7 +288,6 @@ body {
 
 .error-text {
   @include mdc-typography(subtitle1);
-  @include mdc-theme-prop(color, text-primary-on-light);
   max-width: 520px;
   margin-top: 24px;
 }
@@ -319,7 +313,6 @@ body {
   @media (min-width: 576px) {
     @include mdc-typography(headline5);
   }
-  @include mdc-theme-prop(color, text-primary-on-light);
   margin-left: 16px;
   margin-right: 16px;
   margin-top: 24px;
@@ -397,7 +390,6 @@ body {
 .grid-item-footer-text {
   padding-left: 4px;
   @include mdc-typography(caption);
-  @include mdc-theme-prop(color, text-primary-on-light);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -411,18 +403,9 @@ body {
   opacity: 0.7;
 }
 
-.samsung {
-  & .title,
-  & .error-text,
-  & .grid-item-footer-text {
-    @include mdc-theme-prop(color, #252525);
-  }
-}
-
-.firefox.android {
-  & .title,
-  & .grid-item-footer-text {
-    @include mdc-theme-prop(color, #312a65);
-  }
+.title,
+.error-text,
+.grid-item-footer-text {
+  @include mdc-theme-prop(color, #252525);
 }
 </style>

@@ -1,22 +1,13 @@
 <template>
   <div id="app" v-show="dataLoaded">
     <div class="header">
-      <div v-if="!$isMobile" class="title">{{ getText('extensionName') }}</div>
       <v-dense-select
-        v-if="$isMobile"
-        class="search-mode-menu-mobile"
+        class="search-mode-menu"
         v-model="searchModeAction"
         :options="listItems.searchModeAction"
       >
       </v-dense-select>
       <div class="header-buttons">
-        <v-icon-button
-          v-if="!$isMobile"
-          class="search-mode-button"
-          :src="`/src/assets/icons/modes/${searchModeAction}.svg`"
-          @click="showSearchModeMenu"
-        ></v-icon-button>
-
         <v-icon-button
           v-if="enableContributions"
           class="contribute-button"
@@ -25,49 +16,19 @@
         ></v-icon-button>
 
         <v-icon-button
-          v-if="$isSamsung && shareImageAction"
+          v-if="shareImageEnabled"
           class="share-button"
-          src="/src/assets/samsung/icons/misc/share.svg"
+          src="/src/assets/icons/misc/share.svg"
           @click="shareImage"
         ></v-icon-button>
 
         <v-icon-button
           class="menu-button"
-          :src="
-            $isSamsung
-              ? '/src/assets/samsung/icons/misc/more.svg'
-              : '/src/assets/icons/misc/more.svg'
-          "
+          src="/src/assets/icons/misc/more.svg"
           @click="showActionMenu"
         >
         </v-icon-button>
       </div>
-
-      <v-menu
-        v-if="!$isMobile"
-        ref="searchModeMenu"
-        class="search-mode-menu"
-        :items="listItems.searchModeAction"
-        :focusItem="searchModeAction"
-        :ripple="true"
-        @selected="onSearchModeSelect"
-      >
-        <template slot="items" slot-scope="data">
-          <li
-            class="mdc-list-item"
-            role="menuitem"
-            v-for="item of data.items"
-            :key="item.id"
-            :data-value="item.id"
-          >
-            <img
-              class="mdc-list-item__graphic item-icon"
-              :src="`/src/assets/icons/modes/${item.id}.svg`"
-            />
-            <span class="mdc-list-item__text">{{ item.label }}</span>
-          </li>
-        </template></v-menu
-      >
 
       <v-menu
         ref="actionMenu"
@@ -193,7 +154,7 @@ export default {
 
       engines: [],
       searchAllEngines: false,
-      shareImageAction: false,
+      shareImageEnabled: false,
       enableContributions
     };
   },
@@ -278,14 +239,6 @@ export default {
       } else if (item === 'website') {
         await this.showWebsite();
       }
-    },
-
-    showSearchModeMenu: function () {
-      this.$refs.searchModeMenu.$emit('open');
-    },
-
-    onSearchModeSelect: async function (item) {
-      this.searchModeAction = item;
     },
 
     closeAction: async function () {
@@ -427,7 +380,8 @@ export default {
     this.searchAllEngines =
       options.searchAllEnginesAction === 'sub' && !this.$isSamsung;
     this.searchModeAction = options.searchModeAction;
-    this.shareImageAction = options.shareImageAction;
+
+    this.shareImageEnabled = options.shareImageAction && this.$isSamsung;
 
     this.$watch('searchModeAction', async function (value) {
       await storage.set({searchModeAction: value});
@@ -461,8 +415,6 @@ export default {
 </script>
 
 <style lang="scss">
-$mdc-theme-primary: #1abc9c;
-
 @import '@material/list/mdc-list';
 @import '@material/select/mdc-select';
 
@@ -502,13 +454,6 @@ body {
   padding-right: 4px;
 }
 
-.title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  @include mdc-typography(headline6);
-  @include mdc-theme-prop(color, text-primary-on-light);
-}
-
 .header-buttons {
   display: flex;
   align-items: center;
@@ -517,7 +462,6 @@ body {
 }
 
 .contribute-button,
-.search-mode-button,
 .share-button,
 .menu-button {
   @include mdc-icon-button-icon-size(24px, 24px, 6px);
@@ -543,18 +487,7 @@ body {
   margin-left: 4px;
 }
 
-.search-mode-menu {
-  left: auto !important;
-  top: 56px !important;
-  right: 100px;
-  transform-origin: top right !important;
-
-  & .item-icon {
-    margin-right: 16px !important;
-  }
-}
-
-.search-mode-menu-mobile .mdc-select__menu {
+.search-mode-menu .mdc-select__menu {
   position: fixed !important;
   top: 56px !important;
   left: 16px !important;
@@ -630,6 +563,34 @@ body {
   margin-right: 16px !important;
 }
 
+.mdc-list {
+  padding: 0;
+}
+
+.mdc-list-item {
+  @include mdc-theme-prop(color, #252525);
+}
+
+.mdc-menu-surface {
+  border-radius: 16px;
+}
+
+.mdc-text-field {
+  @include mdc-text-field-ink-color(#252525);
+  @include mdc-text-field-caret-color(#8188e9);
+  @include mdc-text-field-bottom-line-color(#4e5bb6);
+  @include mdc-text-field-line-ripple-color(#8188e9);
+}
+
+.mdc-select {
+  @include mdc-select-ink-color(#252525);
+
+  & .mdc-select__dropdown-icon {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%23454545'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z'/%3E%3C/svg%3E")
+      no-repeat center !important;
+  }
+}
+
 html.firefox.android {
   height: 100%;
 }
@@ -637,67 +598,6 @@ html.firefox.android {
 .safari {
   & .list-item:hover::before {
     opacity: 0 !important;
-  }
-
-  & .search-mode-menu {
-    right: 52px;
-  }
-}
-
-.samsung {
-  & .mdc-list-item {
-    @include mdc-theme-prop(color, #252525);
-  }
-
-  & .mdc-list {
-    padding: 0;
-  }
-
-  & .mdc-menu-surface {
-    border-radius: 16px;
-  }
-
-  & .mdc-text-field {
-    @include mdc-text-field-ink-color(#252525);
-    @include mdc-text-field-caret-color(#8188e9);
-    @include mdc-text-field-bottom-line-color(#4e5bb6);
-    @include mdc-text-field-line-ripple-color(#8188e9);
-  }
-
-  & .mdc-select {
-    @include mdc-select-ink-color(#252525);
-
-    & .mdc-select__dropdown-icon {
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%23454545'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z'/%3E%3C/svg%3E")
-        no-repeat center !important;
-    }
-  }
-}
-
-.firefox.android {
-  & .mdc-list-item {
-    @include mdc-theme-prop(color, #20123a);
-  }
-
-  & .mdc-text-field {
-    @include mdc-text-field-ink-color(#20123a);
-    @include mdc-text-field-caret-color(#312a65);
-    @include mdc-text-field-bottom-line-color(#20123a);
-    @include mdc-text-field-line-ripple-color(#312a65);
-  }
-
-  & .menu-button img {
-    filter: brightness(0) saturate(100%) invert(10%) sepia(43%) saturate(1233%)
-      hue-rotate(225deg) brightness(97%) contrast(105%);
-  }
-
-  & .mdc-select {
-    @include mdc-select-ink-color(#20123a);
-
-    & .mdc-select__dropdown-icon {
-      background: url('data:image/svg+xml,%3Csvg%20width%3D%2210px%22%20height%3D%225px%22%20viewBox%3D%227%2010%2010%205%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%0A%20%20%20%20%3Cpolygon%20id%3D%22Shape%22%20stroke%3D%22none%22%20fill%3D%22%2320123a%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%20points%3D%227%2010%2012%2015%2017%2010%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E')
-        no-repeat center !important;
-    }
   }
 }
 </style>

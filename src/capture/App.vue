@@ -149,8 +149,6 @@ export default {
 </script>
 
 <style lang="scss">
-$mdc-theme-primary: #1abc9c;
-
 @import '@material/snackbar/mdc-snackbar';
 @import '@material/button/mixins';
 @import '@material/icon-button/mixins';
@@ -251,7 +249,7 @@ body {
       width: 16px;
       height: 16px;
       content: '';
-      color: #1abc9c;
+      color: #8188e9;
     }
   }
 
@@ -313,55 +311,47 @@ body {
 }
 
 .mdc-snackbar {
-  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  @include mdc-snackbar-fill-color(#312a65);
+  @include mdc-snackbar-shape-radius(8px);
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+
+.mdc-snackbar__surface {
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.12),
+    0px 6px 10px 0px rgba(0, 0, 0, 0.08), 0px 1px 12px 0px rgba(0, 0, 0, 0.06);
+}
+
+.mdc-snackbar__label {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.capture-button {
+  @include mdc-button-ink-color(#a7aae1);
+  @include mdc-button-shape-radius(16px);
+  font-size: 17px;
+
+  & .mdc-button__ripple {
+    @include mdc-states-base-color(#ffffff);
+  }
 }
 
 .cancel-button {
-  @include mdc-icon-button-icon-size(18px, 18px, 9px);
+  @include mdc-icon-button-icon-size(22px, 22px, 7px);
   @include mdc-icon-button-ink-color(rgba(255, 255, 255, 0.87));
   margin-left: 8px;
+}
+
+.safari {
+  & .capture-button {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  }
 }
 
 /* tablets */
 @media (min-width: 480px) {
   .mdc-snackbar__surface {
     min-width: 440px !important;
-  }
-}
-
-.firefox.android {
-  & .cropper-point {
-    &.point-ne,
-    &.point-nw,
-    &.point-sw,
-    &.point-se {
-      &::after {
-        color: #8188e9;
-      }
-    }
-  }
-
-  & .mdc-snackbar {
-    @include mdc-snackbar-fill-color(#312a65);
-    @include mdc-snackbar-shape-radius(8px);
-  }
-
-  & .mdc-snackbar__label {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  & .capture-button {
-    @include mdc-button-ink-color(#ffffff);
-    font-size: 17px;
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#ffffff);
-    }
-  }
-
-  & .cancel-button {
-    @include mdc-icon-button-icon-size(24px, 24px, 6px);
   }
 }
 </style>

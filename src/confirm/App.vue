@@ -140,6 +140,7 @@ body {
   opacity: 0;
   background-color: #bdc3c7;
   transition: all 0.3s ease;
+  border-radius: 8px !important;
 }
 
 .tile-container:focus::after,
@@ -153,6 +154,29 @@ body {
   object-fit: scale-down;
 }
 
+.mdc-dialog__surface {
+  border-radius: 16px !important;
+}
+
+.mdc-dialog__title {
+  @include mdc-theme-prop(color, #252525);
+}
+
+.mdc-dialog__button {
+  @include mdc-button-ink-color(#4e5bb6);
+  @include mdc-button-shape-radius(16px);
+
+  & .mdc-button__ripple {
+    @include mdc-states-base-color(#8188e9);
+  }
+}
+
+.safari {
+  & .mdc-dialog__button {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  }
+}
+
 @media (min-width: 722px) {
   .mdc-dialog__surface {
     max-width: 660px !important;
@@ -160,38 +184,6 @@ body {
 
   .mdc-dialog--scrollable .mdc-dialog__surface {
     max-width: 690px !important;
-  }
-}
-
-.samsung {
-  & .mdc-dialog__surface {
-    border-radius: 16px;
-  }
-
-  & .mdc-dialog__title {
-    @include mdc-theme-prop(color, #252525);
-  }
-
-  & .mdc-dialog__button {
-    @include mdc-button-ink-color(#4e5bb6);
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#8188e9);
-    }
-  }
-}
-
-.firefox.android {
-  & .mdc-dialog__title {
-    @include mdc-theme-prop(color, #20123a);
-  }
-
-  & .mdc-dialog__button {
-    @include mdc-button-ink-color(#20123a);
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#312a65);
-    }
   }
 }
 </style>
