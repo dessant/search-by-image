@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/dessant/search-by-image/compare/v3.9.1...v4.0.0) (2021-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* browser versions older than Safari 14.1
+and Firefox for Android 79 are no longer supported
+
+### Features
+
+* add support for Safari on iOS and iPadOS ([4038c18](https://github.com/dessant/search-by-image/commit/4038c188c04d500e3131dca1524a3295e01df33d))
+* search on Unsplash ([6cd7dcb](https://github.com/dessant/search-by-image/commit/6cd7dcb5fbdfccd180919887c78ffc2c1a8119fe))
+* update capture box design ([038c21f](https://github.com/dessant/search-by-image/commit/038c21fc007cac629705da3a57bc39832f4b432e))
+* update theme ([b8daab0](https://github.com/dessant/search-by-image/commit/b8daab0d52f282373c53f34c0af2437df8bd00f8))
+
+
+### Bug Fixes
+
+* avoid rendering artifact on Samsung Internet ([50cc741](https://github.com/dessant/search-by-image/commit/50cc7413c662f21f8cbee9ae9665f30f5a374c22))
+* extract image from input ([137d9d4](https://github.com/dessant/search-by-image/commit/137d9d4a0b9c54ff4693ee3974a5b183b825bbae))
+* search with image file only when needed ([be31492](https://github.com/dessant/search-by-image/commit/be314929f598348c8ff7ca435c8b850741be6ecd))
+* set correct scale for captured image ([6eefe83](https://github.com/dessant/search-by-image/commit/6eefe83bef3bb4764c5975da1cb0e262fc5cc3a2))
+* update Alibaba ([e2d1048](https://github.com/dessant/search-by-image/commit/e2d1048c0abdda3e390dfb2d2f1c0188a5186a23))
+* update search mode names ([daa2456](https://github.com/dessant/search-by-image/commit/daa2456cb48f787dd4f5c5e5485589f960f51d9f))
+
 ### [3.9.1](https://github.com/dessant/search-by-image/compare/v3.9.0...v3.9.1) (2021-09-23)
 
 
