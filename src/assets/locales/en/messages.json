@@ -792,12 +792,12 @@
   },
 
   "optionValue_action_searchModeAction_select": {
-    "message": "Select",
+    "message": "Select URL",
     "description": "Value of the option."
   },
 
   "optionValue_action_searchModeAction_selectUpload": {
-    "message": "Select & upload",
+    "message": "Select image",
     "description": "Value of the option."
   },
 
@@ -807,7 +807,7 @@
   },
 
   "optionValue_action_searchModeAction_upload": {
-    "message": "Upload",
+    "message": "Browse",
     "description": "Value of the option."
   },
 
@@ -817,12 +817,12 @@
   },
 
   "optionValue_searchModeAction_select": {
-    "message": "Select",
+    "message": "Select URL",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeAction_selectUpload": {
-    "message": "Select & upload",
+    "message": "Select image",
     "description": "Value of the option."
   },
 
@@ -832,7 +832,7 @@
   },
 
   "optionValue_searchModeAction_upload": {
-    "message": "Upload",
+    "message": "Browse",
     "description": "Value of the option."
   },
 
@@ -872,12 +872,12 @@
   },
 
   "optionValue_searchModeContextMenu_select": {
-    "message": "Select",
+    "message": "Select URL",
     "description": "Value of the option."
   },
 
   "optionValue_searchModeContextMenu_selectUpload": {
-    "message": "Select & upload",
+    "message": "Select image",
     "description": "Value of the option."
   },
 
@@ -907,7 +907,7 @@
   },
 
   "optionTitle_imgFullParse": {
-    "message": "Look above and below <img> elements",
+    "message": "Use deep search when selecting images",
     "description": "Title of the option."
   },
 
@@ -1111,7 +1111,7 @@
   },
 
   "error_imageNotFound": {
-    "message": "No image found. Try searching again by placing the cursor above the image.",
+    "message": "No image found. Try searching again by selecting an image.",
     "description": "Error message."
   },
 
