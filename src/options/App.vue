@@ -124,17 +124,6 @@
         </div>
         <div class="option">
           <v-form-field
-            input-id="bih"
-            :label="getText('optionTitle_bypassImageHostBlocking')"
-          >
-            <v-switch
-              id="bih"
-              v-model="options.bypassImageHostBlocking"
-            ></v-switch>
-          </v-form-field>
-        </div>
-        <div class="option">
-          <v-form-field
             input-id="ifp"
             :label="getText('optionTitle_imgFullParse')"
           >
@@ -147,6 +136,17 @@
             :label="getText('optionTitle_convertSharedImage')"
           >
             <v-switch id="csi" v-model="options.convertSharedImage"></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option">
+          <v-form-field
+            input-id="bih"
+            :label="getText('optionTitle_bypassImageHostBlocking')"
+          >
+            <v-switch
+              id="bih"
+              v-model="options.bypassImageHostBlocking"
+            ></v-switch>
           </v-form-field>
         </div>
         <div class="option">
@@ -352,8 +352,8 @@ body {
 .mdc-select {
   @include mdc-select-ink-color(#252525);
   @include mdc-select-focused-label-color(#252525);
-  @include mdc-select-bottom-line-color(#4e5bb6);
-  @include mdc-select-focused-bottom-line-color(#8188e9);
+  @include mdc-select-outline-color(#777777);
+  @include mdc-select-hover-outline-color(#8188e9);
   @include mdc-select-focused-outline-color(#8188e9);
   @include mdc-select-outline-shape-radius(16px);
 
