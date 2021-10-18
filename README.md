@@ -17,6 +17,8 @@
   <a href="https://galaxy.store/ravr">
     <img height="58" src="https://i.imgur.com/UT5Rgrw.png" alt="Galaxy Store"></a>
   <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106">
+    <img height="58" src="https://i.imgur.com/40lhQiL.png" alt="App Store"></a>
+  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106">
     <img height="58" src="https://i.imgur.com/JGvQ2Zc.png" alt="Mac App Store"></a>
   </br></br>
 </p>
