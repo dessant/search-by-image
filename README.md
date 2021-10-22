@@ -14,11 +14,11 @@
   </br></br>
 </p>
 <p align="center">
-  <a href="https://galaxy.store/ravr">
+  <a href="https://galaxystore.samsung.com/detail/dev.armin.searchbyimage">
     <img height="58" src="https://i.imgur.com/UT5Rgrw.png" alt="Galaxy Store"></a>
-  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106">
+  <a href="https://apps.apple.com/us/app/id1544552106#?platform=iphone">
     <img height="58" src="https://i.imgur.com/40lhQiL.png" alt="App Store"></a>
-  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106">
+  <a href="https://apps.apple.com/us/app/id1544552106#?platform=mac">
     <img height="58" src="https://i.imgur.com/JGvQ2Zc.png" alt="Mac App Store"></a>
   </br></br>
 </p>
@@ -34,14 +34,14 @@ please consider contributing with
 
 ## Description
 
-Search by Image is a browser extension which enables you to initiate a
-reverse image search from the right-click context menu or the browser toolbar,
-and comes with support for more than 30 search engines.
+Search by Image is a browser extension that makes effortless reverse image
+searches possible, and comes with support for more than 30 search engines.
 
-Images positioned at the selected area are detected regardless of how they were
-embedded in the page. The extension also supports uploading local images,
-searching for video frames, capturing details within images,
-and searching for images from private sites.
+The extension helps journalists and researchers verify the authenticity
+of images, and assists in the identification of false information
+on social media. Search by Image is also popular among photographers,
+helping artists explore how their work is shared on the web, while shoppers
+find it valuable for discovering similar products at discounted prices.
 
 #### Search Engines
 
@@ -53,43 +53,35 @@ https://github.com/dessant/search-by-image/wiki/Search-engines
 
 #### Search Modes
 
-The extension offers a handful of search modes which serve different use cases.
+Images positioned at the selected area are detected regardless of how they were
+embedded in the page. The extension also supports uploading local images,
+searching for video frames, capturing details within images,
+and searching for images from private sites.
+
+A handful of search modes are offered that serve different use cases.
 The search mode can be set independently for the context menu
-and browser toolbar from the options page.
+and the browser toolbar from the extension's options.
 
-- **Select** (context menu and toolbar): select an image on the page, then search
-  for the image URL, whenever possible. Blob and data URLs will still be
-  handled as image uploads. This is the default search mode.
-- **Select & upload** (context menu and toolbar): select an image on the page,
-  then fetch the image, possibly from the browser cache, and upload it.
-  This search mode is preferred for sites which do not allow direct linking
-  of images or are otherwise private.
-- **Capture** (context menu and toolbar): create an image by selecting
-  and capturing a page area, then upload it.
-- **Upload** (toolbar): select or drop an image from your device, or paste it from
-  the clipboard, then upload it.
-- **URL** (toolbar): search for an image URL.
-
-#### Features
-
-- Search with a single engine, or all enabled ones, directly from the top-level
-  context menu item, or the browser toolbar button (see options)
-- Detect any image on the page, including those declared in CSS and pseudo-elements
-- Select the desired image from a dialog when multiple images are found
-- Search for images from private sites (see search modes)
-- Search for local images
-- Search for the current video frame
+- **Select URL**: select an image on the page, then search for the image URL.
+  This is the default search mode.
+- **Select image**: select an image on the page, then fetch the image, possibly
+  from the browser cache, and search for it. This search mode is preferred for
+  sites which do not allow the direct linking of images, such as private sites.
+- **Capture**: select and capture a page area, then search for it.
+- **Browse**: select an image from your device, then search for it.
+- **URL**: search for an image URL.
 
 ## Screenshots
 
 <p>
-  <img width="276" src="https://i.imgur.com/eV6B53R.png">
-  <img width="276" src="https://i.imgur.com/ylHTQkS.png">
-  <img width="276" src="https://i.imgur.com/rwUcedk.png">
-  <img width="276" src="https://i.imgur.com/DtgpxvL.png">
-  <img width="276" src="https://i.imgur.com/w0yU1Rm.png">
-  <img width="276" src="https://i.imgur.com/Vp6XYTw.png">
-  <img width="276" src="https://i.imgur.com/qBKWrW1.png">
+  <img width="380" src="https://i.imgur.com/PGGaAqV.png">
+  <img width="380" src="https://i.imgur.com/dJSFmaR.png">
+  <img width="380" src="https://i.imgur.com/kVkSANU.png">
+  <img width="380" src="https://i.imgur.com/30zy2ZQ.png">
+  <img width="380" src="https://i.imgur.com/bknNeTc.png">
+  <img width="380" src="https://i.imgur.com/yY8Zgk2.png">
+  <img width="380" src="https://i.imgur.com/FYAFbOD.png">
+  <img width="380" src="https://i.imgur.com/F5ilUTB.png">
 </p>
 
 ## License
