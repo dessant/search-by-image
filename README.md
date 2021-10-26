@@ -1,4 +1,4 @@
-<p align="center"><img width="128" height="128" src="https://i.imgur.com/yT1aANZ.png"></p>
+<p align="center"><img width="128" height="128" src="https://i.imgur.com/9JOpViL.png"></p>
 <h1 align="center">Search by Image</h1>
 
 <p align="center">
