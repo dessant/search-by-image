@@ -65,7 +65,7 @@
     "core-js": "^3.16.0",
     "cropperjs": "^1.5.12",
     "ext-components": "github:dessant/ext-components#v0.4.1",
-    "ext-contribute": "github:dessant/ext-contribute#v0.3.4",
+    "ext-contribute": "github:dessant/ext-contribute#v0.3.5",
     "file-type": "16.5.3",
     "idb-keyval": "^5.1.3",
     "imagesloaded": "^4.1.4",
