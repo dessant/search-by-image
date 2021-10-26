@@ -589,6 +589,23 @@ body {
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%23454545'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z'/%3E%3C/svg%3E")
       no-repeat center !important;
   }
+
+  & .mdc-select__selected-text {
+    height: 29px !important;
+    border-bottom: none !important;
+  }
+}
+
+html:not(.firefox) .mdc-select {
+  & .mdc-select__selected-text {
+    padding-top: 1px !important;
+  }
+}
+
+html.safari .mdc-select {
+  & .mdc-select__selected-text {
+    padding-top: 2px !important;
+  }
 }
 
 html.firefox.android {

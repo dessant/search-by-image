@@ -122,7 +122,7 @@ div.mdc-select.mdc-select--no-label {
 
   & .mdc-select__selected-text {
     min-width: auto !important;
-    height: auto !important;
+    height: auto;
 
     padding-top: 0 !important;
     padding-bottom: 0 !important;

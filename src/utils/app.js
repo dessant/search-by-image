@@ -89,7 +89,7 @@ async function hasUrlSupport(engine, {bypassBlocking = true} = {}) {
   return true;
 }
 
-function showNotification({message, messageId, title, type = 'info'}) {
+function showNotification({message, messageId, title, type = 'info'} = {}) {
   if (!title) {
     title = getText('extensionName');
   }
