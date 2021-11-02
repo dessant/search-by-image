@@ -3,11 +3,11 @@
 
 <p align="center">
   </br></br>
-  <a href="https://chrome.google.com/webstore/detail/cnojnbdhbhnkbcieeekonklommdnndci">
+  <a href="https://chrome.google.com/webstore/detail/search-by-image/cnojnbdhbhnkbcieeekonklommdnndci">
     <img height="58" src="https://i.imgur.com/K9Yh8G9.png" alt="Chrome Web Store"></a>
   <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
     <img height="58" src="https://i.imgur.com/2jJOtTI.png" alt="Firefox add-ons"></a>
-  <a href="https://microsoftedge.microsoft.com/addons/detail/hckehkfhdkpmdlonmjaagiodlpjbonmc">
+  <a href="https://microsoftedge.microsoft.com/addons/detail/search-by-image/hckehkfhdkpmdlonmjaagiodlpjbonmc">
     <img height="58" src="https://i.imgur.com/es2YFRA.png" alt="Microsoft Store"></a>
   <a href="https://addons.opera.com/en/extensions/details/search-by-image/">
     <img height="58" src="https://i.imgur.com/IYYsrwg.png" alt="Opera add-ons"></a>
@@ -16,9 +16,9 @@
 <p align="center">
   <a href="https://galaxystore.samsung.com/detail/dev.armin.searchbyimage">
     <img height="58" src="https://i.imgur.com/UT5Rgrw.png" alt="Galaxy Store"></a>
-  <a href="https://apps.apple.com/us/app/id1544552106#?platform=iphone">
+  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106#?platform=iphone">
     <img height="58" src="https://i.imgur.com/40lhQiL.png" alt="App Store"></a>
-  <a href="https://apps.apple.com/us/app/id1544552106#?platform=mac">
+  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106#?platform=mac">
     <img height="58" src="https://i.imgur.com/JGvQ2Zc.png" alt="Mac App Store"></a>
   </br></br>
 </p>
@@ -74,14 +74,14 @@ and the browser toolbar from the extension's options.
 ## Screenshots
 
 <p>
-  <img width="380" src="https://i.imgur.com/PGGaAqV.png">
-  <img width="380" src="https://i.imgur.com/dJSFmaR.png">
-  <img width="380" src="https://i.imgur.com/kVkSANU.png">
-  <img width="380" src="https://i.imgur.com/30zy2ZQ.png">
-  <img width="380" src="https://i.imgur.com/bknNeTc.png">
-  <img width="380" src="https://i.imgur.com/yY8Zgk2.png">
-  <img width="380" src="https://i.imgur.com/FYAFbOD.png">
-  <img width="380" src="https://i.imgur.com/F5ilUTB.png">
+  <img width="380" src="https://i.imgur.com/8rZYKSj.png">
+  <img width="380" src="https://i.imgur.com/eJsR4NS.png">
+  <img width="380" src="https://i.imgur.com/TX67E1N.png">
+  <img width="380" src="https://i.imgur.com/khP73vH.png">
+  <img width="380" src="https://i.imgur.com/pTOmhuY.png">
+  <img width="380" src="https://i.imgur.com/C5wBhGN.png">
+  <img width="380" src="https://i.imgur.com/A1l2APz.png">
+  <img width="380" src="https://i.imgur.com/JkFq3SI.png">
 </p>
 
 ## License
