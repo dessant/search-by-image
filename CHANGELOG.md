@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/dessant/search-by-image/compare/v4.0.1...v4.1.0) (2021-11-02)
+
+
+### Features
+
+* update icon ([3929996](https://github.com/dessant/search-by-image/commit/3929996db9530072dddfa3f37ac7290e382f6e0b))
+
+
+### Bug Fixes
+
+* adjust element position ([939c953](https://github.com/dessant/search-by-image/commit/939c95328e1cd2a8bc49d0f071e19d0d7893c757))
+
 ### [4.0.1](https://github.com/dessant/search-by-image/compare/v4.0.0...v4.0.1) (2021-10-24)
 
 
