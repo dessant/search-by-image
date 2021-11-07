@@ -316,6 +316,12 @@ const engines = {
       target: 'https://unsplash.com/',
       isExec: true
     }
+  },
+  shein: {
+    upload: {
+      target: 'https://m.shein.com/presearch',
+      isExec: true
+    }
   }
 };
 
