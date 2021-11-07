@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0](https://github.com/dessant/search-by-image/compare/v4.1.0...v4.2.0) (2021-11-07)
+
+
+### Features
+
+* search on SHEIN ([15db452](https://github.com/dessant/search-by-image/commit/15db4526e34de7b7599f4d97aef35e5dde17d6f8))
+
 ## [4.1.0](https://github.com/dessant/search-by-image/compare/v4.0.1...v4.1.0) (2021-11-02)
 
 
