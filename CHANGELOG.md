@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.3.0](https://github.com/dessant/search-by-image/compare/v4.2.0...v4.3.0) (2021-11-11)
+
+
+### Features
+
+* search on LykDat ([380051c](https://github.com/dessant/search-by-image/commit/380051c17bd2966a8b1406d15b3e9ae2777c4c81))
+
 ## [4.2.0](https://github.com/dessant/search-by-image/compare/v4.1.0...v4.2.0) (2021-11-07)
 
 
