@@ -322,6 +322,12 @@ const engines = {
       target: 'https://m.shein.com/presearch',
       isExec: true
     }
+  },
+  lykdat: {
+    upload: {
+      target: 'https://lykdat.com/',
+      isExec: true
+    }
   }
 };
 
