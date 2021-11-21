@@ -28,7 +28,8 @@ import {
   validateUrl,
   hasBaseModule,
   insertBaseModule,
-  fetchImage
+  fetchImage,
+  isContextMenuSupported
 } from 'utils/app';
 import {searchGoogle, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
@@ -802,17 +803,8 @@ async function shareImage(image) {
   }
 }
 
-async function setContextMenu({removeFirst = true} = {}) {
-  if (
-    !browser.contextMenus ||
-    ((await isAndroid()) && targetEnv !== 'samsung')
-  ) {
-    return;
-  }
-
-  if (removeFirst) {
-    await browser.contextMenus.removeAll();
-  }
+async function setContextMenu() {
+  await browser.contextMenus.removeAll();
 
   const options = await storage.get(optionKeys);
   if (options.showInContextMenu === true) {
@@ -1014,8 +1006,8 @@ async function processMessage(request, sender) {
         execEngine(sender.tab.id, task.search.engine, taskIndex.taskId);
       }
     }
-  } else if (request.id === 'storageChange') {
-    await onStorageChange({}, request.area);
+  } else if (request.id === 'optionChange') {
+    await onOptionChange();
   } else if (request.id === 'searchImage') {
     const {session, search, image} = request;
     if (search.method === 'upload') {
@@ -1037,12 +1029,6 @@ async function processMessage(request, sender) {
   }
 }
 
-async function onStorageChange(changes, area) {
-  if (area === 'local' && (await isStorageReady())) {
-    await queue.addAll([setContextMenu, setBrowserAction]);
-  }
-}
-
 function onMessage(request, sender, sendResponse) {
   const response = processMessage(request, sender);
 
@@ -1058,6 +1044,10 @@ function onMessage(request, sender, sendResponse) {
   } else {
     return response;
   }
+}
+
+async function onOptionChange() {
+  await setupUI();
 }
 
 async function onAlarm({name}) {
@@ -1078,7 +1068,8 @@ async function onInstall(details) {
 
 async function onStartup() {
   if (['samsung'].includes(targetEnv)) {
-    // Samsung Internet: Content script is not always run in active tab on startup.
+    // Samsung Internet: Content script is not always run in restored
+    // active tab on startup.
     await insertBaseModule({activeTab: true});
   }
 }
@@ -1091,13 +1082,6 @@ function addContextMenuListener() {
 
 function addBrowserActionListener() {
   browser.browserAction.onClicked.addListener(onActionButtonClick);
-}
-
-function addStorageListener() {
-  if (targetEnv !== 'safari') {
-    // Safari 15: storage.onChanged is not always fired.
-    browser.storage.onChanged.addListener(onStorageChange);
-  }
 }
 
 function addMessageListener() {
@@ -1117,20 +1101,29 @@ function addStartupListener() {
   browser.runtime.onStartup.addListener(onStartup);
 }
 
+async function setupUI() {
+  const items = [setBrowserAction];
+
+  if (await isContextMenuSupported()) {
+    items.push(setContextMenu);
+  }
+
+  await queue.addAll(items);
+}
+
 async function setup() {
   if (!(await isStorageReady())) {
     await migrateLegacyStorage();
     await initStorage();
   }
 
-  await queue.addAll([setContextMenu, setBrowserAction]);
+  await setupUI();
   await registry.cleanupRegistry();
 }
 
 function init() {
   addContextMenuListener();
   addBrowserActionListener();
-  addStorageListener();
   addMessageListener();
   addAlarmListener();
   addInstallListener();

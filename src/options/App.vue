@@ -284,15 +284,10 @@ export default {
 
     for (const option of Object.keys(this.options)) {
       this.options[option] = options[option];
+
       this.$watch(`options.${option}`, async function (value) {
         await storage.set({[option]: value});
-        if (this.$isSafari) {
-          // Safari 15: storage.onChanged is not always fired.
-          await browser.runtime.sendMessage({
-            id: 'storageChange',
-            area: 'local'
-          });
-        }
+        await browser.runtime.sendMessage({id: 'optionChange'});
       });
     }
 

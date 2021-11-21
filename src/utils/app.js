@@ -13,7 +13,8 @@ import {
   blobToArray,
   blobToDataUrl,
   canvasToDataUrl,
-  getPlatform
+  getPlatform,
+  isAndroid
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
 import {engines, censoredEngines, imageMimeTypes, projectUrl} from 'utils/data';
@@ -434,6 +435,18 @@ async function insertBaseModule({activeTab = false} = {}) {
   }
 }
 
+async function isContextMenuSupported() {
+  if (await isAndroid()) {
+    if (targetEnv === 'samsung') {
+      return true;
+    }
+  } else if (browser.contextMenus) {
+    return true;
+  }
+
+  return false;
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -456,5 +469,6 @@ export {
   getLargeImageMessage,
   getMaxImageSize,
   hasBaseModule,
-  insertBaseModule
+  insertBaseModule,
+  isContextMenuSupported
 };
