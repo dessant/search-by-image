@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [4.3.1](https://github.com/dessant/search-by-image/compare/v4.3.0...v4.3.1) (2021-11-21)
 
+
+### Bug Fixes
+
+* update UI only on option changes ([777fe06](https://github.com/dessant/search-by-image/commit/777fe063d7b76c26526ce75100a639df19854196))
+
 ## [4.3.0](https://github.com/dessant/search-by-image/compare/v4.2.0...v4.3.0) (2021-11-11)
 
 
