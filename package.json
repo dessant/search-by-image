@@ -112,7 +112,7 @@
     "standard-version": "^9.3.1",
     "vue-loader": "^15.9.8",
     "vue-template-compiler": "^2.6.14",
-    "web-ext": "^6.2.0",
+    "web-ext": "^6.5.0",
     "webpack": "^5.48.0",
     "webpack-bundle-analyzer": "^4.4.2",
     "webpack-cli": "^4.7.2"
