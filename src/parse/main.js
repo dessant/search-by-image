@@ -339,31 +339,41 @@ async function parseDocument({root = null, touchRect = null} = {}) {
 }
 
 async function parse(session) {
-  if (typeof touchTarget === 'undefined' || !touchTarget.node) {
-    throw new Error('Touch target missing');
+  if (typeof baseModule === 'undefined') {
+    throw new Error('Base module missing');
   }
 
-  let results = [];
-  const targetNode = touchTarget.node;
+  const results = [];
 
   const docNodeName = document.documentElement.nodeName.toLowerCase();
-  if (docNodeName !== 'html' && docNodeName !== 'svg') {
+  if (!['html', 'svg'].includes(docNodeName)) {
     return results;
   }
 
-  const touchRect = {
-    bottom: touchTarget.uy + 24,
-    top: touchTarget.uy - 24,
-    left: touchTarget.ux - 24,
-    right: touchTarget.ux + 24
-  };
+  const targetNode =
+    touchTarget.node ||
+    document.elementFromPoint(
+      touchTarget.ux - window.scrollX,
+      touchTarget.uy - window.scrollY
+    );
 
-  results.push(...(await parseNode(targetNode)));
+  if (targetNode) {
+    results.push(...(await parseNode(targetNode)));
+  }
 
   if (
+    !results.length ||
+    !targetNode ||
     targetNode.nodeName.toLowerCase() !== 'img' ||
     session.options.imgFullParse
   ) {
+    const touchRect = {
+      bottom: touchTarget.uy + 24,
+      top: touchTarget.uy - 24,
+      left: touchTarget.ux - 24,
+      right: touchTarget.ux + 24
+    };
+
     results.push(
       ...(await parseDocument({root: document, touchRect})).reverse()
     );

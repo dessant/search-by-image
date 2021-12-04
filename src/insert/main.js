@@ -26,30 +26,39 @@ function main() {
     ev.stopImmediatePropagation();
   }
 
-  function saveTouchTarget(ev) {
-    touchTarget.ux = ev.pageX;
-    touchTarget.uy = ev.pageY;
+  function saveTargetNode(ev) {
     touchTarget.node = ev.composedPath()[0];
   }
 
-  function ignoreEvent(ev) {
-    if (handleTouch) {
-      stopEvent(ev);
-    }
+  function saveTouchStart(ev) {
+    touchTarget.dx = ev.pageX;
+    touchTarget.dy = ev.pageY;
+  }
+
+  function saveTouchEnd(ev) {
+    touchTarget.ux = ev.pageX;
+    touchTarget.uy = ev.pageY;
+  }
+
+  function initTouchTarget(ev) {
+    touchTarget.node = null;
+    saveTouchStart(ev);
+    saveTouchEnd(ev);
   }
 
   function onPointerDown(ev) {
-    if (handleTouch) {
-      touchTarget.dx = ev.pageX;
-      touchTarget.dy = ev.pageY;
+    initTouchTarget(ev);
 
+    if (handleTouch) {
       stopEvent(ev);
     }
   }
 
   function onPointerUp(ev) {
+    saveTouchEnd(ev);
+
     if (handleTouch) {
-      saveTouchTarget(ev);
+      saveTargetNode(ev);
       stopEvent(ev);
 
       if (
@@ -70,6 +79,17 @@ function main() {
     }
   }
 
+  function onContextMenu(ev) {
+    saveTouchEnd(ev);
+    saveTargetNode(ev);
+  }
+
+  function ignoreEvent(ev) {
+    if (handleTouch) {
+      stopEvent(ev);
+    }
+  }
+
   self.addTouchListener = function () {
     handleTouch = true;
   };
@@ -81,7 +101,7 @@ function main() {
   self.showPointer = function () {
     if (!pointerCss) {
       pointerCss = document.createElement('link');
-      pointerCss.href = chrome.runtime.getURL('/src/select/pointer.css');
+      pointerCss.href = browser.runtime.getURL('/src/select/pointer.css');
       pointerCss.rel = 'stylesheet';
       document.head.appendChild(pointerCss);
     }
@@ -106,11 +126,6 @@ function main() {
     }
   }
 
-  window.addEventListener('contextmenu', saveTouchTarget, {
-    capture: true,
-    passive: true
-  });
-
   window.addEventListener('pointerdown', onPointerDown, {
     capture: true,
     passive: false
@@ -118,6 +133,10 @@ function main() {
   window.addEventListener('pointerup', onPointerUp, {
     capture: true,
     passive: false
+  });
+  window.addEventListener('contextmenu', onContextMenu, {
+    capture: true,
+    passive: true
   });
 
   const extraEvents = [
