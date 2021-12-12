@@ -29,7 +29,8 @@ import {
   hasBaseModule,
   insertBaseModule,
   fetchImage,
-  isContextMenuSupported
+  isContextMenuSupported,
+  checkSearchEngineAccess
 } from 'utils/app';
 import {searchGoogle, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
@@ -1119,6 +1120,10 @@ async function setup() {
 
   await setupUI();
   await registry.cleanupRegistry();
+
+  if (['chrome', 'opera'].includes(targetEnv)) {
+    await checkSearchEngineAccess();
+  }
 }
 
 function init() {

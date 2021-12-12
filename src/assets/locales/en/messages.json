@@ -1180,6 +1180,11 @@
     "description": "Error message."
   },
 
+  "error_noSearchEngineAccess": {
+    "message": "Cannot access search page results. Visit Menu > Extensions and enable the \"Allow access to search page results\" option for the extension.",
+    "description": "Error message."
+  },
+
   "error_internalError": {
     "message": "Something went wrong. Reload the page before searching again.",
     "description": "Error message."
