@@ -244,6 +244,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_wildberries": {
+    "message": "Wildberries",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -497,6 +502,11 @@
 
   "menuItemTitle_lykdat": {
     "message": "LykDat",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_wildberries": {
+    "message": "Wildberries",
     "description": "Title of the menu item."
   },
 
@@ -768,6 +778,11 @@
 
   "optionTitle_lykdat": {
     "message": "LykDat",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_wildberries": {
+    "message": "Wildberries",
     "description": "Title of the option."
   },
 

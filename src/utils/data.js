@@ -328,6 +328,12 @@ const engines = {
       target: 'https://lykdat.com/',
       isExec: true
     }
+  },
+  wildberries: {
+    upload: {
+      target: 'https://www.wildberries.ru/',
+      isExec: true
+    }
   }
 };
 
