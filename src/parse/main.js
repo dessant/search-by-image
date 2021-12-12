@@ -328,7 +328,9 @@ async function parseDocument({root = null, touchRect = null} = {}) {
     results.push(...(await parseNode(currentNode)));
 
     const shadowRoot =
-      currentNode.openOrClosedShadowRoot || currentNode.shadowRoot;
+      chrome.dom?.openOrClosedShadowRoot(currentNode) ||
+      currentNode.openOrClosedShadowRoot ||
+      currentNode.shadowRoot;
 
     if (shadowRoot) {
       results.push(...(await parseDocument({root: shadowRoot, touchRect})));
