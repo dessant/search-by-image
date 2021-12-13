@@ -34,7 +34,8 @@
       "20211011114043_configure_engines",
       "20211106103932_add_shein",
       "20211111071410_add_lykdat",
-      "20211204124507_add_wildberries"
+      "20211204124507_add_wildberries",
+      "20211213014048_add_lastengineaccesscheck"
     ],
     "sync": []
   }

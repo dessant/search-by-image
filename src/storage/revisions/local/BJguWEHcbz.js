@@ -9,7 +9,7 @@ const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
-  changes.installTime = new Date().getTime();
+  changes.installTime = Date.now();
   changes.searchCount = 0;
 
   changes.storageVersion = revision;

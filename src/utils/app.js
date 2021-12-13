@@ -132,7 +132,7 @@ function getListItems(data, {scope = '', shortScope = ''} = {}) {
 }
 
 async function showContributePage(action = '') {
-  await storage.set({contribPageLastOpen: new Date().getTime()});
+  await storage.set({contribPageLastOpen: Date.now()});
   const activeTab = await getActiveTab();
   let url = browser.runtime.getURL('/src/contribute/index.html');
   if (action) {
@@ -450,36 +450,42 @@ async function isContextMenuSupported() {
 async function checkSearchEngineAccess() {
   // Check if search engine access is enabled in Opera
   if (/ opr\//i.test(navigator.userAgent)) {
-    const url = 'https://www.google.com/generate_204';
+    const {lastEngineAccessCheck} = await storage.get('lastEngineAccessCheck');
+    // run at most once a week
+    if (Date.now() - lastEngineAccessCheck > 604800000) {
+      await storage.set({lastEngineAccessCheck: Date.now()});
 
-    const hasAccess = await new Promise(resolve => {
-      let access = false;
+      const url = 'https://www.google.com/generate_204';
 
-      function requestCallback() {
-        access = true;
-        removeCallback();
-        return {cancel: true};
+      const hasAccess = await new Promise(resolve => {
+        let access = false;
+
+        function requestCallback() {
+          access = true;
+          removeCallback();
+          return {cancel: true};
+        }
+
+        const removeCallback = function () {
+          window.clearTimeout(timeoutId);
+          browser.webRequest.onBeforeRequest.removeListener(requestCallback);
+
+          resolve(access);
+        };
+        const timeoutId = window.setTimeout(removeCallback, 3000); // 3 seconds
+
+        browser.webRequest.onBeforeRequest.addListener(
+          requestCallback,
+          {urls: [url], types: ['xmlhttprequest']},
+          ['blocking']
+        );
+
+        fetch(url).catch(err => null);
+      });
+
+      if (!hasAccess) {
+        await showNotification({messageId: 'error_noSearchEngineAccess'});
       }
-
-      const removeCallback = function () {
-        window.clearTimeout(timeoutId);
-        browser.webRequest.onBeforeRequest.removeListener(requestCallback);
-
-        resolve(access);
-      };
-      const timeoutId = window.setTimeout(removeCallback, 3000); // 3 seconds
-
-      browser.webRequest.onBeforeRequest.addListener(
-        requestCallback,
-        {urls: [url], types: ['xmlhttprequest']},
-        ['blocking']
-      );
-
-      fetch(url).catch(err => null);
-    });
-
-    if (!hasAccess) {
-      await showNotification({messageId: 'error_noSearchEngineAccess'});
     }
   }
 }

@@ -458,6 +458,10 @@ async function getTabUrl(session, search, image, taskId) {
 }
 
 async function initSearch(session, images) {
+  if (['chrome', 'opera'].includes(targetEnv)) {
+    checkSearchEngineAccess();
+  }
+
   if (!Array.isArray(images)) {
     images = [images];
   }
@@ -1120,10 +1124,6 @@ async function setup() {
 
   await setupUI();
   await registry.cleanupRegistry();
-
-  if (['chrome', 'opera'].includes(targetEnv)) {
-    await checkSearchEngineAccess();
-  }
 }
 
 function init() {

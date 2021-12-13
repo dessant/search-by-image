@@ -42,7 +42,7 @@ async function upgrade() {
     });
   }
 
-  if (new Date().getTime() - installTime < 60000) {
+  if (Date.now() - installTime < 60000) {
     if (targetEnv === 'samsung') {
       disabledEngines.push('dreamstime');
     }
