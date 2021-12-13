@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <div class="canvas-wrap">
+  <div id="app" :class="appClasses">
+    <div ref="canvasWrap" class="canvas-wrap">
       <canvas id="canvas"></canvas>
     </div>
     <div ref="snackbar" class="mdc-snackbar">
@@ -48,8 +48,17 @@ export default {
     return {
       contentMessagePort: null,
 
-      session: null
+      session: null,
+      canvasHidden: false
     };
+  },
+
+  computed: {
+    appClasses: function () {
+      return {
+        'canvas-hidden': this.canvasHidden
+      };
+    }
   },
 
   methods: {
@@ -87,16 +96,25 @@ export default {
         return;
       }
 
+      this.$refs.canvasWrap.addEventListener(
+        'transitionend',
+        () => {
+          browser.runtime.sendMessage({
+            id: 'imageCaptureSubmit',
+            session: this.session,
+            area
+          });
+        },
+        {capture: true, once: true}
+      );
+
       this.hideCapture();
-      browser.runtime.sendMessage({
-        id: 'imageCaptureSubmit',
-        session: this.session,
-        area
-      });
     },
 
     showCapture: function () {
       this.snackbar.open();
+
+      this.canvasHidden = false;
       if (!this.cropper) {
         this.cropper = new Cropper(document.getElementById('canvas'), {
           checkCrossOrigin: false,
@@ -120,6 +138,8 @@ export default {
 
     hideCapture: function () {
       this.snackbar.close();
+
+      this.canvasHidden = true;
       if (this.cropper) {
         this.cropper.clear();
       }
@@ -174,6 +194,11 @@ body {
 .canvas-wrap {
   width: 100%;
   height: calc(100% - calc(64px + env(safe-area-inset-bottom, 0px)));
+}
+
+.canvas-hidden .canvas-wrap {
+  transition: opacity 0.001s;
+  opacity: 0;
 }
 
 .cropper-modal,
