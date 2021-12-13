@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.4.0](https://github.com/dessant/search-by-image/compare/v4.3.1...v4.4.0) (2021-12-13)
+
+
+### Features
+
+* notify users about missing search engine access in Opera ([d64c0d8](https://github.com/dessant/search-by-image/commit/d64c0d874dd89cb8e5d90d5d5d56730823e2c862))
+* search on Wildberries ([50d2013](https://github.com/dessant/search-by-image/commit/50d2013360cc364cf89492897b87e1b9a6e88319))
+* support shadow DOM in Chrome ([1b8d401](https://github.com/dessant/search-by-image/commit/1b8d40132c1c7a1116a1b6f8d143279f6873adc4))
+
+
+### Bug Fixes
+
+* hide cropper before capturing ([8fc3061](https://github.com/dessant/search-by-image/commit/8fc3061a4739e9c3a4ae3514a8b851e937c07eb0))
+* reduce frequency of search engine access checks ([cce8038](https://github.com/dessant/search-by-image/commit/cce80387735f70992e03b8587c25b77647cd1983))
+* save coordinates on touch start ([03d517c](https://github.com/dessant/search-by-image/commit/03d517c9de5655eb39486c5dbae6fe2041e2cb0d))
+
 ### [4.3.1](https://github.com/dessant/search-by-image/compare/v4.3.0...v4.3.1) (2021-11-21)
 
 
