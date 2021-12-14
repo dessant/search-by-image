@@ -246,10 +246,13 @@ function createMenuItem({
   if (icons && targetEnv === 'firefox') {
     params.icons = icons;
   }
+  // creates context menu item for current instance
   browser.contextMenus.create(params, onComplete);
 }
 
-async function createMenu(options) {
+async function createMenu() {
+  const options = await storage.get(optionKeys);
+
   const enEngines = await getEnabledEngines(options);
   const contexts = [
     'audio',
@@ -809,11 +812,17 @@ async function shareImage(image) {
 }
 
 async function setContextMenu() {
+  // removes context menu items from all instances
   await browser.contextMenus.removeAll();
 
-  const options = await storage.get(optionKeys);
-  if (options.showInContextMenu === true) {
-    await createMenu(options);
+  const {showInContextMenu} = await storage.get('showInContextMenu');
+  if (showInContextMenu) {
+    if (['chrome', 'edge', 'opera'].includes(targetEnv)) {
+      // notify all background script instances
+      await storage.set({setContextMenuEvent: Date.now()});
+    } else {
+      await createMenu();
+    }
   }
 }
 
@@ -1055,6 +1064,14 @@ async function onOptionChange() {
   await setupUI();
 }
 
+async function onStorageChange(changes, area) {
+  if (area === 'local' && (await isStorageReady())) {
+    if (changes.setContextMenuEvent) {
+      await queue.add(createMenu);
+    }
+  }
+}
+
 async function onAlarm({name}) {
   if (name.startsWith('delete-storage-item')) {
     const [_, storageId] = name.split('_');
@@ -1087,6 +1104,10 @@ function addContextMenuListener() {
 
 function addBrowserActionListener() {
   browser.browserAction.onClicked.addListener(onActionButtonClick);
+}
+
+function addStorageListener() {
+  browser.storage.onChanged.addListener(onStorageChange);
 }
 
 function addMessageListener() {
@@ -1130,6 +1151,7 @@ function init() {
   addContextMenuListener();
   addBrowserActionListener();
   addMessageListener();
+  addStorageListener();
   addAlarmListener();
   addInstallListener();
   addStartupListener();
