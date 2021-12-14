@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.1](https://github.com/dessant/search-by-image/compare/v4.4.0...v4.4.1) (2021-12-14)
+
+
+### Bug Fixes
+
+* create context menu from each background script instance ([d175b1f](https://github.com/dessant/search-by-image/commit/d175b1f6fa5bcb33b6ea6aca3df29ac31eb5af33)), closes [#151](https://github.com/dessant/search-by-image/issues/151)
+
 ## [4.4.0](https://github.com/dessant/search-by-image/compare/v4.3.1...v4.4.0) (2021-12-13)
 
 
