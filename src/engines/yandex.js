@@ -145,9 +145,14 @@ async function search({session, search, image, storageIds}) {
     }
 
     (
-      await findNode('.input_js_inited .input__cbir-button button', {
-        observerOptions: {attributes: true, attributeFilter: ['class']}
-      })
+      await Promise.race([
+        findNode('.input_js_inited .input__cbir-button button', {
+          observerOptions: {attributes: true, attributeFilter: ['class']}
+        }), // old layout
+        findNode('.input_js_inited button.input__cbir-button', {
+          observerOptions: {attributes: true, attributeFilter: ['class']}
+        }) // new layout
+      ])
     ).click();
 
     await Promise.race([
