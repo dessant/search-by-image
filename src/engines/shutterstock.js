@@ -9,9 +9,11 @@ async function search({session, search, image, storageIds}) {
     window.dispatchEvent(new Event('touchstart'));
   }
 
-  (
-    await findNode('button[data-track-label="reverseImageSearchButton"]')
-  ).click();
+  (await findNode('.MuiSelect-selectMenu[aria-label="Image"]')).dispatchEvent(
+    new MouseEvent('mousedown', {bubbles: true})
+  );
+
+  (await findNode('li[data-value="reverseImageSearch"]')).click();
 
   const inputSelector = 'input[type="file"]';
   const input = await findNode(inputSelector);
