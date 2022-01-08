@@ -88,13 +88,19 @@ async function _removeStorageItem({
 
 async function addStorageItem(
   data,
-  {receipts = null, expiryTime = 0, area = 'local', isTask = false} = {}
+  {
+    token = '',
+    receipts = null,
+    expiryTime = 0,
+    area = 'local',
+    isTask = false
+  } = {}
 ) {
   if (area === 'indexeddb' && !['safari'].includes(targetEnv)) {
     area = 'memory';
   }
 
-  const storageId = uuidv4();
+  const storageId = token || uuidv4();
   const addTime = Date.now();
   const metadata = {area, addTime, receipts, alarms: [], isTask};
 

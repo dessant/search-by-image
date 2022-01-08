@@ -18,10 +18,17 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function createTab(
-  url,
-  {index = null, active = true, openerTabId = null} = {}
-) {
+async function createTab({
+  url = '',
+  token = '',
+  index = null,
+  active = true,
+  openerTabId = null
+} = {}) {
+  if (!url) {
+    url = getNewTabUrl(token);
+  }
+
   const props = {url, active};
   if (index !== null) {
     props.index = index;
@@ -53,6 +60,14 @@ async function createTab(
   }
 
   return tab;
+}
+
+function getNewTabUrl(token) {
+  if (!token) {
+    token = uuidv4();
+  }
+
+  return `${browser.runtime.getURL('/src/tab/index.html')}?id=${token}`;
 }
 
 function executeCode(string, tabId, frameId = 0, runAt = 'document_start') {
@@ -377,6 +392,7 @@ export {
   onComplete,
   getText,
   createTab,
+  getNewTabUrl,
   executeCode,
   executeFile,
   getRandomString,

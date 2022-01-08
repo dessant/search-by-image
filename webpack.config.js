@@ -59,6 +59,7 @@ module.exports = {
     content: './src/content/main.js',
     insert: './src/insert/main.js',
     parse: './src/parse/main.js',
+    tab: './src/tab/main.js',
     ...entries
   },
   output: {

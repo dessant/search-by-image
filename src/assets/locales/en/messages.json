@@ -95,7 +95,7 @@
   },
 
   "engineName_qihoo": {
-    "message": "Qihoo 360",
+    "message": "360 Search",
     "description": "Name of the search engine."
   },
 
@@ -249,6 +249,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_googleLens": {
+    "message": "Google Lens",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -356,7 +361,7 @@
   },
 
   "menuItemTitle_qihoo": {
-    "message": "Qihoo 360",
+    "message": "360 Search",
     "description": "Title of the menu item."
   },
 
@@ -510,6 +515,11 @@
     "description": "Title of the menu item."
   },
 
+  "menuItemTitle_googleLens": {
+    "message": "Google Lens",
+    "description": "Title of the menu item."
+  },
+
   "menuItemTitle_allEngines": {
     "message": "All search engines",
     "description": "Title of the menu item."
@@ -632,7 +642,7 @@
   },
 
   "optionTitle_qihoo": {
-    "message": "Qihoo 360 Images",
+    "message": "360 Search",
     "description": "Title of the option."
   },
 
@@ -783,6 +793,11 @@
 
   "optionTitle_wildberries": {
     "message": "Wildberries",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_googleLens": {
+    "message": "Google Lens",
     "description": "Title of the option."
   },
 

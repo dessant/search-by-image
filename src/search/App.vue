@@ -56,7 +56,7 @@ import imagesLoaded from 'imagesloaded';
 
 import {validateUrl, getMaxImageSize, getLargeImageMessage} from 'utils/app';
 import {getText, createTab, getActiveTab, dataUrlToBlob} from 'utils/common';
-import {searchGoogle, searchPinterest} from 'utils/engines';
+import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 
 export default {
   data: function () {
@@ -126,6 +126,29 @@ export default {
         if (validateUrl(tabUrl)) {
           window.location.replace(tabUrl);
         }
+      } else if (this.engine === 'googleLens') {
+        let tabUrl;
+        if (this.$isSafari && this.$isMobile) {
+          // Safari 15: cross-origin request from extension page is blocked on mobile.
+          const rsp = await browser.runtime.sendMessage({
+            id: 'searchImage',
+            session,
+            search,
+            image
+          });
+
+          if (rsp.error) {
+            throw new Error(rsp.error);
+          }
+
+          tabUrl = rsp.data;
+        } else {
+          tabUrl = await searchGoogleLens({session, search, image});
+        }
+
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
       }
     },
 
@@ -159,7 +182,8 @@ export default {
 
     openTab: async function (url) {
       const activeTab = await getActiveTab();
-      await createTab(url, {
+      await createTab({
+        url,
         index: activeTab.index + 1,
         openerTabId: activeTab.id
       });

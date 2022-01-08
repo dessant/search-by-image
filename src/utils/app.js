@@ -139,12 +139,12 @@ async function showContributePage(action = '') {
   if (action) {
     url = `${url}?action=${action}`;
   }
-  return createTab(url, {index: activeTab.index + 1});
+  return createTab({url, index: activeTab.index + 1});
 }
 
 async function showProjectPage() {
   const activeTab = await getActiveTab();
-  await createTab(projectUrl, {index: activeTab.index + 1});
+  await createTab({url: projectUrl, index: activeTab.index + 1});
 }
 
 function validateUrl(url) {

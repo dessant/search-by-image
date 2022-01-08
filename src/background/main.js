@@ -1,4 +1,5 @@
 import browser from 'webextension-polyfill';
+import {v4 as uuidv4} from 'uuid';
 import Queue from 'p-queue';
 
 import {initStorage, migrateLegacyStorage} from 'storage/init';
@@ -7,6 +8,7 @@ import storage from 'storage/storage';
 import {
   getText,
   createTab,
+  getNewTabUrl,
   executeCode,
   executeFile,
   onComplete,
@@ -32,7 +34,7 @@ import {
   isContextMenuSupported,
   checkSearchEngineAccess
 } from 'utils/app';
-import {searchGoogle, searchPinterest} from 'utils/engines';
+import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv, enableContributions} from 'utils/config';
@@ -190,20 +192,6 @@ function setUserAgentHeader(tabId, userAgent) {
     },
     ['blocking', 'requestHeaders']
   );
-}
-
-async function getRequiredUserAgent(engine) {
-  // Samsung Internet 13: webRequest.onBeforeSendHeaders filtering by tab ID
-  // returns requests from different tab.
-  if (targetEnv !== 'samsung' && (await isAndroid())) {
-    // Google only works with a Chrome user agent on Firefox for Android,
-    // while other search engines may need a desktop user agent.
-    if (targetEnv === 'firefox' && ['google', 'ikea'].includes(engine)) {
-      return chromeMobileUA;
-    } else if (['mailru'].includes(engine)) {
-      return chromeDesktopUA;
-    }
-  }
 }
 
 function getEngineMenuIcons(engine) {
@@ -571,21 +559,100 @@ async function searchEngine(session, search, image, imageId, tabActive) {
     );
   }
 
-  const tabUrl = await getTabUrl(session, search, image, taskId);
+  const token = uuidv4();
 
-  const tab = await createTab(tabUrl, {
+  const tab = await createTab({
+    token,
     index: session.sourceTabIndex,
     active: tabActive
   });
   const tabId = tab.id;
 
-  const userAgent = await getRequiredUserAgent(search.engine);
-  if (userAgent) {
-    setUserAgentHeader(tabId, userAgent);
-  }
-
   if (search.sendsReceipt) {
     await registry.addTaskRegistryItem({taskId, tabId});
+  }
+
+  const tabUrl = await getTabUrl(session, search, image, taskId);
+
+  await setupNewEngineTab(tabId, tabUrl, token, search.engine);
+}
+
+async function setupNewEngineTab(tabId, tabUrl, token, engine) {
+  let beaconToken;
+  const userAgent = await getRequiredUserAgent(engine);
+  if (userAgent) {
+    if (targetEnv === 'samsung') {
+      // Samsung Internet 13: webRequest listener filtering by tab ID
+      // provided by tabs.createTab returns requests from different tab.
+      beaconToken = uuidv4();
+
+      function requestCallback(details) {
+        removeCallback();
+        setUserAgentHeader(details.tabId, userAgent);
+      }
+
+      const removeCallback = function () {
+        window.clearTimeout(timeoutId);
+        browser.webRequest.onBeforeRequest.removeListener(requestCallback);
+      };
+      const timeoutId = window.setTimeout(removeCallback, 10000); // 10 seconds
+
+      browser.webRequest.onBeforeRequest.addListener(
+        requestCallback,
+        {
+          urls: [getNewTabUrl(beaconToken)],
+          types: ['main_frame']
+        },
+        ['blocking']
+      );
+    } else {
+      setUserAgentHeader(tabId, userAgent);
+    }
+  }
+
+  if (beaconToken) {
+    await registry.addStorageItem(
+      {tabUrl, keepHistory: false},
+      {
+        receipts: {expected: 1, received: 0},
+        expiryTime: 1.0,
+        token: beaconToken
+      }
+    );
+  }
+
+  await registry.addStorageItem(
+    {
+      tabUrl: beaconToken ? getNewTabUrl(beaconToken) : tabUrl,
+      keepHistory: false
+    },
+    {
+      receipts: {expected: 1, received: 0},
+      expiryTime: 1.0,
+      token
+    }
+  );
+
+  if (targetEnv === 'safari') {
+    browser.runtime
+      .sendMessage({id: 'setTabLocation', token})
+      .catch(err => null);
+  } else {
+    browser.tabs
+      .sendMessage(tabId, {id: 'setTabLocation', token}, {frameId: 0})
+      .catch(err => null);
+  }
+}
+
+async function getRequiredUserAgent(engine) {
+  if (await isAndroid()) {
+    // Google only works with a Chrome user agent on Firefox for Android,
+    // while other search engines may need a desktop user agent.
+    if (targetEnv === 'firefox' && ['google', 'ikea'].includes(engine)) {
+      return chromeMobileUA;
+    } else if (['mailru', 'googleLens'].includes(engine)) {
+      return chromeDesktopUA;
+    }
   }
 }
 
@@ -698,7 +765,8 @@ async function onActionClick(session, tabUrl) {
       receipts: {expected: 1, received: 0},
       expiryTime: 1.0
     });
-    await createTab(`${browseUrl}?id=${storageId}`, {
+    await createTab({
+      url: `${browseUrl}?id=${storageId}`,
       index: session.sourceTabIndex + 1,
       openerTabId: session.sourceTabId
     });
@@ -1032,6 +1100,8 @@ async function processMessage(request, sender) {
       let data;
       if (search.engine === 'google') {
         data = await searchGoogle({session, search, image});
+      } else if (search.engine === 'googleLens') {
+        data = await searchGoogleLens({session, search, image});
       } else if (search.engine === 'pinterest') {
         data = await searchPinterest({session, search, image});
       }

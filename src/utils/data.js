@@ -334,6 +334,12 @@ const engines = {
       target: 'https://www.wildberries.ru/',
       isExec: true
     }
+  },
+  googleLens: {
+    upload: {
+      target: searchUrl,
+      isTaskId: true
+    }
   }
 };
 
