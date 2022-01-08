@@ -6,7 +6,7 @@ const engine = 'ikea';
 async function search({session, search, image, storageIds}) {
   // go to regional site
   processNode(
-    '.region-picker a[data-cy="go-to-website"]',
+    '.region-picker a[data-cy="go-to-website"], .new-region-picker a[data-cy="go-to-website"]',
     node => node.click(),
     {throwError: false}
   );
