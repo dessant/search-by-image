@@ -158,6 +158,34 @@ function canvasToDataUrl(
   return data;
 }
 
+function canvasToBlob(
+  cnv,
+  {ctx, type = 'image/png', quality = 0.8, clear = true} = {}
+) {
+  return new Promise(resolve => {
+    function callback(blob) {
+      cleanup();
+      resolve(blob);
+    }
+
+    function cleanup() {
+      if (clear) {
+        if (!ctx) {
+          ctx = cnv.getContext('2d');
+        }
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+      }
+    }
+
+    try {
+      cnv.toBlob(callback, type, quality);
+    } catch (err) {
+      cleanup();
+      resolve();
+    }
+  });
+}
+
 function drawElementOnCanvas(ctx, node) {
   try {
     ctx.drawImage(node, 0, 0);
@@ -191,17 +219,24 @@ function getFilenameExtFromUrl(url) {
 
 function findNode(
   selector,
-  {timeout = 60000, throwError = true, observerOptions = null} = {}
+  {
+    timeout = 60000,
+    throwError = true,
+    observerOptions = null,
+    rootNode = null
+  } = {}
 ) {
   return new Promise((resolve, reject) => {
-    const el = document.querySelector(selector);
+    rootNode = rootNode || document;
+
+    const el = rootNode.querySelector(selector);
     if (el) {
       resolve(el);
       return;
     }
 
     const observer = new MutationObserver(function (mutations, obs) {
-      const el = document.querySelector(selector);
+      const el = rootNode.querySelector(selector);
       if (el) {
         obs.disconnect();
         window.clearTimeout(timeoutId);
@@ -217,7 +252,7 @@ function findNode(
       Object.assign(options, observerOptions);
     }
 
-    observer.observe(document, options);
+    observer.observe(rootNode, options);
 
     const timeoutId = window.setTimeout(function () {
       observer.disconnect();
@@ -238,14 +273,22 @@ async function processNode(
     timeout = 60000,
     throwError = true,
     observerOptions = null,
+    rootNode = null,
     reprocess = false
   } = {}
 ) {
-  let node = await findNode(selector, {timeout, throwError, observerOptions});
+  rootNode = rootNode || document;
+
+  let node = await findNode(selector, {
+    timeout,
+    throwError,
+    observerOptions,
+    rootNode
+  });
 
   if (reprocess) {
     const observer = new MutationObserver(function (mutations, obs) {
-      const el = document.querySelector(selector);
+      const el = rootNode.querySelector(selector);
       if (el && !el.isSameNode(node)) {
         node = el;
         actionFn(node);
@@ -260,7 +303,7 @@ async function processNode(
       Object.assign(options, observerOptions);
     }
 
-    observer.observe(document, options);
+    observer.observe(rootNode, options);
 
     window.setTimeout(function () {
       observer.disconnect();
@@ -344,6 +387,7 @@ export {
   blobToArray,
   getBlankCanvasDataUrl,
   canvasToDataUrl,
+  canvasToBlob,
   drawElementOnCanvas,
   getAbsoluteUrl,
   getFilenameExtFromUrl,

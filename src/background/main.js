@@ -243,7 +243,7 @@ function createMenuItem({
     parentId: parent,
     type
   };
-  if (icons && targetEnv === 'firefox') {
+  if (icons) {
     params.icons = icons;
   }
   // creates context menu item for current instance
@@ -524,11 +524,11 @@ async function searchImage(session, image, firstBatchItem = true) {
   );
 
   const receiptSearches = searches.filter(item => item.sendsReceipt);
-  receiptSearches.forEach(item => {
-    if (image.imageSize) {
+  if (image.imageSize) {
+    receiptSearches.forEach(item => {
       item.imageSize = image.imageSize;
-    }
-  });
+    });
+  }
 
   let imageId;
   if (receiptSearches.length) {

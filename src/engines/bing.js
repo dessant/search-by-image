@@ -1,5 +1,6 @@
 import {findNode, isMobile} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
+import {resizeImage} from 'utils/app';
 
 const engine = 'bing';
 
@@ -23,44 +24,16 @@ async function search({session, search, image, storageIds}) {
     await sendReceipt(storageIds);
 
     if (image.imageSize > 600 * 1024) {
-      const img = new Image();
-      img.onload = function () {
-        const cnv = document.createElement('canvas');
-        const ctx = cnv.getContext('2d');
+      const resizedImage = await resizeImage({
+        dataUrl: image.imageDataUrl,
+        type: 'image/jpeg',
+        maxSize: 800
+      });
 
-        const maxSize = 800;
-        const sw = img.naturalWidth;
-        const sh = img.naturalHeight;
-        let dw;
-        let dh;
-        if (sw > maxSize || sh > maxSize) {
-          if (sw === sh) {
-            dw = dh = maxSize;
-          }
-          if (sw > sh) {
-            dw = maxSize;
-            dh = (sh / sw) * maxSize;
-          }
-          if (sw < sh) {
-            dw = (sw / sh) * maxSize;
-            dh = maxSize;
-          }
-        } else {
-          dw = sw;
-          dh = sh;
-        }
-
-        cnv.width = dw;
-        cnv.height = dh;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, dw, dh);
-        ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
-        const data = cnv.toDataURL('image/jpeg', 0.8);
-
-        input.value = data.substring(data.indexOf(',') + 1);
-        form.submit();
-      };
-      img.src = URL.createObjectURL(image.imageBlob);
+      input.value = resizedImage.imageDataUrl.substring(
+        resizedImage.imageDataUrl.indexOf(',') + 1
+      );
+      form.submit();
     } else {
       input.value = image.imageDataUrl.substring(
         image.imageDataUrl.indexOf(',') + 1

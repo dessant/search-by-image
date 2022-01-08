@@ -13,6 +13,7 @@ import {
   blobToArray,
   blobToDataUrl,
   canvasToDataUrl,
+  canvasToBlob,
   getPlatform,
   isAndroid
 } from 'utils/common';
@@ -213,6 +214,60 @@ async function normalizeImage({blob, dataUrl, convertImage = false} = {}) {
   const ext = imageMimeTypes[type];
 
   return {dataUrl: data, type, ext};
+}
+
+async function resizeImage({blob, dataUrl, type, maxSize = 1000} = {}) {
+  if (!type) {
+    type = blob ? blob.type : getDataUrlMimeType(dataUrl);
+  }
+
+  const url = blob ? URL.createObjectURL(blob) : dataUrl;
+  const img = await getImageElement(url, {query: false});
+  if (blob) {
+    URL.revokeObjectURL(url);
+  }
+
+  const sw = img.naturalWidth;
+  const sh = img.naturalHeight;
+  let dw;
+  let dh;
+
+  if (sw > maxSize || sh > maxSize) {
+    if (sw === sh) {
+      dw = dh = maxSize;
+    }
+    if (sw > sh) {
+      dw = maxSize;
+      dh = (sh / sw) * maxSize;
+    }
+    if (sw < sh) {
+      dw = (sw / sh) * maxSize;
+      dh = maxSize;
+    }
+
+    const cnv = document.createElement('canvas');
+    const ctx = cnv.getContext('2d');
+
+    cnv.width = dw;
+    cnv.height = dh;
+
+    if (type === 'image/jpeg') {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, dw, dh);
+    }
+
+    ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
+
+    if (blob) {
+      blob = await canvasToBlob(cnv, {ctx, type});
+      type = blob.type;
+    } else {
+      dataUrl = canvasToDataUrl(cnv, {ctx, type});
+      type = getDataUrlMimeType(dataUrl);
+    }
+  }
+
+  return {imageBlob: blob, imageDataUrl: dataUrl, imageType: type};
 }
 
 function getImageElement(url, {query = true} = {}) {
@@ -503,6 +558,7 @@ export {
   validateUrl,
   normalizeFilename,
   normalizeImage,
+  resizeImage,
   getImageElement,
   captureVisibleTabArea,
   getContentXHR,
