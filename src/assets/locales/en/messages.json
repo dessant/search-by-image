@@ -1185,6 +1185,11 @@
     "description": "Error message."
   },
 
+  "error_optionsNotApplied": {
+    "message": "Restart the browser for changes to take effect.",
+    "description": "Error message."
+  },
+
   "error_internalError": {
     "message": "Something went wrong. Reload the page before searching again.",
     "description": "Error message."
