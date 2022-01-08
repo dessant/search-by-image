@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.5.0](https://github.com/dessant/search-by-image/compare/v4.4.2...v4.5.0) (2022-01-08)
+
+
+### Features
+
+* search on Google Lens ([dd20587](https://github.com/dessant/search-by-image/commit/dd2058783863f4c6abb0164a532624ba85989d3b)), closes [#154](https://github.com/dessant/search-by-image/issues/154)
+
+
+### Bug Fixes
+
+* update Depositphotos ([ba4a525](https://github.com/dessant/search-by-image/commit/ba4a525b48c15a282a1869f04ba54c4ff4249725))
+* update Dreamstime ([003d52d](https://github.com/dessant/search-by-image/commit/003d52dfbcc4bddf117761dd57a6754382bb49c2))
+* update Getty ([ca7eb1c](https://github.com/dessant/search-by-image/commit/ca7eb1c7e022afb897cbcd023f6b2b72af9491c5))
+* update IKEA ([6c7021e](https://github.com/dessant/search-by-image/commit/6c7021e375a5e57f309331a2d1186e544de50565))
+* update iStock ([3787478](https://github.com/dessant/search-by-image/commit/37874789da824174065d3017a84e85a808bf4b5b))
+* update Madrid Monitor ([3249d34](https://github.com/dessant/search-by-image/commit/3249d34d4d797d9e4a02fbdaf02b14f50fd536a4))
+* update Yandex ([536e5d5](https://github.com/dessant/search-by-image/commit/536e5d500255218ede8ca1d0b8bda0fc7bfefa17))
+
 ### [4.4.2](https://github.com/dessant/search-by-image/compare/v4.4.1...v4.4.2) (2021-12-18)
 
 
