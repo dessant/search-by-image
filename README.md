@@ -5,7 +5,7 @@
   </br></br>
   <a href="https://chrome.google.com/webstore/detail/search-by-image/cnojnbdhbhnkbcieeekonklommdnndci">
     <img height="58" src="https://i.imgur.com/K9Yh8G9.png" alt="Chrome Web Store"></a>
-  <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
+  <a href="https://addons.mozilla.org/firefox/addon/search_by_image/">
     <img height="58" src="https://i.imgur.com/2jJOtTI.png" alt="Firefox add-ons"></a>
   <a href="https://microsoftedge.microsoft.com/addons/detail/search-by-image/hckehkfhdkpmdlonmjaagiodlpjbonmc">
     <img height="58" src="https://i.imgur.com/es2YFRA.png" alt="Microsoft Store"></a>
@@ -86,7 +86,7 @@ and the browser toolbar from the extension's options.
 
 ## License
 
-Copyright (c) 2017-2021 Armin Sebastian
+Copyright (c) 2017-2022 Armin Sebastian
 
 This software is released under the terms of the GNU General Public License v3.0.
 See the [LICENSE](LICENSE) file for further information.
