@@ -62,7 +62,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
       "all_frames": true,
       "run_at": "document_start",
       "js": ["src/insert/script.js"]

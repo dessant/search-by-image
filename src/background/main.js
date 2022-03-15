@@ -252,15 +252,17 @@ async function createMenu() {
     'selection',
     'video'
   ];
+  if (targetEnv === 'firefox') {
+    contexts.push('password');
+  }
   if (!(await isAndroid())) {
     contexts.push('page');
   }
   const urlPatterns = ['http://*/*', 'https://*/*'];
-  let setIcons = false;
-  if (targetEnv === 'firefox') {
+  if (!['safari', 'samsung'].includes(targetEnv)) {
     urlPatterns.push('file:///*');
-    setIcons = true;
   }
+  const setIcons = targetEnv === 'firefox';
 
   if (enEngines.length === 1) {
     const engine = enEngines[0];
@@ -729,7 +731,10 @@ async function onActionClick(session, tabUrl) {
   } else if (session.searchMode === 'capture') {
     await openContentView({session}, 'capture');
   } else if (['select', 'selectUpload'].includes(session.searchMode)) {
-    if (tabUrl.startsWith('file://') && targetEnv !== 'firefox') {
+    if (
+      tabUrl.startsWith('file://') &&
+      ['safari', 'samsung'].includes(targetEnv)
+    ) {
       await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
       return;
     }
