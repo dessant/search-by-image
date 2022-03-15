@@ -18,7 +18,13 @@ import {
   isAndroid
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
-import {engines, censoredEngines, imageMimeTypes, projectUrl} from 'utils/data';
+import {
+  optionKeys,
+  engines,
+  censoredEngines,
+  imageMimeTypes,
+  projectUrl
+} from 'utils/data';
 
 async function getEnabledEngines(options) {
   if (typeof options === 'undefined') {
@@ -89,6 +95,51 @@ async function hasUrlSupport(engine, {bypassBlocking = true} = {}) {
   }
 
   return true;
+}
+
+async function createSession(data) {
+  const session = {
+    sessionOrigin: '',
+    sessionType: 'search',
+    searchMode: '',
+    sourceTabId: -1,
+    sourceTabIndex: -1,
+    sourceFrameId: -1,
+    engineGroup: '',
+    engines: [],
+    options: {}
+  };
+
+  session.options = await storage.get(optionKeys);
+
+  if (data.options) {
+    Object.assign(session.options, data.options);
+
+    delete data.options;
+  }
+
+  if (data.engine) {
+    if (data.engine === 'allEngines') {
+      const enabledEngines = await getEnabledEngines(session.options);
+      session.engineGroup = 'allEngines';
+      session.engines = enabledEngines;
+    } else {
+      session.engines.push(data.engine);
+    }
+
+    delete data.engine;
+  }
+
+  Object.assign(session, data);
+
+  if (!session.searchMode) {
+    session.searchMode =
+      session.sessionOrigin === 'action'
+        ? session.options.searchModeAction
+        : session.options.searchModeContextMenu;
+  }
+
+  return session;
 }
 
 function showNotification({message, messageId, title, type = 'info'} = {}) {
@@ -181,14 +232,14 @@ async function normalizeImage({blob, dataUrl, convertImage = false} = {}) {
   const {mime: realType} = (await fileType.fromBuffer(array)) || {};
 
   if (realType) {
-    if (!realType.startsWith('image/')) {
+    if (!isImageMimeType(realType)) {
       return {};
     }
     if (type !== realType) {
       type = realType;
       data = new Blob([array], {type});
     }
-  } else if (!type || !type.startsWith('image/')) {
+  } else if (!type || !isImageMimeType(type)) {
     return {};
   }
 
@@ -211,7 +262,7 @@ async function normalizeImage({blob, dataUrl, convertImage = false} = {}) {
     data = canvasToDataUrl(cnv, {ctx, type});
   }
 
-  const ext = imageMimeTypes[type];
+  const ext = mimeTypeToFileExt(type);
 
   return {dataUrl: data, type, ext};
 }
@@ -318,6 +369,33 @@ async function captureVisibleTabArea(area) {
   );
 
   return canvasToDataUrl(cnv, {ctx});
+}
+
+function fileExtToMimeType(fileExt) {
+  for (const [type, ext] of Object.entries(imageMimeTypes)) {
+    if (ext.includes(fileExt)) {
+      return type;
+    }
+  }
+
+  return null;
+}
+
+function mimeTypeToFileExt(mimeType) {
+  const ext = imageMimeTypes[mimeType];
+  if (ext) {
+    return ext[0];
+  }
+
+  return null;
+}
+
+function isImageMimeType(mimeType) {
+  if (imageMimeTypes.hasOwnProperty(mimeType)) {
+    return true;
+  }
+
+  return false;
 }
 
 async function configUI(Vue) {
@@ -551,6 +629,7 @@ export {
   getSearches,
   isUploadSearch,
   hasUrlSupport,
+  createSession,
   showNotification,
   getListItems,
   showContributePage,
@@ -564,6 +643,9 @@ export {
   getContentXHR,
   fetchImage,
   fetchImageFromBackgroundScript,
+  fileExtToMimeType,
+  mimeTypeToFileExt,
+  isImageMimeType,
   configUI,
   getLargeImageMessage,
   getMaxImageSize,

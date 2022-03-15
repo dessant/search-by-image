@@ -21,6 +21,7 @@
     "tabs",
     "activeTab",
     "nativeMessaging",
+    "webNavigation",
     "<all_urls>"
   ],
 

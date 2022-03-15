@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import {v4 as uuidv4} from 'uuid';
+import {v4 as uuidv4, validate as uuidValidate} from 'uuid';
 import Queue from 'p-queue';
 
 import {initStorage, migrateLegacyStorage} from 'storage/init';
@@ -23,6 +23,7 @@ import {
   getEnabledEngines,
   getSupportedEngines,
   getSearches,
+  createSession,
   showNotification,
   showContributePage,
   normalizeFilename,
@@ -326,51 +327,6 @@ async function createMenu() {
       });
     });
   }
-}
-
-async function createSession(data) {
-  const session = {
-    sessionOrigin: '',
-    sessionType: 'search',
-    searchMode: '',
-    sourceTabId: -1,
-    sourceTabIndex: -1,
-    sourceFrameId: -1,
-    engineGroup: '',
-    engines: [],
-    options: {}
-  };
-
-  session.options = await storage.get(optionKeys);
-
-  if (data.options) {
-    Object.assign(session.options, data.options);
-
-    delete data.options;
-  }
-
-  if (data.engine) {
-    if (data.engine === 'allEngines') {
-      const enabledEngines = await getEnabledEngines(session.options);
-      session.engineGroup = 'allEngines';
-      session.engines = enabledEngines;
-    } else {
-      session.engines.push(data.engine);
-    }
-
-    delete data.engine;
-  }
-
-  Object.assign(session, data);
-
-  if (!session.searchMode) {
-    session.searchMode =
-      session.sessionOrigin === 'action'
-        ? session.options.searchModeAction
-        : session.options.searchModeContextMenu;
-  }
-
-  return session;
 }
 
 async function openContentView(message, view) {
@@ -879,6 +835,68 @@ async function shareImage(image) {
   }
 }
 
+async function processIncomingShare(tabId, url) {
+  const shareId = new URL(url).searchParams.get('id');
+
+  if (uuidValidate(shareId) && (await registry.aquireLock({name: shareId}))) {
+    const response = await browser.runtime.sendNativeMessage('application.id', {
+      id: 'getShareId'
+    });
+
+    if (response && response.shareId === shareId) {
+      const tabUrl = `${browser.runtime.getURL(
+        '/src/browse/index.html'
+      )}?id=${shareId}&origin=share`;
+
+      await browser.tabs.update(tabId, {url: tabUrl, active: true});
+    }
+  }
+}
+
+async function processIncomingShareTab({retry = false} = {}) {
+  let tabs = await browser.tabs.query({
+    url: 'https://search-by-image.localhost/share*'
+  });
+  if (targetEnv === 'safari') {
+    // Safari 15: tabs.query may return tabs that do not match the query
+    tabs = tabs.filter(tab =>
+      tab.url.startsWith('https://search-by-image.localhost/share')
+    );
+  }
+
+  if (retry && !tabs.length) {
+    window.setTimeout(processIncomingShareTab, 1000);
+  }
+
+  for (const tab of tabs) {
+    await processIncomingShare(tab.id, tab.url);
+  }
+}
+
+function addIncomingShareListener() {
+  const onIncomingShare = function (details) {
+    if (!details.frameId) {
+      processIncomingShare(details.tabId, details.url);
+    }
+  };
+
+  const filter = {
+    url: [
+      {
+        hostEquals: 'search-by-image.localhost',
+        pathEquals: '/share'
+      }
+    ]
+  };
+
+  browser.webNavigation.onBeforeNavigate.addListener(onIncomingShare, filter);
+  browser.webNavigation.onCommitted.addListener(onIncomingShare, filter);
+  browser.webNavigation.onCompleted.addListener(onIncomingShare, filter);
+  browser.webNavigation.onErrorOccurred.addListener(onIncomingShare, filter);
+
+  processIncomingShareTab({retry: true});
+}
+
 async function setContextMenu() {
   // removes context menu items from all instances
   await browser.contextMenus.removeAll();
@@ -1225,6 +1243,10 @@ function init() {
   addAlarmListener();
   addInstallListener();
   addStartupListener();
+
+  if (targetEnv === 'safari') {
+    addIncomingShareListener();
+  }
 
   setup();
 }

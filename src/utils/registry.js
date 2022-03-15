@@ -176,6 +176,29 @@ async function saveStorageItemReceipt({storageId} = {}) {
   });
 }
 
+async function aquireLock({name, expiryTime = 1.0} = {}) {
+  name = await storageQueue.add(async function () {
+    if (!name) {
+      name = uuidv4();
+    }
+
+    const token = `lock_${name}`;
+
+    const {metadata} = await _getStorageItem({
+      storageId: token,
+      metadata: true
+    });
+
+    if (!metadata) {
+      await addStorageItem('', {token, expiryTime});
+
+      return name;
+    }
+  });
+
+  return name;
+}
+
 async function addStorageRegistryItem({storageId, addTime} = {}) {
   await registryQueue.add(async function () {
     const {storageRegistry} = await storage.get('storageRegistry');
@@ -290,5 +313,6 @@ export default {
   saveStorageItemReceipt,
   addTaskRegistryItem,
   getTaskRegistryItem,
-  cleanupRegistry
+  cleanupRegistry,
+  aquireLock
 };
