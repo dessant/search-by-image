@@ -16,9 +16,9 @@
 <p align="center">
   <a href="https://galaxystore.samsung.com/detail/dev.armin.searchbyimage">
     <img height="58" src="https://i.imgur.com/UT5Rgrw.png" alt="Galaxy Store"></a>
-  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106#?platform=iphone">
+  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106?platform=iphone">
     <img height="58" src="https://i.imgur.com/40lhQiL.png" alt="App Store"></a>
-  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106#?platform=mac">
+  <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106?platform=mac">
     <img height="58" src="https://i.imgur.com/JGvQ2Zc.png" alt="Mac App Store"></a>
   </br></br>
 </p>
@@ -86,7 +86,7 @@ and the browser toolbar from the extension's options.
 
 ## License
 
-Copyright (c) 2017-2021 Armin Sebastian
+Copyright (c) 2017-2022 Armin Sebastian
 
 This software is released under the terms of the GNU General Public License v3.0.
 See the [LICENSE](LICENSE) file for further information.
