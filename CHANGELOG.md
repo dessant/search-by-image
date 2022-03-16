@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.6.0](https://github.com/dessant/search-by-image/compare/v4.5.0...v4.6.0) (2022-03-16)
+
+
+### Features
+
+* add support for searching in Safari by sharing an image on iOS ([1cae724](https://github.com/dessant/search-by-image/commit/1cae7246a20ae47f01db8cc70e43e3de56d94364))
+* search with a local image opened in a tab ([8e4d591](https://github.com/dessant/search-by-image/commit/8e4d591763314f1f92076d02e9b99a62bf535ab1)), closes [#173](https://github.com/dessant/search-by-image/issues/173)
+
 ## [4.5.0](https://github.com/dessant/search-by-image/compare/v4.4.2...v4.5.0) (2022-01-08)
 
 
