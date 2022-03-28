@@ -14,7 +14,9 @@ const optionKeys = [
   'bypassImageHostBlocking',
   'shareImageContextMenu',
   'shareImageAction',
-  'convertSharedImage'
+  'convertSharedImage',
+  'autoPasteAction',
+  'confirmPaste'
 ];
 
 const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
@@ -352,6 +354,16 @@ const censoredEngines = [
   'alibabaChina'
 ];
 
+const rasterEngineIcons = [
+  'iqdb',
+  'karmaDecay',
+  'tineye',
+  'whatanime',
+  'repostSleuth'
+];
+
+const engineIconAlias = {branddb: 'wipo', madridMonitor: 'wipo'};
+
 // https://github.com/jshttp/mime-db
 const imageMimeTypes = {
   'image/aces': ['exr'],
@@ -456,6 +468,8 @@ const projectUrl = 'https://github.com/dessant/search-by-image';
 export {
   optionKeys,
   engines,
+  rasterEngineIcons,
+  engineIconAlias,
   censoredEngines,
   imageMimeTypes,
   chromeDesktopUA,

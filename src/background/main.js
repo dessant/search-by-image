@@ -33,7 +33,8 @@ import {
   insertBaseModule,
   fetchImage,
   isContextMenuSupported,
-  checkSearchEngineAccess
+  checkSearchEngineAccess,
+  getEngineMenuIcon
 } from 'utils/app';
 import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
@@ -195,26 +196,6 @@ function setUserAgentHeader(tabId, userAgent) {
   );
 }
 
-function getEngineMenuIcons(engine) {
-  if (
-    ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
-      engine
-    )
-  ) {
-    return {
-      16: `src/assets/icons/engines/${engine}-16.png`,
-      32: `src/assets/icons/engines/${engine}-32.png`
-    };
-  } else {
-    if (['branddb', 'madridMonitor'].includes(engine)) {
-      engine = 'wipo';
-    }
-    return {
-      16: `src/assets/icons/engines/${engine}.svg`
-    };
-  }
-}
-
 function createMenuItem({
   id,
   title = '',
@@ -308,7 +289,7 @@ async function createMenu() {
           title: getText('menuItemTitle_allEngines'),
           contexts,
           urlPatterns,
-          icons: setIcons && getEngineMenuIcons('allEngines')
+          icons: setIcons && getEngineMenuIcon('allEngines')
         });
         createMenuItem({
           id: 'sep-1',
@@ -325,7 +306,7 @@ async function createMenu() {
         title: getText(`menuItemTitle_${engine}`),
         contexts,
         urlPatterns,
-        icons: setIcons && getEngineMenuIcons(engine)
+        icons: setIcons && getEngineMenuIcon(engine)
       });
     });
   }
@@ -788,7 +769,7 @@ async function onActionButtonClick(tab) {
   onActionClick(session, tab.url);
 }
 
-async function onActionPopupClick(engine, imageUrl) {
+async function onActionPopupClick(engine, images, imageUrl) {
   const {searchModeAction} = await storage.get('searchModeAction');
 
   const tab = await getActiveTab();
@@ -803,6 +784,9 @@ async function onActionPopupClick(engine, imageUrl) {
 
   if (searchModeAction === 'url') {
     await initSearch(session, {imageUrl});
+  } else if (searchModeAction === 'upload' && images) {
+    session.searchMode = 'selectUpload';
+    await initSearch(session, images);
   } else {
     onActionClick(session, tab.url);
   }
@@ -982,7 +966,7 @@ async function processMessage(request, sender) {
       hideContentSelectionPointer(sender.tab.id);
     }
   } else if (request.id === 'actionPopupSubmit') {
-    onActionPopupClick(request.engine, request.imageUrl);
+    onActionPopupClick(request.engine, request.images, request.imageUrl);
   } else if (request.id === 'imageUploadSubmit') {
     request.session.sourceTabId = sender.tab.id;
     initSearch(request.session, request.images);
@@ -1045,7 +1029,7 @@ async function processMessage(request, sender) {
       );
     }
 
-    showNotification({messageId: 'error_internalError'});
+    showNotification({messageId: 'error_pageParseError'});
   } else if (request.id === 'setContentRequestHeaders') {
     setContentRequestHeaders(request.token, request.url, {
       referrer: request.referrer

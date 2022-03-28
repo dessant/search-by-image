@@ -73,7 +73,7 @@
       <div class="section-title" v-once>
         {{
           getText(
-            $isMobile
+            $env.isMobile
               ? 'optionSectionTitleMobile_toolbar'
               : 'optionSectionTitle_toolbar'
           )
@@ -106,6 +106,17 @@
             <v-switch id="sia" v-model="options.shareImageAction"></v-switch>
           </v-form-field>
         </div>
+        <div
+          class="option"
+          v-if="options.searchModeAction === 'upload' && autoPasteEnabled"
+        >
+          <v-form-field
+            input-id="ap"
+            :label="getText('optionTitle_autoPasteAction')"
+          >
+            <v-switch id="ap" v-model="options.autoPasteAction"></v-switch>
+          </v-form-field>
+        </div>
       </div>
     </div>
 
@@ -114,7 +125,7 @@
         {{ getText('optionSectionTitle_misc') }}
       </div>
       <div class="option-wrap">
-        <div class="option" v-if="!$isAndroid">
+        <div class="option" v-if="!$env.isAndroid">
           <v-form-field
             input-id="tib"
             :label="getText('optionTitle_tabInBackgound')"
@@ -136,6 +147,14 @@
             :label="getText('optionTitle_convertSharedImage')"
           >
             <v-switch id="csi" v-model="options.convertSharedImage"></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option" v-if="pasteEnabled">
+          <v-form-field
+            input-id="cp"
+            :label="getText('optionTitle_confirmPaste')"
+          >
+            <v-switch id="cp" v-model="options.confirmPaste"></v-switch>
           </v-form-field>
         </div>
         <div class="option">
@@ -193,7 +212,7 @@ export default {
       'upload',
       'url'
     ];
-    if (this.$isSamsung || (this.$isSafari && this.$isMobile)) {
+    if (this.$env.isSamsung || (this.$env.isSafari && this.$env.isMobile)) {
       // Samsung Internet 13: tabs.captureVisibleTab fails.
       // Safari 15: captured tab image is padded on mobile.
       searchModeContextMenu = searchModeContextMenu.filter(
@@ -219,7 +238,7 @@ export default {
         ...getListItems(
           {searchAllEnginesAction: ['main', 'sub', 'false']},
           {
-            scope: this.$isMobile
+            scope: this.$env.isMobile
               ? 'optionValue_searchAllEnginesActionMobile'
               : 'optionValue_searchAllEnginesAction'
           }
@@ -232,6 +251,8 @@ export default {
       contextMenuEnabled: true,
       searchAllEnginesEnabled: true,
       shareImageEnabled: true,
+      autoPasteEnabled: true,
+      pasteEnabled: true,
 
       options: {
         engines: [],
@@ -247,7 +268,9 @@ export default {
         bypassImageHostBlocking: false,
         shareImageContextMenu: false,
         shareImageAction: false,
-        convertSharedImage: false
+        convertSharedImage: false,
+        autoPasteAction: false,
+        confirmPaste: false
       }
     };
   },
@@ -262,6 +285,35 @@ export default {
 
   methods: {
     getText,
+
+    setup: async function () {
+      const options = await storage.get(optionKeys);
+
+      for (const option of Object.keys(this.options)) {
+        this.options[option] = options[option];
+
+        this.$watch(`options.${option}`, async function (value) {
+          await storage.set({[option]: value});
+          await browser.runtime.sendMessage({id: 'optionChange'});
+        });
+      }
+
+      this.searchAllEnginesEnabled = !this.$env.isSamsung;
+
+      this.contextMenuEnabled = !(this.$env.isMobile && !this.$env.isSamsung);
+
+      this.shareImageEnabled = this.$env.isSamsung;
+
+      this.pasteEnabled =
+        !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
+
+      this.autoPasteEnabled =
+        !this.$env.isSafari &&
+        !this.$env.isSamsung &&
+        !(this.$env.isMobile && this.$env.isFirefox);
+
+      this.dataLoaded = true;
+    },
 
     engineEnabled: function (engine) {
       return !includes(this.options.disabledEngines, engine);
@@ -280,33 +332,12 @@ export default {
   },
 
   created: async function () {
-    const options = await storage.get(optionKeys);
-
-    for (const option of Object.keys(this.options)) {
-      this.options[option] = options[option];
-
-      this.$watch(`options.${option}`, async function (value) {
-        await storage.set({[option]: value});
-        await browser.runtime.sendMessage({id: 'optionChange'});
-      });
-    }
-
-    if (this.$isSamsung) {
-      this.searchAllEnginesEnabled = false;
-    } else {
-      if (this.$isMobile) {
-        this.contextMenuEnabled = false;
-      }
-    }
-
-    this.shareImageEnabled = this.$isSamsung;
-
     document.title = getText('pageTitle', [
       getText('pageTitle_options'),
       getText('extensionName')
     ]);
 
-    this.dataLoaded = true;
+    this.setup();
   }
 };
 </script>

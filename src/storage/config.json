@@ -37,7 +37,8 @@
       "20211204124507_add_wildberries",
       "20211213014048_add_lastengineaccesscheck",
       "20211213191049_add_setcontextmenuevent",
-      "20220108063511_add_google_lens"
+      "20220108063511_add_google_lens",
+      "20220321163741_add_clipboard_support"
     ],
     "sync": []
   }

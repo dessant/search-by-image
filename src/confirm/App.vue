@@ -86,7 +86,7 @@ export default {
   },
 
   mounted: async function () {
-    if (this.$isSafari) {
+    if (this.$env.isSafari) {
       const tab = await browser.tabs.getCurrent();
       this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
       this.contentMessagePort.onMessage.addListener(this.onMessage);

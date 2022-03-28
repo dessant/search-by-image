@@ -1,70 +1,121 @@
 <template>
   <div id="app" v-if="dataLoaded" :class="appClasses">
-    <div class="browse-wrap" v-if="!isShare && !showSpinner && !error">
-      <input
-        class="drop-zone"
-        ref="dropZone"
-        v-show="dropEnabled"
-        @cut.prevent
-        @copy.prevent
-        @paste.prevent="handleSelectedFiles($event, 'paste')"
-        @drop.prevent="handleSelectedFiles($event, 'drop')"
-        @dragenter.prevent="dropState = true"
-        @dragexit.prevent="dropState = false"
-        @dragend.prevent="dropState = false"
-        @dragover.prevent
-      />
+    <div class="browse-content" v-if="!isShare && !showSpinner && !showError">
+      <div class="browse-area" v-show="showBrowseArea">
+        <div
+          class="drop-zone"
+          v-if="dropEnabled"
+          @drop.prevent="onFileEvent($event, 'drop-event')"
+          @dragstart.prevent="dropState = true"
+          @dragend="dropState = false"
+          @dragenter.prevent="dropState = true"
+          @dragleave="dropState = false"
+          @dragover.prevent
+        ></div>
 
-      <div class="drop-zone-content">
-        <img
-          class="drop-zone-icon"
-          :src="`/src/assets/icons/browse/drop-zone-${
-            dropState ? 'drop' : 'drag'
-          }.svg`"
-        />
+        <div class="drop-zone-content">
+          <img
+            class="drop-zone-icon"
+            :src="`/src/assets/icons/browse/drop-zone-${
+              dropState ? 'drop' : 'drag'
+            }.svg`"
+          />
 
-        <div class="drop-zone-text">
-          {{
-            dropEnabled
-              ? getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`)
-              : getText('pageContent_browse')
-          }}
+          <div class="drop-zone-text">
+            {{
+              dropEnabled
+                ? getText(`pageContent_browse_${dropState ? 'drop' : 'drag'}`)
+                : getText('pageContent_browse')
+            }}
+          </div>
+
+          <div class="browse-buttons" v-show="!dropState">
+            <input
+              ref="browseInput"
+              class="browse-input"
+              type="file"
+              accept="image/*"
+              multiple
+              @change="onFileEvent($event, 'input-event')"
+            />
+            <v-button
+              class="outline-button"
+              outlined
+              :label="getText('buttonText_browse')"
+              :disabled="processing"
+              @click="onBrowseButtonClick"
+            ></v-button>
+            <v-button
+              class="outline-button"
+              v-if="pasteEnabled"
+              outlined
+              :label="getText('buttonText_paste')"
+              :disabled="processing"
+              @click="onPasteButtonClick"
+            ></v-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="browse-preview" v-show="images">
+        <div class="preview-images">
+          <picture
+            class="tile-container"
+            v-for="(img, index) in images"
+            :key="index"
+          >
+            <source :srcset="img.imageDataUrl" :type="img.imageType" />
+            <img
+              class="tile"
+              referrerpolicy="no-referrer"
+              src="/src/assets/icons/misc/fallback-image.svg"
+              :alt="img.imageFilename"
+            />
+          </picture>
         </div>
 
-        <div class="browse-button-wrap">
-          <input
-            ref="input"
-            class="image-input"
-            type="file"
-            accept="image/*"
-            multiple
-            @change="handleSelectedFiles($event, 'input')"
-          />
+        <div class="preview-buttons">
           <v-button
-            class="browse-button"
-            v-show="!dropState"
+            class="outline-button"
             outlined
-            :label="getText('buttonText_browse')"
-            @click="$refs.input.click()"
+            :label="getText('buttonText_cancel')"
+            :disabled="processing"
+            @click="hidePreviewImages"
+          ></v-button>
+          <v-button
+            class="outline-button"
+            outlined
+            :label="getText('buttonText_search')"
+            :disabled="processing"
+            @click="onSearchButtonClick"
           ></v-button>
         </div>
       </div>
     </div>
 
-    <div class="share-wrap" v-if="isShare && !showSpinner && !error">
-      <div class="image-container">
-        <div class="tile-container" v-for="(img, index) in images" :key="index">
+    <div class="share-content" v-if="isShare && !showSpinner && !showError">
+      <div class="preview-images">
+        <picture
+          class="tile-container"
+          v-for="(img, index) in images"
+          :key="index"
+        >
+          <source :srcset="img.imageDataUrl" :type="img.imageType" />
           <img
             class="tile"
             referrerpolicy="no-referrer"
-            :src="img.imageDataUrl"
+            src="/src/assets/icons/misc/fallback-image.svg"
+            :alt="img.imageFilename"
           />
-        </div>
+        </picture>
       </div>
 
       <div class="list-container">
         <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
-          <li class="mdc-list-item list-item" @click="selectItem('allEngines')">
+          <li
+            class="mdc-list-item list-item"
+            @click="onEngineClick('allEngines')"
+          >
             <img
               class="mdc-list-item__graphic list-item-icon"
               :src="getEngineIcon('allEngines')"
@@ -82,7 +133,7 @@
             class="mdc-list-item list-item"
             v-for="engine in engines"
             :key="engine.id"
-            @click="selectItem(engine)"
+            @click="onEngineClick(engine)"
           >
             <img
               class="mdc-list-item__graphic list-item-icon"
@@ -94,12 +145,12 @@
       </div>
     </div>
 
-    <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
-
-    <div v-if="error">
-      <div class="error-icon">:/</div>
-      <div class="error-text">{{ error }}</div>
+    <div class="error-content" v-if="showError">
+      <img class="error-icon" src="/src/assets/icons/misc/error.svg" />
+      <div class="error-text">{{ showError }}</div>
     </div>
+
+    <div v-if="showSpinner && !showError" class="sk-rotating-plane"></div>
   </div>
 </template>
 
@@ -116,7 +167,9 @@ import {
   createSession,
   normalizeFilename,
   normalizeImage,
-  fileExtToMimeType
+  fileExtToMimeType,
+  getFilesFromClipboard,
+  getEngineIcon
 } from 'utils/app';
 import {getText, dataUrlToBlob} from 'utils/common';
 import {optionKeys} from 'utils/data';
@@ -129,18 +182,26 @@ export default {
   data: function () {
     return {
       dataLoaded: false,
+      processing: false,
 
       isShare: false,
 
       showSpinner: false,
+      showError: '',
+
       dropState: false,
-      dropEnabled: false,
-      error: '',
+      showBrowseArea: true,
+
+      images: null,
       session: null,
 
-      images: [],
       engines: [],
-      searchAllEngines: false
+      searchAllEngines: false,
+
+      pasteEnabled: false,
+      dropEnabled: false,
+
+      confirmPaste: false
     };
   },
 
@@ -157,21 +218,11 @@ export default {
   methods: {
     getText,
 
-    getEngineIcon: function (engine) {
-      let ext = 'svg';
-      if (
-        ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
-          engine
-        )
-      ) {
-        ext = 'png';
-      } else if (['branddb', 'madridMonitor'].includes(engine)) {
-        engine = 'wipo';
-      }
-      return `/src/assets/icons/engines/${engine}.${ext}`;
-    },
+    getEngineIcon,
 
     setup: async function () {
+      const options = await storage.get(optionKeys);
+
       if (this.isShare) {
         const shareId = new URL(window.location.href).searchParams.get('id');
 
@@ -188,36 +239,25 @@ export default {
               };base64,${response.imageDataStr}`
             );
 
-            const {dataUrl, type, ext} = await normalizeImage({
-              blob: imageBlob
-            });
-            if (dataUrl) {
-              const filename = normalizeFilename({filename: '', ext});
-              this.images.push({
-                imageDataUrl: dataUrl,
-                imageFilename: filename,
-                imageType: type,
-                imageExt: ext,
-                imageSize: imageBlob.size
-              });
+            const images = await this.processFiles([imageBlob]);
+
+            if (images) {
+              this.images = images;
+            } else {
+              this.showError = getText('error_invalidImageFile');
             }
           } else {
-            this.error = getText('error_invalidPageUrl');
+            this.showError = getText('error_invalidPageUrl');
           }
         } else {
-          this.error = getText('error_invalidPageUrl');
+          this.showError = getText('error_invalidPageUrl');
         }
 
-        if (this.images.length) {
-          const options = await storage.get(optionKeys);
-          const enEngines = await getEnabledEngines(options);
+        const enEngines = await getEnabledEngines(options);
 
-          this.engines = enEngines;
-          this.searchAllEngines =
-            options.searchAllEnginesAction === 'sub' && !this.$isSamsung;
-        } else {
-          this.error = getText('error_invalidPageUrl');
-        }
+        this.engines = enEngines;
+        this.searchAllEngines =
+          options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
       } else {
         const storageId = new URL(window.location.href).searchParams.get('id');
 
@@ -231,101 +271,242 @@ export default {
         if (session) {
           this.session = session;
         } else {
-          this.error = getText('error_invalidPageUrl');
+          this.showError = getText('error_invalidPageUrl');
         }
 
-        if (!this.$isMobile) {
-          this.dropEnabled = true;
+        this.dropEnabled = !this.$env.isAndroid;
+
+        this.pasteEnabled =
+          !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
+
+        this.confirmPaste = options.confirmPaste;
+
+        if (this.pasteEnabled) {
+          window.addEventListener('paste', this.onPasteEvent, {
+            capture: true,
+            passive: false
+          });
         }
       }
 
       this.dataLoaded = true;
     },
 
-    getEngineIcon: function (engine) {
-      let ext = 'svg';
-      if (
-        ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
+    processFiles: async function (files) {
+      if (files) {
+        const images = [];
+
+        for (const file of files) {
+          const {dataUrl, type, ext} = await normalizeImage({blob: file});
+          if (dataUrl) {
+            const filename = normalizeFilename({filename: file.name, ext});
+            images.push({
+              imageDataUrl: dataUrl,
+              imageFilename: filename,
+              imageType: type,
+              imageExt: ext,
+              imageSize: file.size
+            });
+          }
+        }
+
+        if (images.length) {
+          return images;
+        }
+      }
+    },
+
+    startProcessing: function () {
+      if (!this.processing) {
+        this.processing = true;
+        return true;
+      }
+    },
+
+    stopProcessing: function () {
+      this.processing = false;
+    },
+
+    onEngineClick: async function (engine) {
+      if (!this.startProcessing()) return;
+
+      try {
+        const tab = browser.tabs.getCurrent();
+
+        this.session = await createSession({
+          sessionOrigin: 'share',
+          searchMode: 'upload',
+          sourceTabId: tab.id,
+          sourceTabIndex: tab.index,
           engine
-        )
-      ) {
-        ext = 'png';
-      } else if (['branddb', 'madridMonitor'].includes(engine)) {
-        engine = 'wipo';
-      }
-      return `/src/assets/icons/engines/${engine}.${ext}`;
-    },
-
-    selectItem: async function (engine) {
-      const tab = browser.tabs.getCurrent();
-
-      const session = await createSession({
-        sessionOrigin: 'share',
-        searchMode: 'upload',
-        sourceTabId: tab.id,
-        sourceTabIndex: tab.index,
-        engine
-      });
-
-      browser.runtime.sendMessage({
-        id: 'imageUploadSubmit',
-        images: this.images,
-        session
-      });
-    },
-
-    handleSelectedFiles: async function (ev, source) {
-      let files;
-      if (source === 'input') {
-        files = ev.target.files;
-      } else if (source === 'drop') {
-        files = ev.dataTransfer.files;
-      } else if (source === 'paste') {
-        files = ev.clipboardData.files;
-      }
-
-      if (files.length > 3) {
-        browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_invalidImageCount'
         });
-        if (source === 'drop') {
+
+        await this.initSearch();
+      } catch (err) {
+        this.stopProcessing();
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
+
+        throw err;
+      }
+    },
+
+    onCancelButtonClick: function () {
+      if (!this.processing) {
+        this.hidePreviewImages();
+      }
+    },
+
+    onSearchButtonClick: async function () {
+      if (!this.startProcessing()) return;
+
+      try {
+        await this.initSearch();
+      } catch (err) {
+        this.stopProcessing();
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
+
+        throw err;
+      }
+    },
+
+    onBrowseButtonClick: function () {
+      if (!this.processing) {
+        this.$refs.browseInput.click();
+      }
+    },
+
+    onPasteButtonClick: function () {
+      if (!this.startProcessing()) return;
+
+      this.processClipboardImages().finally(() => {
+        this.stopProcessing();
+      });
+    },
+
+    onFileEvent: function (ev, source) {
+      if (!this.startProcessing()) return;
+
+      let files;
+      if (source === 'input-event') {
+        files = ev.target.files;
+      } else if (source === 'drop-event') {
+        files = ev.dataTransfer.files;
+      }
+
+      this.processSelectedImages(files).finally(() => {
+        this.stopProcessing();
+        if (source === 'drop-event') {
           this.dropState = false;
         }
+      });
+    },
+
+    onPasteEvent: function (ev) {
+      if (!this.startProcessing()) return;
+
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+
+      if (this.showSpinner || this.showError) {
+        this.stopProcessing();
         return;
       }
 
-      const images = [];
-      for (let file of files) {
-        const {dataUrl, type, ext} = await normalizeImage({blob: file});
-        if (dataUrl) {
-          const filename = normalizeFilename({filename: file.name, ext});
-          images.push({
-            imageDataUrl: dataUrl,
-            imageFilename: filename,
-            imageType: type,
-            imageExt: ext,
-            imageSize: file.size
+      const files = Array.prototype.slice.call(ev.clipboardData.files, 0, 3);
+
+      this.processClipboardImages(files).finally(() => {
+        this.stopProcessing();
+      });
+    },
+
+    processClipboardImages: async function (files) {
+      try {
+        if (!files) {
+          files = await getFilesFromClipboard();
+        }
+
+        const images = await this.processFiles(files);
+
+        if (images) {
+          if (this.confirmPaste) {
+            this.showPreviewImages(images);
+          } else {
+            await this.initSearch(images);
+          }
+        } else {
+          await browser.runtime.sendMessage({
+            id: 'notification',
+            messageId: 'error_invalidImageFile'
           });
         }
-      }
+      } catch (err) {
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
 
-      if (images.length > 0) {
-        browser.runtime.sendMessage({
+        throw err;
+      }
+    },
+
+    processSelectedImages: async function (files) {
+      try {
+        if (files.length > 3) {
+          await browser.runtime.sendMessage({
+            id: 'notification',
+            messageId: 'error_invalidImageCount'
+          });
+          return;
+        }
+
+        const images = await this.processFiles(files);
+
+        if (images) {
+          await this.initSearch(images);
+        } else {
+          await browser.runtime.sendMessage({
+            id: 'notification',
+            messageId: 'error_invalidImageFile'
+          });
+        }
+      } catch (err) {
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
+
+        throw err;
+      }
+    },
+
+    showPreviewImages: function (images) {
+      this.showBrowseArea = false;
+      this.images = images;
+    },
+
+    hidePreviewImages: function () {
+      this.images = null;
+      this.showBrowseArea = true;
+    },
+
+    initSearch: async function (images) {
+      this.showSpinner = true;
+
+      try {
+        await browser.runtime.sendMessage({
           id: 'imageUploadSubmit',
-          images,
+          images: images || this.images,
           session: this.session
         });
-        this.showSpinner = true;
-      } else {
-        browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_invalidImageFile'
-        });
-      }
-
-      if (source === 'drop') {
-        this.dropState = false;
+      } catch (err) {
+        this.showSpinner = false;
+        throw err;
       }
     }
   },
@@ -365,6 +546,7 @@ $spinkit-spinner-color: #e74c3c;
 
 @import 'spinkit/scss/spinners/1-rotating-plane';
 @import '@material/list/mdc-list';
+
 @import '@material/button/mixins';
 @import '@material/ripple/mixins';
 @import '@material/theme/mixins';
@@ -385,28 +567,25 @@ body {
 
 #app {
   display: flex;
-  justify-content: center;
+  justify-content: safe center;
 }
 
 #app.browse-view {
-  align-items: center;
+  align-items: safe center;
 
-  & .drop-zone,
-  & .drop-zone-content {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  & .browse-content {
+    // workaround for 'safe center'
+    margin: auto;
   }
 
   & .drop-zone {
-    border: none;
-    color: transparent;
-    cursor: default;
-    user-select: none;
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: calc(100% - 32px);
+    height: calc(100% - 32px);
   }
 
   & .drop-zone-content {
@@ -432,21 +611,76 @@ body {
     height: 128px;
   }
 
-  & .browse-button-wrap {
+  & .browse-buttons {
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 24px;
     height: 36px;
     margin-top: 72px;
     @media (min-height: 480px) {
       margin-top: 96px;
     }
+
+    & .outline-button {
+      pointer-events: auto;
+    }
   }
 
-  & .image-input {
+  & .browse-input {
     display: none;
   }
 
-  & .browse-button {
-    pointer-events: auto;
+  .browse-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 960px;
+    padding: 16px;
 
+    & .preview-images {
+      display: grid;
+      grid-auto-flow: column;
+      grid-column-gap: 16px;
+    }
+
+    & .tile-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 96px;
+      @media (min-height: 480px) {
+        height: 120px;
+      }
+    }
+
+    & .tile {
+      display: flex;
+      object-fit: scale-down;
+      max-width: 100%;
+      max-height: 96px;
+      @media (min-height: 480px) {
+        max-height: 120px;
+      }
+
+      border-radius: 8px;
+      box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.06),
+        0px 6px 10px 0px rgba(0, 0, 0, 0.04),
+        0px 1px 12px 0px rgba(0, 0, 0, 0.03);
+    }
+
+    & .preview-buttons {
+      display: grid;
+      grid-auto-flow: column;
+      grid-column-gap: 24px;
+      height: 36px;
+      margin-top: 48px;
+      @media (min-height: 480px) {
+        margin-top: 72px;
+      }
+    }
+  }
+
+  & .outline-button {
     @include mdc-button-ink-color(#4e5bb6);
     @include mdc-button-outline-color(#4e5bb6);
     @include mdc-button-shape-radius(16px);
@@ -462,28 +696,31 @@ body {
   overflow-x: auto;
   background-color: #f2f2f7;
 
-  & .share-wrap {
+  & .share-content {
     width: 100%;
     padding: 16px;
+    padding-top: 32px;
   }
 
-  & .image-container {
-    margin-bottom: 16px;
-    display: flex;
+  & .preview-images {
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 16px;
+    margin-bottom: 32px;
   }
 
   & .tile-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 120px;
-    height: 90px;
+    height: 96px;
   }
 
   & .tile {
-    max-width: calc(100% - 16px);
-    max-height: calc(100% - 16px);
+    display: flex;
     object-fit: scale-down;
+    max-width: 100%;
+    max-height: 96px;
 
     border-radius: 8px;
     box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.12),
@@ -521,10 +758,6 @@ body {
     margin-left: 56px;
   }
 
-  & .list-items-wrap {
-    overflow-y: auto;
-  }
-
   &.list-separator-hidden .list-items li:first-child {
     border-radius: 16px 16px 0px 0px;
   }
@@ -552,21 +785,28 @@ body {
   }
 }
 
-.error-icon {
-  font-size: 96px;
-  color: #e74c3c;
-}
+.error-content {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  padding: 16px;
 
-.error-text {
-  @include mdc-typography(subtitle1);
-  @include mdc-theme-prop(color, #252525);
-  max-width: 520px;
-  margin-top: 36px;
+  & .error-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 24px;
+  }
+
+  & .error-text {
+    @include mdc-typography(subtitle1);
+    @include mdc-theme-prop(color, #252525);
+    max-width: 520px;
+  }
 }
 
 .safari {
   & #app.browse-view {
-    & .browse-button {
+    & .outline-button {
       -webkit-mask-image: -webkit-radial-gradient(white, black);
     }
   }
@@ -582,7 +822,7 @@ body {
 
   &.macos {
     & #app.browse-view {
-      & .browse-button {
+      & .outline-button {
         transform: translate3d(0px, 0px, 0px);
       }
     }
@@ -592,7 +832,7 @@ body {
 /* tablets */
 @media (min-width: 480px) {
   #app.share-view {
-    & .share-wrap {
+    & .share-content {
       width: auto;
       min-width: 320px;
     }

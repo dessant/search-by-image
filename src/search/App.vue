@@ -40,11 +40,12 @@
       </div>
     </div>
     <div v-if="!resultsLoaded" class="page-overlay">
-      <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
-      <div v-if="error">
-        <div class="error-icon">:/</div>
+      <div class="error-content" v-if="error">
+        <img class="error-icon" src="/src/assets/icons/misc/error.svg" />
         <div class="error-text">{{ error }}</div>
       </div>
+
+      <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
     </div>
   </div>
 </template>
@@ -84,7 +85,7 @@ export default {
 
     search: async function ({session, search, image} = {}) {
       if (this.engine === 'pinterest') {
-        if (this.$isSafari && this.$isMobile) {
+        if (this.$env.isSafari && this.$env.isMobile) {
           // Safari 15: cross-origin request from extension page is blocked on mobile.
           const rsp = await browser.runtime.sendMessage({
             id: 'searchImage',
@@ -105,7 +106,7 @@ export default {
         this.layoutGrid();
       } else if (this.engine === 'google') {
         let tabUrl;
-        if (this.$isSafari && this.$isMobile) {
+        if (this.$env.isSafari && this.$env.isMobile) {
           // Safari 15: cross-origin request from extension page is blocked on mobile.
           const rsp = await browser.runtime.sendMessage({
             id: 'searchImage',
@@ -128,7 +129,7 @@ export default {
         }
       } else if (this.engine === 'googleLens') {
         let tabUrl;
-        if (this.$isSafari && this.$isMobile) {
+        if (this.$env.isSafari && this.$env.isMobile) {
           // Safari 15: cross-origin request from extension page is blocked on mobile.
           const rsp = await browser.runtime.sendMessage({
             id: 'searchImage',
@@ -231,7 +232,7 @@ export default {
         if (image) {
           if (
             task.search.method === 'upload' &&
-            !(this.$isSafari && this.$isMobile)
+            !(this.$env.isSafari && this.$env.isMobile)
           ) {
             image.imageBlob = dataUrlToBlob(image.imageDataUrl);
           }
@@ -305,15 +306,23 @@ body {
   padding: 8px;
 }
 
-.error-icon {
-  font-size: 72px;
-  color: #e74c3c;
-}
+.error-content {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  padding: 16px;
 
-.error-text {
-  @include mdc-typography(subtitle1);
-  max-width: 520px;
-  margin-top: 24px;
+  & .error-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 24px;
+  }
+
+  & .error-text {
+    @include mdc-typography(subtitle1);
+    @include mdc-theme-prop(color, #252525);
+    max-width: 520px;
+  }
 }
 
 #app {

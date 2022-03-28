@@ -47,19 +47,78 @@
       @after-enter="settingsAfterEnter"
       @after-leave="settingsAfterLeave"
     >
-      <div class="settings" v-if="searchModeAction === 'url'">
-        <v-textfield
-          ref="imageUrlInput"
-          v-model.trim="imageUrl"
-          :placeholder="getText('inputPlaceholder_imageUrl')"
-          fullwidth
-        ></v-textfield>
+      <div class="settings" v-if="showSettings">
+        <div class="url-settings" v-if="searchModeAction === 'url'">
+          <v-textfield
+            ref="imageUrlInput"
+            v-model.trim="imageUrl"
+            :placeholder="getText('inputPlaceholder_imageUrl')"
+            fullwidth
+          ></v-textfield>
+        </div>
+
+        <div class="browse-settings" v-if="searchModeAction === 'upload'">
+          <div class="browse-buttons" v-show="showBrowseButtons">
+            <input
+              ref="browseInput"
+              class="browse-input"
+              v-if="browseEnabled"
+              type="file"
+              accept="image/*"
+              multiple
+              @change="onBrowseInputChange"
+            />
+            <v-button
+              class="outline-button"
+              v-if="browseEnabled"
+              outlined
+              :label="getText('buttonText_browse')"
+              :disabled="processing"
+              @click="onBrowseButtonClick"
+            ></v-button>
+            <v-button
+              class="outline-button"
+              v-if="pasteEnabled"
+              outlined
+              :label="getText('buttonText_paste')"
+              :disabled="processing"
+              @click="onPasteButtonClick"
+            ></v-button>
+          </div>
+
+          <div
+            class="browse-preview"
+            v-show="previewImages && !settingsEnterActive"
+          >
+            <div class="preview-images">
+              <picture
+                class="tile-container"
+                v-for="(img, index) in previewImages"
+                :key="index"
+              >
+                <source :srcset="img.objectUrl" :type="img.image.type" />
+                <img
+                  class="tile"
+                  referrerpolicy="no-referrer"
+                  src="/src/assets/icons/misc/fallback-image.svg"
+                  :alt="img.image.name"
+                />
+              </picture>
+            </div>
+
+            <v-icon-button
+              class="preview-close-button"
+              src="/src/assets/icons/misc/close-preview.svg"
+              @click="hidePreviewImages"
+            ></v-icon-button>
+          </div>
+        </div>
       </div>
     </transition>
 
     <div class="list-padding-top"></div>
     <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
-      <li class="mdc-list-item list-item" @click="selectItem('allEngines')">
+      <li class="mdc-list-item list-item" @click="onEngineClick('allEngines')">
         <img
           class="mdc-list-item__graphic list-item-icon"
           :src="getEngineIcon('allEngines')"
@@ -77,7 +136,7 @@
           class="mdc-list-item list-item"
           v-for="engine in engines"
           :key="engine.id"
-          @click="selectItem(engine)"
+          @click="onEngineClick(engine)"
         >
           <img
             class="mdc-list-item__graphic list-item-icon"
@@ -95,16 +154,21 @@ import browser from 'webextension-polyfill';
 import {ResizeObserver} from 'vue-resize';
 import {MDCList} from '@material/list';
 import {MDCRipple} from '@material/ripple';
-import {IconButton, TextField, Menu} from 'ext-components';
+import {Button, IconButton, TextField, Menu} from 'ext-components';
 
 import storage from 'storage/storage';
 import {
   getEnabledEngines,
   showNotification,
+  normalizeFilename,
+  normalizeImage,
   validateUrl,
   getListItems,
   showContributePage,
-  showProjectPage
+  showProjectPage,
+  getImagesFromClipboard,
+  getImagesFromFiles,
+  getEngineIcon
 } from 'utils/app';
 import {getText, getActiveTab, createTab} from 'utils/common';
 import {enableContributions} from 'utils/config';
@@ -114,6 +178,7 @@ import DenseSelect from './components/DenseSelect';
 
 export default {
   components: {
+    [Button.name]: Button,
     [IconButton.name]: IconButton,
     [TextField.name]: TextField,
     [Menu.name]: Menu,
@@ -129,7 +194,7 @@ export default {
       'upload',
       'url'
     ];
-    if (this.$isSamsung || (this.$isSafari && this.$isMobile)) {
+    if (this.$env.isSamsung || (this.$env.isSafari && this.$env.isMobile)) {
       // Samsung Internet 13: tabs.captureVisibleTab fails.
       // Safari 15: captured tab image is padded on mobile.
       searchModeAction = searchModeAction.filter(item => item !== 'capture');
@@ -137,9 +202,15 @@ export default {
 
     return {
       dataLoaded: false,
+      processing: false,
 
       searchModeAction: '',
       imageUrl: '',
+      previewImages: null,
+      showBrowseButtons: false,
+
+      settingsEnterActive: false,
+
       listItems: {
         ...getListItems(
           {actionMenu: ['options', 'website']},
@@ -155,6 +226,9 @@ export default {
       engines: [],
       searchAllEngines: false,
       shareImageEnabled: false,
+      browseEnabled: false,
+      pasteEnabled: false,
+      autoPasteEnabled: false,
       enableContributions
     };
   },
@@ -164,46 +238,212 @@ export default {
       return {
         visible: this.searchAllEngines || this.hasScrollBar
       };
+    },
+    showSettings: function () {
+      return (
+        this.searchModeAction === 'url' ||
+        (this.searchModeAction === 'upload' &&
+          (this.browseEnabled || this.pasteEnabled))
+      );
     }
   },
 
   methods: {
     getText,
 
-    getEngineIcon: function (engine) {
-      let ext = 'svg';
-      if (
-        ['iqdb', 'karmaDecay', 'tineye', 'whatanime', 'repostSleuth'].includes(
-          engine
-        )
-      ) {
-        ext = 'png';
-      } else if (['branddb', 'madridMonitor'].includes(engine)) {
-        engine = 'wipo';
+    getEngineIcon,
+
+    onEngineClick: async function (engine) {
+      if (!this.startProcessing()) return;
+
+      try {
+        let images;
+
+        if (this.searchModeAction === 'url') {
+          if (!validateUrl(this.imageUrl)) {
+            this.focusImageUrlInput();
+            showNotification({messageId: 'error_invalidImageUrl'});
+            return;
+          }
+        } else if (this.searchModeAction === 'upload') {
+          if (this.previewImages) {
+            const files = this.previewImages.map(item => item.image);
+            images = await this.processFiles(files);
+            if (!images) {
+              showNotification({messageId: 'error_invalidImageFile'});
+              return;
+            }
+          }
+        }
+
+        await browser.runtime.sendMessage({
+          id: 'actionPopupSubmit',
+          engine,
+          images,
+          imageUrl: this.imageUrl
+        });
+
+        this.closeAction();
+      } catch (err) {
+        this.stopProcessing();
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
+
+        throw err;
       }
-      return `/src/assets/icons/engines/${engine}.${ext}`;
     },
 
-    selectItem: function (engine) {
-      if (this.searchModeAction === 'url') {
-        if (!validateUrl(this.imageUrl)) {
-          this.focusImageUrlInput();
-          showNotification({messageId: 'error_invalidImageUrl'});
-          return;
+    processFiles: async function (files) {
+      if (files) {
+        const images = [];
+
+        for (const file of files) {
+          const {dataUrl, type, ext} = await normalizeImage({blob: file});
+          if (dataUrl) {
+            const filename = normalizeFilename({filename: file.name, ext});
+            images.push({
+              imageDataUrl: dataUrl,
+              imageFilename: filename,
+              imageType: type,
+              imageExt: ext,
+              imageSize: file.size
+            });
+          }
+        }
+
+        if (images.length) {
+          return images;
         }
       }
-
-      browser.runtime.sendMessage({
-        id: 'actionPopupSubmit',
-        engine,
-        imageUrl: this.imageUrl
-      });
-
-      this.closeAction();
     },
 
-    shareImage: function () {
-      browser.runtime.sendMessage({id: 'initShare'});
+    startProcessing: function () {
+      if (!this.processing) {
+        this.processing = true;
+        return true;
+      }
+    },
+
+    stopProcessing: function () {
+      this.processing = false;
+    },
+
+    onSearchModeChange: function (newValue, oldValue) {
+      storage.set({searchModeAction: newValue});
+
+      if (newValue === 'upload') {
+        this.setupBrowseSearchModeSettings();
+      } else if (newValue === 'url' && oldValue === 'upload') {
+        window.setTimeout(this.focusImageUrlInput, 300);
+      }
+    },
+
+    setupBrowseSearchModeSettings: function () {
+      if (this.autoPasteEnabled) {
+        this.showBrowseButtons = false;
+        this.processClipboardImages();
+      } else {
+        this.showBrowseButtons = true;
+      }
+    },
+
+    onBrowseButtonClick: function () {
+      if (!this.processing) {
+        this.$refs.browseInput.click();
+      }
+    },
+
+    onPasteButtonClick: function () {
+      if (!this.startProcessing()) return;
+
+      this.processClipboardImages({showError: true}).finally(() => {
+        this.stopProcessing();
+      });
+    },
+
+    onBrowseInputChange: function (ev) {
+      console.log(11111, ev);
+      if (!this.startProcessing()) return;
+
+      const files = ev.target.files;
+
+      this.processSelectedImages(files).finally(() => {
+        this.stopProcessing();
+      });
+    },
+
+    processClipboardImages: async function ({showError = false} = {}) {
+      try {
+        const images = await getImagesFromClipboard();
+        this.showPreviewImages(images);
+
+        if (!images && showError) {
+          await browser.runtime.sendMessage({
+            id: 'notification',
+            messageId: 'error_invalidImageFile'
+          });
+        }
+      } catch (err) {
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
+
+        throw err;
+      }
+    },
+
+    processSelectedImages: async function (files) {
+      try {
+        if (files.length > 3) {
+          await browser.runtime.sendMessage({
+            id: 'notification',
+            messageId: 'error_invalidImageCount'
+          });
+          return;
+        }
+
+        const images = getImagesFromFiles(Array.from(files));
+        this.showPreviewImages(images);
+
+        if (!images) {
+          await browser.runtime.sendMessage({
+            id: 'notification',
+            messageId: 'error_invalidImageFile'
+          });
+        }
+      } catch (err) {
+        await browser.runtime.sendMessage({
+          id: 'notification',
+          messageId: 'error_internalError'
+        });
+
+        throw err;
+      }
+    },
+
+    showPreviewImages: function (images) {
+      if (images) {
+        this.showBrowseButtons = false;
+        this.previewImages = images.map(image => ({
+          image,
+          objectUrl: URL.createObjectURL(image)
+        }));
+      } else {
+        this.showBrowseButtons = true;
+      }
+    },
+
+    hidePreviewImages: function () {
+      this.previewImages.forEach(image => URL.revokeObjectURL(image.objectUrl));
+      this.previewImages = null;
+      this.showBrowseButtons = true;
+    },
+
+    shareImage: async function () {
+      await browser.runtime.sendMessage({id: 'initShare'});
 
       this.closeAction();
     },
@@ -214,7 +454,7 @@ export default {
     },
 
     showOptions: async function () {
-      if (this.$isSamsung) {
+      if (this.$env.isSamsung) {
         // Samsung Internet 13: runtime.openOptionsPage fails.
         await createTab({
           url: browser.runtime.getURL('/src/options/index.html')
@@ -250,7 +490,7 @@ export default {
       if (
         currentTab &&
         currentTab.id !== browser.tabs.TAB_ID_NONE &&
-        !this.$isSafari
+        !this.$env.isSafari
       ) {
         browser.tabs.remove(currentTab.id);
       } else {
@@ -263,6 +503,7 @@ export default {
     },
 
     settingsBeforeEnter: function () {
+      this.settingsEnterActive = true;
       this.lockPopupHeight();
     },
 
@@ -271,19 +512,24 @@ export default {
     },
 
     settingsAfterEnter: function () {
+      this.settingsEnterActive = false;
       this.configureScrollBar();
-      this.focusImageUrlInput();
+      if (this.searchModeAction === 'url') {
+        this.focusImageUrlInput();
+      }
     },
 
     settingsAfterLeave: function () {
       this.unlockPopupHeight();
       this.configureScrollBar();
-      this.imageUrl = '';
+      if (this.searchModeAction === 'url') {
+        this.imageUrl = '';
+      }
     },
 
     onListSizeChange: function () {
       this.configureScrollBar();
-      if (this.$isMobile && this.$isSafari) {
+      if (this.$env.isMobile && this.$env.isSafari) {
         // Safari 15: window.onresize is not always fired on mobile.
         this.setViewportSize();
       }
@@ -294,7 +540,7 @@ export default {
     },
 
     configureScrollBar: function () {
-      if (this.$isAndroid || this.$isSafari) {
+      if (this.$env.isAndroid || this.$env.isSafari) {
         this.hasScrollBar = this.$refs.items.scrollTop;
       } else {
         const items = this.$refs.items;
@@ -304,7 +550,7 @@ export default {
 
     lockPopupHeight: function () {
       if (
-        (this.$isAndroid || this.$isFirefox) &&
+        (this.$env.isAndroid || this.$env.isFirefox) &&
         !document.documentElement.style.height
       ) {
         const {height} = document.documentElement.getBoundingClientRect();
@@ -314,7 +560,7 @@ export default {
 
     unlockPopupHeight: function () {
       if (
-        (this.$isAndroid || this.$isFirefox) &&
+        (this.$env.isAndroid || this.$env.isFirefox) &&
         document.documentElement.style.height.endsWith('px')
       ) {
         document.documentElement.style.height = '';
@@ -327,7 +573,7 @@ export default {
 
       if (activeTab && actionWidth && activeTab.width > actionWidth) {
         // popup
-        if (this.$isMobile) {
+        if (this.$env.isMobile) {
           // mobile popup
           if (activeTab.width < 394) {
             document.body.style.minWidth = `${activeTab.width - 40}px`;
@@ -337,7 +583,7 @@ export default {
           this.$el.style.maxHeight = `${activeTab.height - 40}px`;
           document.documentElement.style.height = '';
 
-          if (this.$isIpados) {
+          if (this.$env.isIpados) {
             this.$refs.items.style.maxHeight = '392px';
           }
         } else {
@@ -369,8 +615,8 @@ export default {
     const enEngines = await getEnabledEngines(options);
 
     if (
-      this.$isFirefox &&
-      this.$isAndroid &&
+      this.$env.isFirefox &&
+      this.$env.isAndroid &&
       (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
     ) {
       // Firefox for Android: removing the action popup has no effect.
@@ -380,14 +626,28 @@ export default {
 
     this.engines = enEngines;
     this.searchAllEngines =
-      options.searchAllEnginesAction === 'sub' && !this.$isSamsung;
+      options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
     this.searchModeAction = options.searchModeAction;
 
-    this.shareImageEnabled = options.shareImageAction && this.$isSamsung;
+    this.shareImageEnabled = options.shareImageAction && this.$env.isSamsung;
 
-    this.$watch('searchModeAction', async function (value) {
-      await storage.set({searchModeAction: value});
-    });
+    this.browseEnabled =
+      !this.$env.isLinux && !this.$env.isSamsung && !this.$env.isFirefox;
+
+    this.pasteEnabled =
+      !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
+
+    this.autoPasteEnabled =
+      options.autoPasteAction &&
+      !this.$env.isSafari &&
+      !this.$env.isSamsung &&
+      !(this.$env.isMobile && this.$env.isFirefox);
+
+    this.$watch('searchModeAction', this.onSearchModeChange);
+
+    if (this.searchModeAction === 'upload') {
+      this.setupBrowseSearchModeSettings();
+    }
 
     this.dataLoaded = true;
   },
@@ -403,11 +663,11 @@ export default {
         }
       }
 
-      if (this.searchModeAction === 'url' && !this.$isMobile) {
+      if (this.searchModeAction === 'url' && !this.$env.isMobile) {
         this.focusImageUrlInput();
       }
 
-      if (this.$isMobile && this.$isSafari) {
+      if (this.$env.isMobile && this.$env.isSafari) {
         // Safari 15: window.onresize is not always fired on mobile.
         this.setViewportSize();
       }
@@ -421,6 +681,8 @@ export default {
 @import '@material/select/mdc-select';
 
 @import '@material/icon-button/mixins';
+@import '@material/button/mixins';
+@import '@material/ripple/mixins';
 @import '@material/theme/mixins';
 @import '@material/textfield/mixins';
 @import '@material/typography/mixins';
@@ -465,7 +727,8 @@ body {
 
 .contribute-button,
 .share-button,
-.menu-button {
+.menu-button,
+.preview-close-button {
   @include mdc-icon-button-icon-size(24px, 24px, 6px);
 
   &::before {
@@ -503,7 +766,8 @@ body {
 }
 
 .settings {
-  padding: 16px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
 .settings-enter-active,
@@ -521,6 +785,75 @@ body {
   padding-top: 0;
   padding-bottom: 0;
   opacity: 0;
+}
+
+.url-settings {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.browse-settings {
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & .browse-buttons {
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 24px;
+    height: 36px;
+  }
+
+  & .browse-input {
+    display: none;
+  }
+
+  & .outline-button {
+    @include mdc-button-ink-color(#4e5bb6);
+    @include mdc-button-outline-color(#4e5bb6);
+    @include mdc-button-shape-radius(16px);
+
+    & .mdc-button__ripple {
+      @include mdc-states-base-color(#8188e9);
+    }
+  }
+}
+
+.browse-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 4px;
+  width: 100%;
+
+  & .preview-images {
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 16px;
+  }
+
+  & .tile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 56px;
+  }
+
+  & .tile {
+    max-width: 100%;
+    max-height: 56px;
+    object-fit: scale-down;
+
+    border-radius: 8px;
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.06),
+      0px 6px 10px 0px rgba(0, 0, 0, 0.04), 0px 1px 12px 0px rgba(0, 0, 0, 0.03);
+  }
+
+  & .preview-close-button {
+    margin-left: 16px;
+  }
 }
 
 .list {
@@ -617,6 +950,22 @@ html.firefox.android {
 .safari {
   & .list-item:hover::before {
     opacity: 0 !important;
+  }
+}
+
+.safari {
+  & .browse-settings {
+    & .outline-button {
+      -webkit-mask-image: -webkit-radial-gradient(white, black);
+    }
+  }
+
+  &.macos {
+    & .browse-settings {
+      & .outline-button {
+        transform: translate3d(0px, 0px, 0px);
+      }
+    }
   }
 }
 </style>

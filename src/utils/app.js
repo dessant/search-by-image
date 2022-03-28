@@ -22,6 +22,8 @@ import {
   optionKeys,
   engines,
   censoredEngines,
+  rasterEngineIcons,
+  engineIconAlias,
   imageMimeTypes,
   projectUrl
 } from 'utils/data';
@@ -399,26 +401,12 @@ function isImageMimeType(mimeType) {
 }
 
 async function configUI(Vue) {
-  const {os} = await getPlatform();
+  const platform = await getPlatform();
 
-  document.documentElement.classList.add(targetEnv, os);
+  document.documentElement.classList.add(platform.targetEnv, platform.os);
 
   if (Vue) {
-    Vue.prototype.$isChrome = targetEnv === 'chrome';
-    Vue.prototype.$isEdge = targetEnv === 'edge';
-    Vue.prototype.$isFirefox = targetEnv === 'firefox';
-    Vue.prototype.$isOpera = targetEnv === 'opera';
-    Vue.prototype.$isSafari = targetEnv === 'safari';
-    Vue.prototype.$isSamsung = targetEnv === 'samsung';
-
-    Vue.prototype.$isWindows = os === 'windows';
-    Vue.prototype.$isMacos = os === 'macos';
-    Vue.prototype.$isLinux = os === 'linux';
-    Vue.prototype.$isAndroid = os === 'android';
-    Vue.prototype.$isIos = os === 'ios';
-    Vue.prototype.$isIpados = os === 'ipados';
-
-    Vue.prototype.$isMobile = ['android', 'ios', 'ipados'].includes(os);
+    Vue.prototype.$env = platform;
   }
 }
 
@@ -623,6 +611,85 @@ async function checkSearchEngineAccess() {
   }
 }
 
+async function getFilesFromClipboard({focusNode = null} = {}) {
+  return new Promise(resolve => {
+    const onPaste = function (ev) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      removeCallbacks();
+
+      const files = Array.prototype.slice.call(ev.clipboardData.files, 0, 3);
+
+      resolve(files.length ? files : null);
+    };
+
+    const removeCallbacks = function () {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener('paste', onPaste, {
+        capture: true,
+        passive: false,
+        once: true
+      });
+    };
+
+    const onTimeout = function () {
+      removeCallbacks();
+      resolve(null);
+    };
+
+    const timeoutId = window.setTimeout(onTimeout, 1000); // 1 second
+
+    window.addEventListener('paste', onPaste, {
+      capture: true,
+      passive: false,
+      once: true
+    });
+
+    if (focusNode) {
+      focusNode.focus();
+    }
+
+    document.execCommand('paste');
+  });
+}
+
+function getImagesFromFiles(files) {
+  const images = files.filter(file => isImageMimeType(file.type));
+  if (images.length) {
+    return images;
+  }
+}
+
+async function getImagesFromClipboard() {
+  const files = await getFilesFromClipboard();
+
+  if (files) {
+    return getImagesFromFiles(files);
+  }
+}
+
+function getEngineIcon(engine) {
+  const name = engineIconAlias[engine] || engine;
+  const ext = rasterEngineIcons.includes(name) ? 'png' : 'svg';
+
+  return `/src/assets/icons/engines/${name}.${ext}`;
+}
+
+function getEngineMenuIcon(engine) {
+  const name = engineIconAlias[engine] || engine;
+
+  if (rasterEngineIcons.includes(name)) {
+    return {
+      16: `src/assets/icons/engines/${name}-16.png`,
+      32: `src/assets/icons/engines/${name}-32.png`
+    };
+  } else {
+    return {
+      16: `src/assets/icons/engines/${name}.svg`
+    };
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -652,5 +719,10 @@ export {
   hasBaseModule,
   insertBaseModule,
   isContextMenuSupported,
-  checkSearchEngineAccess
+  checkSearchEngineAccess,
+  getFilesFromClipboard,
+  getImagesFromClipboard,
+  getImagesFromFiles,
+  getEngineIcon,
+  getEngineMenuIcon
 };
