@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.7.0](https://github.com/dessant/search-by-image/compare/v4.6.0...v4.7.0) (2022-03-29)
+
+
+### Features
+
+* search with images from the clipboard ([389c281](https://github.com/dessant/search-by-image/commit/389c281936e2bd85e0dde00ac9ca2aaa7ca1965f)), closes [#114](https://github.com/dessant/search-by-image/issues/114)
+
 ## [4.6.0](https://github.com/dessant/search-by-image/compare/v4.5.0...v4.6.0) (2022-03-16)
 
 
