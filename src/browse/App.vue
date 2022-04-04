@@ -68,7 +68,7 @@
             <img
               class="tile"
               referrerpolicy="no-referrer"
-              src="/src/assets/icons/misc/fallback-image.svg"
+              src="/src/assets/icons/misc/broken-image.svg"
               :alt="img.imageFilename"
             />
           </picture>
@@ -104,7 +104,7 @@
           <img
             class="tile"
             referrerpolicy="no-referrer"
-            src="/src/assets/icons/misc/fallback-image.svg"
+            src="/src/assets/icons/misc/broken-image.svg"
             :alt="img.imageFilename"
           />
         </picture>

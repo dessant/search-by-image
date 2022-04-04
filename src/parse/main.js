@@ -9,7 +9,8 @@ import {
   normalizeImage,
   getImageElement,
   fetchImage,
-  fetchImageFromBackgroundScript
+  fetchImageFromBackgroundScript,
+  shareImage
 } from 'utils/app';
 import {
   getBlankCanvasDataUrl,
@@ -393,11 +394,15 @@ self.initParse = async function (session) {
     });
   });
   if (images) {
-    browser.runtime.sendMessage({
-      id: 'pageParseSubmit',
-      images,
-      session
-    });
+    if (session.sessionType === 'share' && images.length === 1) {
+      await shareImage(images[0]);
+    } else {
+      browser.runtime.sendMessage({
+        id: 'pageParseSubmit',
+        images,
+        session
+      });
+    }
   }
 };
 

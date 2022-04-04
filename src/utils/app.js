@@ -15,6 +15,7 @@ import {
   canvasToDataUrl,
   canvasToBlob,
   getPlatform,
+  shareFiles,
   isAndroid
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
@@ -690,6 +691,24 @@ function getEngineMenuIcon(engine) {
   }
 }
 
+async function shareImage(image) {
+  const files = [
+    new File([dataUrlToBlob(image.imageDataUrl)], image.imageFilename, {
+      type: image.imageType
+    })
+  ];
+
+  try {
+    await shareFiles(files);
+  } catch (err) {
+    console.log(err.toString());
+    await browser.runtime.sendMessage({
+      id: 'notification',
+      messageId: 'error_imageShareNotSupported'
+    });
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -724,5 +743,6 @@ export {
   getImagesFromClipboard,
   getImagesFromFiles,
   getEngineIcon,
-  getEngineMenuIcon
+  getEngineMenuIcon,
+  shareImage
 };

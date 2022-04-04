@@ -414,6 +414,20 @@ async function getPlatform({fallback = true} = {}) {
   };
 }
 
+async function shareFiles(files) {
+  if (navigator.canShare && navigator.canShare({files})) {
+    try {
+      await navigator.share({files});
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        throw err;
+      }
+    }
+  } else {
+    throw new Error('File sharing not supported');
+  }
+}
+
 async function isAndroid() {
   const {os} = await getPlatform();
   return os === 'android';
@@ -451,5 +465,6 @@ export {
   processNode,
   getActiveTab,
   getPlatform,
+  shareFiles,
   sleep
 };

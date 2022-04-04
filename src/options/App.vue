@@ -55,7 +55,7 @@
           >
           </v-select>
         </div>
-        <div class="option" v-if="shareImageEnabled">
+        <div class="option" v-if="shareEnabled">
           <v-form-field
             input-id="sicm"
             :label="getText('optionTitle_shareImageContextMenu')"
@@ -98,7 +98,7 @@
           >
           </v-select>
         </div>
-        <div class="option" v-if="shareImageEnabled">
+        <div class="option" v-if="shareEnabled">
           <v-form-field
             input-id="sia"
             :label="getText('optionTitle_shareImageAction')"
@@ -141,7 +141,7 @@
             <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
           </v-form-field>
         </div>
-        <div class="option" v-if="shareImageEnabled">
+        <div class="option" v-if="shareEnabled">
           <v-form-field
             input-id="csi"
             :label="getText('optionTitle_convertSharedImage')"
@@ -250,7 +250,7 @@ export default {
       },
       contextMenuEnabled: true,
       searchAllEnginesEnabled: true,
-      shareImageEnabled: true,
+      shareEnabled: true,
       autoPasteEnabled: true,
       pasteEnabled: true,
 
@@ -302,7 +302,9 @@ export default {
 
       this.contextMenuEnabled = !(this.$env.isMobile && !this.$env.isSamsung);
 
-      this.shareImageEnabled = this.$env.isSamsung;
+      this.shareEnabled =
+        this.$env.isSafari ||
+        ((this.$env.isWindows || this.$env.isAndroid) && !this.$env.isFirefox);
 
       this.pasteEnabled =
         !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);

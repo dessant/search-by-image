@@ -16,9 +16,11 @@
         ></v-icon-button>
 
         <v-icon-button
-          v-if="shareImageEnabled"
+          v-if="shareEnabled"
           class="share-button"
-          src="/src/assets/icons/misc/share.svg"
+          :src="`/src/assets/icons/misc/${
+            $env.isSafari ? 'ios-share' : 'share'
+          }.svg`"
           @click="shareImage"
         ></v-icon-button>
 
@@ -100,7 +102,7 @@
                 <img
                   class="tile"
                   referrerpolicy="no-referrer"
-                  src="/src/assets/icons/misc/fallback-image.svg"
+                  src="/src/assets/icons/misc/broken-image.svg"
                   :alt="img.image.name"
                 />
               </picture>
@@ -108,7 +110,7 @@
 
             <v-icon-button
               class="preview-close-button"
-              src="/src/assets/icons/misc/close-preview.svg"
+              src="/src/assets/icons/misc/close.svg"
               @click="hidePreviewImages"
             ></v-icon-button>
           </div>
@@ -225,7 +227,7 @@ export default {
 
       engines: [],
       searchAllEngines: false,
-      shareImageEnabled: false,
+      shareEnabled: false,
       browseEnabled: false,
       pasteEnabled: false,
       autoPasteEnabled: false,
@@ -629,7 +631,10 @@ export default {
       options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
     this.searchModeAction = options.searchModeAction;
 
-    this.shareImageEnabled = options.shareImageAction && this.$env.isSamsung;
+    this.shareEnabled =
+      options.shareImageAction &&
+      (this.$env.isSafari ||
+        ((this.$env.isWindows || this.$env.isAndroid) && !this.$env.isFirefox));
 
     this.browseEnabled =
       !this.$env.isLinux && !this.$env.isSamsung && !this.$env.isFirefox;
@@ -739,12 +744,8 @@ body {
   }
 }
 
-.contribute-button {
-  margin-left: 12px;
-}
-
+.contribute-button,
 .share-button {
-  @include mdc-icon-button-icon-size(20px, 20px, 8px);
   margin-left: 12px;
 }
 

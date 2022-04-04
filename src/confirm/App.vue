@@ -34,6 +34,7 @@
 import browser from 'webextension-polyfill';
 import {Dialog} from 'ext-components';
 
+import {shareImage} from 'utils/app';
 import {getText} from 'utils/common';
 
 export default {
@@ -75,13 +76,21 @@ export default {
       browser.runtime.sendMessage({id: 'cancelView', view: 'confirm'});
     },
 
-    onSelection: function (ev) {
+    onSelection: async function (ev) {
       this.showDialog = false;
-      browser.runtime.sendMessage({
-        id: 'imageConfirmationSubmit',
-        image: Object.assign({}, this.images[ev.target.dataset.index]),
-        session: this.session
-      });
+
+      const image = Object.assign({}, this.images[ev.target.dataset.index]);
+
+      if (this.session.sessionType === 'share') {
+        await shareImage(image);
+        browser.runtime.sendMessage({id: 'cancelView', view: 'confirm'});
+      } else {
+        browser.runtime.sendMessage({
+          id: 'imageConfirmationSubmit',
+          image,
+          session: this.session
+        });
+      }
     }
   },
 

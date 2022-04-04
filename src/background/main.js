@@ -221,6 +221,8 @@ function createMenuItem({
 }
 
 async function createMenu() {
+  const env = await getPlatform({fallback: false});
+
   const options = await storage.get(optionKeys);
 
   const enEngines = await getEnabledEngines(options);
@@ -233,17 +235,22 @@ async function createMenu() {
     'selection',
     'video'
   ];
-  if (targetEnv === 'firefox') {
+  if (env.isFirefox) {
     contexts.push('password');
   }
-  if (!(await isAndroid())) {
+  if (!env.isAndroid) {
     contexts.push('page');
   }
   const urlPatterns = ['http://*/*', 'https://*/*'];
   if (!['safari', 'samsung'].includes(targetEnv)) {
     urlPatterns.push('file:///*');
   }
-  const setIcons = targetEnv === 'firefox';
+  const setIcons = env.isFirefox;
+  const searchAllEngines =
+    !env.isSamsung && options.searchAllEnginesContextMenu;
+  const shareEnabled =
+    options.shareImageContextMenu &&
+    (env.isSafari || ((env.isWindows || env.isAndroid) && !env.isFirefox));
 
   if (enEngines.length === 1) {
     const engine = enEngines[0];
@@ -256,48 +263,45 @@ async function createMenu() {
       contexts,
       urlPatterns
     });
-    return;
-  }
+  } else if (enEngines.length > 1 && searchAllEngines === 'main') {
+    createMenuItem({
+      id: 'search_allEngines',
+      title: getText('mainMenuItemTitle_allEngines'),
+      contexts,
+      urlPatterns
+    });
+  } else if (enEngines.length > 1) {
+    let addSeparator = false;
 
-  if (enEngines.length > 1) {
-    if (targetEnv === 'samsung') {
-      if (options.shareImageContextMenu) {
-        createMenuItem({
-          id: 'share',
-          title: getText('menuItemTitle_shareImage'),
-          contexts,
-          urlPatterns
-        });
-        // Samsung Internet: separator not visible, creates gap that responds to input.
-      }
-    } else {
-      const searchAllEngines = options.searchAllEnginesContextMenu;
+    if (shareEnabled) {
+      createMenuItem({
+        id: 'share',
+        title: getText('menuItemTitle_shareImage'),
+        contexts,
+        urlPatterns
+      });
+      addSeparator = true;
+    }
 
-      if (searchAllEngines === 'main') {
-        createMenuItem({
-          id: 'search_allEngines',
-          title: getText('mainMenuItemTitle_allEngines'),
-          contexts,
-          urlPatterns
-        });
-        return;
-      }
+    if (searchAllEngines === 'sub') {
+      createMenuItem({
+        id: 'search_allEngines',
+        title: getText('menuItemTitle_allEngines'),
+        contexts,
+        urlPatterns,
+        icons: setIcons && getEngineMenuIcon('allEngines')
+      });
+      addSeparator = true;
+    }
 
-      if (searchAllEngines === 'sub') {
-        createMenuItem({
-          id: 'search_allEngines',
-          title: getText('menuItemTitle_allEngines'),
-          contexts,
-          urlPatterns,
-          icons: setIcons && getEngineMenuIcon('allEngines')
-        });
-        createMenuItem({
-          id: 'sep-1',
-          contexts,
-          type: 'separator',
-          urlPatterns
-        });
-      }
+    if (addSeparator && !env.isSamsung) {
+      // Samsung Internet: separator not visible, creates gap that responds to input.
+      createMenuItem({
+        id: 'sep-1',
+        contexts,
+        type: 'separator',
+        urlPatterns
+      });
     }
 
     enEngines.forEach(function (engine) {
@@ -638,11 +642,7 @@ async function handleParseResults(session, images) {
   } else if (images.length > 1) {
     await openContentView({session, images}, 'confirm');
   } else {
-    if (session.sessionType === 'share') {
-      await shareImage(images[0]);
-    } else {
-      await initSearch(session, images);
-    }
+    await initSearch(session, images);
   }
 }
 
@@ -810,20 +810,6 @@ async function initShare() {
   }
 }
 
-async function shareImage(image) {
-  const files = [
-    new File([dataUrlToBlob(image.imageDataUrl)], image.imageFilename, {
-      type: image.imageType
-    })
-  ];
-
-  if (navigator.canShare && navigator.canShare({files})) {
-    await navigator.share({title: image.imageFilename, files});
-  } else {
-    await showNotification({messageId: 'error_imageShareNotSupported'});
-  }
-}
-
 async function processIncomingShare(tabId, url) {
   const shareId = new URL(url).searchParams.get('id');
 
@@ -980,11 +966,7 @@ async function processMessage(request, sender) {
       {frameId: 0}
     );
 
-    if (request.session.sessionType === 'share') {
-      shareImage(request.image);
-    } else {
-      initSearch(request.session, request.image);
-    }
+    initSearch(request.session, request.image);
   } else if (request.id === 'imageCaptureSubmit') {
     const tabId = sender.tab.id;
     browser.tabs.sendMessage(
