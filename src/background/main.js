@@ -1,4 +1,5 @@
 import browser from 'webextension-polyfill';
+import {v4 as uuidv4} from 'uuid';
 import Queue from 'p-queue';
 
 import {initStorage, migrateLegacyStorage} from 'storage/init';
