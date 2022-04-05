@@ -984,7 +984,11 @@ async function processMessage(request, sender) {
 
     browser.tabs.sendMessage(...params);
   } else if (request.id === 'sendNativeMessage') {
-    return browser.runtime.sendNativeMessage('application.id', request.message);
+    const response = await browser.runtime.sendNativeMessage(
+      'application.id',
+      request.message
+    );
+    return Promise.resolve({response});
   } else if (request.id === 'getPlatform') {
     return getPlatform({fallback: false});
   } else if (request.id === 'storageRequest') {
