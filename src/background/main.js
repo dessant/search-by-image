@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill';
-import {v4 as uuidv4, validate as uuidValidate} from 'uuid';
 import Queue from 'p-queue';
 
 import {initStorage, migrateLegacyStorage} from 'storage/init';
@@ -810,68 +809,6 @@ async function initShare() {
   }
 }
 
-async function processIncomingShare(tabId, url) {
-  const shareId = new URL(url).searchParams.get('id');
-
-  if (uuidValidate(shareId) && (await registry.aquireLock({name: shareId}))) {
-    const response = await browser.runtime.sendNativeMessage('application.id', {
-      id: 'getShareId'
-    });
-
-    if (response && response.shareId === shareId) {
-      const tabUrl = `${browser.runtime.getURL(
-        '/src/browse/index.html'
-      )}?id=${shareId}&origin=share`;
-
-      await browser.tabs.update(tabId, {url: tabUrl, active: true});
-    }
-  }
-}
-
-async function processIncomingShareTab({retry = false} = {}) {
-  let tabs = await browser.tabs.query({
-    url: 'https://search-by-image.localhost/share*'
-  });
-  if (targetEnv === 'safari') {
-    // Safari 15: tabs.query may return tabs that do not match the query
-    tabs = tabs.filter(tab =>
-      tab.url.startsWith('https://search-by-image.localhost/share')
-    );
-  }
-
-  if (retry && !tabs.length) {
-    window.setTimeout(processIncomingShareTab, 1000);
-  }
-
-  for (const tab of tabs) {
-    await processIncomingShare(tab.id, tab.url);
-  }
-}
-
-function addIncomingShareListener() {
-  const onIncomingShare = function (details) {
-    if (!details.frameId) {
-      processIncomingShare(details.tabId, details.url);
-    }
-  };
-
-  const filter = {
-    url: [
-      {
-        hostEquals: 'search-by-image.localhost',
-        pathEquals: '/share'
-      }
-    ]
-  };
-
-  browser.webNavigation.onBeforeNavigate.addListener(onIncomingShare, filter);
-  browser.webNavigation.onCommitted.addListener(onIncomingShare, filter);
-  browser.webNavigation.onCompleted.addListener(onIncomingShare, filter);
-  browser.webNavigation.onErrorOccurred.addListener(onIncomingShare, filter);
-
-  processIncomingShareTab({retry: true});
-}
-
 async function setContextMenu() {
   // removes context menu items from all instances
   await browser.contextMenus.removeAll();
@@ -1045,6 +982,8 @@ async function processMessage(request, sender) {
     }
 
     browser.tabs.sendMessage(...params);
+  } else if (request.id === 'sendNativeMessage') {
+    return browser.runtime.sendNativeMessage('application.id', request.message);
   } else if (request.id === 'getPlatform') {
     return getPlatform({fallback: false});
   } else if (request.id === 'storageRequest') {
@@ -1214,10 +1153,6 @@ function init() {
   addAlarmListener();
   addInstallListener();
   addStartupListener();
-
-  if (targetEnv === 'safari') {
-    addIncomingShareListener();
-  }
 
   setup();
 }
