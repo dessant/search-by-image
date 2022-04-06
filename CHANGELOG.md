@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.8.0](https://github.com/dessant/search-by-image/compare/v4.7.0...v4.8.0) (2022-04-06)
+
+
+### Features
+
+* share images from a web page ([d2736e8](https://github.com/dessant/search-by-image/commit/d2736e8fccdafccb78282bee994b92a2920f1085)), closes [#183](https://github.com/dessant/search-by-image/issues/183)
+
+
+### Bug Fixes
+
+* ensure background page responds to message ([5352e2a](https://github.com/dessant/search-by-image/commit/5352e2ad5ee810545fa491955e00a2c47a82b657)), closes [#184](https://github.com/dessant/search-by-image/issues/184)
+* search by sharing an image ([f512bd0](https://github.com/dessant/search-by-image/commit/f512bd0f446d0bfd79d2c741f25800bf620d0ed3)), closes [#184](https://github.com/dessant/search-by-image/issues/184)
+* update Madrid Monitor ([c978e88](https://github.com/dessant/search-by-image/commit/c978e88ad544546ead68bdb892d1982c1a9eea58))
+
 ## [4.7.0](https://github.com/dessant/search-by-image/compare/v4.6.0...v4.7.0) (2022-03-29)
 
 
