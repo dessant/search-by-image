@@ -10,14 +10,15 @@ import {
   getImageElement,
   fetchImage,
   fetchImageFromBackgroundScript,
-  shareImage
+  shareImage,
+  getDataFromImageUrl,
+  imageTypeSupport
 } from 'utils/app';
 import {
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   drawElementOnCanvas,
-  getAbsoluteUrl,
-  getFilenameExtFromUrl
+  getAbsoluteUrl
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
 
@@ -176,18 +177,12 @@ async function parseNode(node) {
 async function processResults(results, session) {
   results = uniqBy(results, 'data');
 
-  const convertImage =
-    session.sessionType === 'share' && session.options.convertSharedImage;
-
   const daraUrls = results.filter(
     item => item.data && item.data.startsWith('data:')
   );
   for (const item of daraUrls) {
     const index = results.indexOf(item);
-    const {dataUrl, type, ext} = await normalizeImage({
-      dataUrl: item.data,
-      convertImage
-    });
+    const {dataUrl, type, ext} = await normalizeImage({dataUrl: item.data});
     if (dataUrl) {
       results[index] = {
         imageDataUrl: dataUrl,
@@ -212,10 +207,11 @@ async function processResults(results, session) {
         const url = item.data;
         const img = await getImageElement(url);
         if (img) {
-          let {filename, ext} = getFilenameExtFromUrl(url);
-          const type = ['jpg', 'jpeg', 'jpe'].includes(ext)
-            ? 'image/jpeg'
-            : 'image/png';
+          let {filename, ext, type} = getDataFromImageUrl(url);
+
+          if (!['image/jpeg', 'image/png'].includes(type)) {
+            type = 'image/png';
+          }
           cnv.width = img.naturalWidth;
           cnv.height = img.naturalHeight;
 
@@ -266,16 +262,22 @@ async function processResults(results, session) {
 
   const httpUrls = results.filter(item => item.data && validateUrl(item.data));
   if (httpUrls.length) {
-    const mustDownload =
+    const mustDownloadAllUrls =
       session.sessionType === 'share' ||
       session.searchMode === 'selectUpload' ||
-      !(await hasUrlSupport(session.engineGroup || session.engines[0]));
+      !(await hasUrlSupport(session.engines));
 
     for (const item of httpUrls) {
-      const index = results.indexOf(item);
+      const resultIndex = results.indexOf(item);
       let url = item.data;
-      const {filename} = getFilenameExtFromUrl(url);
-      if (mustDownload) {
+
+      const {filename, type: imageType} = getDataFromImageUrl(url);
+
+      const mustDownloadUrl =
+        mustDownloadAllUrls ||
+        session.engines.some(engine => !imageTypeSupport(imageType, engine));
+
+      if (mustDownloadUrl) {
         let imageBlob = await downloadImage(url);
         if (!imageBlob && window.isSecureContext && url.match(/^http:/i)) {
           url = url.replace(/^http:/i, 'https:');
@@ -283,16 +285,13 @@ async function processResults(results, session) {
         }
 
         if (!imageBlob) {
-          results.splice(index, 1);
+          results.splice(resultIndex, 1);
           continue;
         }
 
-        const {dataUrl, type, ext} = await normalizeImage({
-          blob: imageBlob,
-          convertImage
-        });
+        const {dataUrl, type, ext} = await normalizeImage({blob: imageBlob});
         if (dataUrl) {
-          results[index] = {
+          results[resultIndex] = {
             imageUrl: url,
             imageDataUrl: dataUrl,
             imageFilename: normalizeFilename({filename, ext}),
@@ -301,10 +300,10 @@ async function processResults(results, session) {
             imageSize: imageBlob.size
           };
         } else {
-          results.splice(index, 1);
+          results.splice(resultIndex, 1);
         }
       } else {
-        results[index] = {imageUrl: url};
+        results[resultIndex] = {imageUrl: url};
       }
     }
   }
@@ -395,7 +394,9 @@ self.initParse = async function (session) {
   });
   if (images) {
     if (session.sessionType === 'share' && images.length === 1) {
-      await shareImage(images[0]);
+      await shareImage(images[0], {
+        convert: session.options.convertSharedImage
+      });
     } else {
       browser.runtime.sendMessage({
         id: 'pageParseSubmit',

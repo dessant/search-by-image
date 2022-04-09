@@ -82,7 +82,9 @@ export default {
       const image = Object.assign({}, this.images[ev.target.dataset.index]);
 
       if (this.session.sessionType === 'share') {
-        await shareImage(image);
+        await shareImage(image, {
+          convert: this.session.options.convertSharedImage
+        });
         browser.runtime.sendMessage({id: 'cancelView', view: 'confirm'});
       } else {
         browser.runtime.sendMessage({

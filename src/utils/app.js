@@ -8,6 +8,7 @@ import {
   createTab,
   getActiveTab,
   getDataUrlMimeType,
+  getDataFromUrl,
   dataUrlToArray,
   dataUrlToBlob,
   blobToArray,
@@ -26,6 +27,8 @@ import {
   rasterEngineIcons,
   engineIconAlias,
   imageMimeTypes,
+  webpEngineSupport,
+  avifEngineSupport,
   projectUrl
 } from 'utils/data';
 
@@ -54,7 +57,8 @@ async function getSupportedEngines(image, engines, searchMode) {
 async function getSearches(image, targetEngines, searchMode) {
   const searches = [];
   for (const engine of targetEngines) {
-    const method = (await isUploadSearch(image, engine, searchMode))
+    const isAltImage = !imageTypeSupport(image.imageType, engine);
+    const method = (await isUploadSearch(image, engine, searchMode, isAltImage))
       ? 'upload'
       : 'url';
     const isExec = engines[engine][method].isExec;
@@ -64,6 +68,7 @@ async function getSearches(image, targetEngines, searchMode) {
       method,
       isExec,
       isTaskId,
+      isAltImage,
       sendsReceipt: isExec || isTaskId
     });
   }
@@ -71,17 +76,24 @@ async function getSearches(image, targetEngines, searchMode) {
   return searches;
 }
 
-async function isUploadSearch(image, engine, searchMode) {
+async function isUploadSearch(image, engine, searchMode, isAltImage) {
   return (
     searchMode === 'selectUpload' ||
+    isAltImage ||
     !image.imageUrl ||
     !(await hasUrlSupport(engine, {bypassBlocking: searchMode !== 'url'}))
   );
 }
 
 async function hasUrlSupport(engine, {bypassBlocking = true} = {}) {
-  const targetEngines =
-    engine === 'allEngines' ? await getEnabledEngines() : [engine];
+  let targetEngines;
+  if (Array.isArray(engine)) {
+    targetEngines = engine;
+  } else {
+    targetEngines =
+      engine === 'allEngines' ? await getEnabledEngines() : [engine];
+  }
+
   const {bypassImageHostBlocking} = await storage.get(
     'bypassImageHostBlocking'
   );
@@ -220,14 +232,21 @@ function normalizeFilename({filename, ext} = {}) {
     filename = 'image';
   }
 
-  if (ext && !filename.toLowerCase().endsWith(ext)) {
-    filename = `${filename}.${ext}`;
+  if (ext) {
+    const currentExt = filename.split('.').pop().toLowerCase();
+    if (currentExt !== ext) {
+      if (isImageFileExt(currentExt)) {
+        filename = filename.replace(new RegExp(`${currentExt}$`), ext);
+      } else {
+        filename = `${filename}.${ext}`;
+      }
+    }
   }
 
   return filename;
 }
 
-async function normalizeImage({blob, dataUrl, convertImage = false} = {}) {
+async function normalizeImage({blob, dataUrl} = {}) {
   let data = blob || dataUrl;
   let type = blob ? data.type : getDataUrlMimeType(data);
   const array = blob ? await blobToArray(data) : dataUrlToArray(data);
@@ -250,24 +269,53 @@ async function normalizeImage({blob, dataUrl, convertImage = false} = {}) {
     data = await blobToDataUrl(data);
   }
 
-  if (convertImage && ['image/webp'].includes(type)) {
-    const img = await getImageElement(data, {query: false});
+  const ext = mimeTypeToFileExt(type);
 
-    const cnv = document.createElement('canvas');
-    const ctx = cnv.getContext('2d');
+  let image = {dataUrl: data, type, ext};
 
-    cnv.width = img.naturalWidth;
-    cnv.height = img.naturalHeight;
+  return image;
+}
 
-    ctx.drawImage(img, 0, 0);
+async function convertImage(dataUrl) {
+  const img = await getImageElement(dataUrl, {query: false});
 
-    type = 'image/png';
-    data = canvasToDataUrl(cnv, {ctx, type});
-  }
+  const cnv = document.createElement('canvas');
+  const ctx = cnv.getContext('2d');
 
+  cnv.width = img.naturalWidth;
+  cnv.height = img.naturalHeight;
+
+  ctx.drawImage(img, 0, 0);
+
+  const type = 'image/png';
+  const data = canvasToDataUrl(cnv, {ctx, type});
   const ext = mimeTypeToFileExt(type);
 
   return {dataUrl: data, type, ext};
+}
+
+async function convertProcessedImage(image, {throwError = false} = {}) {
+  try {
+    const {dataUrl, type, ext} = await convertImage(image.imageDataUrl);
+    const filename = normalizeFilename({filename: image.imageFilename, ext});
+    const imageSize = dataUrlToBlob(dataUrl).size;
+
+    const convImage = {
+      imageDataUrl: dataUrl,
+      imageFilename: filename,
+      imageType: type,
+      imageExt: ext,
+      imageSize
+    };
+
+    return convImage;
+  } catch (err) {
+    console.log(err.toString());
+
+    if (throwError) {
+      throw err;
+    }
+  }
 }
 
 async function resizeImage({blob, dataUrl, type, maxSize = 1000} = {}) {
@@ -399,6 +447,21 @@ function isImageMimeType(mimeType) {
   }
 
   return false;
+}
+
+function isImageFileExt(ext) {
+  if (fileExtToMimeType(ext)) {
+    return true;
+  }
+
+  return false;
+}
+
+function getDataFromImageUrl(url) {
+  const {filename, ext} = getDataFromUrl(url);
+  const type = fileExtToMimeType(ext);
+
+  return {filename, ext, type};
 }
 
 async function configUI(Vue) {
@@ -691,7 +754,14 @@ function getEngineMenuIcon(engine) {
   }
 }
 
-async function shareImage(image) {
+async function shareImage(image, {convert = false} = {}) {
+  if (convert && ['image/webp', 'image/avif'].includes(image.imageType)) {
+    const convImage = await convertProcessedImage(image);
+    if (convImage) {
+      image = convImage;
+    }
+  }
+
   const files = [
     new File([dataUrlToBlob(image.imageDataUrl)], image.imageFilename, {
       type: image.imageType
@@ -702,10 +772,25 @@ async function shareImage(image) {
     await shareFiles(files);
   } catch (err) {
     console.log(err.toString());
+
     await browser.runtime.sendMessage({
       id: 'notification',
       messageId: 'error_imageShareNotSupported'
     });
+  }
+}
+
+function imageTypeSupport(type, engine) {
+  if (type === 'image/webp') {
+    if (webpEngineSupport.includes(engine)) {
+      return true;
+    }
+  } else if (type === 'image/avif') {
+    if (avifEngineSupport.includes(engine)) {
+      return true;
+    }
+  } else {
+    return true;
   }
 }
 
@@ -724,6 +809,8 @@ export {
   normalizeFilename,
   normalizeImage,
   resizeImage,
+  convertImage,
+  convertProcessedImage,
   getImageElement,
   captureVisibleTabArea,
   getContentXHR,
@@ -732,6 +819,8 @@ export {
   fileExtToMimeType,
   mimeTypeToFileExt,
   isImageMimeType,
+  isImageFileExt,
+  getDataFromImageUrl,
   configUI,
   getLargeImageMessage,
   getMaxImageSize,
@@ -744,5 +833,6 @@ export {
   getImagesFromFiles,
   getEngineIcon,
   getEngineMenuIcon,
-  shareImage
+  shareImage,
+  imageTypeSupport
 };

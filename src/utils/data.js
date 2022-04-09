@@ -457,6 +457,43 @@ Object.assign(imageMimeTypes, {
   'image/jxl': ['jxl']
 });
 
+const webpEngineSupport = [
+  'google',
+  'bing',
+  'yandex',
+  'baidu',
+  'tineye',
+  'whatanime',
+  'saucenao',
+  'ascii2d',
+  'adobestock',
+  'depositphotos',
+  'pinterest',
+  'qihoo',
+  'alibabaChina',
+  'mailru',
+  'dreamstime',
+  'pimeyes',
+  'pond5',
+  'ikea',
+  'unsplash',
+  'shein',
+  'lykdat',
+  'googleLens'
+];
+
+// Search engines only support the image format in compatible browsers.
+// https://caniuse.com/avif
+const avifEngineSupport = [
+  'bing',
+  'yandex',
+  'whatanime',
+  'adobestock',
+  'alibabaChina',
+  'dreamstime',
+  'pond5'
+];
+
 const chromeDesktopUA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36';
 
@@ -472,6 +509,8 @@ export {
   engineIconAlias,
   censoredEngines,
   imageMimeTypes,
+  webpEngineSupport,
+  avifEngineSupport,
   chromeDesktopUA,
   chromeMobileUA,
   projectUrl

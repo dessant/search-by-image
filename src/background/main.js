@@ -34,7 +34,8 @@ import {
   fetchImage,
   isContextMenuSupported,
   checkSearchEngineAccess,
-  getEngineMenuIcon
+  getEngineMenuIcon,
+  convertProcessedImage
 } from 'utils/app';
 import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
@@ -454,7 +455,28 @@ async function searchImage(session, image, firstBatchItem = true) {
     session.searchMode
   );
 
-  const receiptSearches = searches.filter(item => item.sendsReceipt);
+  const altReceiptSearches = searches.filter(item => item.isAltImage);
+
+  let altImage, altImageId;
+  if (altReceiptSearches.length) {
+    altImage = await convertProcessedImage(image);
+
+    if (altImage) {
+      altReceiptSearches.forEach(item => {
+        item.imageSize = altImage.imageSize;
+      });
+
+      altImageId = await registry.addStorageItem(altImage, {
+        receipts: {expected: altReceiptSearches.length, received: 0},
+        expiryTime: 10.0,
+        area: 'indexeddb'
+      });
+    }
+  }
+
+  const receiptSearches = searches.filter(
+    item => item.sendsReceipt && (!altImageId || !item.isAltImage)
+  );
   if (image.imageSize) {
     receiptSearches.forEach(item => {
       item.imageSize = image.imageSize;
@@ -473,7 +495,17 @@ async function searchImage(session, image, firstBatchItem = true) {
   let firstEngine = firstBatchItem;
   for (const search of searches) {
     session.sourceTabIndex += 1;
-    await searchEngine(session, search, image, imageId, tabActive);
+
+    let img, imgId;
+    if (search.isAltImage && altImageId) {
+      img = altImage;
+      imgId = altImageId;
+    } else {
+      img = image;
+      imgId = imageId;
+    }
+
+    await searchEngine(session, search, img, imgId, tabActive);
 
     if (firstEngine && session.searchMode === 'upload') {
       await browser.tabs.remove(session.sourceTabId);

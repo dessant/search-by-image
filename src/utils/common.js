@@ -214,7 +214,7 @@ function getAbsoluteUrl(url) {
   return a.href;
 }
 
-function getFilenameExtFromUrl(url) {
+function getDataFromUrl(url) {
   const file = url
     .split('/')
     .pop()
@@ -457,7 +457,7 @@ export {
   canvasToBlob,
   drawElementOnCanvas,
   getAbsoluteUrl,
-  getFilenameExtFromUrl,
+  getDataFromUrl,
   getDataUrlMimeType,
   isAndroid,
   isMobile,
