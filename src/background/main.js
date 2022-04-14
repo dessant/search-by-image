@@ -26,8 +26,7 @@ import {
   createSession,
   showNotification,
   showContributePage,
-  normalizeFilename,
-  captureVisibleTabArea,
+  captureImage,
   validateUrl,
   hasBaseModule,
   insertBaseModule,
@@ -429,11 +428,6 @@ async function searchImage(session, image, firstBatchItem = true) {
 
   tabActive = !session.options.tabInBackgound && tabActive;
 
-  if (image.hasOwnProperty('imageDataUrl') && !image.imageSize) {
-    const blob = dataUrlToBlob(image.imageDataUrl);
-    image.imageSize = blob.size;
-  }
-
   const supportedEngines = await getSupportedEngines(
     image,
     session.engines,
@@ -459,7 +453,7 @@ async function searchImage(session, image, firstBatchItem = true) {
 
   let altImage, altImageId;
   if (altReceiptSearches.length) {
-    altImage = await convertProcessedImage(image);
+    altImage = await convertProcessedImage(image, {force: true});
 
     if (altImage) {
       altReceiptSearches.forEach(item => {
@@ -945,16 +939,7 @@ async function processMessage(request, sender) {
       {frameId: 0}
     );
 
-    const [surfaceWidth] = await executeCode(`window.innerWidth;`, tabId);
-    const area = {...request.area, surfaceWidth};
-
-    const captureData = await captureVisibleTabArea(area);
-    const image = {
-      imageDataUrl: captureData,
-      imageFilename: normalizeFilename({ext: 'png'}),
-      imageType: 'image/png',
-      imageExt: 'png'
-    };
+    const image = await captureImage(request.area, tabId);
 
     initSearch(request.session, image);
   } else if (request.id === 'pageParseSubmit') {

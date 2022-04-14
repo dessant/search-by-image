@@ -102,7 +102,12 @@ function getRandomInt(min, max) {
 }
 
 function getDataUrlMimeType(dataUrl) {
-  return dataUrl.split(',')[0].split(':')[1].split(';')[0].toLowerCase();
+  return dataUrl
+    .slice(0, 100)
+    .split(',')[0]
+    .split(':')[1]
+    .split(';')[0]
+    .toLowerCase();
 }
 
 function dataUrlToArray(dataUrl) {
@@ -220,16 +225,20 @@ function getDataFromUrl(url) {
     .pop()
     .replace(/(?:#|\?).*?$/, '')
     .split('.');
-  let filename = '';
+  let name = '';
   let ext = '';
   if (file.length === 1) {
-    filename = file[0];
+    name = file[0];
   } else {
-    filename = file.join('.');
+    name = file.join('.');
     ext = file.pop().toLowerCase();
   }
 
-  return {filename, ext};
+  return {name, ext};
+}
+
+function filenameToFileExt(name) {
+  return (/(?:\.([^.]+))?$/.exec(name)[1] || '').toLowerCase();
 }
 
 function findNode(
@@ -459,6 +468,7 @@ export {
   getAbsoluteUrl,
   getDataFromUrl,
   getDataUrlMimeType,
+  filenameToFileExt,
   isAndroid,
   isMobile,
   findNode,

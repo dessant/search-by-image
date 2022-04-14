@@ -9,12 +9,14 @@ import {
   getActiveTab,
   getDataUrlMimeType,
   getDataFromUrl,
-  dataUrlToArray,
+  filenameToFileExt,
   dataUrlToBlob,
   blobToArray,
+  drawElementOnCanvas,
   blobToDataUrl,
   canvasToDataUrl,
   canvasToBlob,
+  executeCode,
   getPlatform,
   shareFiles,
   isAndroid
@@ -27,6 +29,7 @@ import {
   rasterEngineIcons,
   engineIconAlias,
   imageMimeTypes,
+  convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
   projectUrl
@@ -227,107 +230,171 @@ function validateUrl(url) {
   } catch (err) {}
 }
 
-function normalizeFilename({filename, ext} = {}) {
-  if (!filename) {
-    filename = 'image';
+function normalizeImageFilename({name, type} = {}) {
+  if (!name) {
+    name = 'image';
   }
 
-  if (ext) {
-    const currentExt = filename.split('.').pop().toLowerCase();
-    if (currentExt !== ext) {
-      if (isImageFileExt(currentExt)) {
-        filename = filename.replace(new RegExp(`${currentExt}$`), ext);
+  if (type) {
+    const newExt = imageMimeTypeToFileExt(type);
+
+    if (newExt) {
+      const currentExt = filenameToFileExt(name);
+
+      if (currentExt) {
+        const currentType = imageFileExtToMimeType(currentExt);
+
+        if (currentType !== type) {
+          name = name.replace(new RegExp(`${currentExt}$`, 'i'), newExt);
+        }
       } else {
-        filename = `${filename}.${ext}`;
+        name = `${name}.${newExt}`;
       }
     }
   }
 
-  return filename;
+  return name;
 }
 
-async function normalizeImage({blob, dataUrl} = {}) {
-  let data = blob || dataUrl;
-  let type = blob ? data.type : getDataUrlMimeType(data);
-  const array = blob ? await blobToArray(data) : dataUrlToArray(data);
+function normalizeImageFileAttributes(file, {name, type} = {}) {
+  const filetype = type || file.type;
+  const filename = normalizeImageFilename({
+    name: name || file.name,
+    type: filetype
+  });
 
-  const {mime: realType} = (await fileType.fromBuffer(array)) || {};
-
-  if (realType) {
-    if (!isImageMimeType(realType)) {
-      return {};
-    }
-    if (type !== realType) {
-      type = realType;
-      data = new Blob([array], {type});
-    }
-  } else if (!type || !isImageMimeType(type)) {
-    return {};
+  if (file.name !== filename || file.type !== filetype) {
+    return new File([file], filename, {type: filetype});
   }
 
-  if (data instanceof Blob) {
-    data = await blobToDataUrl(data);
-  }
-
-  const ext = mimeTypeToFileExt(type);
-
-  let image = {dataUrl: data, type, ext};
-
-  return image;
+  return file;
 }
 
-async function convertImage(dataUrl) {
-  const img = await getImageElement(dataUrl, {query: false});
+async function dataToImage({blob, dataUrl, name} = {}) {
+  if (!blob) {
+    blob = dataUrlToBlob(dataUrl);
+  }
 
+  const image = await normalizeImage(blob, {name});
+  if (image) {
+    return image;
+  }
+}
+
+async function fileUrlToImage(url) {
   const cnv = document.createElement('canvas');
   const ctx = cnv.getContext('2d');
 
-  cnv.width = img.naturalWidth;
-  cnv.height = img.naturalHeight;
+  const img = await getImageElement(url);
+  if (img) {
+    let {name, type} = getDataFromImageUrl(url);
+    if (!['image/jpeg', 'image/png'].includes(type)) {
+      type = 'image/png';
+    }
 
-  ctx.drawImage(img, 0, 0);
+    cnv.width = img.naturalWidth;
+    cnv.height = img.naturalHeight;
 
-  const type = 'image/png';
-  const data = canvasToDataUrl(cnv, {ctx, type});
-  const ext = mimeTypeToFileExt(type);
+    if (drawElementOnCanvas(ctx, img)) {
+      const blob = await canvasToBlob(cnv, {ctx, type});
 
-  return {dataUrl: data, type, ext};
-}
-
-async function convertProcessedImage(image, {throwError = false} = {}) {
-  try {
-    const {dataUrl, type, ext} = await convertImage(image.imageDataUrl);
-    const filename = normalizeFilename({filename: image.imageFilename, ext});
-    const imageSize = dataUrlToBlob(dataUrl).size;
-
-    const convImage = {
-      imageDataUrl: dataUrl,
-      imageFilename: filename,
-      imageType: type,
-      imageExt: ext,
-      imageSize
-    };
-
-    return convImage;
-  } catch (err) {
-    console.log(err.toString());
-
-    if (throwError) {
-      throw err;
+      if (isFileAccepted(blob)) {
+        return normalizeImageFileAttributes(blob, {name});
+      }
     }
   }
 }
 
-async function resizeImage({blob, dataUrl, type, maxSize = 1000} = {}) {
-  if (!type) {
-    type = blob ? blob.type : getDataUrlMimeType(dataUrl);
+async function blobUrlToImage(url) {
+  const cnv = document.createElement('canvas');
+  const ctx = cnv.getContext('2d');
+
+  const img = await getImageElement(url);
+  if (img) {
+    cnv.width = img.naturalWidth;
+    cnv.height = img.naturalHeight;
+
+    if (drawElementOnCanvas(ctx, img)) {
+      const blob = await canvasToBlob(cnv, {ctx});
+
+      if (isFileAccepted(blob)) {
+        return normalizeImageFileAttributes(blob);
+      }
+    }
+  }
+}
+
+async function normalizeImage(file, {name} = {}) {
+  if (!isFileAccepted(file)) {
+    return;
   }
 
-  const url = blob ? URL.createObjectURL(blob) : dataUrl;
-  const img = await getImageElement(url, {query: false});
-  if (blob) {
-    URL.revokeObjectURL(url);
+  const chunk = await blobToArray(file.slice(0, Math.min(file.size, 4100)));
+  const {mime: realType} = (await fileType.fromBuffer(chunk)) || {};
+
+  if (realType) {
+    if (isImageMimeType(realType)) {
+      return normalizeImageFileAttributes(file, {type: realType, name});
+    }
+  } else if (isImageMimeType(file.type)) {
+    return normalizeImageFileAttributes(file, {name});
   }
+}
+
+async function normalizeImages(files) {
+  if (files) {
+    const images = [];
+
+    for (const file of files) {
+      const image = await normalizeImage(file);
+
+      if (image) {
+        images.push(image);
+      }
+    }
+
+    if (images.length) {
+      return images;
+    }
+  }
+}
+
+async function processImage(file) {
+  const dataUrl = await blobToDataUrl(file);
+
+  if (dataUrl) {
+    return {
+      imageDataUrl: dataUrl,
+      imageFilename: file.name,
+      imageType: file.type,
+      imageSize: file.size
+    };
+  }
+}
+
+async function processImages(files) {
+  if (files) {
+    const images = [];
+
+    for (const file of files) {
+      const image = await processImage(file);
+
+      if (image) {
+        images.push(image);
+      }
+    }
+
+    if (images.length) {
+      return images;
+    }
+  }
+}
+
+async function convertImage(
+  dataUrl,
+  {type = 'image/png', maxSize = Infinity, getBlob = false, force = false} = {}
+) {
+  const img = await getImageElement(dataUrl, {query: false});
 
   const sw = img.naturalWidth;
   const sh = img.naturalHeight;
@@ -346,7 +413,12 @@ async function resizeImage({blob, dataUrl, type, maxSize = 1000} = {}) {
       dw = (sw / sh) * maxSize;
       dh = maxSize;
     }
+  } else {
+    dw = sw;
+    dh = sh;
+  }
 
+  if (force || sw !== dw || sh !== dh || getDataUrlMimeType(dataUrl) !== type) {
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
 
@@ -360,16 +432,48 @@ async function resizeImage({blob, dataUrl, type, maxSize = 1000} = {}) {
 
     ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
 
-    if (blob) {
-      blob = await canvasToBlob(cnv, {ctx, type});
-      type = blob.type;
-    } else {
-      dataUrl = canvasToDataUrl(cnv, {ctx, type});
-      type = getDataUrlMimeType(dataUrl);
-    }
+    return getBlob
+      ? canvasToBlob(cnv, {ctx, type})
+      : canvasToDataUrl(cnv, {ctx, type});
   }
 
-  return {imageBlob: blob, imageDataUrl: dataUrl, imageType: type};
+  return getBlob ? dataUrlToBlob(dataUrl) : dataUrl;
+}
+
+async function convertProcessedImage(
+  image,
+  {
+    throwError = false,
+    type = 'image/png',
+    getFile = false,
+    maxSize = Infinity,
+    force = false
+  } = {}
+) {
+  try {
+    const blob = await convertImage(image.imageDataUrl, {
+      type,
+      maxSize,
+      getBlob: true,
+      force
+    });
+    if (blob) {
+      const file = normalizeImageFileAttributes(blob, {
+        name: image.imageFilename
+      });
+      if (getFile) {
+        return file;
+      }
+
+      return processImage(file);
+    }
+  } catch (err) {
+    console.log(err.toString());
+
+    if (throwError) {
+      throw err;
+    }
+  }
 }
 
 function getImageElement(url, {query = true} = {}) {
@@ -419,10 +523,20 @@ async function captureVisibleTabArea(area) {
     cnv.height
   );
 
-  return canvasToDataUrl(cnv, {ctx});
+  return canvasToBlob(cnv, {ctx});
 }
 
-function fileExtToMimeType(fileExt) {
+async function captureImage(area, tabId) {
+  const [surfaceWidth] = await executeCode(`window.innerWidth;`, tabId);
+  area = {...area, surfaceWidth};
+
+  const blob = await captureVisibleTabArea(area);
+  const file = normalizeImageFileAttributes(blob);
+
+  return processImage(file);
+}
+
+function imageFileExtToMimeType(fileExt) {
   for (const [type, ext] of Object.entries(imageMimeTypes)) {
     if (ext.includes(fileExt)) {
       return type;
@@ -432,7 +546,7 @@ function fileExtToMimeType(fileExt) {
   return null;
 }
 
-function mimeTypeToFileExt(mimeType) {
+function imageMimeTypeToFileExt(mimeType) {
   const ext = imageMimeTypes[mimeType];
   if (ext) {
     return ext[0];
@@ -450,7 +564,7 @@ function isImageMimeType(mimeType) {
 }
 
 function isImageFileExt(ext) {
-  if (fileExtToMimeType(ext)) {
+  if (imageFileExtToMimeType(ext)) {
     return true;
   }
 
@@ -458,10 +572,10 @@ function isImageFileExt(ext) {
 }
 
 function getDataFromImageUrl(url) {
-  const {filename, ext} = getDataFromUrl(url);
-  const type = fileExtToMimeType(ext);
+  const {name, ext} = getDataFromUrl(url);
+  const type = imageFileExtToMimeType(ext);
 
-  return {filename, ext, type};
+  return {name, ext, type};
 }
 
 async function configUI(Vue) {
@@ -717,18 +831,11 @@ async function getFilesFromClipboard({focusNode = null} = {}) {
   });
 }
 
-function getImagesFromFiles(files) {
-  const images = files.filter(file => isImageMimeType(file.type));
-  if (images.length) {
-    return images;
-  }
-}
-
 async function getImagesFromClipboard() {
   const files = await getFilesFromClipboard();
 
   if (files) {
-    return getImagesFromFiles(files);
+    return normalizeImages(files);
   }
 }
 
@@ -755,17 +862,16 @@ function getEngineMenuIcon(engine) {
 }
 
 async function shareImage(image, {convert = false} = {}) {
-  if (convert && ['image/webp', 'image/avif'].includes(image.imageType)) {
-    const convImage = await convertProcessedImage(image);
-    if (convImage) {
-      image = convImage;
-    }
+  let convFile;
+  if (convert && convertImageMimeTypes.includes(image.imageType)) {
+    convFile = await convertProcessedImage(image, {getFile: true, force: true});
   }
 
   const files = [
-    new File([dataUrlToBlob(image.imageDataUrl)], image.imageFilename, {
-      type: image.imageType
-    })
+    convFile ||
+      new File([dataUrlToBlob(image.imageDataUrl)], image.imageFilename, {
+        type: image.imageType
+      })
   ];
 
   try {
@@ -794,6 +900,19 @@ function imageTypeSupport(type, engine) {
   }
 }
 
+async function isFileAccepted(file) {
+  // Ignore files larger than 300 MB
+  if (file) {
+    if (file.size <= 300 * 1024 * 1024) {
+      return true;
+    } else {
+      console.log(`File too large (${file.size} bytes)`);
+    }
+  }
+
+  return false;
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -806,18 +925,25 @@ export {
   showContributePage,
   showProjectPage,
   validateUrl,
-  normalizeFilename,
+  normalizeImageFilename,
+  normalizeImageFileAttributes,
+  dataToImage,
+  fileUrlToImage,
+  blobUrlToImage,
   normalizeImage,
-  resizeImage,
+  normalizeImages,
+  processImage,
+  processImages,
   convertImage,
   convertProcessedImage,
   getImageElement,
   captureVisibleTabArea,
+  captureImage,
   getContentXHR,
   fetchImage,
   fetchImageFromBackgroundScript,
-  fileExtToMimeType,
-  mimeTypeToFileExt,
+  imageFileExtToMimeType,
+  imageMimeTypeToFileExt,
   isImageMimeType,
   isImageFileExt,
   getDataFromImageUrl,
@@ -830,9 +956,9 @@ export {
   checkSearchEngineAccess,
   getFilesFromClipboard,
   getImagesFromClipboard,
-  getImagesFromFiles,
   getEngineIcon,
   getEngineMenuIcon,
   shareImage,
-  imageTypeSupport
+  imageTypeSupport,
+  isFileAccepted
 };

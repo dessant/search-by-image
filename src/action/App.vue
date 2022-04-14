@@ -103,6 +103,7 @@
                   class="tile"
                   referrerpolicy="no-referrer"
                   src="/src/assets/icons/misc/broken-image.svg"
+                  @error.once="setBrokenPreviewImage"
                   :alt="img.image.name"
                 />
               </picture>
@@ -162,14 +163,13 @@ import storage from 'storage/storage';
 import {
   getEnabledEngines,
   showNotification,
-  normalizeFilename,
-  normalizeImage,
+  normalizeImages,
+  processImages,
   validateUrl,
   getListItems,
   showContributePage,
   showProjectPage,
   getImagesFromClipboard,
-  getImagesFromFiles,
   getEngineIcon
 } from 'utils/app';
 import {getText, getActiveTab, createTab} from 'utils/common';
@@ -255,24 +255,22 @@ export default {
 
     getEngineIcon,
 
-    onEngineClick: async function (engine) {
-      if (!this.startProcessing()) return;
-
+    initSearch: async function (engine) {
       try {
         let images;
 
         if (this.searchModeAction === 'url') {
           if (!validateUrl(this.imageUrl)) {
             this.focusImageUrlInput();
-            showNotification({messageId: 'error_invalidImageUrl'});
+            await showNotification({messageId: 'error_invalidImageUrl'});
             return;
           }
         } else if (this.searchModeAction === 'upload') {
           if (this.previewImages) {
             const files = this.previewImages.map(item => item.image);
-            images = await this.processFiles(files);
+            images = await processImages(files);
             if (!images) {
-              showNotification({messageId: 'error_invalidImageFile'});
+              await showNotification({messageId: 'error_invalidImageFile'});
               return;
             }
           }
@@ -287,37 +285,12 @@ export default {
 
         this.closeAction();
       } catch (err) {
-        this.stopProcessing();
         await browser.runtime.sendMessage({
           id: 'notification',
           messageId: 'error_internalError'
         });
 
         throw err;
-      }
-    },
-
-    processFiles: async function (files) {
-      if (files) {
-        const images = [];
-
-        for (const file of files) {
-          const {dataUrl, type, ext} = await normalizeImage({blob: file});
-          if (dataUrl) {
-            const filename = normalizeFilename({filename: file.name, ext});
-            images.push({
-              imageDataUrl: dataUrl,
-              imageFilename: filename,
-              imageType: type,
-              imageExt: ext,
-              imageSize: file.size
-            });
-          }
-        }
-
-        if (images.length) {
-          return images;
-        }
       }
     },
 
@@ -337,8 +310,15 @@ export default {
 
       if (newValue === 'upload') {
         this.setupBrowseSearchModeSettings();
-      } else if (newValue === 'url' && oldValue === 'upload') {
-        window.setTimeout(this.focusImageUrlInput, 300);
+
+        if (oldValue === 'url') {
+          this.removeImageUrl();
+        }
+      } else if (newValue === 'url') {
+        if (oldValue === 'upload') {
+          window.setTimeout(this.focusImageUrlInput, 300);
+          this.removePreviewImages();
+        }
       }
     },
 
@@ -365,8 +345,15 @@ export default {
       });
     },
 
+    onEngineClick: function (engine) {
+      if (!this.startProcessing()) return;
+
+      this.initSearch(engine).finally(() => {
+        this.stopProcessing();
+      });
+    },
+
     onBrowseInputChange: function (ev) {
-      console.log(11111, ev);
       if (!this.startProcessing()) return;
 
       const files = ev.target.files;
@@ -407,7 +394,7 @@ export default {
           return;
         }
 
-        const images = getImagesFromFiles(Array.from(files));
+        const images = await normalizeImages(files);
         this.showPreviewImages(images);
 
         if (!images) {
@@ -424,24 +411,6 @@ export default {
 
         throw err;
       }
-    },
-
-    showPreviewImages: function (images) {
-      if (images) {
-        this.showBrowseButtons = false;
-        this.previewImages = images.map(image => ({
-          image,
-          objectUrl: URL.createObjectURL(image)
-        }));
-      } else {
-        this.showBrowseButtons = true;
-      }
-    },
-
-    hidePreviewImages: function () {
-      this.previewImages.forEach(image => URL.revokeObjectURL(image.objectUrl));
-      this.previewImages = null;
-      this.showBrowseButtons = true;
     },
 
     shareImage: async function () {
@@ -500,6 +469,48 @@ export default {
       }
     },
 
+    showPreviewImages: function (images) {
+      if (images) {
+        this.showBrowseButtons = false;
+        this.addPreviewImages(images);
+      } else {
+        this.showBrowseButtons = true;
+      }
+    },
+
+    hidePreviewImages: function () {
+      this.removePreviewImages();
+      this.showBrowseButtons = true;
+    },
+
+    addPreviewImages: function (images) {
+      if (images) {
+        this.previewImages = images.map(image => ({
+          image,
+          objectUrl: URL.createObjectURL(image)
+        }));
+      }
+    },
+
+    removePreviewImages: function () {
+      if (this.previewImages) {
+        this.previewImages.forEach(image =>
+          URL.revokeObjectURL(image.objectUrl)
+        );
+        this.previewImages = null;
+      }
+    },
+
+    setBrokenPreviewImage: function (ev) {
+      const source = ev.target.previousElementSibling;
+      source.srcset = ev.target.src;
+      source.type = 'image/svg+xml';
+    },
+
+    removeImageUrl: function () {
+      this.imageUrl = '';
+    },
+
     focusImageUrlInput: function () {
       this.$refs.imageUrlInput.$refs.input.focus();
     },
@@ -524,9 +535,9 @@ export default {
     settingsAfterLeave: function () {
       this.unlockPopupHeight();
       this.configureScrollBar();
-      if (this.searchModeAction === 'url') {
-        this.imageUrl = '';
-      }
+
+      this.removeImageUrl();
+      this.removePreviewImages();
     },
 
     onListSizeChange: function () {

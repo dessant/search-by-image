@@ -5,8 +5,10 @@ import {v4 as uuidv4} from 'uuid';
 import {
   hasUrlSupport,
   validateUrl,
-  normalizeFilename,
-  normalizeImage,
+  dataToImage,
+  fileUrlToImage,
+  blobUrlToImage,
+  processImage,
   getImageElement,
   fetchImage,
   fetchImageFromBackgroundScript,
@@ -181,17 +183,14 @@ async function processResults(results, session) {
     item => item.data && item.data.startsWith('data:')
   );
   for (const item of daraUrls) {
-    const index = results.indexOf(item);
-    const {dataUrl, type, ext} = await normalizeImage({dataUrl: item.data});
-    if (dataUrl) {
-      results[index] = {
-        imageDataUrl: dataUrl,
-        imageFilename: normalizeFilename({ext}),
-        imageType: type,
-        imageExt: ext
-      };
-    } else {
-      results.splice(index, 1);
+    const file = await dataToImage({dataUrl: item.data});
+
+    if (file) {
+      const image = await processImage(file);
+
+      if (image) {
+        results[results.indexOf(item)] = image;
+      }
     }
   }
 
@@ -200,32 +199,14 @@ async function processResults(results, session) {
     const fileUrls = results.filter(
       item => item.data && item.data.startsWith('file://')
     );
-    if (fileUrls.length) {
-      const cnv = document.createElement('canvas');
-      const ctx = cnv.getContext('2d');
-      for (const item of fileUrls) {
-        const url = item.data;
-        const img = await getImageElement(url);
-        if (img) {
-          let {filename, ext, type} = getDataFromImageUrl(url);
+    for (const item of fileUrls) {
+      const file = await fileUrlToImage(item.data);
 
-          if (!['image/jpeg', 'image/png'].includes(type)) {
-            type = 'image/png';
-          }
-          cnv.width = img.naturalWidth;
-          cnv.height = img.naturalHeight;
+      if (file) {
+        const image = await processImage(file);
 
-          if (drawElementOnCanvas(ctx, img)) {
-            const data = canvasToDataUrl(cnv, {ctx, type});
-            if (data) {
-              results[results.indexOf(item)] = {
-                imageDataUrl: data,
-                imageFilename: normalizeFilename({filename, ext}),
-                imageType: type,
-                imageExt: ext
-              };
-            }
-          }
+        if (image) {
+          results[results.indexOf(item)] = image;
         }
       }
     }
@@ -234,28 +215,14 @@ async function processResults(results, session) {
   const blobUrls = results.filter(
     item => item.data && item.data.startsWith('blob:')
   );
-  if (blobUrls.length) {
-    const cnv = document.createElement('canvas');
-    const ctx = cnv.getContext('2d');
+  for (const item of blobUrls) {
+    const file = await blobUrlToImage(item.data);
 
-    for (const item of blobUrls) {
-      const img = await getImageElement(item.data);
-      if (img) {
-        cnv.width = img.naturalWidth;
-        cnv.height = img.naturalHeight;
+    if (file) {
+      const image = await processImage(file);
 
-        if (drawElementOnCanvas(ctx, img)) {
-          const data = canvasToDataUrl(cnv, {ctx});
-          if (data) {
-            const ext = 'png';
-            results[results.indexOf(item)] = {
-              imageDataUrl: data,
-              imageFilename: normalizeFilename({ext}),
-              imageType: 'image/png',
-              imageExt: ext
-            };
-          }
-        }
+      if (image) {
+        results[results.indexOf(item)] = image;
       }
     }
   }
@@ -268,42 +235,34 @@ async function processResults(results, session) {
       !(await hasUrlSupport(session.engines));
 
     for (const item of httpUrls) {
-      const resultIndex = results.indexOf(item);
       let url = item.data;
-
-      const {filename, type: imageType} = getDataFromImageUrl(url);
+      const {name: filename, type: imageType} = getDataFromImageUrl(url);
 
       const mustDownloadUrl =
         mustDownloadAllUrls ||
         session.engines.some(engine => !imageTypeSupport(imageType, engine));
 
       if (mustDownloadUrl) {
-        let imageBlob = await downloadImage(url);
-        if (!imageBlob && window.isSecureContext && url.match(/^http:/i)) {
+        let blob = await downloadImage(url);
+
+        if (!blob && window.isSecureContext && url.match(/^http:/i)) {
           url = url.replace(/^http:/i, 'https:');
-          imageBlob = await downloadImage(url);
+          blob = await downloadImage(url);
         }
 
-        if (!imageBlob) {
-          results.splice(resultIndex, 1);
-          continue;
-        }
+        if (blob) {
+          const file = await dataToImage({blob, name: filename});
 
-        const {dataUrl, type, ext} = await normalizeImage({blob: imageBlob});
-        if (dataUrl) {
-          results[resultIndex] = {
-            imageUrl: url,
-            imageDataUrl: dataUrl,
-            imageFilename: normalizeFilename({filename, ext}),
-            imageType: type,
-            imageExt: ext,
-            imageSize: imageBlob.size
-          };
-        } else {
-          results.splice(resultIndex, 1);
+          if (file) {
+            const image = await processImage(file);
+
+            if (image) {
+              results[results.indexOf(item)] = {imageUrl: url, ...image};
+            }
+          }
         }
       } else {
-        results[resultIndex] = {imageUrl: url};
+        results[results.indexOf(item)] = {imageUrl: url};
       }
     }
   }
@@ -387,11 +346,13 @@ async function parse(session) {
 self.initParse = async function (session) {
   const images = await parse(session).catch(err => {
     console.log(err.toString());
+
     browser.runtime.sendMessage({
       id: 'pageParseError',
       session
     });
   });
+
   if (images) {
     if (session.sessionType === 'share' && images.length === 1) {
       await shareImage(images[0], {

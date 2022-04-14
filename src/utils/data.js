@@ -368,6 +368,8 @@ const engineIconAlias = {branddb: 'wipo', madridMonitor: 'wipo'};
 const imageMimeTypes = {
   'image/aces': ['exr'],
   'image/apng': ['apng'],
+  'image/avci': ['avci'],
+  'image/avcs': ['avcs'],
   'image/avif': ['avif'],
   'image/bmp': ['bmp'],
   'image/cgm': ['cgm'],
@@ -457,6 +459,8 @@ Object.assign(imageMimeTypes, {
   'image/jxl': ['jxl']
 });
 
+const convertImageMimeTypes = ['image/webp', 'image/avif'];
+
 const webpEngineSupport = [
   'google',
   'bing',
@@ -509,6 +513,7 @@ export {
   engineIconAlias,
   censoredEngines,
   imageMimeTypes,
+  convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
   chromeDesktopUA,

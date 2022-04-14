@@ -1,6 +1,6 @@
 import {findNode, isMobile} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
-import {resizeImage} from 'utils/app';
+import {convertImage} from 'utils/app';
 
 const engine = 'bing';
 
@@ -24,14 +24,13 @@ async function search({session, search, image, storageIds}) {
     await sendReceipt(storageIds);
 
     if (image.imageSize > 600 * 1024) {
-      const resizedImage = await resizeImage({
-        dataUrl: image.imageDataUrl,
+      const convImageDataUrl = await convertImage(image.imageDataUrl, {
         type: 'image/jpeg',
-        maxSize: 800
+        maxSize: 640
       });
 
-      input.value = resizedImage.imageDataUrl.substring(
-        resizedImage.imageDataUrl.indexOf(',') + 1
+      input.value = convImageDataUrl.substring(
+        convImageDataUrl.indexOf(',') + 1
       );
       form.submit();
     } else {

@@ -57,19 +57,20 @@
         </div>
       </div>
 
-      <div class="browse-preview" v-show="images">
+      <div class="browse-preview" v-show="previewImages">
         <div class="preview-images">
           <picture
             class="tile-container"
-            v-for="(img, index) in images"
+            v-for="(img, index) in previewImages"
             :key="index"
           >
-            <source :srcset="img.imageDataUrl" :type="img.imageType" />
+            <source :srcset="img.objectUrl" :type="img.image.type" />
             <img
               class="tile"
               referrerpolicy="no-referrer"
               src="/src/assets/icons/misc/broken-image.svg"
-              :alt="img.imageFilename"
+              @error.once="setBrokenPreviewImage"
+              :alt="img.image.name"
             />
           </picture>
         </div>
@@ -80,7 +81,7 @@
             outlined
             :label="getText('buttonText_cancel')"
             :disabled="processing"
-            @click="hidePreviewImages"
+            @click="onCancelButtonClick"
           ></v-button>
           <v-button
             class="outline-button"
@@ -97,15 +98,16 @@
       <div class="preview-images">
         <picture
           class="tile-container"
-          v-for="(img, index) in images"
+          v-for="(img, index) in previewImages"
           :key="index"
         >
-          <source :srcset="img.imageDataUrl" :type="img.imageType" />
+          <source :srcset="img.objectUrl" :type="img.image.type" />
           <img
             class="tile"
             referrerpolicy="no-referrer"
             src="/src/assets/icons/misc/broken-image.svg"
-            :alt="img.imageFilename"
+            @error.once="setBrokenPreviewImage"
+            :alt="img.image.name"
           />
         </picture>
       </div>
@@ -165,13 +167,14 @@ import storage from 'storage/storage';
 import {
   getEnabledEngines,
   createSession,
-  normalizeFilename,
-  normalizeImage,
-  fileExtToMimeType,
+  dataToImage,
+  normalizeImages,
+  processImages,
+  imageFileExtToMimeType,
   getFilesFromClipboard,
   getEngineIcon
 } from 'utils/app';
-import {getText, dataUrlToBlob} from 'utils/common';
+import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
 
 export default {
@@ -192,7 +195,7 @@ export default {
       dropState: false,
       showBrowseArea: true,
 
-      images: null,
+      previewImages: null,
       session: null,
 
       engines: [],
@@ -233,16 +236,15 @@ export default {
           );
 
           if (response) {
-            const imageBlob = dataUrlToBlob(
-              `data:${
-                fileExtToMimeType(response.imageExt) || 'text/plain'
-              };base64,${response.imageDataStr}`
-            );
+            const dataUrl = `data:${
+              imageFileExtToMimeType(response.imageExt) ||
+              'application/octet-stream'
+            };base64,${response.imageDataStr}`;
 
-            const images = await this.processFiles([imageBlob]);
+            const image = await dataToImage({dataUrl});
 
-            if (images) {
-              this.images = images;
+            if (image) {
+              this.addPreviewImages([image]);
             } else {
               this.showError = getText('error_invalidImageFile');
             }
@@ -290,30 +292,6 @@ export default {
       }
 
       this.dataLoaded = true;
-    },
-
-    processFiles: async function (files) {
-      if (files) {
-        const images = [];
-
-        for (const file of files) {
-          const {dataUrl, type, ext} = await normalizeImage({blob: file});
-          if (dataUrl) {
-            const filename = normalizeFilename({filename: file.name, ext});
-            images.push({
-              imageDataUrl: dataUrl,
-              imageFilename: filename,
-              imageType: type,
-              imageExt: ext,
-              imageSize: file.size
-            });
-          }
-        }
-
-        if (images.length) {
-          return images;
-        }
-      }
     },
 
     startProcessing: function () {
@@ -431,7 +409,7 @@ export default {
           files = await getFilesFromClipboard();
         }
 
-        const images = await this.processFiles(files);
+        const images = await normalizeImages(files);
 
         if (images) {
           if (this.confirmPaste) {
@@ -465,7 +443,7 @@ export default {
           return;
         }
 
-        const images = await this.processFiles(files);
+        const images = await normalizeImages(files);
 
         if (images) {
           await this.initSearch(images);
@@ -487,21 +465,52 @@ export default {
 
     showPreviewImages: function (images) {
       this.showBrowseArea = false;
-      this.images = images;
+      this.addPreviewImages(images);
     },
 
     hidePreviewImages: function () {
-      this.images = null;
+      this.removePreviewImages();
       this.showBrowseArea = true;
+    },
+
+    addPreviewImages: function (images) {
+      if (images) {
+        this.previewImages = images.map(image => ({
+          image,
+          objectUrl: URL.createObjectURL(image)
+        }));
+      }
+    },
+
+    removePreviewImages: function () {
+      if (this.previewImages) {
+        this.previewImages.forEach(image =>
+          URL.revokeObjectURL(image.objectUrl)
+        );
+        this.previewImages = null;
+      }
+    },
+
+    setBrokenPreviewImage: function (ev) {
+      const source = ev.target.previousElementSibling;
+      source.srcset = ev.target.src;
+      source.type = 'image/svg+xml';
     },
 
     initSearch: async function (images) {
       this.showSpinner = true;
 
       try {
+        const files = images || this.previewImages.map(item => item.image);
+
+        images = await processImages(files);
+        if (!images) {
+          throw new Error('cannot process images');
+        }
+
         await browser.runtime.sendMessage({
           id: 'imageUploadSubmit',
-          images: images || this.images,
+          images,
           session: this.session
         });
       } catch (err) {
