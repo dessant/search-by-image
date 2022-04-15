@@ -152,7 +152,10 @@
       <div class="error-text">{{ showError }}</div>
     </div>
 
-    <div v-if="showSpinner && !showError" class="sk-rotating-plane"></div>
+    <div
+      v-if="showSpinner && !showError"
+      class="spinner sk-rotating-plane"
+    ></div>
   </div>
 </template>
 
@@ -229,6 +232,8 @@ export default {
       if (this.isShare) {
         const shareId = new URL(window.location.href).searchParams.get('id');
 
+        const enEngines = await getEnabledEngines(options);
+
         if (uuidValidate(shareId)) {
           const response = await browser.runtime.sendNativeMessage(
             'application.id',
@@ -244,7 +249,30 @@ export default {
             const image = await dataToImage({dataUrl});
 
             if (image) {
-              this.addPreviewImages([image]);
+              let engine;
+              if (enEngines.length === 1) {
+                engine = enEngines[0];
+              } else if (
+                enEngines.length > 1 &&
+                options.searchAllEnginesAction === 'main'
+              ) {
+                engine = 'allEngines';
+              }
+
+              if (engine) {
+                try {
+                  await this.initShareSearch({engine, images: [image]});
+                } catch (err) {
+                  this.showError = getText('error_internalError');
+                  throw err;
+                } finally {
+                  this.dataLoaded = true;
+                }
+
+                return;
+              } else {
+                this.addPreviewImages([image]);
+              }
             } else {
               this.showError = getText('error_invalidImageFile');
             }
@@ -254,8 +282,6 @@ export default {
         } else {
           this.showError = getText('error_invalidPageUrl');
         }
-
-        const enEngines = await getEnabledEngines(options);
 
         this.engines = enEngines;
         this.searchAllEngines =
@@ -309,17 +335,7 @@ export default {
       if (!this.startProcessing()) return;
 
       try {
-        const tab = browser.tabs.getCurrent();
-
-        this.session = await createSession({
-          sessionOrigin: 'share',
-          searchMode: 'upload',
-          sourceTabId: tab.id,
-          sourceTabIndex: tab.index,
-          engine
-        });
-
-        await this.initSearch();
+        await this.initShareSearch({engine});
       } catch (err) {
         this.stopProcessing();
         await browser.runtime.sendMessage({
@@ -495,6 +511,20 @@ export default {
       const source = ev.target.previousElementSibling;
       source.srcset = ev.target.src;
       source.type = 'image/svg+xml';
+    },
+
+    initShareSearch: async function ({engine, images} = {}) {
+      const tab = browser.tabs.getCurrent();
+
+      this.session = await createSession({
+        sessionOrigin: 'share',
+        searchMode: 'upload',
+        sourceTabId: tab.id,
+        sourceTabIndex: tab.index,
+        engine
+      });
+
+      await this.initSearch(images);
     },
 
     initSearch: async function (images) {
@@ -709,6 +739,7 @@ body {
     width: 100%;
     padding: 16px;
     padding-top: 32px;
+    max-width: 960px;
   }
 
   & .preview-images {
@@ -811,6 +842,10 @@ body {
     @include mdc-theme-prop(color, #252525);
     max-width: 520px;
   }
+}
+
+.spinner {
+  align-self: center;
 }
 
 .safari {
