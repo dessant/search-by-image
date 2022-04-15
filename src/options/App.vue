@@ -190,7 +190,7 @@ import draggable from 'vuedraggable';
 import {Checkbox, FormField, Switch, Select} from 'ext-components';
 
 import storage from 'storage/storage';
-import {getListItems} from 'utils/app';
+import {getListItems, canShare} from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
 
@@ -302,9 +302,7 @@ export default {
 
       this.contextMenuEnabled = !(this.$env.isMobile && !this.$env.isSamsung);
 
-      this.shareEnabled =
-        this.$env.isSafari ||
-        ((this.$env.isWindows || this.$env.isAndroid) && !this.$env.isFirefox);
+      this.shareEnabled = canShare(this.$env);
 
       this.pasteEnabled =
         !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);

@@ -170,7 +170,8 @@ import {
   showContributePage,
   showProjectPage,
   getImagesFromClipboard,
-  getEngineIcon
+  getEngineIcon,
+  canShare
 } from 'utils/app';
 import {getText, getActiveTab, createTab} from 'utils/common';
 import {enableContributions} from 'utils/config';
@@ -624,10 +625,7 @@ export default {
       options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
     this.searchModeAction = options.searchModeAction;
 
-    this.shareEnabled =
-      options.shareImageAction &&
-      (this.$env.isSafari ||
-        ((this.$env.isWindows || this.$env.isAndroid) && !this.$env.isFirefox));
+    this.shareEnabled = options.shareImageAction && canShare(this.$env);
 
     this.browseEnabled =
       !this.$env.isLinux && !this.$env.isSamsung && !this.$env.isFirefox;

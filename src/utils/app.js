@@ -913,6 +913,17 @@ async function isFileAccepted(file) {
   return false;
 }
 
+function canShare(env) {
+  if (
+    navigator.canShare &&
+    (env.isSafari || ((env.isWindows || env.isAndroid) && !env.isFirefox))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -960,5 +971,6 @@ export {
   getEngineMenuIcon,
   shareImage,
   imageTypeSupport,
-  isFileAccepted
+  isFileAccepted,
+  canShare
 };
