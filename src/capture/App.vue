@@ -90,8 +90,7 @@ export default {
       if (!area.width) {
         browser.runtime.sendMessage({
           id: 'notification',
-          messageId: 'error_invalidCaptureArea',
-          type: 'captureError'
+          messageId: 'error_invalidCaptureArea'
         });
         return;
       }

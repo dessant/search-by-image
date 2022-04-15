@@ -169,6 +169,7 @@ import {Button} from 'ext-components';
 import storage from 'storage/storage';
 import {
   getEnabledEngines,
+  showNotification,
   createSession,
   dataToImage,
   normalizeImages,
@@ -338,10 +339,7 @@ export default {
         await this.initShareSearch({engine});
       } catch (err) {
         this.stopProcessing();
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }
@@ -360,10 +358,7 @@ export default {
         await this.initSearch();
       } catch (err) {
         this.stopProcessing();
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }
@@ -434,16 +429,10 @@ export default {
             await this.initSearch(images);
           }
         } else {
-          await browser.runtime.sendMessage({
-            id: 'notification',
-            messageId: 'error_invalidImageFile'
-          });
+          await showNotification({messageId: 'error_invalidImageFile'});
         }
       } catch (err) {
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }
@@ -452,10 +441,7 @@ export default {
     processSelectedImages: async function (files) {
       try {
         if (files.length > 3) {
-          await browser.runtime.sendMessage({
-            id: 'notification',
-            messageId: 'error_invalidImageCount'
-          });
+          await showNotification({messageId: 'error_invalidImageCount'});
           return;
         }
 
@@ -464,16 +450,10 @@ export default {
         if (images) {
           await this.initSearch(images);
         } else {
-          await browser.runtime.sendMessage({
-            id: 'notification',
-            messageId: 'error_invalidImageFile'
-          });
+          await showNotification({messageId: 'error_invalidImageFile'});
         }
       } catch (err) {
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }

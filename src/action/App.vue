@@ -285,10 +285,7 @@ export default {
 
         this.closeAction();
       } catch (err) {
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }
@@ -369,16 +366,10 @@ export default {
         this.showPreviewImages(images);
 
         if (!images && showError) {
-          await browser.runtime.sendMessage({
-            id: 'notification',
-            messageId: 'error_invalidImageFile'
-          });
+          await showNotification({messageId: 'error_invalidImageFile'});
         }
       } catch (err) {
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }
@@ -387,10 +378,7 @@ export default {
     processSelectedImages: async function (files) {
       try {
         if (files.length > 3) {
-          await browser.runtime.sendMessage({
-            id: 'notification',
-            messageId: 'error_invalidImageCount'
-          });
+          await showNotification({messageId: 'error_invalidImageCount'});
           return;
         }
 
@@ -398,16 +386,10 @@ export default {
         this.showPreviewImages(images);
 
         if (!images) {
-          await browser.runtime.sendMessage({
-            id: 'notification',
-            messageId: 'error_invalidImageFile'
-          });
+          await showNotification({messageId: 'error_invalidImageFile'});
         }
       } catch (err) {
-        await browser.runtime.sendMessage({
-          id: 'notification',
-          messageId: 'error_internalError'
-        });
+        await showNotification({messageId: 'error_internalError'});
 
         throw err;
       }
