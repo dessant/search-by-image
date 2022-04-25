@@ -161,7 +161,6 @@
 
 <script>
 import browser from 'webextension-polyfill';
-import {validate as uuidValidate} from 'uuid';
 import {MDCList} from '@material/list';
 import {MDCRipple} from '@material/ripple';
 import {Button} from 'ext-components';
@@ -176,7 +175,8 @@ import {
   processImages,
   imageFileExtToMimeType,
   getFilesFromClipboard,
-  getEngineIcon
+  getEngineIcon,
+  validateShareId
 } from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
@@ -227,66 +227,79 @@ export default {
 
     getEngineIcon,
 
+    initSetup: async function () {
+      try {
+        await this.setup();
+      } catch (err) {
+        await showNotification({messageId: 'error_internalError'});
+
+        throw err;
+      } finally {
+        this.dataLoaded = true;
+      }
+    },
+
     setup: async function () {
       const options = await storage.get(optionKeys);
 
       if (this.isShare) {
-        const shareId = new URL(window.location.href).searchParams.get('id');
+        const shareIds = new URL(window.location.href).searchParams.get('id');
 
         const enEngines = await getEnabledEngines(options);
 
-        if (uuidValidate(shareId)) {
-          const response = await browser.runtime.sendNativeMessage(
-            'application.id',
-            {id: 'getSharedImage', shareId}
-          );
+        if (await validateShareId(shareIds)) {
+          const images = [];
 
-          if (response) {
-            const dataUrl = `data:${
-              imageFileExtToMimeType(response.imageExt) ||
-              'application/octet-stream'
-            };base64,${response.imageDataStr}`;
+          for (const shareId of shareIds.split('_')) {
+            const response = await browser.runtime.sendNativeMessage(
+              'application.id',
+              {id: 'getSharedImage', shareId}
+            );
 
-            const image = await dataToImage({dataUrl});
+            if (response) {
+              const dataUrl = `data:${
+                imageFileExtToMimeType(response.imageExt) ||
+                'application/octet-stream'
+              };base64,${response.imageDataStr}`;
 
-            if (image) {
-              let engine;
-              if (enEngines.length === 1) {
-                engine = enEngines[0];
-              } else if (
-                enEngines.length > 1 &&
-                options.searchAllEnginesAction === 'main'
-              ) {
-                engine = 'allEngines';
-              }
+              const image = await dataToImage({dataUrl});
 
-              if (engine) {
-                try {
-                  await this.initShareSearch({engine, images: [image]});
-                } catch (err) {
-                  this.showError = getText('error_internalError');
-                  throw err;
-                } finally {
-                  this.dataLoaded = true;
-                }
-
-                return;
-              } else {
-                this.addPreviewImages([image]);
+              if (image) {
+                images.push(image);
               }
             } else {
-              this.showError = getText('error_invalidImageFile');
+              this.showError = getText('error_invalidPageUrl');
+              return;
+            }
+          }
+
+          if (images.length) {
+            let engine;
+            if (enEngines.length === 1) {
+              engine = enEngines[0];
+            } else if (
+              enEngines.length > 1 &&
+              options.searchAllEnginesAction === 'main'
+            ) {
+              engine = 'allEngines';
+            }
+
+            if (engine) {
+              await this.initShareSearch({engine, images});
+            } else {
+              this.addPreviewImages(images);
+
+              this.engines = enEngines;
+              this.searchAllEngines =
+                options.searchAllEnginesAction === 'sub' &&
+                !this.$env.isSamsung;
             }
           } else {
-            this.showError = getText('error_invalidPageUrl');
+            this.showError = getText('error_invalidImageFile');
           }
         } else {
           this.showError = getText('error_invalidPageUrl');
         }
-
-        this.engines = enEngines;
-        this.searchAllEngines =
-          options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
       } else {
         const storageId = new URL(window.location.href).searchParams.get('id');
 
@@ -299,26 +312,25 @@ export default {
 
         if (session) {
           this.session = session;
+
+          this.dropEnabled = !this.$env.isAndroid;
+
+          this.pasteEnabled =
+            !this.$env.isSamsung &&
+            !(this.$env.isMobile && this.$env.isFirefox);
+
+          this.confirmPaste = options.confirmPaste;
+
+          if (this.pasteEnabled) {
+            window.addEventListener('paste', this.onPasteEvent, {
+              capture: true,
+              passive: false
+            });
+          }
         } else {
           this.showError = getText('error_invalidPageUrl');
         }
-
-        this.dropEnabled = !this.$env.isAndroid;
-
-        this.pasteEnabled =
-          !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
-
-        this.confirmPaste = options.confirmPaste;
-
-        if (this.pasteEnabled) {
-          window.addEventListener('paste', this.onPasteEvent, {
-            capture: true,
-            passive: false
-          });
-        }
       }
-
-      this.dataLoaded = true;
     },
 
     startProcessing: function () {
@@ -539,7 +551,7 @@ export default {
     this.isShare =
       new URL(window.location.href).searchParams.get('origin') === 'share';
 
-    this.setup();
+    this.initSetup();
   },
 
   mounted: function () {

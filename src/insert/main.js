@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import storage from 'storage/storage';
+import {isIncomingShareContext, processIncomingShare} from 'utils/app';
 
 function main() {
   // Script may be injected multiple times.
@@ -154,7 +155,11 @@ function main() {
   }
 
   if (window.top === window) {
-    checkTask();
+    if (isIncomingShareContext()) {
+      processIncomingShare();
+    } else {
+      checkTask();
+    }
   }
 }
 

@@ -1160,7 +1160,7 @@
   },
 
   "error_invalidImageFile": {
-    "message": "The selected files are not images.",
+    "message": "The selected items are not images.",
     "description": "Error message."
   },
 

@@ -41,10 +41,6 @@ const entries = Object.fromEntries(
   engines.map(engine => [engine, `./src/engines/${engine}.js`])
 );
 
-if (targetEnv === 'safari') {
-  entries.share = './src/share/main.js';
-}
-
 if (enableContributions) {
   entries.contribute = './src/contribute/main.js';
 }

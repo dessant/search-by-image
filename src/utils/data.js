@@ -506,6 +506,8 @@ const chromeMobileUA =
 
 const projectUrl = 'https://github.com/dessant/search-by-image';
 
+const shareBridgeUrl = 'https://searchbyimage.vapps.dev/share';
+
 export {
   optionKeys,
   engines,
@@ -518,5 +520,6 @@ export {
   avifEngineSupport,
   chromeDesktopUA,
   chromeMobileUA,
-  projectUrl
+  projectUrl,
+  shareBridgeUrl
 };

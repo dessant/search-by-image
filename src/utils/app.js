@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 import {difference} from 'lodash-es';
 import fileType from 'file-type';
+import {validate as uuidValidate} from 'uuid';
 
 import storage from 'storage/storage';
 import {
@@ -32,7 +33,8 @@ import {
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
-  projectUrl
+  projectUrl,
+  shareBridgeUrl
 } from 'utils/data';
 
 async function getEnabledEngines(options) {
@@ -913,6 +915,32 @@ async function isFileAccepted(file) {
   return false;
 }
 
+async function sendBackgroundMessage(message) {
+  // Used when the message may be sent on browser start, before the background
+  // page event listener has been initialized. Response must not be falsy.
+  return new Promise((resolve, reject) => {
+    let stop;
+
+    const sendMessage = async function () {
+      const data = await browser.runtime.sendMessage(message);
+      if (data) {
+        window.clearTimeout(timeoutId);
+        resolve(data);
+      } else if (stop) {
+        reject(new Error('Background page is not ready'));
+      } else {
+        window.setTimeout(sendMessage, 30);
+      }
+    };
+
+    const timeoutId = window.setTimeout(function () {
+      stop = true;
+    }, 60000); // 1 minute
+
+    sendMessage();
+  });
+}
+
 function canShare(env) {
   if (
     navigator.canShare &&
@@ -922,6 +950,46 @@ function canShare(env) {
   }
 
   return false;
+}
+
+async function validateShareId(shareId, {validateData = false} = {}) {
+  if (!shareId?.split('_').every(item => uuidValidate(item))) {
+    return false;
+  }
+
+  if (validateData) {
+    const data = await sendBackgroundMessage({
+      id: 'sendNativeMessage',
+      message: {id: 'validateShareId', shareId}
+    });
+
+    return data.response?.isValid;
+  }
+
+  return true;
+}
+
+function isIncomingShareContext() {
+  if (
+    targetEnv === 'safari' &&
+    window.location.href.startsWith(shareBridgeUrl)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+async function processIncomingShare() {
+  const shareId = window.location.hash.substring(1);
+
+  if (await validateShareId(shareId, {validateData: true})) {
+    const tabUrl = `${browser.runtime.getURL(
+      '/src/browse/index.html'
+    )}?id=${shareId}&origin=share`;
+
+    window.location.replace(tabUrl);
+  }
 }
 
 export {
@@ -972,5 +1040,9 @@ export {
   shareImage,
   imageTypeSupport,
   isFileAccepted,
-  canShare
+  sendBackgroundMessage,
+  canShare,
+  validateShareId,
+  isIncomingShareContext,
+  processIncomingShare
 };
