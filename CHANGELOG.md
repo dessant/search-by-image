@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.9.0](https://github.com/dessant/search-by-image/compare/v4.8.0...v4.9.0) (2022-04-28)
+
+
+### Features
+
+* accept more than one shared image ([99d9fd7](https://github.com/dessant/search-by-image/commit/99d9fd7b7886930b5f337d6e63f8b55d33ba795f))
+
+
+### Bug Fixes
+
+* convert unsupported images before searching ([fde1224](https://github.com/dessant/search-by-image/commit/fde1224a8453dfd677700fd180343299a707142b)), closes [#153](https://github.com/dessant/search-by-image/issues/153)
+* create notifications from current script ([1d7b538](https://github.com/dessant/search-by-image/commit/1d7b538e01ba091048c9bc57dd4509d09fc54f01))
+* hide sharing on unsupported platforms ([eadc88e](https://github.com/dessant/search-by-image/commit/eadc88eb63fd2defb55c53c04861ea224acec13a)), closes [#183](https://github.com/dessant/search-by-image/issues/183)
+* improve image normalization and processing ([5bbe6aa](https://github.com/dessant/search-by-image/commit/5bbe6aa7fff7e0dc0349e0a8618b64a17f305b38))
+* search with default engines on image share ([78ed47e](https://github.com/dessant/search-by-image/commit/78ed47ea5e3929bbba6ed6342f8d22ba1e0463fa))
+
 ## [4.8.0](https://github.com/dessant/search-by-image/compare/v4.7.0...v4.8.0) (2022-04-06)
 
 
