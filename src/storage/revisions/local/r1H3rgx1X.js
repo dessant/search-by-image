@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add stock photo engines';
 
 const revision = 'r1H3rgx1X';
@@ -43,10 +41,10 @@ async function downgrade() {
     'depositphotos'
   ];
 
-  changes.engines = engines.filter(function(item) {
+  changes.engines = engines.filter(function (item) {
     return !newEngines.includes(item);
   });
-  changes.disabledEngines = disabledEngines.filter(function(item) {
+  changes.disabledEngines = disabledEngines.filter(function (item) {
     return !newEngines.includes(item);
   });
 

@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add searchModeContextMenu';
 
 const revision = 'r1Pvd36nz';

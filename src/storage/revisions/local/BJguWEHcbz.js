@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add installTime and searchCount';
 
 const revision = 'BJguWEHcbz';

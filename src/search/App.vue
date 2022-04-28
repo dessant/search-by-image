@@ -51,7 +51,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import Masonry from 'masonry-layout';
 import imagesLoaded from 'imagesloaded';
 

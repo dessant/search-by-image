@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Initial version';
 
 const revision = 'ryekyizAg';

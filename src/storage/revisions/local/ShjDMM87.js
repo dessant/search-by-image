@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add Dreamstime, Alamy and 123RF';
 
 const revision = 'ShjDMM87';
@@ -30,10 +28,10 @@ async function downgrade() {
   ]);
   const newEngines = ['dreamstime', 'alamy', '123rf'];
 
-  changes.engines = engines.filter(function(item) {
+  changes.engines = engines.filter(function (item) {
     return !newEngines.includes(item);
   });
-  changes.disabledEngines = disabledEngines.filter(function(item) {
+  changes.disabledEngines = disabledEngines.filter(function (item) {
     return !newEngines.includes(item);
   });
 

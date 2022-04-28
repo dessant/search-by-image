@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add trademark and design patent search engines';
 
 const revision = 'LX20x6G8l';
@@ -48,10 +46,10 @@ async function downgrade() {
     'jpDesign'
   ];
 
-  changes.engines = engines.filter(function(item) {
+  changes.engines = engines.filter(function (item) {
     return !newEngines.includes(item);
   });
-  changes.disabledEngines = disabledEngines.filter(function(item) {
+  changes.disabledEngines = disabledEngines.filter(function (item) {
     return !newEngines.includes(item);
   });
 

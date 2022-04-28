@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add clipboard support';
 
 const revision = '20220321163741_add_clipboard_support';

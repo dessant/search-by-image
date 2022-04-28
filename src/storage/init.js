@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill';
 import {migrate} from 'wesa';
 
 import {isStorageArea} from './storage';

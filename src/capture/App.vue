@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import Cropper from 'cropperjs';
 import {MDCSnackbar} from '@material/snackbar';
 import {Button, IconButton} from 'ext-components';

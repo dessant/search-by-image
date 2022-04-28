@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Hide unavailable engines';
 
 const revision = 'IMMjiccGj';

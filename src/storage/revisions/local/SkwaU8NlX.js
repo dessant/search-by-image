@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add Qihoo';
 
 const revision = 'SkwaU8NlX';
@@ -28,10 +26,10 @@ async function downgrade() {
     'disabledEngines'
   ]);
 
-  changes.engines = engines.filter(function(item) {
+  changes.engines = engines.filter(function (item) {
     return item !== 'qihoo';
   });
-  changes.disabledEngines = disabledEngines.filter(function(item) {
+  changes.disabledEngines = disabledEngines.filter(function (item) {
     return item !== 'qihoo';
   });
 

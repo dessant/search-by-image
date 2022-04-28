@@ -3,7 +3,7 @@ const {lstatSync, readdirSync} = require('fs');
 
 const webpack = require('webpack');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const {VueLoaderPlugin} = require('vue-loader');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const storageRevisions = require('./src/storage/config.json').revisions;
@@ -12,6 +12,13 @@ const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
+
+const provideExtApi = !['firefox', 'safari'].includes(targetEnv);
+
+const provideModules = {Buffer: ['buffer', 'Buffer']};
+if (provideExtApi) {
+  provideModules.browser = 'webextension-polyfill';
+}
 
 const plugins = [
   new webpack.DefinePlugin({
@@ -23,9 +30,7 @@ const plugins = [
       ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
     }
   }),
-  new webpack.ProvidePlugin({
-    Buffer: ['buffer', 'Buffer']
-  }),
+  new webpack.ProvidePlugin(provideModules),
   new VueLoaderPlugin(),
   new MiniCssExtractPlugin({
     filename: '[name]/style.css'

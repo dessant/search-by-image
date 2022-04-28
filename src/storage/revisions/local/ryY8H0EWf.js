@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add contribPageLastOpen';
 
 const revision = 'ryY8H0EWf';

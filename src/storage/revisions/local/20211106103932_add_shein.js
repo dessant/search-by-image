@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add SHEIN';
 
 const revision = '20211106103932_add_shein';

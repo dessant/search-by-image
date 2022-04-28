@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add LykDat';
 
 const revision = '20211111071410_add_lykdat';

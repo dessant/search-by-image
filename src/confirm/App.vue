@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import {Dialog} from 'ext-components';
 
 import {shareImage} from 'utils/app';

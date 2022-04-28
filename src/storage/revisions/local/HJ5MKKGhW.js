@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message =
   'Add showInContextMenu, searchAllEnginesAction and searchModeAction options';
 

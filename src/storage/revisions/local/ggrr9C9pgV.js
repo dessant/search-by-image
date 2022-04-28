@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add new search engines';
 
 const revision = 'ggrr9C9pgV';

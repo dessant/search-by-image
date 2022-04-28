@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add PimEyes, Stocksy United, Pond5, PIXTA and Wayfair';
 
 const revision = 'd8CIdomCW';

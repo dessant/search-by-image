@@ -160,7 +160,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import {MDCList} from '@material/list';
 import {MDCRipple} from '@material/ripple';
 import {Button} from 'ext-components';

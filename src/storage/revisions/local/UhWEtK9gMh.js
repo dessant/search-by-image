@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add bypassImageHostBlocking';
 
 const revision = 'UhWEtK9gMh';

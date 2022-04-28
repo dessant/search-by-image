@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Merge searchAllEngines options';
 
 const revision = 'Bk42MzXdW';

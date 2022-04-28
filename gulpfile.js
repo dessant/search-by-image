@@ -1,6 +1,12 @@
 const path = require('path');
 const {exec} = require('child_process');
-const {lstatSync, readdirSync, readFileSync, writeFileSync} = require('fs');
+const {
+  lstatSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  rmSync
+} = require('fs');
 
 const {series, parallel, src, dest} = require('gulp');
 const postcss = require('gulp-postcss');
@@ -9,7 +15,6 @@ const jsonMerge = require('gulp-merge-json');
 const jsonmin = require('gulp-jsonmin');
 const htmlmin = require('gulp-htmlmin');
 const imagemin = require('gulp-imagemin');
-const del = require('del');
 const {ensureDirSync} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
 const sharp = require('sharp');
@@ -18,10 +23,14 @@ const targetEnv = process.env.TARGET_ENV || 'firefox';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
-const distDir = path.join('dist', targetEnv);
+const distDir = path.join(__dirname, 'dist', targetEnv);
 
-function clean() {
-  return del([distDir]);
+function init(done) {
+  process.env.BROWSERSLIST_ENV = targetEnv;
+
+  rmSync(distDir, {recursive: true, force: true});
+  ensureDirSync(distDir);
+  done();
 }
 
 function js(done) {
@@ -245,7 +254,7 @@ function inspect(done) {
 }
 
 exports.build = series(
-  clean,
+  init,
   parallel(js, html, css, images, fonts, locale, manifest, license)
 );
 exports.zip = zip;

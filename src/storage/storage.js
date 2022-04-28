@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 import {storageRevisions} from 'utils/config';
 
 async function isStorageArea({area = 'local'} = {}) {

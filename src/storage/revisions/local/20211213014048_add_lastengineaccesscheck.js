@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add lastEngineAccessCheck';
 
 const revision = '20211213014048_add_lastengineaccesscheck';

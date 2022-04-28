@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
 import {get as getIDB, set as setIDB, del as delIDB} from 'idb-keyval';
 import Queue from 'p-queue';

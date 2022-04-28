@@ -184,7 +184,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import {includes, without} from 'lodash-es';
 import draggable from 'vuedraggable';
 import {Checkbox, FormField, Switch, Select} from 'ext-components';

@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 import {isAndroid} from 'utils/common';
 import {targetEnv} from 'utils/config';
 

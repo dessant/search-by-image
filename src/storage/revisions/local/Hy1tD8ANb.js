@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add imgFullParse option';
 
 const revision = 'Hy1tD8ANb';

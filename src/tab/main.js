@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const token = new URL(window.location.href).searchParams.get('id');
 
 function setLocation(tabUrl, keepHistory) {

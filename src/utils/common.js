@@ -1,8 +1,8 @@
-import browser from 'webextension-polyfill';
-
 import {targetEnv} from 'utils/config';
 
-const getText = browser.i18n.getMessage;
+function getText(messageName, substitutions) {
+  return browser.i18n.getMessage(messageName, substitutions);
+}
 
 function onError(error) {
   console.log(`Error: ${error}`);

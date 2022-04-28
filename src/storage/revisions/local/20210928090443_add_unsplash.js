@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add Unsplash';
 
 const revision = '20210928090443_add_unsplash';

@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const optionKeys = [
   'engines',
   'disabledEngines',

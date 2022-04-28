@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add Wildberries';
 
 const revision = '20211204124507_add_wildberries';

@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 import {targetEnv} from 'utils/config';
 
 var contentStorage = {

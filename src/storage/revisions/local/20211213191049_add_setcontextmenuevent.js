@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add setContextMenuEvent';
 
 const revision = '20211213191049_add_setcontextmenuevent';

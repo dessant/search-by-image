@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import {MDCSnackbar} from '@material/snackbar';
 import {IconButton} from 'ext-components';
 

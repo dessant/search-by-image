@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 import {isMobile} from 'utils/common';
 import {targetEnv} from 'utils/config';
 

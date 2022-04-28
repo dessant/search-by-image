@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Support event pages';
 
 const revision = '20210820184257_support_event_pages';

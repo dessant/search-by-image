@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add image sharing options';
 
 const revision = '20210919175209_add_image_sharing_options';

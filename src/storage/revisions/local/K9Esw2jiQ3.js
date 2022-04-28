@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add Reddit Repost Sleuth';
 
 const revision = 'K9Esw2jiQ3';

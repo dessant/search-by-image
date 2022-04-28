@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill';
 import {difference} from 'lodash-es';
 import fileType from 'file-type';
 import {validate as uuidValidate} from 'uuid';
@@ -331,7 +330,7 @@ async function normalizeImage(file, {name} = {}) {
     return;
   }
 
-  const chunk = await blobToArray(file.slice(0, Math.min(file.size, 4100)));
+  const chunk = await blobToArray(file.slice(0, 4100));
   const {mime: realType} = (await fileType.fromBuffer(chunk)) || {};
 
   if (realType) {

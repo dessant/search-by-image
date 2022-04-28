@@ -1,5 +1,3 @@
-import browser from 'webextension-polyfill';
-
 const message = 'Add Jingdong, Taobao and Alibaba China';
 
 const revision = 'yLciyvS5He';
@@ -30,10 +28,10 @@ async function downgrade() {
   ]);
   const newEngines = ['jingdong', 'taobao', 'alibabaChina'];
 
-  changes.engines = engines.filter(function(item) {
+  changes.engines = engines.filter(function (item) {
     return !newEngines.includes(item);
   });
-  changes.disabledEngines = disabledEngines.filter(function(item) {
+  changes.disabledEngines = disabledEngines.filter(function (item) {
     return !newEngines.includes(item);
   });
 

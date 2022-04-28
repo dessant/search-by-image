@@ -153,7 +153,6 @@
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import {ResizeObserver} from 'vue-resize';
 import {MDCList} from '@material/list';
 import {MDCRipple} from '@material/ripple';
