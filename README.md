@@ -54,22 +54,22 @@ https://github.com/dessant/search-by-image/wiki/Search-engines
 #### Search Modes
 
 Images positioned at the selected area are detected regardless of how they were
-embedded in the page. The extension also supports uploading local images,
-searching for video frames, capturing details within images,
-and searching for images from private sites.
+embedded in the page. The extension also supports searching with images
+from your device, images from private sites, and captured areas of the page.
 
 A handful of search modes are offered that serve different use cases.
 The search mode can be set independently for the context menu
 and the browser toolbar from the extension's options.
 
-- **Select URL**: select an image on the page, then search for the image URL.
+- **Select URL**: select an image on the page and search with the image URL.
   This is the default search mode.
-- **Select image**: select an image on the page, then fetch the image, possibly
-  from the browser cache, and search for it. This search mode is preferred for
-  sites which do not allow the direct linking of images, such as private sites.
-- **Capture**: select and capture a page area, then search for it.
-- **Browse**: select an image from your device, then search for it.
-- **URL**: search for an image URL.
+- **Select image**: select an image on the page and search with the image file.
+  This search mode is preferred for sites which do not allow the direct linking
+  of images, such as private sites.
+- **Capture**: search with a captured area of the page.
+- **Browse**: search with an image from your device. Pasting images
+  from the clipboard is also supported.
+- **URL**: search with an image URL.
 
 ## Screenshots
 
