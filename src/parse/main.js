@@ -23,10 +23,15 @@ import {
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
 
-const cssProperties = ['background-image', 'border-image-source', 'mask-image'];
+const cssProperties = [
+  'background-image',
+  'border-image-source',
+  'mask-image',
+  'cursor'
+];
 const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['img', 'video', 'iframe', 'embed'];
-const rxCssUrl = /url\(['"]?([^'")]+)['"]?\)/gi;
+const rxCssUrl = /url\s*\(\s*(?:"(.*?)"|'(.*?)'|(.*?))\s*\)/gi;
 
 async function downloadImage(url) {
   let imageBlob;
@@ -61,9 +66,15 @@ async function downloadImage(url) {
   return imageBlob;
 }
 
-function extractCSSImages(cssProps, node, pseudo = null) {
+function extractCSSImages(node, pseudo = null) {
+  const nodeName = node.nodeName.toLowerCase();
+  const cssProps = cssProperties.slice();
+
+  if (nodeName === 'li') {
+    cssProps.push('list-style-image');
+  }
+
   if (pseudo) {
-    cssProps = cssProps.slice();
     cssProps.push('content');
   }
 
@@ -72,11 +83,14 @@ function extractCSSImages(cssProps, node, pseudo = null) {
 
   let match;
 
-  cssProperties.forEach(function (prop) {
+  cssProps.forEach(function (prop) {
     let value = style.getPropertyValue(prop);
     if (value && value !== 'none') {
-      while ((match = rxCssUrl.exec(value)) !== null) {
-        results.push({data: match[1]});
+      while ((match = rxCssUrl.exec(value))) {
+        const url = match[1] || match[2] || match[3];
+        if (url) {
+          results.push({data: url});
+        }
       }
     }
   });
@@ -87,15 +101,12 @@ function extractCSSImages(cssProps, node, pseudo = null) {
 async function parseNode(node) {
   const results = [];
   const nodeName = node.nodeName.toLowerCase();
-  let cssProps = cssProperties;
 
   if (nodeName === 'img') {
     if (node.currentSrc) {
       results.push({data: node.currentSrc});
     }
-  }
-
-  if (nodeName === 'image') {
+  } else if (nodeName === 'image') {
     const url = node.getAttribute('href') || node.getAttribute('xlink:href');
     if (url) {
       const absUrl = getAbsoluteUrl(url);
@@ -103,37 +114,27 @@ async function parseNode(node) {
         results.push({data: absUrl});
       }
     }
-  }
-
-  if (nodeName === 'embed') {
+  } else if (nodeName === 'embed') {
     const data = node.src;
     if (data && (await getImageElement(data))) {
       results.push({data});
     }
-  }
-
-  if (nodeName === 'object') {
+  } else if (nodeName === 'object') {
     const data = node.data;
     if (data && (await getImageElement(data))) {
       results.push({data});
     }
-  }
-
-  if (nodeName === 'iframe') {
+  } else if (nodeName === 'iframe') {
     const data = node.src;
     if (data && !node.srcdoc && (await getImageElement(data))) {
       results.push({data});
     }
-  }
-
-  if (nodeName === 'canvas') {
+  } else if (nodeName === 'canvas') {
     const data = canvasToDataUrl(node, {clear: false});
     if (data && data !== getBlankCanvasDataUrl(node.width, node.height)) {
       results.push({data});
     }
-  }
-
-  if (nodeName === 'video') {
+  } else if (nodeName === 'video') {
     if (node.readyState >= 2) {
       const cnv = document.createElement('canvas');
       const ctx = cnv.getContext('2d');
@@ -151,24 +152,17 @@ async function parseNode(node) {
     if (node.poster) {
       results.push({data: node.poster});
     }
-  }
-
-  if (nodeName === 'li') {
-    cssProps = cssProps.slice();
-    cssProps.push('list-style-image');
-  }
-
-  if (nodeName === 'input' && node.type === 'image') {
+  } else if (nodeName === 'input' && node.type === 'image') {
     if (node.src) {
       results.push({data: node.src});
     }
   }
 
-  results.push(...extractCSSImages(cssProps, node));
+  results.push(...extractCSSImages(node));
 
   if (!replacedElements.includes(nodeName)) {
     pseudoSelectors.forEach(function (pseudo) {
-      results.push(...extractCSSImages(cssProps, node, pseudo));
+      results.push(...extractCSSImages(node, pseudo));
     });
   }
 
