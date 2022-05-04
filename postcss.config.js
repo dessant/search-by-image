@@ -1,14 +1,12 @@
+const postcssPresetEnv = require('postcss-preset-env');
+const cssnano = require('cssnano');
+
 module.exports = function (api) {
+  const plugins = [postcssPresetEnv()];
+
   if (api.env === 'production') {
-    return {
-      plugins: [
-        require('autoprefixer'),
-        require('cssnano')({zindex: false, discardUnused: false})
-      ]
-    };
+    plugins.push(cssnano({zindex: false, discardUnused: false}));
   }
 
-  return {
-    plugins: [require('autoprefixer')]
-  };
+  return {plugins};
 };

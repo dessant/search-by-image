@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^4.5.5",
-    "@material/grid-list": "^4.0.0",
     "@material/icon-button": "^4.0.0",
     "@material/list": "^4.0.0",
     "@material/menu": "^4.0.0",
@@ -74,7 +73,6 @@
   "devDependencies": {
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
-    "autoprefixer": "^10.4.5",
     "babel-loader": "^8.2.5",
     "babel-plugin-lodash": "^3.3.4",
     "babel-preset-minify": "^0.5.1",
@@ -94,6 +92,7 @@
     "npm-check-updates": "^12.5.9",
     "postcss": "^8.4.12",
     "postcss-loader": "^6.2.1",
+    "postcss-preset-env": "^7.5.0",
     "prettier": "^2.6.2",
     "recursive-readdir": "^2.2.2",
     "sass": "^1.51.0",
