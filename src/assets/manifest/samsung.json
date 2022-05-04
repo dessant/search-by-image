@@ -7,7 +7,7 @@
   "homepage_url": "https://github.com/dessant/search-by-image",
   "default_locale": "en",
 
-  "minimum_chrome_version": "76.0",
+  "minimum_chrome_version": "87.0",
 
   "permissions": [
     "alarms",

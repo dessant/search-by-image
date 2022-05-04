@@ -1,21 +1,21 @@
 [chrome]
-Chrome >= 76
-Edge >= 79
-Opera >= 63
+Chrome >= 92
+Edge >= 92
+Opera >= 78
 
 [edge]
-Edge >= 79
+Edge >= 92
 
 [firefox]
-Firefox >= 68
-FirefoxAndroid >= 79
+Firefox >= 91
+FirefoxAndroid >= 91
 
 [opera]
-Opera >= 63
+Opera >= 78
 
 [safari]
 Safari >= 14.1
 iOS >= 15
 
 [samsung]
-Samsung >= 13
+Samsung >= 14
