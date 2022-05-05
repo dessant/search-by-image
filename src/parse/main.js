@@ -13,7 +13,8 @@ import {
   fetchImageFromBackgroundScript,
   shareImage,
   getDataFromImageUrl,
-  imageTypeSupport
+  imageTypeSupport,
+  getSrcsetUrls
 } from 'utils/app';
 import {
   getBlankCanvasDataUrl,
@@ -98,13 +99,44 @@ function extractCSSImages(node, pseudo = null) {
   return results;
 }
 
-async function parseNode(node) {
+async function parseNode(node, session) {
   const results = [];
   const nodeName = node.nodeName.toLowerCase();
 
   if (nodeName === 'img') {
     if (node.currentSrc) {
       results.push({data: node.currentSrc});
+    }
+
+    if (session.options.detectAltImageDimension) {
+      if (node.src) {
+        results.push({data: node.src});
+      }
+
+      if (node.srcset) {
+        const urls = getSrcsetUrls(node.srcset);
+
+        for (const url of urls) {
+          const absUrl = getAbsoluteUrl(url);
+          if (absUrl) {
+            results.push({data: absUrl});
+          }
+        }
+      }
+
+      if (node.parentNode?.nodeName.toLowerCase() === 'picture') {
+        const sourceNodes = node.parentNode.querySelectorAll('source');
+
+        for (const source of sourceNodes) {
+          const urls = getSrcsetUrls(source.srcset);
+          for (const url of urls) {
+            const absUrl = getAbsoluteUrl(url);
+            if (absUrl) {
+              results.push({data: absUrl});
+            }
+          }
+        }
+      }
     }
   } else if (nodeName === 'image') {
     const url = node.getAttribute('href') || node.getAttribute('xlink:href');
@@ -263,7 +295,7 @@ async function processResults(results, session) {
   return results.filter(item => !item.data);
 }
 
-async function parseDocument({root = null, touchRect = null} = {}) {
+async function parseDocument({root = null, touchRect = null, session} = {}) {
   const results = [];
 
   for (const currentNode of root.querySelectorAll('*')) {
@@ -277,7 +309,7 @@ async function parseDocument({root = null, touchRect = null} = {}) {
       continue;
     }
 
-    results.push(...(await parseNode(currentNode)));
+    results.push(...(await parseNode(currentNode, session)));
 
     const shadowRoot =
       chrome.dom?.openOrClosedShadowRoot(currentNode) ||
@@ -285,7 +317,9 @@ async function parseDocument({root = null, touchRect = null} = {}) {
       currentNode.shadowRoot;
 
     if (shadowRoot) {
-      results.push(...(await parseDocument({root: shadowRoot, touchRect})));
+      results.push(
+        ...(await parseDocument({root: shadowRoot, touchRect, session}))
+      );
     }
   }
 
@@ -312,7 +346,7 @@ async function parse(session) {
     );
 
   if (targetNode) {
-    results.push(...(await parseNode(targetNode)));
+    results.push(...(await parseNode(targetNode, session)));
   }
 
   if (
@@ -329,7 +363,7 @@ async function parse(session) {
     };
 
     results.push(
-      ...(await parseDocument({root: document, touchRect})).reverse()
+      ...(await parseDocument({root: document, touchRect, session})).reverse()
     );
   }
 

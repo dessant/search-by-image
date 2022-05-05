@@ -976,6 +976,11 @@
     "description": "Title of the option."
   },
 
+  "optionTitle_detectAltImageDimension": {
+    "message": "Detect alternative image sizes",
+    "description": "Title of the option."
+  },
+
   "optionTitle_bypassImageHostBlocking": {
     "message": "Bypass image host blocking",
     "description": "Title of the option."

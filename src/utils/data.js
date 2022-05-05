@@ -14,7 +14,8 @@ const optionKeys = [
   'shareImageAction',
   'convertSharedImage',
   'autoPasteAction',
-  'confirmPaste'
+  'confirmPaste',
+  'detectAltImageDimension'
 ];
 
 const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';

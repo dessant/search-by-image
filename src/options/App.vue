@@ -141,6 +141,17 @@
             <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
           </v-form-field>
         </div>
+        <div class="option">
+          <v-form-field
+            input-id="dais"
+            :label="getText('optionTitle_detectAltImageDimension')"
+          >
+            <v-switch
+              id="dais"
+              v-model="options.detectAltImageDimension"
+            ></v-switch>
+          </v-form-field>
+        </div>
         <div class="option" v-if="shareEnabled">
           <v-form-field
             input-id="csi"
@@ -269,7 +280,8 @@ export default {
         shareImageAction: false,
         convertSharedImage: false,
         autoPasteAction: false,
-        confirmPaste: false
+        confirmPaste: false,
+        detectAltImageDimension: false
       }
     };
   },

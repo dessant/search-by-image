@@ -1,6 +1,7 @@
 import {difference} from 'lodash-es';
 import fileType from 'file-type';
 import {validate as uuidValidate} from 'uuid';
+import {parseSrcset} from 'srcset';
 
 import storage from 'storage/storage';
 import {
@@ -991,6 +992,19 @@ async function processIncomingShare() {
   }
 }
 
+function getSrcsetUrls(srcset) {
+  const urls = [];
+
+  try {
+    const data = parseSrcset(srcset, {strict: false});
+    for (const item of data) {
+      urls.push(item.url);
+    }
+  } catch (err) {}
+
+  return urls;
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1043,5 +1057,6 @@ export {
   canShare,
   validateShareId,
   isIncomingShareContext,
-  processIncomingShare
+  processIncomingShare,
+  getSrcsetUrls
 };
