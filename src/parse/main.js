@@ -295,6 +295,17 @@ async function processResults(results, session) {
   return results.filter(item => !item.data);
 }
 
+function getShadowRoot(node) {
+  try {
+    return (
+      // Throws exception on unsupported shadow host
+      chrome.dom?.openOrClosedShadowRoot(node) ||
+      node.openOrClosedShadowRoot ||
+      node.shadowRoot
+    );
+  } catch (err) {}
+}
+
 async function parseDocument({root = null, touchRect = null, session} = {}) {
   const results = [];
 
@@ -311,10 +322,7 @@ async function parseDocument({root = null, touchRect = null, session} = {}) {
 
     results.push(...(await parseNode(currentNode, session)));
 
-    const shadowRoot =
-      chrome.dom?.openOrClosedShadowRoot(currentNode) ||
-      currentNode.openOrClosedShadowRoot ||
-      currentNode.shadowRoot;
+    const shadowRoot = getShadowRoot(currentNode);
 
     if (shadowRoot) {
       results.push(
