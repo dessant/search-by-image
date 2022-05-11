@@ -1,9 +1,6 @@
 const message = 'Add installTime and searchCount';
 
 const revision = 'BJguWEHcbz';
-const downRevision = 'ryY8H0EWf';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
@@ -11,15 +8,7 @@ async function upgrade() {
   changes.searchCount = 0;
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-  await storage.remove(['installTime', 'searchCount']);
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

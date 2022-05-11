@@ -1,9 +1,6 @@
 const message = 'Add image sharing options';
 
 const revision = '20210919175209_add_image_sharing_options';
-const downRevision = '20210820184257_support_event_pages';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {
@@ -13,7 +10,7 @@ async function upgrade() {
   };
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
 export {message, revision, upgrade};

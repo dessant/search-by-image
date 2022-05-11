@@ -4,16 +4,13 @@ import {targetEnv} from 'utils/config';
 const message = 'Configure search engines';
 
 const revision = 'TshBYj8anA';
-const downRevision = 'UhWEtK9gMh';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
 
-  const {installTime} = await storage.get('installTime');
+  const {installTime} = await browser.storage.local.get('installTime');
 
-  let {engines, disabledEngines} = await storage.get([
+  let {engines, disabledEngines} = await browser.storage.local.get([
     'engines',
     'disabledEngines'
   ]);
@@ -62,14 +59,7 @@ async function upgrade() {
   changes.disabledEngines = disabledEngines;
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

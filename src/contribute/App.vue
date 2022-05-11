@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <v-contribute :extName="extName" :extSlug="extSlug" :notice="notice">
+    <v-contribute
+      :extName="extName"
+      :extSlug="extSlug"
+      :notice="notice"
+      @contribute="contribute"
+    >
     </v-contribute>
   </div>
 </template>
@@ -8,7 +13,7 @@
 <script>
 import {Contribute} from 'ext-contribute';
 
-import {getText} from 'utils/common';
+import {getText, getActiveTab} from 'utils/common';
 
 export default {
   components: {
@@ -21,6 +26,14 @@ export default {
       extSlug: 'search-by-image',
       notice: ''
     };
+  },
+
+  methods: {
+    contribute: async function ({url} = {}) {
+      const activeTab = await getActiveTab();
+
+      await browser.tabs.create({url, index: activeTab.index + 1});
+    }
   },
 
   created: function () {

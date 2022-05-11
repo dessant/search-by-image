@@ -1,14 +1,11 @@
 const message = 'Add stock photo engines';
 
 const revision = 'r1H3rgx1X';
-const downRevision = 'r1Pvd36nz';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
 
-  const {engines, disabledEngines} = await storage.get([
+  const {engines, disabledEngines} = await browser.storage.local.get([
     'engines',
     'disabledEngines'
   ]);
@@ -24,32 +21,7 @@ async function upgrade() {
   changes.disabledEngines = disabledEngines.concat(newEngines);
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-  const {engines, disabledEngines} = await storage.get([
-    'engines',
-    'disabledEngines'
-  ]);
-  const newEngines = [
-    'getty',
-    'istock',
-    'shutterstock',
-    'adobestock',
-    'depositphotos'
-  ];
-
-  changes.engines = engines.filter(function (item) {
-    return !newEngines.includes(item);
-  });
-  changes.disabledEngines = disabledEngines.filter(function (item) {
-    return !newEngines.includes(item);
-  });
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

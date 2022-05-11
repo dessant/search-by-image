@@ -1,9 +1,6 @@
 const message = 'Initial version';
 
 const revision = 'ryekyizAg';
-const downRevision = null;
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {
@@ -16,11 +13,7 @@ async function upgrade() {
   };
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  return storage.clear();
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

@@ -1,5 +1,5 @@
 import {difference} from 'lodash-es';
-import fileType from 'file-type';
+import {fileTypeFromBlob} from 'file-type';
 import {validate as uuidValidate} from 'uuid';
 import {parseSrcset} from 'srcset';
 
@@ -12,7 +12,6 @@ import {
   getDataFromUrl,
   filenameToFileExt,
   dataUrlToBlob,
-  blobToArray,
   drawElementOnCanvas,
   blobToDataUrl,
   canvasToDataUrl,
@@ -331,8 +330,8 @@ async function normalizeImage(file, {name} = {}) {
     return;
   }
 
-  const chunk = await blobToArray(file.slice(0, 4100));
-  const {mime: realType} = (await fileType.fromBuffer(chunk)) || {};
+  const chunk = file.slice(0, 4100);
+  const {mime: realType} = (await fileTypeFromBlob(chunk)) || {};
 
   if (realType) {
     if (isImageMimeType(realType)) {

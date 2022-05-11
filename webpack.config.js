@@ -8,14 +8,14 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const storageRevisions = require('./src/storage/config.json').revisions;
 
-const targetEnv = process.env.TARGET_ENV || 'firefox';
+const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
 
 const provideExtApi = !['firefox', 'safari'].includes(targetEnv);
 
-const provideModules = {Buffer: ['buffer', 'Buffer']};
+const provideModules = {};
 if (provideExtApi) {
   provideModules.browser = 'webextension-polyfill';
 }
@@ -24,13 +24,19 @@ const plugins = [
   new webpack.DefinePlugin({
     'process.env': {
       TARGET_ENV: JSON.stringify(targetEnv),
-      STORAGE_REVISION_LOCAL: JSON.stringify(
-        storageRevisions.local[storageRevisions.local.length - 1]
-      ),
+      STORAGE_REVISION_LOCAL: JSON.stringify(storageRevisions.local.at(-1)),
       ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
     }
   }),
   new webpack.ProvidePlugin(provideModules),
+  new webpack.NormalModuleReplacementPlugin(/node:/, resource => {
+    const mod = resource.request.replace(/^node:/, '');
+    if (mod === 'buffer') {
+      resource.request = 'buffer';
+    } else if (mod === 'stream') {
+      resource.request = 'readable-stream';
+    }
+  }),
   new VueLoaderPlugin(),
   new MiniCssExtractPlugin({
     filename: '[name]/style.css'
@@ -108,7 +114,10 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader'
+        use: 'babel-loader',
+        resolve: {
+          fullySpecified: false
+        }
       },
       {
         test: /\.vue$/,

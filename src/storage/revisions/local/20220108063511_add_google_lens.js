@@ -4,13 +4,10 @@ import {targetEnv} from 'utils/config';
 const message = 'Add Google Lens';
 
 const revision = '20220108063511_add_google_lens';
-const downRevision = '20211213191049_add_setcontextmenuevent';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
-  const {engines, disabledEngines} = await storage.get([
+  const {engines, disabledEngines} = await browser.storage.local.get([
     'engines',
     'disabledEngines'
   ]);
@@ -27,7 +24,7 @@ async function upgrade() {
   }
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
 export {message, revision, upgrade};

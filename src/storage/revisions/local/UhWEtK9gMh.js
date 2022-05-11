@@ -1,24 +1,13 @@
 const message = 'Add bypassImageHostBlocking';
 
 const revision = 'UhWEtK9gMh';
-const downRevision = 'd8IK4KCtVm';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
   changes.bypassImageHostBlocking = true;
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-  await storage.remove(['bypassImageHostBlocking']);
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

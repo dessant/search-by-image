@@ -1,19 +1,20 @@
 const message = 'Merge searchAllEngines options';
 
 const revision = 'Bk42MzXdW';
-const downRevision = 'S1kNNadHZ';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
 
-  const {searchAllEngines, searchAllEnginesLocation} = await storage.get([
+  const {searchAllEngines, searchAllEnginesLocation} =
+    await browser.storage.local.get([
+      'searchAllEngines',
+      'searchAllEnginesLocation'
+    ]);
+
+  await browser.storage.local.remove([
     'searchAllEngines',
     'searchAllEnginesLocation'
   ]);
-
-  await storage.remove(['searchAllEngines', 'searchAllEnginesLocation']);
 
   if (searchAllEngines) {
     changes.searchAllEnginesContextMenu =
@@ -23,29 +24,7 @@ async function upgrade() {
   }
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-
-  const {searchAllEnginesContextMenu} = await storage.get([
-    'searchAllEnginesContextMenu'
-  ]);
-
-  await storage.remove('searchAllEnginesContextMenu');
-
-  if (searchAllEnginesContextMenu === 'false') {
-    changes.searchAllEngines = false;
-    changes.searchAllEnginesLocation = 'sub';
-  } else {
-    changes.searchAllEngines = true;
-    changes.searchAllEnginesLocation =
-      searchAllEnginesContextMenu === 'main' ? 'menu' : 'submenu';
-  }
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

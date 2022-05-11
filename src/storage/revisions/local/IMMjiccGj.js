@@ -1,13 +1,10 @@
 const message = 'Hide unavailable engines';
 
 const revision = 'IMMjiccGj';
-const downRevision = 'ggrr9C9pgV';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
-  const {engines, disabledEngines} = await storage.get([
+  const {engines, disabledEngines} = await browser.storage.local.get([
     'engines',
     'disabledEngines'
   ]);
@@ -27,14 +24,7 @@ async function upgrade() {
   });
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

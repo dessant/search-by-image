@@ -1,13 +1,10 @@
 const message = 'Add LykDat';
 
 const revision = '20211111071410_add_lykdat';
-const downRevision = '20211106103932_add_shein';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
-  const {engines, disabledEngines} = await storage.get([
+  const {engines, disabledEngines} = await browser.storage.local.get([
     'engines',
     'disabledEngines'
   ]);
@@ -17,7 +14,7 @@ async function upgrade() {
   changes.disabledEngines = disabledEngines.concat(newEngines);
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
 export {message, revision, upgrade};

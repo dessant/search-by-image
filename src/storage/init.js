@@ -3,7 +3,21 @@ import {migrate} from 'wesa';
 import {isStorageArea} from './storage';
 
 async function initStorage({area = 'local'} = {}) {
-  const context = require.context('storage', true, /\.(?:js|json)$/i);
+  const context = {
+    getAvailableRevisions: async ({area} = {}) =>
+      (
+        await import(/* webpackMode: "eager" */ 'storage/config.json', {
+          assert: {type: 'json'}
+        })
+      ).revisions[area],
+    getCurrentRevision: async ({area} = {}) =>
+      (await browser.storage[area].get('storageVersion')).storageVersion,
+    getRevision: async ({area, revision} = {}) =>
+      import(
+        /* webpackMode: "eager" */ `storage/revisions/${area}/${revision}.js`
+      )
+  };
+
   return migrate(context, {area});
 }
 

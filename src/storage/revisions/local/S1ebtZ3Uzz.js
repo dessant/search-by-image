@@ -1,13 +1,10 @@
 const message = 'Add Karma Decay';
 
 const revision = 'S1ebtZ3Uzz';
-const downRevision = 'BJguWEHcbz';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
-  const {engines, disabledEngines} = await storage.get([
+  const {engines, disabledEngines} = await browser.storage.local.get([
     'engines',
     'disabledEngines'
   ]);
@@ -16,25 +13,7 @@ async function upgrade() {
   changes.disabledEngines = disabledEngines.concat('karmaDecay');
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-  const {engines, disabledEngines} = await storage.get([
-    'engines',
-    'disabledEngines'
-  ]);
-
-  changes.engines = engines.filter(function (item) {
-    return item !== 'karmaDecay';
-  });
-  changes.disabledEngines = disabledEngines.filter(function (item) {
-    return item !== 'karmaDecay';
-  });
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};

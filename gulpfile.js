@@ -19,14 +19,18 @@ const {ensureDirSync} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
 const sharp = require('sharp');
 
-const targetEnv = process.env.TARGET_ENV || 'firefox';
+const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
 const distDir = path.join(__dirname, 'dist', targetEnv);
 
-function init(done) {
+function initEnv() {
   process.env.BROWSERSLIST_ENV = targetEnv;
+}
+
+function init(done) {
+  initEnv();
 
   rmSync(distDir, {recursive: true, force: true});
   ensureDirSync(distDir);
@@ -243,8 +247,13 @@ function zip(done) {
 }
 
 function inspect(done) {
+  initEnv();
+
   exec(
-    `webpack --profile --json > report.json && webpack-bundle-analyzer report.json dist/firefox/src && sleep 10 && rm report.{json,html}`,
+    `npm run build:prod:chrome && \
+    webpack --profile --json > report.json && \
+    webpack-bundle-analyzer --mode static report.json dist/chrome/src && \
+    sleep 3 && rm report.{json,html}`,
     function (err, stdout, stderr) {
       console.log(stdout);
       console.log(stderr);

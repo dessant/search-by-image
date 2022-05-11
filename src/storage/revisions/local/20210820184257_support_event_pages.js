@@ -1,9 +1,6 @@
 const message = 'Support event pages';
 
 const revision = '20210820184257_support_event_pages';
-const downRevision = 'K9Esw2jiQ3';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
@@ -13,7 +10,7 @@ async function upgrade() {
   changes.lastStorageCleanup = 0;
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
 export {message, revision, upgrade};

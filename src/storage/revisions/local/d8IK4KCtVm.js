@@ -3,15 +3,12 @@ import {targetEnv} from 'utils/config';
 const message = 'Configure engines for Samsung Internet';
 
 const revision = 'd8IK4KCtVm';
-const downRevision = 'd8CIdomCW';
-
-const storage = browser.storage.local;
 
 async function upgrade() {
   const changes = {};
 
   if (targetEnv === 'samsung') {
-    const {engines, disabledEngines} = await storage.get([
+    const {engines, disabledEngines} = await browser.storage.local.get([
       'engines',
       'disabledEngines'
     ]);
@@ -35,36 +32,7 @@ async function upgrade() {
   }
 
   changes.storageVersion = revision;
-  return storage.set(changes);
+  return browser.storage.local.set(changes);
 }
 
-async function downgrade() {
-  const changes = {};
-
-  if (targetEnv === 'samsung') {
-    const {engines, disabledEngines} = await storage.get([
-      'engines',
-      'disabledEngines'
-    ]);
-
-    const enabledEngines = ['shutterstock', 'dreamstime'];
-
-    const hiddenEngines = [
-      'mailru',
-      'jingdong',
-      'taobao',
-      'alibabaChina',
-      'auTrademark'
-    ];
-
-    changes.engines = engines.concat(hiddenEngines);
-    changes.disabledEngines = disabledEngines
-      .concat(enabledEngines)
-      .concat(hiddenEngines);
-  }
-
-  changes.storageVersion = downRevision;
-  return storage.set(changes);
-}
-
-export {message, revision, upgrade, downgrade};
+export {message, revision, upgrade};
