@@ -503,7 +503,7 @@ const chromeDesktopUA =
 const chromeMobileUA =
   'Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.79 Mobile Safari/537.36';
 
-const projectUrl = 'https://github.com/dessant/search-by-image';
+const supportUrl = 'https://github.com/dessant/search-by-image/issues';
 
 const shareBridgeUrl = 'https://searchbyimage.vapps.dev/share';
 
@@ -519,6 +519,6 @@ export {
   avifEngineSupport,
   chromeDesktopUA,
   chromeMobileUA,
-  projectUrl,
+  supportUrl,
   shareBridgeUrl
 };

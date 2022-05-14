@@ -168,7 +168,7 @@ import {
   validateUrl,
   getListItems,
   showContributePage,
-  showProjectPage,
+  showSupportPage,
   getImagesFromClipboard,
   getEngineIcon,
   canShare
@@ -216,7 +216,7 @@ export default {
 
       listItems: {
         ...getListItems(
-          {actionMenu: ['options', 'website']},
+          {actionMenu: ['options', 'support']},
           {scope: 'actionMenu'}
         ),
         ...getListItems(
@@ -420,8 +420,8 @@ export default {
       this.closeAction();
     },
 
-    showWebsite: async function () {
-      await showProjectPage();
+    showSupport: async function () {
+      await showSupportPage();
       this.closeAction();
     },
 
@@ -432,8 +432,8 @@ export default {
     onActionMenuSelect: async function (item) {
       if (item === 'options') {
         await this.showOptions();
-      } else if (item === 'website') {
-        await this.showWebsite();
+      } else if (item === 'support') {
+        await this.showSupport();
       }
     },
 

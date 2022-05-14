@@ -33,7 +33,7 @@ import {
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
-  projectUrl,
+  supportUrl,
   shareBridgeUrl
 } from 'utils/data';
 
@@ -213,9 +213,9 @@ async function showContributePage(action = '') {
   return createTab({url, index: activeTab.index + 1});
 }
 
-async function showProjectPage() {
+async function showSupportPage() {
   const activeTab = await getActiveTab();
-  await createTab({url: projectUrl, index: activeTab.index + 1});
+  await createTab({url: supportUrl, index: activeTab.index + 1});
 }
 
 function validateUrl(url) {
@@ -1023,7 +1023,7 @@ export {
   showNotification,
   getListItems,
   showContributePage,
-  showProjectPage,
+  showSupportPage,
   validateUrl,
   normalizeImageFilename,
   normalizeImageFileAttributes,
