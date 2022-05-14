@@ -3,7 +3,7 @@
     <div class="header">
       <v-dense-select
         class="search-mode-menu"
-        v-model="searchModeAction"
+        v-model:value="searchModeAction"
         :options="listItems.searchModeAction"
       >
       </v-dense-select>
@@ -53,7 +53,7 @@
         <div class="url-settings" v-if="searchModeAction === 'url'">
           <v-textfield
             ref="imageUrlInput"
-            v-model.trim="imageUrl"
+            v-model:value.trim="imageUrl"
             :placeholder="getText('inputPlaceholder_imageUrl')"
             fullwidth
           ></v-textfield>
@@ -153,6 +153,7 @@
 </template>
 
 <script>
+import {markRaw} from 'vue';
 import {ResizeObserver} from 'vue-resize';
 import {MDCList} from '@material/list';
 import {MDCRipple} from '@material/ripple';
@@ -425,7 +426,7 @@ export default {
     },
 
     showActionMenu: function () {
-      this.$refs.actionMenu.$emit('open');
+      this.$refs.actionMenu.emitter.emit('open');
     },
 
     onActionMenuSelect: async function (item) {
@@ -468,7 +469,7 @@ export default {
     addPreviewImages: function (images) {
       if (images) {
         this.previewImages = images.map(image => ({
-          image,
+          image: markRaw(image),
           objectUrl: URL.createObjectURL(image)
         }));
       }
@@ -770,7 +771,7 @@ body {
     padding-bottom 0.3s ease, opacity 0.2s ease;
 }
 
-.settings-enter,
+.settings-enter-from,
 .settings-leave-to {
   max-height: 0;
   padding-top: 0;

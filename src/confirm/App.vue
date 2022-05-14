@@ -71,6 +71,7 @@
 </template>
 
 <script>
+import {markRaw} from 'vue';
 import {Dialog} from 'ext-components';
 
 import {shareImage} from 'utils/app';
@@ -84,9 +85,7 @@ export default {
   data: function () {
     return {
       showDialog: false,
-      contentMessagePort: null,
 
-      session: null,
       previewImages: [],
 
       imagesLoaded: false,
@@ -94,6 +93,10 @@ export default {
       largestImageHeight: 0,
       largestImageDimension: 0
     };
+  },
+
+  rawData: {
+    session: null
   },
 
   methods: {
@@ -122,21 +125,18 @@ export default {
     onSelection: async function (ev) {
       this.closeDialog();
 
-      const image = Object.assign(
-        {},
-        this.previewImages[ev.currentTarget.dataset.index].image
-      );
+      const image = this.previewImages[ev.currentTarget.dataset.index].image;
 
-      if (this.session.sessionType === 'share') {
+      if (this.$options.rawData.session.sessionType === 'share') {
         await shareImage(image, {
-          convert: this.session.options.convertSharedImage
+          convert: this.$options.rawData.session.options.convertSharedImage
         });
         browser.runtime.sendMessage({id: 'cancelView', view: 'confirm'});
       } else {
         browser.runtime.sendMessage({
           id: 'imageConfirmationSubmit',
           image,
-          session: this.session
+          session: this.$options.rawData.session
         });
       }
     },
@@ -201,7 +201,7 @@ export default {
 
     addPreviewImages: function (images) {
       this.previewImages = images.map(image => ({
-        image,
+        image: markRaw(image),
         imageWidth: 0,
         imageHeight: 0,
         imageDimension: 0,
@@ -223,7 +223,7 @@ export default {
       this.largestImageHeight = 0;
       this.largestImageDimension = 0;
 
-      this.session = session;
+      this.$options.rawData.session = session;
       this.addPreviewImages(images);
     },
 

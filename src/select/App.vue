@@ -30,12 +30,8 @@ export default {
     [IconButton.name]: IconButton
   },
 
-  data: function () {
-    return {
-      contentMessagePort: null,
-
-      session: null
-    };
+  rawData: {
+    session: null
   },
 
   methods: {
@@ -49,14 +45,17 @@ export default {
       }
 
       if (request.id === 'openView') {
-        this.session = request.session;
+        this.$options.rawData.session = request.session;
         this.snackbar.open();
       } else if (request.id === 'closeView') {
         this.snackbar.close();
       } else if (request.id === 'imageSelectionSubmit') {
         this.snackbar.close();
-        this.session.sourceFrameId = request.senderFrameId;
-        browser.runtime.sendMessage({id: request.id, session: this.session});
+
+        const session = this.$options.rawData.session;
+        session.sourceFrameId = request.senderFrameId;
+
+        browser.runtime.sendMessage({id: request.id, session});
       }
     },
 

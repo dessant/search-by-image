@@ -4,7 +4,7 @@
       :extName="extName"
       :extSlug="extSlug"
       :notice="notice"
-      @contribute="contribute"
+      @open="contribute"
     >
     </v-contribute>
   </div>

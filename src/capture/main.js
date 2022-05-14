@@ -1,15 +1,13 @@
-import Vue from 'vue';
+import {createApp} from 'vue';
 
-import {configUI} from 'utils/app';
+import {configApp} from 'utils/app';
 import App from './App';
 
 async function init() {
-  await configUI(Vue);
+  const app = createApp(App);
+  await configApp(app);
 
-  new Vue({
-    el: '#app',
-    render: h => h(App)
-  });
+  app.mount('body');
 }
 
 init();

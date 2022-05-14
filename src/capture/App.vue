@@ -45,9 +45,6 @@ export default {
 
   data: function () {
     return {
-      contentMessagePort: null,
-
-      session: null,
       canvasHidden: false
     };
   },
@@ -58,6 +55,10 @@ export default {
         'canvas-hidden': this.canvasHidden
       };
     }
+  },
+
+  rawData: {
+    session: null
   },
 
   methods: {
@@ -71,7 +72,7 @@ export default {
       }
 
       if (request.id === 'openView') {
-        this.session = request.session;
+        this.$options.rawData.session = request.session;
         this.showCapture();
       } else if (request.id === 'closeView') {
         this.hideCapture();
@@ -99,7 +100,7 @@ export default {
         () => {
           browser.runtime.sendMessage({
             id: 'imageCaptureSubmit',
-            session: this.session,
+            session: this.$options.rawData.session,
             area
           });
         },

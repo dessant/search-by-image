@@ -7,20 +7,27 @@
       <div class="section-desc" v-once>
         {{ getText('optionSectionDescription_engines') }}
       </div>
-      <v-draggable class="option-wrap" :list="options.engines" :delay="120">
-        <div class="option" v-for="engine in options.engines" :key="engine.id">
-          <v-form-field
-            :input-id="engine"
-            :label="getText(`optionTitle_${engine}`)"
-          >
-            <v-checkbox
-              :id="engine"
-              :checked="engineEnabled(engine)"
-              @change="setEngineState(engine, $event)"
+      <v-draggable
+        class="option-wrap"
+        v-model="options.engines"
+        item-key="id"
+        :delay="120"
+      >
+        <template #item="{element}">
+          <div class="option">
+            <v-form-field
+              :input-id="element"
+              :label="getText(`optionTitle_${element}`)"
             >
-            </v-checkbox>
-          </v-form-field>
-        </div>
+              <v-checkbox
+                :id="element"
+                :checked="engineEnabled(element)"
+                @update:checked="setEngineState(element, $event)"
+              >
+              </v-checkbox>
+            </v-form-field>
+          </div>
+        </template>
       </v-draggable>
     </div>
 
@@ -34,13 +41,16 @@
             input-id="sic"
             :label="getText('optionTitle_showInContextMenu')"
           >
-            <v-switch id="sic" v-model="options.showInContextMenu"></v-switch>
+            <v-switch
+              id="sic"
+              v-model:checked="options.showInContextMenu"
+            ></v-switch>
           </v-form-field>
         </div>
         <div class="option select">
           <v-select
             :label="getText('optionTitle_searchMode')"
-            v-model="options.searchModeContextMenu"
+            v-model:value="options.searchModeContextMenu"
             :options="listItems.searchModeContextMenu"
             outlined
           >
@@ -49,7 +59,7 @@
         <div class="option select" v-if="searchAllEnginesEnabled">
           <v-select
             :label="getText('optionTitle_searchAllEngines')"
-            v-model="options.searchAllEnginesContextMenu"
+            v-model:value="options.searchAllEnginesContextMenu"
             :options="listItems.searchAllEnginesContextMenu"
             outlined
           >
@@ -62,7 +72,7 @@
           >
             <v-switch
               id="sicm"
-              v-model="options.shareImageContextMenu"
+              v-model:checked="options.shareImageContextMenu"
             ></v-switch>
           </v-form-field>
         </div>
@@ -83,7 +93,7 @@
         <div class="option select">
           <v-select
             :label="getText('optionTitle_searchMode')"
-            v-model="options.searchModeAction"
+            v-model:value="options.searchModeAction"
             :options="listItems.searchModeAction"
             outlined
           >
@@ -92,7 +102,7 @@
         <div class="option select" v-if="searchAllEnginesEnabled">
           <v-select
             :label="getText('optionTitle_searchAllEngines')"
-            v-model="options.searchAllEnginesAction"
+            v-model:value="options.searchAllEnginesAction"
             :options="listItems.searchAllEnginesAction"
             outlined
           >
@@ -103,7 +113,10 @@
             input-id="sia"
             :label="getText('optionTitle_shareImageAction')"
           >
-            <v-switch id="sia" v-model="options.shareImageAction"></v-switch>
+            <v-switch
+              id="sia"
+              v-model:checked="options.shareImageAction"
+            ></v-switch>
           </v-form-field>
         </div>
         <div
@@ -114,7 +127,10 @@
             input-id="ap"
             :label="getText('optionTitle_autoPasteAction')"
           >
-            <v-switch id="ap" v-model="options.autoPasteAction"></v-switch>
+            <v-switch
+              id="ap"
+              v-model:checked="options.autoPasteAction"
+            ></v-switch>
           </v-form-field>
         </div>
       </div>
@@ -130,7 +146,10 @@
             input-id="tib"
             :label="getText('optionTitle_tabInBackgound')"
           >
-            <v-switch id="tib" v-model="options.tabInBackgound"></v-switch>
+            <v-switch
+              id="tib"
+              v-model:checked="options.tabInBackgound"
+            ></v-switch>
           </v-form-field>
         </div>
         <div class="option">
@@ -138,7 +157,10 @@
             input-id="ifp"
             :label="getText('optionTitle_imgFullParse')"
           >
-            <v-switch id="ifp" v-model="options.imgFullParse"></v-switch>
+            <v-switch
+              id="ifp"
+              v-model:checked="options.imgFullParse"
+            ></v-switch>
           </v-form-field>
         </div>
         <div class="option">
@@ -148,7 +170,7 @@
           >
             <v-switch
               id="dais"
-              v-model="options.detectAltImageDimension"
+              v-model:checked="options.detectAltImageDimension"
             ></v-switch>
           </v-form-field>
         </div>
@@ -157,7 +179,10 @@
             input-id="csi"
             :label="getText('optionTitle_convertSharedImage')"
           >
-            <v-switch id="csi" v-model="options.convertSharedImage"></v-switch>
+            <v-switch
+              id="csi"
+              v-model:checked="options.convertSharedImage"
+            ></v-switch>
           </v-form-field>
         </div>
         <div class="option" v-if="pasteEnabled">
@@ -165,7 +190,7 @@
             input-id="cp"
             :label="getText('optionTitle_confirmPaste')"
           >
-            <v-switch id="cp" v-model="options.confirmPaste"></v-switch>
+            <v-switch id="cp" v-model:checked="options.confirmPaste"></v-switch>
           </v-form-field>
         </div>
         <div class="option">
@@ -175,7 +200,7 @@
           >
             <v-switch
               id="bih"
-              v-model="options.bypassImageHostBlocking"
+              v-model:checked="options.bypassImageHostBlocking"
             ></v-switch>
           </v-form-field>
         </div>
@@ -184,7 +209,7 @@
             input-id="lg"
             :label="getText('optionTitle_localGoogle')"
           >
-            <v-switch id="lg" v-model="options.localGoogle"></v-switch>
+            <v-switch id="lg" v-model:checked="options.localGoogle"></v-switch>
           </v-form-field>
         </div>
       </div>
@@ -195,8 +220,9 @@
 </template>
 
 <script>
-import {includes, without} from 'lodash-es';
+import {toRaw} from 'vue';
 import draggable from 'vuedraggable';
+import {includes, without} from 'lodash-es';
 import {Checkbox, FormField, Switch, Select} from 'ext-components';
 
 import storage from 'storage/storage';
@@ -303,10 +329,14 @@ export default {
       for (const option of Object.keys(this.options)) {
         this.options[option] = options[option];
 
-        this.$watch(`options.${option}`, async function (value) {
-          await storage.set({[option]: value});
-          await browser.runtime.sendMessage({id: 'optionChange'});
-        });
+        this.$watch(
+          `options.${option}`,
+          async function (value) {
+            await storage.set({[option]: toRaw(value)});
+            await browser.runtime.sendMessage({id: 'optionChange'});
+          },
+          {deep: true}
+        );
       }
 
       this.searchAllEnginesEnabled = !this.$env.isSamsung;

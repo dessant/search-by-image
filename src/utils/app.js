@@ -1,5 +1,5 @@
 import {difference} from 'lodash-es';
-import {fileTypeFromBlob} from 'file-type';
+import {fileTypeFromBuffer} from 'file-type';
 import {validate as uuidValidate} from 'uuid';
 import {parseSrcset} from 'srcset';
 
@@ -13,6 +13,7 @@ import {
   filenameToFileExt,
   dataUrlToBlob,
   drawElementOnCanvas,
+  blobToArray,
   blobToDataUrl,
   canvasToDataUrl,
   canvasToBlob,
@@ -330,8 +331,8 @@ async function normalizeImage(file, {name} = {}) {
     return;
   }
 
-  const chunk = file.slice(0, 4100);
-  const {mime: realType} = (await fileTypeFromBlob(chunk)) || {};
+  const chunk = await blobToArray(file.slice(0, 4100));
+  const {mime: realType} = (await fileTypeFromBuffer(chunk)) || {};
 
   if (realType) {
     if (isImageMimeType(realType)) {
@@ -577,16 +578,6 @@ function getDataFromImageUrl(url) {
   const type = imageFileExtToMimeType(ext);
 
   return {name, ext, type};
-}
-
-async function configUI(Vue) {
-  const platform = await getPlatform();
-
-  document.documentElement.classList.add(platform.targetEnv, platform.os);
-
-  if (Vue) {
-    Vue.prototype.$env = platform;
-  }
 }
 
 function getContentXHR() {
@@ -1004,6 +995,24 @@ function getSrcsetUrls(srcset) {
   return urls;
 }
 
+async function configApp(app) {
+  const platform = await getPlatform();
+
+  document.documentElement.classList.add(platform.targetEnv, platform.os);
+
+  if (app) {
+    app.config.globalProperties.$env = platform;
+  }
+}
+
+async function loadFonts(fonts) {
+  for (const font of fonts) {
+    try {
+      await document.fonts.load(font);
+    } catch (err) {}
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1038,7 +1047,7 @@ export {
   isImageMimeType,
   isImageFileExt,
   getDataFromImageUrl,
-  configUI,
+  configApp,
   getLargeImageMessage,
   getMaxImageSize,
   hasBaseModule,
@@ -1057,5 +1066,6 @@ export {
   validateShareId,
   isIncomingShareContext,
   processIncomingShare,
-  getSrcsetUrls
+  getSrcsetUrls,
+  loadFonts
 };

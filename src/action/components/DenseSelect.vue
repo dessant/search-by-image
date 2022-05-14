@@ -28,11 +28,6 @@ import {MDCSelect} from '@material/select';
 export default {
   name: 'v-dense-select',
 
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
   props: {
     options: {
       required: true
@@ -46,6 +41,8 @@ export default {
       default: false
     }
   },
+
+  emits: ['update:value'],
 
   watch: {
     value: function () {
@@ -62,7 +59,7 @@ export default {
 
   methods: {
     onChange: function () {
-      this.$emit('change', this.select.value);
+      this.$emit('update:value', this.select.value);
     },
 
     setDisabled: function () {
@@ -94,8 +91,6 @@ export default {
 </script>
 
 <style lang="scss">
-$mdc-theme-primary: #1abc9c;
-
 @import '@material/list/mdc-list';
 @import '@material/menu-surface/mdc-menu-surface';
 @import '@material/menu/mdc-menu';

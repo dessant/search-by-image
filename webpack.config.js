@@ -26,7 +26,9 @@ const plugins = [
       TARGET_ENV: JSON.stringify(targetEnv),
       STORAGE_REVISION_LOCAL: JSON.stringify(storageRevisions.local.at(-1)),
       ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
-    }
+    },
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false
   }),
   new webpack.ProvidePlugin(provideModules),
   new webpack.NormalModuleReplacementPlugin(/node:/, resource => {

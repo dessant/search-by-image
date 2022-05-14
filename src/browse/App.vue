@@ -160,6 +160,7 @@
 </template>
 
 <script>
+import {markRaw} from 'vue';
 import {MDCList} from '@material/list';
 import {MDCRipple} from '@material/ripple';
 import {Button} from 'ext-components';
@@ -199,7 +200,6 @@ export default {
       showBrowseArea: true,
 
       previewImages: null,
-      session: null,
 
       engines: [],
       searchAllEngines: false,
@@ -219,6 +219,10 @@ export default {
         'share-view': this.isShare
       };
     }
+  },
+
+  rawData: {
+    session: null
   },
 
   methods: {
@@ -310,7 +314,7 @@ export default {
         });
 
         if (session) {
-          this.session = session;
+          this.$options.rawData.session = session;
 
           this.dropEnabled = !this.$env.isAndroid;
 
@@ -483,7 +487,7 @@ export default {
     addPreviewImages: function (images) {
       if (images) {
         this.previewImages = images.map(image => ({
-          image,
+          image: markRaw(image),
           objectUrl: URL.createObjectURL(image)
         }));
       }
@@ -507,7 +511,7 @@ export default {
     initShareSearch: async function ({engine, images} = {}) {
       const tab = browser.tabs.getCurrent();
 
-      this.session = await createSession({
+      this.$options.rawData.session = await createSession({
         sessionOrigin: 'share',
         searchMode: 'upload',
         sourceTabId: tab.id,
@@ -532,7 +536,7 @@ export default {
         await browser.runtime.sendMessage({
           id: 'imageUploadSubmit',
           images,
-          session: this.session
+          session: this.$options.rawData.session
         });
       } catch (err) {
         this.showSpinner = false;
