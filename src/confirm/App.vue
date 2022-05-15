@@ -20,7 +20,6 @@
           <source :srcset="img.image.imageDataUrl || img.image.imageUrl" />
           <img
             class="image"
-            referrerpolicy="no-referrer"
             src="/src/assets/icons/misc/broken-image.svg"
             :data-index="index"
             @error.once="onPreviewImageError"

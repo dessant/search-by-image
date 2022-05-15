@@ -101,7 +101,6 @@
                 <source :srcset="img.objectUrl" :type="img.image.type" />
                 <img
                   class="tile"
-                  referrerpolicy="no-referrer"
                   src="/src/assets/icons/misc/broken-image.svg"
                   @error.once="setBrokenPreviewImage"
                   :alt="img.image.name"

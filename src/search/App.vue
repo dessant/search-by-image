@@ -21,11 +21,7 @@
             :data-index="index"
             @click="openPage"
           >
-            <img
-              class="grid-item-image"
-              referrerpolicy="no-referrer"
-              :src="item.image"
-            />
+            <img class="grid-item-image" :src="item.image" />
           </div>
           <div class="grid-item-footer">
             <div class="grid-item-footer-text">{{ item.text }}</div>
