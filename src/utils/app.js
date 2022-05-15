@@ -287,7 +287,7 @@ async function fileUrlToImage(url) {
   const cnv = document.createElement('canvas');
   const ctx = cnv.getContext('2d');
 
-  const img = await getImageElement(url);
+  const img = await getImageElement(url, {query: true});
   if (img) {
     let {name, type} = getDataFromImageUrl(url);
     if (!['image/jpeg', 'image/png'].includes(type)) {
@@ -311,7 +311,7 @@ async function blobUrlToImage(url) {
   const cnv = document.createElement('canvas');
   const ctx = cnv.getContext('2d');
 
-  const img = await getImageElement(url);
+  const img = await getImageElement(url, {query: true});
   if (img) {
     cnv.width = img.naturalWidth;
     cnv.height = img.naturalHeight;
@@ -396,7 +396,7 @@ async function convertImage(
   dataUrl,
   {type = 'image/png', maxSize = Infinity, getBlob = false, force = false} = {}
 ) {
-  const img = await getImageElement(dataUrl, {query: false});
+  const img = await getImageElement(dataUrl);
 
   const sw = img.naturalWidth;
   const sh = img.naturalHeight;
@@ -478,16 +478,25 @@ async function convertProcessedImage(
   }
 }
 
-function getImageElement(url, {query = true} = {}) {
+function getImageElement(url, {query = false} = {}) {
   return new Promise(resolve => {
-    let img;
     if (query) {
-      img = document.querySelector(`img[src="${url}"]`);
-      if (img && img.complete && img.naturalWidth) {
-        resolve(img);
+      const images = document.images;
+
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        if (img?.currentSrc === url) {
+          if (img.complete && img.naturalWidth) {
+            resolve(img);
+          } else {
+            break;
+          }
+        }
       }
     }
-    img = new Image();
+
+    const img = new Image();
+
     img.onload = () => {
       resolve(img);
     };
@@ -497,13 +506,14 @@ function getImageElement(url, {query = true} = {}) {
     img.onabort = () => {
       resolve();
     };
+
     img.src = url;
   });
 }
 
 async function captureVisibleTabArea(area) {
   const tabData = await browser.tabs.captureVisibleTab({format: 'png'});
-  const img = await getImageElement(tabData, {query: false});
+  const img = await getImageElement(tabData);
 
   const {left, top, width, height, surfaceWidth} = area;
   const scale = img.naturalWidth / surfaceWidth;
