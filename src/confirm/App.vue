@@ -30,12 +30,19 @@
 
         <div class="image-details" v-if="imagesLoaded">
           <div class="image-size">
-            <div class="image-size-icons">
+            <div
+              class="image-size-icons"
+              v-if="
+                largestImageDimension &&
+                (img.imageWidth === largestImageWidth ||
+                  img.imageHeight === largestImageHeight ||
+                  img.imageDimension === largestImageDimension)
+              "
+            >
               <img
                 class="image-size-icon"
                 src="/src/assets/icons/misc/largest-image-width.svg"
                 v-if="
-                  largestImageDimension &&
                   img.imageWidth === largestImageWidth &&
                   img.imageHeight < largestImageHeight
                 "
@@ -44,7 +51,6 @@
                 class="image-size-icon"
                 src="/src/assets/icons/misc/largest-image-height.svg"
                 v-if="
-                  largestImageDimension &&
                   img.imageHeight === largestImageHeight &&
                   img.imageWidth < largestImageWidth
                 "
@@ -52,10 +58,7 @@
               <img
                 class="image-size-icon"
                 src="/src/assets/icons/misc/largest-image-dimension.svg"
-                v-if="
-                  largestImageDimension &&
-                  img.imageDimension === largestImageDimension
-                "
+                v-if="img.imageDimension === largestImageDimension"
               />
             </div>
 
@@ -141,17 +144,7 @@ export default {
     },
 
     onPreviewImageLoad: function (ev) {
-      const index = ev.target.dataset.index;
-
-      const src = ev.target.currentSrc;
-      if (src.startsWith('data') || src.startsWith('http')) {
-        this.setPreviewImageDetails(index, {
-          width: ev.target.naturalWidth,
-          height: ev.target.naturalHeight
-        });
-      }
-
-      this.setPreviewImageLoaded(index);
+      this.setPreviewImageLoaded(ev.target.dataset.index);
     },
 
     onPreviewImageError: function (ev) {
@@ -162,40 +155,47 @@ export default {
       this.setPreviewImageLoaded(ev.target.dataset.index);
     },
 
-    setPreviewImageDetails: function (index, {width = 0, height = 0} = {}) {
-      const image = this.previewImages[index];
-      image.imageDimension = width * height;
-      image.imageWidth = width;
-      image.imageHeight = height;
-
-      this.setLargestImageDimension();
-    },
-
     setPreviewImageLoaded: function (index) {
-      const image = this.previewImages[index];
-      image.imageLoaded = true;
+      this.previewImages[index].imageLoaded = true;
 
       this.setImagesLoaded();
     },
 
-    setLargestImageDimension: function () {
-      for (const image of this.previewImages) {
-        if (image.imageDimension > this.largestImageDimension) {
-          this.largestImageDimension = image.imageDimension;
-        }
+    setImagesLoaded: function () {
+      const imagesLoaded = this.previewImages.every(image => image.imageLoaded);
 
-        if (image.imageWidth > this.largestImageWidth) {
-          this.largestImageWidth = image.imageWidth;
-        }
+      if (imagesLoaded) {
+        this.setImageDimensions();
 
-        if (image.imageHeight > this.largestImageHeight) {
-          this.largestImageHeight = image.imageHeight;
-        }
+        this.imagesLoaded = true;
       }
     },
 
-    setImagesLoaded: function () {
-      this.imagesLoaded = this.previewImages.every(image => image.imageLoaded);
+    setImageDimensions: function () {
+      for (const node of document.querySelectorAll('.preview-images .image')) {
+        if (/^(?:data|https?):/i.test(node.currentSrc.slice(0, 6))) {
+          const width = node.naturalWidth;
+          const height = node.naturalHeight;
+
+          const image = this.previewImages[node.dataset.index];
+
+          image.imageDimension = width * height;
+          image.imageWidth = width;
+          image.imageHeight = height;
+
+          if (image.imageDimension > this.largestImageDimension) {
+            this.largestImageDimension = image.imageDimension;
+          }
+
+          if (image.imageWidth > this.largestImageWidth) {
+            this.largestImageWidth = image.imageWidth;
+          }
+
+          if (image.imageHeight > this.largestImageHeight) {
+            this.largestImageHeight = image.imageHeight;
+          }
+        }
+      }
     },
 
     addPreviewImages: function (images) {
@@ -217,13 +217,18 @@ export default {
     },
 
     setup: function (session, images) {
+      this.previewImages = [];
+
       this.imagesLoaded = false;
       this.largestImageWidth = 0;
       this.largestImageHeight = 0;
       this.largestImageDimension = 0;
 
       this.$options.rawData.session = session;
-      this.addPreviewImages(images);
+
+      this.$nextTick(() => {
+        this.addPreviewImages(images);
+      });
     },
 
     init: async function () {
