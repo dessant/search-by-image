@@ -11,7 +11,7 @@ async function search({session, search, image, storageIds}) {
     data.append('from', 'pc');
     data.append('range', '{"page_from": "searchIndex"}');
 
-    if (search.method === 'upload') {
+    if (search.assetType === 'image') {
       data.append('image', image.imageBlob, image.imageFilename);
       data.append('image_source', 'PC_UPLOAD_SEARCH_FILE');
     } else {
@@ -39,7 +39,7 @@ async function search({session, search, image, storageIds}) {
   } else {
     (await findNode('.soutu-btn', {timeout: 120000})).click();
 
-    if (search.method === 'upload') {
+    if (search.assetType === 'image') {
       const inputSelector = 'input.upload-pic';
       const input = await findNode(inputSelector);
 

@@ -511,7 +511,7 @@ export default {
 
       this.$options.rawData.session = await createSession({
         sessionOrigin: 'share',
-        searchMode: 'upload',
+        searchMode: 'browse',
         sourceTabId: tab.id,
         sourceTabIndex: tab.index,
         engine
@@ -532,7 +532,7 @@ export default {
         }
 
         await browser.runtime.sendMessage({
-          id: 'imageUploadSubmit',
+          id: 'imageBrowseSubmit',
           images,
           session: this.$options.rawData.session
         });

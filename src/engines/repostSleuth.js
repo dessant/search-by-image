@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'repostSleuth';
 
 async function search({session, search, image, storageIds}) {
-  if (search.method === 'upload') {
+  if (search.assetType === 'image') {
     const inputSelector = 'input[type=file]';
     const input = await findNode(inputSelector);
 

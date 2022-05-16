@@ -836,12 +836,12 @@
     "description": "Title of the option."
   },
 
-  "optionValue_searchModeContextMenu_select": {
+  "optionValue_searchModeContextMenu_selectUrl": {
     "message": "Select URL",
     "description": "Value of the option."
   },
 
-  "optionValue_searchModeContextMenu_selectUpload": {
+  "optionValue_searchModeContextMenu_selectImage": {
     "message": "Select image",
     "description": "Value of the option."
   },
@@ -896,12 +896,12 @@
     "description": "Value of the option."
   },
 
-  "optionValue_action_searchModeAction_select": {
+  "optionValue_action_searchModeAction_selectUrl": {
     "message": "Select URL",
     "description": "Value of the option."
   },
 
-  "optionValue_action_searchModeAction_selectUpload": {
+  "optionValue_action_searchModeAction_selectImage": {
     "message": "Select image",
     "description": "Value of the option."
   },
@@ -911,7 +911,7 @@
     "description": "Value of the option."
   },
 
-  "optionValue_action_searchModeAction_upload": {
+  "optionValue_action_searchModeAction_browse": {
     "message": "Browse",
     "description": "Value of the option."
   },
@@ -921,12 +921,12 @@
     "description": "Value of the option."
   },
 
-  "optionValue_searchModeAction_select": {
+  "optionValue_searchModeAction_selectUrl": {
     "message": "Select URL",
     "description": "Value of the option."
   },
 
-  "optionValue_searchModeAction_selectUpload": {
+  "optionValue_searchModeAction_selectImage": {
     "message": "Select image",
     "description": "Value of the option."
   },
@@ -936,7 +936,7 @@
     "description": "Value of the option."
   },
 
-  "optionValue_searchModeAction_upload": {
+  "optionValue_searchModeAction_browse": {
     "message": "Browse",
     "description": "Value of the option."
   },

@@ -256,7 +256,7 @@ async function processResults(results, session) {
   if (httpUrls.length) {
     const mustDownloadAllUrls =
       session.sessionType === 'share' ||
-      session.searchMode === 'selectUpload' ||
+      session.searchMode === 'selectImage' ||
       !(await hasUrlSupport(session.engines));
 
     for (const item of httpUrls) {

@@ -9,7 +9,7 @@
     "description": "Title of the menu item."
   },
 
-  "optionValue_action_searchModeAction_selectUpload": {
+  "optionValue_action_searchModeAction_selectImage": {
     "message": "Select Image",
     "description": "Value of the option."
   },

@@ -174,7 +174,7 @@ async function initSearch(searchFn, engine, taskId) {
     const storageIds = [taskId, task.imageId];
 
     try {
-      if (task.search.method === 'upload') {
+      if (task.search.assetType === 'image') {
         const maxSize = getMaxImageSize(engine);
         if (task.search.imageSize > maxSize) {
           showEngineError({
@@ -192,7 +192,7 @@ async function initSearch(searchFn, engine, taskId) {
       });
 
       if (image) {
-        if (task.search.method === 'upload') {
+        if (task.search.assetType === 'image') {
           image.imageBlob = dataUrlToBlob(image.imageDataUrl);
         }
         await searchFn({

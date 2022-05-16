@@ -63,14 +63,14 @@ async function getSearches(image, targetEngines, searchMode) {
   const searches = [];
   for (const engine of targetEngines) {
     const isAltImage = !imageTypeSupport(image.imageType, engine);
-    const method = (await isUploadSearch(image, engine, searchMode, isAltImage))
-      ? 'upload'
+    const assetType = (await isUploadSearch(image, engine, searchMode, isAltImage))
+      ? 'image'
       : 'url';
-    const isExec = engines[engine][method].isExec;
-    const isTaskId = engines[engine][method].isTaskId;
+    const isExec = engines[engine][assetType].isExec;
+    const isTaskId = engines[engine][assetType].isTaskId;
     searches.push({
       engine,
-      method,
+      assetType,
       isExec,
       isTaskId,
       isAltImage,
@@ -83,7 +83,7 @@ async function getSearches(image, targetEngines, searchMode) {
 
 async function isUploadSearch(image, engine, searchMode, isAltImage) {
   return (
-    searchMode === 'selectUpload' ||
+    searchMode === 'selectImage' ||
     isAltImage ||
     !image.imageUrl ||
     !(await hasUrlSupport(engine, {bypassBlocking: searchMode !== 'url'}))

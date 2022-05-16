@@ -59,7 +59,7 @@
           ></v-textfield>
         </div>
 
-        <div class="browse-settings" v-if="searchModeAction === 'upload'">
+        <div class="browse-settings" v-if="searchModeAction === 'browse'">
           <div class="browse-buttons" v-show="showBrowseButtons">
             <input
               ref="browseInput"
@@ -190,10 +190,10 @@ export default {
 
   data: function () {
     let searchModeAction = [
-      'select',
-      'selectUpload',
+      'selectUrl',
+      'selectImage',
       'capture',
-      'upload',
+      'browse',
       'url'
     ];
     if (this.$env.isSamsung || (this.$env.isSafari && this.$env.isMobile)) {
@@ -244,7 +244,7 @@ export default {
     showSettings: function () {
       return (
         this.searchModeAction === 'url' ||
-        (this.searchModeAction === 'upload' &&
+        (this.searchModeAction === 'browse' &&
           (this.browseEnabled || this.pasteEnabled))
       );
     }
@@ -265,7 +265,7 @@ export default {
             await showNotification({messageId: 'error_invalidImageUrl'});
             return;
           }
-        } else if (this.searchModeAction === 'upload') {
+        } else if (this.searchModeAction === 'browse') {
           if (this.previewImages) {
             const files = this.previewImages.map(item => item.image);
             images = await processImages(files);
@@ -305,14 +305,14 @@ export default {
     onSearchModeChange: function (newValue, oldValue) {
       storage.set({searchModeAction: newValue});
 
-      if (newValue === 'upload') {
+      if (newValue === 'browse') {
         this.setupBrowseSearchModeSettings();
 
         if (oldValue === 'url') {
           this.removeImageUrl();
         }
       } else if (newValue === 'url') {
-        if (oldValue === 'upload') {
+        if (oldValue === 'browse') {
           window.setTimeout(this.focusImageUrlInput, 300);
           this.removePreviewImages();
         }
@@ -640,7 +640,7 @@ export default {
 
     this.$watch('searchModeAction', this.onSearchModeChange);
 
-    if (this.searchModeAction === 'upload') {
+    if (this.searchModeAction === 'browse') {
       this.setupBrowseSearchModeSettings();
     }
 

@@ -23,7 +23,7 @@ const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
 const engines = {
   google: {
     url: {target: 'https://www.google.com/searchbyimage?image_url={imgUrl}'},
-    upload: {
+    image: {
       target: searchUrl,
       isTaskId: true
     }
@@ -35,7 +35,7 @@ const engines = {
         '&iss=sbi&FORM=IRSBIQ&redirecturl=https%3A%2F%2Fwww.bing.com' +
         '%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights'
     },
-    upload: {
+    image: {
       target: 'https://www.bing.com/',
       isExec: true
     }
@@ -44,7 +44,7 @@ const engines = {
     url: {
       target: 'https://yandex.com/images/search?url={imgUrl}&rpt=imageview'
     },
-    upload: {
+    image: {
       target: 'https://yandex.com/images/',
       isExec: true
     }
@@ -54,248 +54,248 @@ const engines = {
       target: 'https://www.baidu.com/',
       isExec: true
     },
-    upload: {
+    image: {
       target: 'https://www.baidu.com/',
       isExec: true
     }
   },
   tineye: {
     url: {target: 'https://www.tineye.com/search/?&url={imgUrl}'},
-    upload: {
+    image: {
       target: 'https://www.tineye.com/',
       isExec: true
     }
   },
   sogou: {
     url: {target: 'https://pic.sogou.com/ris?query={imgUrl}&flag=1&drag=0'},
-    upload: {
+    image: {
       target: 'https://pic.sogou.com/',
       isExec: true
     }
   },
   karmaDecay: {
     url: {target: 'http://karmadecay.com/search?q={imgUrl}'},
-    upload: {
+    image: {
       target: 'http://karmadecay.com/',
       isExec: true
     }
   },
   whatanime: {
     url: {target: 'https://trace.moe/?url={imgUrl}'},
-    upload: {
+    image: {
       target: 'https://trace.moe/',
       isExec: true
     }
   },
   saucenao: {
     url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
-    upload: {
+    image: {
       target: 'https://saucenao.com/',
       isExec: true
     }
   },
   iqdb: {
     url: {target: 'https://iqdb.org/?url={imgUrl}'},
-    upload: {
+    image: {
       target: 'https://iqdb.org/',
       isExec: true
     }
   },
   ascii2d: {
     url: {target: 'https://ascii2d.net/search/url/{imgUrl}'},
-    upload: {
+    image: {
       target: 'https://ascii2d.net/',
       isExec: true
     }
   },
   getty: {
-    upload: {
+    image: {
       target: 'https://www.gettyimages.com/',
       isExec: true
     }
   },
   istock: {
-    upload: {
+    image: {
       target: 'https://www.istockphoto.com/',
       isExec: true
     }
   },
   shutterstock: {
-    upload: {
+    image: {
       target: 'https://www.shutterstock.com/',
       isExec: true
     }
   },
   adobestock: {
-    upload: {
+    image: {
       target: 'https://stock.adobe.com/',
       isExec: true
     }
   },
   depositphotos: {
-    upload: {
+    image: {
       target: 'https://depositphotos.com/',
       isExec: true
     }
   },
   pinterest: {
-    upload: {
+    image: {
       target: searchUrl,
       isTaskId: true
     }
   },
   qihoo: {
-    upload: {
+    image: {
       target: 'https://st.so.com/',
       isExec: true
     }
   },
   jingdong: {
-    upload: {
+    image: {
       target: 'https://www.jd.com/',
       isExec: true
     }
   },
   taobao: {
-    upload: {
+    image: {
       target: 'https://www.taobao.com/',
       isExec: true
     }
   },
   alibabaChina: {
-    upload: {
+    image: {
       target: 'https://www.1688.com/',
       isExec: true
     }
   },
   mailru: {
-    upload: {
+    image: {
       target: 'https://go.mail.ru/search_images?fr=main&frm=main',
       isExec: true
     }
   },
   dreamstime: {
-    upload: {
+    image: {
       target: 'https://www.dreamstime.com/',
       isExec: true
     }
   },
   alamy: {
-    upload: {
+    image: {
       target: 'https://www.alamy.com/',
       isExec: true
     }
   },
   '123rf': {
-    upload: {
+    image: {
       target: 'https://www.123rf.com/',
       isExec: true
     }
   },
   esearch: {
-    upload: {
+    image: {
       target: 'https://euipo.europa.eu/eSearch/',
       isExec: true
     }
   },
   tmview: {
-    upload: {
+    image: {
       target: 'https://www.tmdn.org/tmview/#/tmview',
       isExec: true
     }
   },
   branddb: {
-    upload: {
+    image: {
       target: 'https://www3.wipo.int/branddb/en/',
       isExec: true
     }
   },
   madridMonitor: {
-    upload: {
+    image: {
       target: 'https://www3.wipo.int/madrid/monitor/en/',
       isExec: true
     }
   },
   auTrademark: {
-    upload: {
+    image: {
       target: 'https://search.ipaustralia.gov.au/trademarks/search/advanced',
       isExec: true
     }
   },
   auDesign: {
-    upload: {
+    image: {
       target: 'https://search.ipaustralia.gov.au/designs/search/advanced',
       isExec: true
     }
   },
   nzTrademark: {
-    upload: {
+    image: {
       target: 'https://app.iponz.govt.nz/app/TradeMarkCheck',
       isExec: true
     }
   },
   jpDesign: {
-    upload: {
+    image: {
       target: 'https://www.graphic-image.inpit.go.jp/',
       isExec: true
     }
   },
   pimeyes: {
-    upload: {
+    image: {
       target: 'https://pimeyes.com/en',
       isExec: true
     }
   },
   stocksy: {
-    upload: {
+    image: {
       target: 'https://www.stocksy.com/search/',
       isExec: true
     }
   },
   pond5: {
-    upload: {
+    image: {
       target: 'https://www.pond5.com/stock-images/',
       isExec: true
     }
   },
   pixta: {
-    upload: {
+    image: {
       target: 'https://www.pixtastock.com/',
       isExec: true
     }
   },
   wayfair: {
-    upload: {
+    image: {
       target: 'https://www.wayfair.com/',
       isExec: true
     }
   },
   birchlane: {
-    upload: {
+    image: {
       target: 'https://www.birchlane.com/',
       isExec: true
     }
   },
   allmodern: {
-    upload: {
+    image: {
       target: 'https://www.allmodern.com/',
       isExec: true
     }
   },
   jossandmain: {
-    upload: {
+    image: {
       target: 'https://www.jossandmain.com/',
       isExec: true
     }
   },
   perigold: {
-    upload: {
+    image: {
       target: 'https://www.perigold.com/',
       isExec: true
     }
   },
   ikea: {
-    upload: {
+    image: {
       target: 'https://www.ikea.com/',
       isExec: true
     }
@@ -306,38 +306,38 @@ const engines = {
         'https://repostsleuth.com/search?targetImageMatch=60&filterSameAuthor=false',
       isExec: true
     },
-    upload: {
+    image: {
       target:
         'https://repostsleuth.com/search?targetImageMatch=60&filterSameAuthor=false',
       isExec: true
     }
   },
   unsplash: {
-    upload: {
+    image: {
       target: 'https://unsplash.com/',
       isExec: true
     }
   },
   shein: {
-    upload: {
+    image: {
       target: 'https://m.shein.com/presearch',
       isExec: true
     }
   },
   lykdat: {
-    upload: {
+    image: {
       target: 'https://lykdat.com/',
       isExec: true
     }
   },
   wildberries: {
-    upload: {
+    image: {
       target: 'https://www.wildberries.ru/',
       isExec: true
     }
   },
   googleLens: {
-    upload: {
+    image: {
       target: searchUrl,
       isTaskId: true
     }

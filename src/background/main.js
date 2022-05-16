@@ -370,7 +370,7 @@ async function hideContentSelectionPointer(tabId) {
 
 async function getTabUrl(session, search, image, taskId) {
   const engine = search.engine;
-  let tabUrl = engines[engine][search.method].target;
+  let tabUrl = engines[engine][search.assetType].target;
 
   if (search.isTaskId) {
     tabUrl = tabUrl.replace('{id}', taskId);
@@ -500,7 +500,7 @@ async function searchImage(session, image, firstBatchItem = true) {
 
     await searchEngine(session, search, img, imgId, tabActive);
 
-    if (firstEngine && session.searchMode === 'upload') {
+    if (firstEngine && session.searchMode === 'browse') {
       await browser.tabs.remove(session.sourceTabId);
       session.sourceTabIndex -= 1;
     }
@@ -687,7 +687,7 @@ async function onContextMenuItemClick(info, tab) {
     sourceFrameId: typeof info.frameId !== 'undefined' ? info.frameId : 0
   };
   if (sessionType === 'share') {
-    sessionData.searchMode = 'selectUpload';
+    sessionData.searchMode = 'selectImage';
   } else if (sessionType === 'search') {
     sessionData.engine = engine;
   }
@@ -723,7 +723,7 @@ async function onContextMenuItemClick(info, tab) {
 }
 
 async function onActionClick(session, tabUrl) {
-  if (session.searchMode === 'upload') {
+  if (session.searchMode === 'browse') {
     const browseUrl = browser.runtime.getURL('/src/browse/index.html');
     const storageId = await registry.addStorageItem(session, {
       receipts: {expected: 1, received: 0},
@@ -736,7 +736,7 @@ async function onActionClick(session, tabUrl) {
     });
   } else if (session.searchMode === 'capture') {
     await openContentView({session}, 'capture');
-  } else if (['select', 'selectUpload'].includes(session.searchMode)) {
+  } else if (['selectUrl', 'selectImage'].includes(session.searchMode)) {
     if (
       tabUrl.startsWith('file://') &&
       ['safari', 'samsung'].includes(targetEnv)
@@ -809,8 +809,8 @@ async function onActionPopupClick(engine, images, imageUrl) {
 
   if (searchModeAction === 'url') {
     await initSearch(session, {imageUrl});
-  } else if (searchModeAction === 'upload' && images) {
-    session.searchMode = 'selectUpload';
+  } else if (searchModeAction === 'browse' && images) {
+    session.searchMode = 'selectImage';
     await initSearch(session, images);
   } else {
     onActionClick(session, tab.url);
@@ -823,7 +823,7 @@ async function initShare() {
   const session = await createSession({
     sessionOrigin: 'action',
     sessionType: 'share',
-    searchMode: 'selectUpload',
+    searchMode: 'selectImage',
     sourceTabId: tab.id,
     sourceTabIndex: tab.index
   });
@@ -916,7 +916,7 @@ async function processMessage(request, sender) {
     }
   } else if (request.id === 'actionPopupSubmit') {
     onActionPopupClick(request.engine, request.images, request.imageUrl);
-  } else if (request.id === 'imageUploadSubmit') {
+  } else if (request.id === 'imageBrowseSubmit') {
     request.session.sourceTabId = sender.tab.id;
     initSearch(request.session, request.images);
   } else if (request.id === 'imageSelectionSubmit') {
@@ -1041,7 +1041,7 @@ async function processMessage(request, sender) {
     await onOptionChange();
   } else if (request.id === 'searchImage') {
     const {session, search, image} = request;
-    if (search.method === 'upload') {
+    if (search.assetType === 'image') {
       image.imageBlob = dataUrlToBlob(image.imageDataUrl);
     }
 

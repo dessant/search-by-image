@@ -205,7 +205,7 @@ export default {
           getText('extensionName')
         ]);
 
-        if (task.search.method === 'upload') {
+        if (task.search.assetType === 'image') {
           const maxSize = getMaxImageSize(this.engine);
           if (task.search.imageSize > maxSize) {
             this.error = getLargeImageMessage(this.engine, maxSize);
@@ -226,7 +226,7 @@ export default {
 
         if (image) {
           if (
-            task.search.method === 'upload' &&
+            task.search.assetType === 'image' &&
             !(this.$env.isSafari && this.$env.isMobile)
           ) {
             image.imageBlob = dataUrlToBlob(image.imageDataUrl);

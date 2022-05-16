@@ -121,7 +121,7 @@
         </div>
         <div
           class="option"
-          v-if="options.searchModeAction === 'upload' && autoPasteEnabled"
+          v-if="options.searchModeAction === 'browse' && autoPasteEnabled"
         >
           <v-form-field
             input-id="ap"
@@ -240,12 +240,12 @@ export default {
   },
 
   data: function () {
-    let searchModeContextMenu = ['select', 'selectUpload', 'capture'];
+    let searchModeContextMenu = ['selectUrl', 'selectImage', 'capture'];
     let searchModeAction = [
-      'select',
-      'selectUpload',
+      'selectUrl',
+      'selectImage',
       'capture',
-      'upload',
+      'browse',
       'url'
     ];
     if (this.$env.isSamsung || (this.$env.isSafari && this.$env.isMobile)) {
