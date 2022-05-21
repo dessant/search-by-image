@@ -5,16 +5,16 @@ on: push
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           persist-credentials: 'false'
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -32,7 +32,7 @@ jobs:
         run: sha256sum artifacts/*/*
         if: startsWith(github.ref, 'refs/tags/v')
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: artifacts
@@ -40,7 +40,7 @@ jobs:
           retention-days: 1
   release:
     name: Release on GitHub
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
@@ -52,7 +52,7 @@ jobs:
           echo ::set-output name=TAG::${GITHUB_REF/refs\/tags\//}
           echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: artifacts
           path: artifacts/
