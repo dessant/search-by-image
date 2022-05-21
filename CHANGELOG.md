@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/dessant/search-by-image/compare/v4.9.0...v5.0.0) (2022-05-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* browser versions older than Chrome 92, Edge 92,
+Firefox 91, Opera 78, and Samsung Internet 14 are no longer supported
+
+### Features
+
+* add support link ([2836cb4](https://github.com/dessant/search-by-image/commit/2836cb46094932ab10f867f083c7022c0610e016))
+* detect alternative image sizes ([d6335e3](https://github.com/dessant/search-by-image/commit/d6335e3cf0a31a5a20743a7ff51060b8021aa4c3))
+* migrate to Vue 3 ([580d34b](https://github.com/dessant/search-by-image/commit/580d34b9d06133f5a363f654cbe7eeec66f8a420))
+* open images in a new tab ([a6bfb33](https://github.com/dessant/search-by-image/commit/a6bfb33a6c257cf7788f06660633460185cf1471)), closes [#117](https://github.com/dessant/search-by-image/issues/117)
+* show image dimensions in selection dialog ([bae6738](https://github.com/dessant/search-by-image/commit/bae6738bb3d4657844bc911b9cba66175eddf560)), closes [#185](https://github.com/dessant/search-by-image/issues/185)
+
+
+### Bug Fixes
+
+* deprecate support for outdated browser versions ([5b168a2](https://github.com/dessant/search-by-image/commit/5b168a27f912a6595338e5f4903577efde5c63ab))
+* evaluate image sizes after all images have loaded ([851bed6](https://github.com/dessant/search-by-image/commit/851bed63ad563fb86be3c4b950409503e011d4e6))
+* find image elements using currentSrc ([b0a7f75](https://github.com/dessant/search-by-image/commit/b0a7f751d2c7c2db8621eec80a6487d8dd380900))
+* ignore error when searching for shadow root ([4d59268](https://github.com/dessant/search-by-image/commit/4d59268211340c2fc2892c5750e812ba3bf95797))
+* improve CSS url() parsing ([0e19d75](https://github.com/dessant/search-by-image/commit/0e19d75c2b2396766cc43d095bbde28eb2f201e1)), closes [#97](https://github.com/dessant/search-by-image/issues/97)
+* never send referrer from extension page ([1f7c95e](https://github.com/dessant/search-by-image/commit/1f7c95e20e9f3e39bd719fee6d2b757994f92357))
+* update Getty ([37e7b8c](https://github.com/dessant/search-by-image/commit/37e7b8c38ae8dba5d8f049839b92a747e6bc7b77))
+* update iStock ([10294c0](https://github.com/dessant/search-by-image/commit/10294c037938cd76c4587647de88726bc9ae959d))
+
 ## [4.9.0](https://github.com/dessant/search-by-image/compare/v4.8.0...v4.9.0) (2022-04-28)
 
 
