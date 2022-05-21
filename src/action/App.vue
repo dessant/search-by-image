@@ -12,7 +12,16 @@
           v-if="enableContributions"
           class="contribute-button"
           src="/src/contribute/assets/heart.svg"
+          :title="getText('buttonTooltip_contribute')"
           @click="showContribute"
+        ></v-icon-button>
+
+        <v-icon-button
+          v-if="viewEnabled"
+          class="view-button"
+          src="/src/assets/icons/misc/open.svg"
+          :title="getText('buttonTooltip_viewImage')"
+          @click="viewImage"
         ></v-icon-button>
 
         <v-icon-button
@@ -21,12 +30,14 @@
           :src="`/src/assets/icons/misc/${
             $env.isSafari ? 'ios-share' : 'share'
           }.svg`"
+          :title="getText('buttonTooltip_shareImage')"
           @click="shareImage"
         ></v-icon-button>
 
         <v-icon-button
           class="menu-button"
           src="/src/assets/icons/misc/more.svg"
+          :title="getText('buttonTooltip_menu')"
           @click="showActionMenu"
         >
         </v-icon-button>
@@ -111,6 +122,7 @@
             <v-icon-button
               class="preview-close-button"
               src="/src/assets/icons/misc/close.svg"
+              :title="getText('buttonTooltip_clearImage')"
               @click="hidePreviewImages"
             ></v-icon-button>
           </div>
@@ -227,6 +239,7 @@ export default {
 
       engines: [],
       searchAllEngines: false,
+      viewEnabled: false,
       shareEnabled: false,
       browseEnabled: false,
       pasteEnabled: false,
@@ -397,6 +410,12 @@ export default {
 
     shareImage: async function () {
       await browser.runtime.sendMessage({id: 'initShare'});
+
+      this.closeAction();
+    },
+
+    viewImage: async function () {
+      await browser.runtime.sendMessage({id: 'initView'});
 
       this.closeAction();
     },
@@ -624,6 +643,8 @@ export default {
       options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
     this.searchModeAction = options.searchModeAction;
 
+    this.viewEnabled = options.viewImageAction;
+
     this.shareEnabled = options.shareImageAction && canShare(this.$env);
 
     this.browseEnabled =
@@ -707,6 +728,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  column-gap: 24px;
   white-space: nowrap;
   padding-top: 16px;
   padding-left: 16px;
@@ -717,11 +739,11 @@ body {
   display: flex;
   align-items: center;
   height: 24px;
-  margin-left: 56px;
 }
 
 .contribute-button,
 .share-button,
+.view-button,
 .menu-button,
 .preview-close-button {
   @include mdc-icon-button-icon-size(24px, 24px, 6px);
@@ -735,8 +757,9 @@ body {
 }
 
 .contribute-button,
-.share-button {
-  margin-left: 12px;
+.share-button,
+.view-button {
+  margin-left: 8px;
 }
 
 .menu-button {

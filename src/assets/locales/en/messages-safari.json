@@ -9,6 +9,11 @@
     "description": "Title of the menu item."
   },
 
+  "menuItemTitle_viewImage": {
+    "message": "Open Image",
+    "description": "Title of the menu item."
+  },
+
   "menuItemTitle_shareImage": {
     "message": "Share Image",
     "description": "Title of the menu item."

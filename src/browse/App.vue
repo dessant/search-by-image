@@ -507,13 +507,10 @@ export default {
     },
 
     initShareSearch: async function ({engine, images} = {}) {
-      const tab = browser.tabs.getCurrent();
-
       this.$options.rawData.session = await createSession({
         sessionOrigin: 'share',
+        sessionType: 'search',
         searchMode: 'browse',
-        sourceTabId: tab.id,
-        sourceTabIndex: tab.index,
         engine
       });
 
@@ -524,6 +521,9 @@ export default {
       this.showSpinner = true;
 
       try {
+        const session = this.$options.rawData.session;
+        session.closeSourceTab = true;
+
         const files = images || this.previewImages.map(item => item.image);
 
         images = await processImages(files);
@@ -533,8 +533,8 @@ export default {
 
         await browser.runtime.sendMessage({
           id: 'imageBrowseSubmit',
-          images,
-          session: this.$options.rawData.session
+          session,
+          images
         });
       } catch (err) {
         this.showSpinner = false;

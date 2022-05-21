@@ -2,6 +2,7 @@ import {difference} from 'lodash-es';
 import {fileTypeFromBuffer} from 'file-type';
 import {validate as uuidValidate} from 'uuid';
 import {parseSrcset} from 'srcset';
+import filesize from 'filesize';
 
 import storage from 'storage/storage';
 import {
@@ -30,6 +31,7 @@ import {
   rasterEngineIcons,
   engineIconAlias,
   imageMimeTypes,
+  imageTypeNames,
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
@@ -63,7 +65,12 @@ async function getSearches(image, targetEngines, searchMode) {
   const searches = [];
   for (const engine of targetEngines) {
     const isAltImage = !imageTypeSupport(image.imageType, engine);
-    const assetType = (await isUploadSearch(image, engine, searchMode, isAltImage))
+    const assetType = (await isUploadSearch(
+      image,
+      engine,
+      searchMode,
+      isAltImage
+    ))
       ? 'image'
       : 'url';
     const isExec = engines[engine][assetType].isExec;
@@ -83,7 +90,7 @@ async function getSearches(image, targetEngines, searchMode) {
 
 async function isUploadSearch(image, engine, searchMode, isAltImage) {
   return (
-    searchMode === 'selectImage' ||
+    ['selectImage', 'capture', 'browse'].includes(searchMode) ||
     isAltImage ||
     !image.imageUrl ||
     !(await hasUrlSupport(engine, {bypassBlocking: searchMode !== 'url'}))
@@ -120,13 +127,17 @@ async function hasUrlSupport(engine, {bypassBlocking = true} = {}) {
 async function createSession(data) {
   const session = {
     sessionOrigin: '',
-    sessionType: 'search',
-    searchMode: '',
+    sessionType: '',
+
     sourceTabId: -1,
     sourceTabIndex: -1,
     sourceFrameId: -1,
+    closeSourceTab: false,
+
+    searchMode: '',
     engineGroup: '',
     engines: [],
+
     options: {}
   };
 
@@ -152,7 +163,7 @@ async function createSession(data) {
 
   Object.assign(session, data);
 
-  if (!session.searchMode) {
+  if (session.sessionType === 'search' && !session.searchMode) {
     session.searchMode =
       session.sessionOrigin === 'action'
         ? session.options.searchModeAction
@@ -952,8 +963,12 @@ function canShare(env) {
   return false;
 }
 
+function validateId(id) {
+  return uuidValidate(id);
+}
+
 async function validateShareId(shareId, {validateData = false} = {}) {
-  if (!shareId?.split('_').every(item => uuidValidate(item))) {
+  if (!shareId?.split('_').every(item => validateId(item))) {
     return false;
   }
 
@@ -1023,6 +1038,49 @@ async function loadFonts(fonts) {
   }
 }
 
+function getFormattedImageDetails({
+  width,
+  height,
+  size,
+  type,
+  iecSize = true
+} = {}) {
+  const details = [];
+
+  if (width) {
+    const text = getFormattedImageDimension(width, height);
+    details.push({kind: 'dimension', text});
+  }
+
+  if (size) {
+    const text = getFormattedImageSize(size, {iec: iecSize});
+    details.push({kind: 'size', text});
+  }
+
+  if (type) {
+    const text = getFormattedImageType(type);
+    details.push({kind: 'type', text});
+  }
+
+  return details;
+}
+
+function getFormattedImageDimension(width, height) {
+  return `${width} × ${height} px`;
+}
+
+function getFormattedImageSize(size, {iec = true} = {}) {
+  return filesize(size, {round: 2, base: iec ? 10 : 2});
+}
+
+function getFormattedImageType(type) {
+  return imageTypeNames[type] || type;
+}
+
+function isPreviewImageValid(node) {
+  return /^(?:data|https?):/i.test(node.currentSrc.slice(0, 6));
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1073,9 +1131,15 @@ export {
   isFileAccepted,
   sendBackgroundMessage,
   canShare,
+  validateId,
   validateShareId,
   isIncomingShareContext,
   processIncomingShare,
   getSrcsetUrls,
-  loadFonts
+  loadFonts,
+  getFormattedImageDetails,
+  getFormattedImageDimension,
+  getFormattedImageSize,
+  getFormattedImageType,
+  isPreviewImageValid
 };

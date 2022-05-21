@@ -525,6 +525,11 @@
     "description": "Title of the menu item."
   },
 
+  "menuItemTitle_viewImage": {
+    "message": "Open image",
+    "description": "Title of the menu item."
+  },
+
   "menuItemTitle_shareImage": {
     "message": "Share image",
     "description": "Title of the menu item."
@@ -851,6 +856,11 @@
     "description": "Value of the option."
   },
 
+  "optionTitle_viewImageContextMenu": {
+    "message": "Open images",
+    "description": "Title of the option."
+  },
+
   "optionTitle_shareImageContextMenu": {
     "message": "Share images",
     "description": "Title of the option."
@@ -946,6 +956,11 @@
     "description": "Value of the option."
   },
 
+  "optionTitle_viewImageAction": {
+    "message": "Open images",
+    "description": "Title of the option."
+  },
+
   "optionTitle_shareImageAction": {
     "message": "Share images",
     "description": "Title of the option."
@@ -991,6 +1006,11 @@
     "description": "Title of the option."
   },
 
+  "optionTitle_viewImageUseViewer": {
+    "message": "Always open images in the viewer",
+    "description": "Title of the option."
+  },
+
   "optionTitle_confirmPaste": {
     "message": "Confirm images from clipboard",
     "description": "Title of the option."
@@ -1029,6 +1049,36 @@
   "buttonText_search": {
     "message": "Search",
     "description": "Text of the button."
+  },
+
+  "buttonTooltip_viewImage": {
+    "message": "Open image",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_shareImage": {
+    "message": "Share image",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_contribute": {
+    "message": "Contribute",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_menu": {
+    "message": "Menu",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_clearImage": {
+    "message": "Clear images",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_copyImageUrl": {
+    "message": "Copy image URL",
+    "description": "Tooltip of the button."
   },
 
   "pageContent_browse": {
@@ -1087,6 +1137,11 @@
     "description": "Title of the page."
   },
 
+  "pageTitle_view": {
+    "message": "Image",
+    "description": "Title of the page."
+  },
+
   "pageTitle_contribute": {
     "message": "Contribute",
     "description": "Title of the page."
@@ -1103,11 +1158,16 @@
   },
 
   "error_invalidPageUrl": {
-    "message": "The page URL is not valid. Try searching again for the image.",
+    "message": "The page URL is not valid.",
     "description": "Error message."
   },
 
   "error_sessionExpired": {
+    "message": "The session has expired.",
+    "description": "Error message."
+  },
+
+  "error_sessionExpiredEngine": {
     "message": "The session has expired. Try searching again for the image on $ENGINE$.",
     "description": "Error message.",
     "placeholders": {

@@ -40,7 +40,8 @@
       "20220108063511_add_google_lens",
       "20220321163741_add_clipboard_support",
       "20220505174634_detect_alternative_image_sizes",
-      "20220516051842_update_search_mode_ids"
+      "20220516051842_update_search_mode_ids",
+      "20220516124148_open_images"
     ],
     "sync": []
   }

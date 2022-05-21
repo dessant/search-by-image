@@ -64,13 +64,14 @@ module.exports = {
     background: './src/background/main.js',
     options: './src/options/main.js',
     action: './src/action/main.js',
-    search: './src/search/main.js',
-    confirm: './src/confirm/main.js',
-    browse: './src/browse/main.js',
     select: './src/select/main.js',
     capture: './src/capture/main.js',
-    content: './src/content/main.js',
+    confirm: './src/confirm/main.js',
+    browse: './src/browse/main.js',
+    search: './src/search/main.js',
+    view: './src/view/main.js',
     insert: './src/insert/main.js',
+    content: './src/content/main.js',
     parse: './src/parse/main.js',
     tab: './src/tab/main.js',
     ...entries
@@ -94,11 +95,12 @@ module.exports = {
             return [
               'options',
               'action',
-              'browse',
               'select',
               'capture',
-              'search',
               'confirm',
+              'browse',
+              'search',
+              'view',
               'contribute'
             ].includes(chunk.name);
           },

@@ -247,6 +247,7 @@ async function createMenu() {
   const setIcons = env.isFirefox;
   const searchAllEngines =
     !env.isSamsung && options.searchAllEnginesContextMenu;
+  const viewEnabled = options.viewImageContextMenu;
   const shareEnabled =
     options.shareImageContextMenu &&
     (env.isSafari || ((env.isWindows || env.isAndroid) && !env.isFirefox));
@@ -272,23 +273,22 @@ async function createMenu() {
   } else if (enEngines.length > 1) {
     let addSeparator = false;
 
-    if (shareEnabled) {
+    if (viewEnabled) {
       createMenuItem({
-        id: 'share',
-        title: getText('menuItemTitle_shareImage'),
+        id: 'view',
+        title: getText('menuItemTitle_viewImage'),
         contexts,
         urlPatterns
       });
       addSeparator = true;
     }
 
-    if (searchAllEngines === 'sub') {
+    if (shareEnabled) {
       createMenuItem({
-        id: 'search_allEngines',
-        title: getText('menuItemTitle_allEngines'),
+        id: 'share',
+        title: getText('menuItemTitle_shareImage'),
         contexts,
-        urlPatterns,
-        icons: setIcons && getEngineMenuIcon('allEngines')
+        urlPatterns
       });
       addSeparator = true;
     }
@@ -301,6 +301,26 @@ async function createMenu() {
         type: 'separator',
         urlPatterns
       });
+    }
+
+    if (searchAllEngines === 'sub') {
+      createMenuItem({
+        id: 'search_allEngines',
+        title: getText('menuItemTitle_allEngines'),
+        contexts,
+        urlPatterns,
+        icons: setIcons && getEngineMenuIcon('allEngines')
+      });
+
+      if (!env.isSamsung) {
+        // Samsung Internet: separator not visible, creates gap that responds to input.
+        createMenuItem({
+          id: 'sep-2',
+          contexts,
+          type: 'separator',
+          urlPatterns
+        });
+      }
     }
 
     enEngines.forEach(function (engine) {
@@ -500,8 +520,9 @@ async function searchImage(session, image, firstBatchItem = true) {
 
     await searchEngine(session, search, img, imgId, tabActive);
 
-    if (firstEngine && session.searchMode === 'browse') {
+    if (firstEngine && session.closeSourceTab) {
       await browser.tabs.remove(session.sourceTabId);
+      session.sourceTabId = -1;
       session.sourceTabIndex -= 1;
     }
 
@@ -667,7 +688,11 @@ async function handleParseResults(session, images) {
   } else if (images.length > 1) {
     await openContentView({session, images}, 'confirm');
   } else {
-    await initSearch(session, images);
+    if (session.sessionType === 'search') {
+      await initSearch(session, images);
+    } else if (session.sessionType === 'view') {
+      await viewImage(session, images[0]);
+    }
   }
 }
 
@@ -686,21 +711,19 @@ async function onContextMenuItemClick(info, tab) {
     sourceTabIndex: tab.index,
     sourceFrameId: typeof info.frameId !== 'undefined' ? info.frameId : 0
   };
-  if (sessionType === 'share') {
-    sessionData.searchMode = 'selectImage';
-  } else if (sessionType === 'search') {
+  if (sessionType === 'search') {
     sessionData.engine = engine;
   }
 
   const session = await createSession(sessionData);
 
-  if (sessionType === 'share') {
+  if (['view', 'share'].includes(sessionType)) {
     if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
       await showNotification({messageId: 'error_scriptsNotAllowed'});
     } else {
       await searchClickTarget(session);
     }
-  } else {
+  } else if (sessionType === 'search') {
     if (session.searchMode === 'capture') {
       await openContentView({session}, 'capture');
     } else {
@@ -729,6 +752,7 @@ async function onActionClick(session, tabUrl) {
       receipts: {expected: 1, received: 0},
       expiryTime: 1.0
     });
+
     await createTab({
       url: `${browseUrl}?id=${storageId}`,
       index: session.sourceTabIndex + 1,
@@ -761,6 +785,7 @@ async function onActionButtonClick(tab) {
 
   const session = await createSession({
     sessionOrigin: 'action',
+    sessionType: 'search',
     sourceTabId: tab.id,
     sourceTabIndex: tab.index
   });
@@ -801,17 +826,17 @@ async function onActionPopupClick(engine, images, imageUrl) {
 
   const session = await createSession({
     sessionOrigin: 'action',
+    sessionType: 'search',
     searchMode: searchModeAction,
     sourceTabId: tab.id,
     sourceTabIndex: tab.index,
     engine
   });
 
-  if (searchModeAction === 'url') {
-    await initSearch(session, {imageUrl});
-  } else if (searchModeAction === 'browse' && images) {
-    session.searchMode = 'selectImage';
+  if (searchModeAction === 'browse' && images) {
     await initSearch(session, images);
+  } else if (searchModeAction === 'url' && imageUrl) {
+    await initSearch(session, {imageUrl});
   } else {
     onActionClick(session, tab.url);
   }
@@ -823,7 +848,6 @@ async function initShare() {
   const session = await createSession({
     sessionOrigin: 'action',
     sessionType: 'share',
-    searchMode: 'selectImage',
     sourceTabId: tab.id,
     sourceTabIndex: tab.index
   });
@@ -833,6 +857,43 @@ async function initShare() {
   if (await hasBaseModule(session.sourceTabId)) {
     await showContentSelectionPointer(session.sourceTabId);
   }
+}
+
+async function initView() {
+  const tab = await getActiveTab();
+
+  const session = await createSession({
+    sessionOrigin: 'action',
+    sessionType: 'view',
+    sourceTabId: tab.id,
+    sourceTabIndex: tab.index
+  });
+
+  await openContentView({session}, 'select');
+
+  if (await hasBaseModule(session.sourceTabId)) {
+    await showContentSelectionPointer(session.sourceTabId);
+  }
+}
+
+async function viewImage(session, image) {
+  let tabUrl;
+
+  if (image.hasOwnProperty('imageDataUrl')) {
+    const storageId = await registry.addStorageItem(image, {
+      receipts: {expected: 1, received: 0},
+      expiryTime: 1.0,
+      area: 'indexeddb'
+    });
+
+    tabUrl = `${browser.runtime.getURL(
+      '/src/view/index.html'
+    )}?id=${storageId}`;
+  } else {
+    tabUrl = image.imageUrl;
+  }
+
+  await browser.tabs.create({url: tabUrl, index: session.sourceTabIndex + 1});
 }
 
 async function setContextMenu() {
@@ -917,8 +978,11 @@ async function processMessage(request, sender) {
   } else if (request.id === 'actionPopupSubmit') {
     onActionPopupClick(request.engine, request.images, request.imageUrl);
   } else if (request.id === 'imageBrowseSubmit') {
-    request.session.sourceTabId = sender.tab.id;
-    initSearch(request.session, request.images);
+    const session = request.session;
+    session.sourceTabId = sender.tab.id;
+    session.sourceTabIndex = sender.tab.index;
+
+    initSearch(session, request.images);
   } else if (request.id === 'imageSelectionSubmit') {
     hideContentSelectionPointer(sender.tab.id);
     searchClickTarget(request.session);
@@ -929,7 +993,11 @@ async function processMessage(request, sender) {
       {frameId: 0}
     );
 
-    initSearch(request.session, request.image);
+    if (request.session.sessionType === 'search') {
+      await initSearch(request.session, request.image);
+    } else if (request.session.sessionType === 'view') {
+      await viewImage(request.session, request.image);
+    }
   } else if (request.id === 'imageCaptureSubmit') {
     const tabId = sender.tab.id;
     browser.tabs.sendMessage(
@@ -956,6 +1024,8 @@ async function processMessage(request, sender) {
     handleParseResults(request.session, request.images);
   } else if (request.id === 'initShare') {
     initShare();
+  } else if (request.id === 'initView') {
+    initView();
   } else if (request.id === 'pageParseError') {
     if (request.session.sessionOrigin === 'action') {
       browser.tabs.sendMessage(

@@ -34,11 +34,13 @@ const pseudoSelectors = ['::before', '::after'];
 const replacedElements = ['img', 'video', 'iframe', 'embed'];
 const rxCssUrl = /url\s*\(\s*(?:"(.*?)"|'(.*?)'|(.*?))\s*\)/gi;
 
-async function downloadImage(url) {
+async function downloadImage(url, {credentials = false} = {}) {
   let imageBlob;
 
-  if (new URL(url).origin === window.location.origin) {
-    imageBlob = await fetchImage(url, {credentials: true});
+  const sameOrigin = new URL(url).origin === window.location.origin;
+
+  if (sameOrigin) {
+    imageBlob = await fetchImage(url);
   }
 
   if (!imageBlob) {
@@ -56,7 +58,7 @@ async function downloadImage(url) {
         url
       });
 
-      imageBlob = await fetchImage(url, {credentials: true, token});
+      imageBlob = await fetchImage(url, {credentials, token});
 
       if (!imageBlob) {
         imageBlob = await fetchImageFromBackgroundScript(url);
@@ -104,22 +106,16 @@ async function parseNode(node, session) {
   const nodeName = node.nodeName.toLowerCase();
 
   if (nodeName === 'img') {
-    if (node.currentSrc) {
-      results.push({data: node.currentSrc});
-    }
+    const credentials = node.crossOrigin === 'use-credentials';
 
     if (session.options.detectAltImageDimension) {
-      if (node.src) {
-        results.push({data: node.src});
-      }
-
       if (node.srcset) {
         const urls = getSrcsetUrls(node.srcset);
 
-        for (const url of urls) {
+        for (const url of urls.reverse()) {
           const absUrl = getAbsoluteUrl(url);
           if (absUrl) {
-            results.push({data: absUrl});
+            results.push({data: absUrl, credentials});
           }
         }
       }
@@ -129,13 +125,25 @@ async function parseNode(node, session) {
 
         for (const source of sourceNodes) {
           const urls = getSrcsetUrls(source.srcset);
-          for (const url of urls) {
+          for (const url of urls.reverse()) {
             const absUrl = getAbsoluteUrl(url);
             if (absUrl) {
-              results.push({data: absUrl});
+              results.push({data: absUrl, credentials});
             }
           }
         }
+      }
+
+      if (node.currentSrc) {
+        results.push({data: node.currentSrc, credentials});
+      }
+
+      if (node.src) {
+        results.push({data: node.src, credentials});
+      }
+    } else {
+      if (node.currentSrc) {
+        results.push({data: node.currentSrc, credentials});
       }
     }
   } else if (nodeName === 'image') {
@@ -256,8 +264,10 @@ async function processResults(results, session) {
   if (httpUrls.length) {
     const mustDownloadAllUrls =
       session.sessionType === 'share' ||
-      session.searchMode === 'selectImage' ||
-      !(await hasUrlSupport(session.engines));
+      (session.sessionType === 'view' && session.options.viewImageUseViewer) ||
+      (session.sessionType === 'search' &&
+        (session.searchMode === 'selectImage' ||
+          !(await hasUrlSupport(session.engines))));
 
     for (const item of httpUrls) {
       let url = item.data;
@@ -265,15 +275,18 @@ async function processResults(results, session) {
 
       const mustDownloadUrl =
         mustDownloadAllUrls ||
-        session.engines.some(engine => !imageTypeSupport(imageType, engine));
+        (session.sessionType === 'search' &&
+          session.engines.some(engine => !imageTypeSupport(imageType, engine)));
 
       if (mustDownloadUrl) {
-        let blob = await downloadImage(url);
+        let blob = await downloadImage(url, {credentials: item.credentials});
 
         if (!blob && window.isSecureContext && url.match(/^http:/i)) {
           url = url.replace(/^http:/i, 'https:');
-          blob = await downloadImage(url);
+          blob = await downloadImage(url, {credentials: item.credentials});
         }
+
+        let processedResult;
 
         if (blob) {
           const file = await dataToImage({blob, name: filename});
@@ -282,12 +295,20 @@ async function processResults(results, session) {
             const image = await processImage(file);
 
             if (image) {
-              results[results.indexOf(item)] = {imageUrl: url, ...image};
+              processedResult = {imageUrl: url, ...image};
             }
           }
         }
+
+        if (!processedResult && session.sessionType === 'view') {
+          processedResult = {imageUrl: url, imageType};
+        }
+
+        if (processedResult) {
+          results[results.indexOf(item)] = processedResult;
+        }
       } else {
-        results[results.indexOf(item)] = {imageUrl: url};
+        results[results.indexOf(item)] = {imageUrl: url, imageType};
       }
     }
   }
@@ -320,18 +341,15 @@ async function parseDocument({root = null, touchRect = null, session} = {}) {
       continue;
     }
 
-    results.push(...(await parseNode(currentNode, session)));
+    results.push(await parseNode(currentNode, session));
 
     const shadowRoot = getShadowRoot(currentNode);
-
     if (shadowRoot) {
-      results.push(
-        ...(await parseDocument({root: shadowRoot, touchRect, session}))
-      );
+      results.push(await parseDocument({root: shadowRoot, touchRect, session}));
     }
   }
 
-  return results;
+  return results.reverse().flat();
 }
 
 async function parse(session) {
@@ -371,7 +389,7 @@ async function parse(session) {
     };
 
     results.push(
-      ...(await parseDocument({root: document, touchRect, session})).reverse()
+      ...(await parseDocument({root: document, touchRect, session}))
     );
   }
 

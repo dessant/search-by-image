@@ -65,6 +65,17 @@
           >
           </v-select>
         </div>
+        <div class="option">
+          <v-form-field
+            input-id="vicm"
+            :label="getText('optionTitle_viewImageContextMenu')"
+          >
+            <v-switch
+              id="vicm"
+              v-model:checked="options.viewImageContextMenu"
+            ></v-switch>
+          </v-form-field>
+        </div>
         <div class="option" v-if="shareEnabled">
           <v-form-field
             input-id="sicm"
@@ -107,6 +118,17 @@
             outlined
           >
           </v-select>
+        </div>
+        <div class="option">
+          <v-form-field
+            input-id="via"
+            :label="getText('optionTitle_viewImageAction')"
+          >
+            <v-switch
+              id="via"
+              v-model:checked="options.viewImageAction"
+            ></v-switch>
+          </v-form-field>
         </div>
         <div class="option" v-if="shareEnabled">
           <v-form-field
@@ -182,6 +204,17 @@
             <v-switch
               id="csi"
               v-model:checked="options.convertSharedImage"
+            ></v-switch>
+          </v-form-field>
+        </div>
+        <div class="option">
+          <v-form-field
+            input-id="viuv"
+            :label="getText('optionTitle_viewImageUseViewer')"
+          >
+            <v-switch
+              id="viuv"
+              v-model:checked="options.viewImageUseViewer"
             ></v-switch>
           </v-form-field>
         </div>
@@ -307,7 +340,10 @@ export default {
         convertSharedImage: false,
         autoPasteAction: false,
         confirmPaste: false,
-        detectAltImageDimension: false
+        detectAltImageDimension: false,
+        viewImageContextMenu: false,
+        viewImageAction: false,
+        viewImageUseViewer: false
       }
     };
   },

@@ -29,18 +29,17 @@
         </picture>
 
         <div class="image-details" v-if="imagesLoaded">
-          <div class="image-size">
-            <div
-              class="image-size-icons"
-              v-if="
-                largestImageDimension &&
-                (img.imageWidth === largestImageWidth ||
-                  img.imageHeight === largestImageHeight ||
-                  img.imageDimension === largestImageDimension)
-              "
-            >
+          <template
+            v-if="
+              largestImageDimension &&
+              (img.imageWidth === largestImageWidth ||
+                img.imageHeight === largestImageHeight ||
+                img.imageDimension === largestImageDimension)
+            "
+          >
+            <div class="image-dimension-icon-container">
               <img
-                class="image-size-icon"
+                class="image-dimension-icon"
                 src="/src/assets/icons/misc/largest-image-width.svg"
                 v-if="
                   img.imageWidth === largestImageWidth &&
@@ -48,7 +47,7 @@
                 "
               />
               <img
-                class="image-size-icon"
+                class="image-dimension-icon"
                 src="/src/assets/icons/misc/largest-image-height.svg"
                 v-if="
                   img.imageHeight === largestImageHeight &&
@@ -56,16 +55,25 @@
                 "
               />
               <img
-                class="image-size-icon"
+                class="image-dimension-icon"
                 src="/src/assets/icons/misc/largest-image-dimension.svg"
                 v-if="img.imageDimension === largestImageDimension"
               />
             </div>
+            <div class="image-data-separator">•</div>
+          </template>
 
-            <div class="image-size-text" v-if="img.imageWidth">
-              {{ img.imageWidth }} × {{ img.imageHeight }}
+          <template
+            v-for="(detail, detailIndex) in filterImageDetails(
+              img.imageDetails
+            )"
+            :key="detailIndex"
+          >
+            <div class="image-data-separator" v-if="detailIndex">•</div>
+            <div :class="{[`image-${detail.kind}-text`]: true}">
+              {{ detail.text }}
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -76,7 +84,11 @@
 import {markRaw} from 'vue';
 import {Dialog} from 'ext-components';
 
-import {shareImage} from 'utils/app';
+import {
+  shareImage,
+  getFormattedImageDetails,
+  isPreviewImageValid
+} from 'utils/app';
 import {getText} from 'utils/common';
 
 export default {
@@ -93,8 +105,26 @@ export default {
       imagesLoaded: false,
       largestImageWidth: 0,
       largestImageHeight: 0,
-      largestImageDimension: 0
+      largestImageDimension: 0,
+      largestImageIndex: null,
+
+      minWidthViewport: false
     };
+  },
+
+  computed: {
+    separatorClasses: function () {
+      return {
+        visible: this.searchAllEngines || this.hasScrollBar
+      };
+    },
+    showSettings: function () {
+      return (
+        this.searchModeAction === 'url' ||
+        (this.searchModeAction === 'browse' &&
+          (this.browseEnabled || this.pasteEnabled))
+      );
+    }
   },
 
   rawData: {
@@ -164,38 +194,52 @@ export default {
     setImagesLoaded: function () {
       const imagesLoaded = this.previewImages.every(image => image.imageLoaded);
 
-      if (imagesLoaded) {
-        this.setImageDimensions();
+      if (imagesLoaded && !this.imagesLoaded) {
+        this.setImageDetails();
+        this.focusPreviewImage();
 
         this.imagesLoaded = true;
       }
     },
 
-    setImageDimensions: function () {
+    setImageDetails: function () {
       for (const node of document.querySelectorAll('.preview-images .image')) {
-        if (/^(?:data|https?):/i.test(node.currentSrc.slice(0, 6))) {
-          const width = node.naturalWidth;
-          const height = node.naturalHeight;
+        const index = node.dataset.index;
+        const img = this.previewImages[index];
 
-          const image = this.previewImages[node.dataset.index];
+        if (isPreviewImageValid(node)) {
+          img.imageWidth = node.naturalWidth;
+          img.imageHeight = node.naturalHeight;
+          img.imageDimension = img.imageWidth * img.imageHeight;
 
-          image.imageDimension = width * height;
-          image.imageWidth = width;
-          image.imageHeight = height;
-
-          if (image.imageDimension > this.largestImageDimension) {
-            this.largestImageDimension = image.imageDimension;
+          if (img.imageDimension > this.largestImageDimension) {
+            this.largestImageDimension = img.imageDimension;
+            this.largestImageIndex = index;
           }
 
-          if (image.imageWidth > this.largestImageWidth) {
-            this.largestImageWidth = image.imageWidth;
+          if (img.imageWidth > this.largestImageWidth) {
+            this.largestImageWidth = img.imageWidth;
           }
 
-          if (image.imageHeight > this.largestImageHeight) {
-            this.largestImageHeight = image.imageHeight;
+          if (img.imageHeight > this.largestImageHeight) {
+            this.largestImageHeight = img.imageHeight;
           }
         }
+
+        img.imageDetails = getFormattedImageDetails({
+          width: img.imageWidth,
+          height: img.imageHeight,
+          size: img.image.imageSize,
+          type: img.image.imageType,
+          iecSize: !this.$env.isWindows
+        });
       }
+    },
+
+    filterImageDetails: function (details) {
+      return details.filter(item =>
+        item.kind === 'size' && !this.minWidthViewport ? false : true
+      );
     },
 
     addPreviewImages: function (images) {
@@ -204,8 +248,19 @@ export default {
         imageWidth: 0,
         imageHeight: 0,
         imageDimension: 0,
-        imageLoaded: false
+        imageLoaded: false,
+        imageDetails: []
       }));
+    },
+
+    focusPreviewImage: function () {
+      const node = document.querySelector(
+        this.largestImageIndex !== null
+          ? `.tile-container[data-index="${this.largestImageIndex}"]`
+          : '.tile-container'
+      );
+
+      window.setTimeout(() => node.focus(), 300);
     },
 
     openDialog: function () {
@@ -216,6 +271,16 @@ export default {
       this.showDialog = false;
     },
 
+    initResizeObservers: function () {
+      const mql = window.matchMedia('(min-width: 400px)');
+      mql.addEventListener('change', this.setMinWidthViewport);
+      this.setMinWidthViewport(mql);
+    },
+
+    setMinWidthViewport: function (ev) {
+      this.minWidthViewport = ev.matches;
+    },
+
     setup: function (session, images) {
       this.previewImages = [];
 
@@ -223,6 +288,7 @@ export default {
       this.largestImageWidth = 0;
       this.largestImageHeight = 0;
       this.largestImageDimension = 0;
+      this.largestImageIndex = null;
 
       this.$options.rawData.session = session;
 
@@ -248,6 +314,10 @@ export default {
     }
   },
 
+  created: function () {
+    this.initResizeObservers();
+  },
+
   mounted: function () {
     this.init();
   }
@@ -261,6 +331,7 @@ export default {
 @import '@material/typography/mixins';
 
 body {
+  margin: 0;
   @include mdc-typography-base;
   font-size: 100%;
 }
@@ -270,18 +341,25 @@ body {
   flex-wrap: wrap;
   gap: 16px;
 
-  max-width: calc(200px + 24px);
-  @media (min-width: 520px) {
-    max-width: calc(416px + 24px);
+  max-width: 248px;
+  @media (min-width: 400px) {
+    max-width: 320px;
   }
-  @media (min-width: 736px) {
-    max-width: calc(632px + 24px);
+  @media (min-width: 760px) {
+    max-width: 680px;
+  }
+  @media (min-width: 1096px) {
+    max-width: 1016px;
   }
 }
 
 .tile-container {
-  width: 200px;
-  height: 186px;
+  width: 248px;
+  height: 222px;
+  @media (min-width: 400px) {
+    width: 320px;
+    height: 276px;
+  }
   padding: 8px;
   box-sizing: border-box;
   position: relative;
@@ -320,43 +398,54 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 138px;
+  height: 174px;
+  @media (min-width: 400px) {
+    height: 228px;
+  }
 }
 
 .image {
   display: flex;
   object-fit: scale-down;
   max-width: 100%;
-  max-height: 138px;
+  max-height: 174px;
+  @media (min-width: 400px) {
+    max-height: 228px;
+  }
 }
 
 .image-details {
-  margin-top: 8px;
-}
-
-.image-size {
   display: flex;
   align-items: center;
-  column-gap: 8px;
+  justify-content: center;
+  column-gap: 6px;
+  margin-top: 8px;
+  max-width: 100%;
   height: 24px;
 }
 
-.image-size-icons {
+.image-dimension-icon-container {
   display: flex;
   align-items: center;
-  column-gap: 4px;
+  column-gap: 3px;
 }
 
-.image-size-icon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.8;
+.image-dimension-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
 }
 
-.image-size-text {
+.image-dimension-text,
+.image-size-text,
+.image-type-text,
+.image-data-separator {
   @include mdc-typography(caption);
-  overflow: hidden;
   white-space: nowrap;
+}
+
+.image-type-text {
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -368,6 +457,10 @@ body {
 
 .mdc-dialog__title {
   @include mdc-theme-prop(color, #252525);
+}
+
+.mdc-dialog__content {
+  padding-bottom: 9px !important;
 }
 
 .mdc-dialog__button {

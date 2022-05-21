@@ -204,7 +204,7 @@ async function initSearch(searchFn, engine, taskId) {
       } else {
         await sendReceipt(storageIds);
 
-        showEngineError({errorId: 'error_sessionExpired', engine});
+        showEngineError({errorId: 'error_sessionExpiredEngine', engine});
       }
     } catch (err) {
       await sendReceipt(storageIds);
@@ -215,7 +215,7 @@ async function initSearch(searchFn, engine, taskId) {
       throw err;
     }
   } else {
-    showEngineError({errorId: 'error_sessionExpired', engine});
+    showEngineError({errorId: 'error_sessionExpiredEngine', engine});
   }
 }
 
