@@ -4,9 +4,14 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'istock';
 
 async function search({session, search, image, storageIds}) {
-  (await findNode('button[class*="SearchByImageButton"]')).click();
+  (
+    await Promise.race([
+      findNode('button[class*="SearchByImageButton"]'),
+      findNode('.search-bar__camera a.search-camera-icon') // new layout
+    ])
+  ).click();
 
-  const inputSelector = 'input[type=file][data-testid="drag-drop-input"]';
+  const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
