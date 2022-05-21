@@ -20,7 +20,11 @@ module.exports = function (api) {
 
   const plugins = [];
 
-  const ignore = [/node_modules\/(?!(ext-components|ext-contribute|wesa)\/).*/];
+  const ignore = [
+    new RegExp(
+      `node_modules\\${path.sep}(?!(ext-components|ext-contribute|wesa)\\${path.sep}).*`
+    )
+  ];
 
   const parserOpts = {plugins: ['importAssertions']};
 
