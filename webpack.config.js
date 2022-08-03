@@ -129,7 +129,8 @@ module.exports = {
           {
             loader: 'vue-loader',
             options: {
-              transformAssetUrls: {img: ''}
+              transformAssetUrls: {img: ''},
+              compilerOptions: {whitespace: 'preserve'}
             }
           }
         ]
