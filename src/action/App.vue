@@ -459,10 +459,13 @@ export default {
       const currentTab = await browser.tabs.getCurrent();
 
       // Safari 14: tabs.getCurrent returns active tab instead of undefined.
+      // Samsung Internet 18: tabs.getCurrent returns a tab
+      // instead of undefined, and tab.id refers to a nonexistent tab.
       if (
         currentTab &&
         currentTab.id !== browser.tabs.TAB_ID_NONE &&
-        !this.$env.isSafari
+        !this.$env.isSafari &&
+        !this.$env.isSamsung
       ) {
         browser.tabs.remove(currentTab.id);
       } else {

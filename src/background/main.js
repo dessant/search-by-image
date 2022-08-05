@@ -1068,9 +1068,13 @@ async function processMessage(request, sender) {
   if (
     targetEnv === 'samsung' &&
     sender.tab &&
-    sender.tab.id !== browser.tabs.TAB_ID_NONE
+    sender.tab.id !== browser.tabs.TAB_ID_NONE &&
+    !/^internet-extension:\/\/.*\/src\/action\/index.html/.test(sender.tab.url)
   ) {
     // Samsung Internet 13: runtime.onMessage provides wrong tab index.
+    // Samsung Internet 18: runtime.onMessage provides sender.tab
+    // when the message is sent from the browser action,
+    // and tab.id refers to a nonexistent tab.
     sender.tab = await browser.tabs.get(sender.tab.id);
   }
 
