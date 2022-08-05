@@ -26,14 +26,17 @@ import {
   showNotification,
   showContributePage,
   captureImage,
-  validateUrl,
   hasBaseModule,
   insertBaseModule,
   fetchImage,
   isContextMenuSupported,
   checkSearchEngineAccess,
   getEngineMenuIcon,
-  convertProcessedImage
+  convertProcessedImage,
+  canShare,
+  getExtensionUrlPattern,
+  getImageUrlFromContextMenuEvent,
+  processImageUrl
 } from 'utils/app';
 import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
@@ -201,20 +204,28 @@ function createMenuItem({
   contexts,
   parent,
   type = 'normal',
-  urlPatterns,
+  documentUrlPatterns,
+  targetUrlPatterns,
   icons
 }) {
   const params = {
     id,
     title,
     contexts,
-    documentUrlPatterns: urlPatterns,
     parentId: parent,
     type
   };
+
+  if (documentUrlPatterns) {
+    params.documentUrlPatterns = documentUrlPatterns;
+  }
+  if (targetUrlPatterns) {
+    params.targetUrlPatterns = targetUrlPatterns;
+  }
   if (icons) {
     params.icons = icons;
   }
+
   // creates context menu item for current instance
   browser.contextMenus.create(params, onComplete);
 }
@@ -224,7 +235,6 @@ async function createMenu() {
 
   const options = await storage.get(optionKeys);
 
-  const enEngines = await getEnabledEngines(options);
   const contexts = [
     'audio',
     'editable',
@@ -240,55 +250,92 @@ async function createMenu() {
   if (!env.isAndroid) {
     contexts.push('page');
   }
-  const urlPatterns = ['http://*/*', 'https://*/*'];
+
+  const documentUrlPatterns = ['http://*/*', 'https://*/*'];
   if (!['safari', 'samsung'].includes(targetEnv)) {
-    urlPatterns.push('file:///*');
+    documentUrlPatterns.push('file:///*');
   }
+
+  const extUrlPattern = getExtensionUrlPattern();
   const setIcons = env.isFirefox;
   const searchAllEngines =
     !env.isSamsung && options.searchAllEnginesContextMenu;
   const viewEnabled = options.viewImageContextMenu;
-  const shareEnabled =
-    options.shareImageContextMenu &&
-    (env.isSafari || ((env.isWindows || env.isAndroid) && !env.isFirefox));
+  const shareEnabled = options.shareImageContextMenu && canShare(env);
+
+  const enEngines = await getEnabledEngines(options);
 
   if (enEngines.length === 1) {
     const engine = enEngines[0];
+    const title = getText(
+      'mainMenuItemTitle_engine',
+      getText(`menuItemTitle_${engine}`)
+    );
+
     createMenuItem({
-      id: `search_${engine}`,
-      title: getText(
-        'mainMenuItemTitle_engine',
-        getText(`menuItemTitle_${engine}`)
-      ),
+      id: `search_${engine}_1`,
+      title,
       contexts,
-      urlPatterns
+      documentUrlPatterns
     });
+
+    if (extUrlPattern) {
+      createMenuItem({
+        id: `search_${engine}_2`,
+        title,
+        contexts: ['image'],
+        documentUrlPatterns: [extUrlPattern]
+      });
+    }
   } else if (enEngines.length > 1 && searchAllEngines === 'main') {
+    const title = getText('mainMenuItemTitle_allEngines');
+
     createMenuItem({
-      id: 'search_allEngines',
-      title: getText('mainMenuItemTitle_allEngines'),
+      id: 'search_allEngines_1',
+      title,
       contexts,
-      urlPatterns
+      documentUrlPatterns
     });
+
+    if (extUrlPattern) {
+      createMenuItem({
+        id: 'search_allEngines_2',
+        title,
+        contexts: ['image'],
+        documentUrlPatterns: [extUrlPattern]
+      });
+    }
   } else if (enEngines.length > 1) {
     let addSeparator = false;
 
     if (viewEnabled) {
+      const title = getText('menuItemTitle_viewImage');
+
       createMenuItem({
-        id: 'view',
-        title: getText('menuItemTitle_viewImage'),
+        id: 'view_1',
+        title,
         contexts,
-        urlPatterns
+        documentUrlPatterns
       });
+
+      if (extUrlPattern) {
+        createMenuItem({
+          id: 'view_2',
+          title,
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern]
+        });
+      }
+
       addSeparator = true;
     }
 
     if (shareEnabled) {
       createMenuItem({
-        id: 'share',
+        id: 'share_1',
         title: getText('menuItemTitle_shareImage'),
         contexts,
-        urlPatterns
+        documentUrlPatterns
       });
       addSeparator = true;
     }
@@ -296,41 +343,85 @@ async function createMenu() {
     if (addSeparator && !env.isSamsung) {
       // Samsung Internet: separator not visible, creates gap that responds to input.
       createMenuItem({
-        id: 'sep-1',
+        id: 'sep_1',
         contexts,
         type: 'separator',
-        urlPatterns
-      });
-    }
-
-    if (searchAllEngines === 'sub') {
-      createMenuItem({
-        id: 'search_allEngines',
-        title: getText('menuItemTitle_allEngines'),
-        contexts,
-        urlPatterns,
-        icons: setIcons && getEngineMenuIcon('allEngines')
+        documentUrlPatterns
       });
 
-      if (!env.isSamsung) {
-        // Samsung Internet: separator not visible, creates gap that responds to input.
+      if (extUrlPattern) {
         createMenuItem({
-          id: 'sep-2',
-          contexts,
+          id: 'sep_2',
           type: 'separator',
-          urlPatterns
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern]
         });
       }
     }
 
-    enEngines.forEach(function (engine) {
+    if (searchAllEngines === 'sub') {
+      const title = getText('menuItemTitle_allEngines');
+      const icons = setIcons && getEngineMenuIcon('allEngines');
+
       createMenuItem({
-        id: `search_${engine}`,
-        title: getText(`menuItemTitle_${engine}`),
+        id: 'search_allEngines_1',
+        title,
         contexts,
-        urlPatterns,
-        icons: setIcons && getEngineMenuIcon(engine)
+        documentUrlPatterns,
+        icons
       });
+
+      if (extUrlPattern) {
+        createMenuItem({
+          id: 'search_allEngines_2',
+          title,
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern],
+          icons
+        });
+      }
+
+      if (!env.isSamsung) {
+        // Samsung Internet: separator not visible, creates gap that responds to input.
+        createMenuItem({
+          id: 'sep_3',
+          contexts,
+          type: 'separator',
+          documentUrlPatterns
+        });
+
+        if (extUrlPattern) {
+          createMenuItem({
+            id: 'sep_4',
+            type: 'separator',
+            contexts: ['image'],
+            documentUrlPatterns: [extUrlPattern]
+          });
+        }
+      }
+    }
+
+    enEngines.forEach(function (engine) {
+      const title = getText(`menuItemTitle_${engine}`);
+      const icons = setIcons && getEngineMenuIcon(engine);
+
+      createMenuItem({
+        id: `search_${engine}_1`,
+        title,
+        contexts,
+        documentUrlPatterns,
+        icons
+      });
+
+      if (extUrlPattern) {
+        createMenuItem({
+          id: `search_${engine}_2`,
+          title,
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern],
+          icons
+        });
+      }
     });
   }
 }
@@ -717,7 +808,25 @@ async function onContextMenuItemClick(info, tab) {
 
   const session = await createSession(sessionData);
 
-  if (['view', 'share'].includes(sessionType)) {
+  if (sessionType === 'view') {
+    if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
+      let processedImage;
+
+      const url = getImageUrlFromContextMenuEvent(info);
+
+      if (url) {
+        processedImage = await processImageUrl(url, {session});
+      }
+
+      if (processedImage) {
+        await viewImage(session, processedImage);
+      } else {
+        await showNotification({messageId: 'error_scriptsNotAllowed'});
+      }
+    } else {
+      await searchClickTarget(session);
+    }
+  } else if (sessionType === 'share') {
     if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
       await showNotification({messageId: 'error_scriptsNotAllowed'});
     } else {
@@ -728,19 +837,22 @@ async function onContextMenuItemClick(info, tab) {
       await openContentView({session}, 'capture');
     } else {
       if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
-        if (
-          info.srcUrl &&
-          info.mediaType === 'image' &&
-          validateUrl(info.srcUrl)
-        ) {
-          await initSearch(session, {imageUrl: info.srcUrl});
+        let processedImage;
+
+        const url = getImageUrlFromContextMenuEvent(info);
+
+        if (url) {
+          processedImage = await processImageUrl(url, {session});
+        }
+
+        if (processedImage) {
+          await initSearch(session, processedImage);
         } else {
           await showNotification({messageId: 'error_scriptsNotAllowed'});
         }
-        return;
+      } else {
+        await searchClickTarget(session);
       }
-
-      await searchClickTarget(session);
     }
   }
 }
@@ -1041,7 +1153,7 @@ async function processMessage(request, sender) {
       referrer: request.referrer
     });
   } else if (request.id === 'fetchImage') {
-    const imageBlob = await fetchImage(request.url, {credentials: true});
+    const imageBlob = await fetchImage(request.url);
     const imageDataUrl = imageBlob && (await blobToDataUrl(imageBlob));
     return Promise.resolve(imageDataUrl);
   } else if (request.id === 'notification') {

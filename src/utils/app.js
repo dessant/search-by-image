@@ -229,15 +229,13 @@ async function showSupportPage() {
   await createTab({url: supportUrl, index: activeTab.index + 1});
 }
 
-function validateUrl(url) {
+function validateUrl(url, {allowDataUrl = false} = {}) {
   try {
-    if (url.length > 2048) {
-      return;
+    if (allowDataUrl && url.startsWith('data:')) {
+      return true;
     }
 
-    const parsedUrl = new URL(url);
-
-    if (/^https?:$/i.test(parsedUrl.protocol)) {
+    if (url.length <= 2048 && /^https?:$/i.test(new URL(url).protocol)) {
       return true;
     }
   } catch (err) {}
@@ -1081,6 +1079,76 @@ function isPreviewImageValid(node) {
   return /^(?:data|https?):/i.test(node.currentSrc.slice(0, 6));
 }
 
+function getExtensionUrlPattern() {
+  try {
+    const {protocol} = new URL(
+      browser.runtime.getURL('/src/background/index.html')
+    );
+
+    return `${protocol}//*/*`;
+  } catch (err) {}
+
+  return null;
+}
+
+function getImageUrlFromContextMenuEvent(ev) {
+  if (
+    ev.mediaType === 'image' &&
+    validateUrl(ev.srcUrl, {allowDataUrl: true})
+  ) {
+    return ev.srcUrl;
+  }
+}
+
+async function processImageUrl(url, {session, mustDownloadUrl = false} = {}) {
+  let processedImage;
+
+  if (url.startsWith('data:')) {
+    const file = await dataToImage({dataUrl: url});
+
+    if (file) {
+      const image = await processImage(file);
+
+      if (image) {
+        processedImage = image;
+      }
+    }
+  } else {
+    const {name: filename, type: imageType} = getDataFromImageUrl(url);
+
+    mustDownloadUrl =
+      mustDownloadUrl ||
+      session.sessionType === 'share' ||
+      (session.sessionType === 'view' && session.options.viewImageUseViewer) ||
+      (session.sessionType === 'search' &&
+        (session.searchMode === 'selectImage' ||
+          !(await hasUrlSupport(session.engines)) ||
+          session.engines.some(
+            engine => !imageTypeSupport(imageType, engine)
+          )));
+
+    if (mustDownloadUrl) {
+      const blob = await fetchImage(url);
+
+      if (blob) {
+        const file = await dataToImage({blob, name: filename});
+
+        if (file) {
+          const image = await processImage(file);
+
+          if (image) {
+            processedImage = {imageUrl: url, ...image};
+          }
+        }
+      }
+    } else {
+      processedImage = {imageUrl: url, imageType};
+    }
+  }
+
+  return processedImage;
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1141,5 +1209,8 @@ export {
   getFormattedImageDimension,
   getFormattedImageSize,
   getFormattedImageType,
-  isPreviewImageValid
+  isPreviewImageValid,
+  getExtensionUrlPattern,
+  getImageUrlFromContextMenuEvent,
+  processImageUrl
 };

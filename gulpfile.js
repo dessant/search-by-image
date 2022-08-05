@@ -63,9 +63,7 @@ function css() {
       'src/select/pointer.css',
       'src/engines/css/*.css'
     ],
-    {
-      base: '.'
-    }
+    {base: '.'}
   )
     .pipe(postcss())
     .pipe(dest(distDir));
