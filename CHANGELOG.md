@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/dessant/search-by-image/compare/v5.0.0...v5.1.0) (2022-08-06)
+
+
+### Features
+
+* show context menu items on extension pages ([a90660a](https://github.com/dessant/search-by-image/commit/a90660af994ee86fdba6a8d219fbe626fcaaf6e6)), closes [#195](https://github.com/dessant/search-by-image/issues/195)
+
+
+### Bug Fixes
+
+* ignore tab data related to action popup in Samsung Internet ([b2c8381](https://github.com/dessant/search-by-image/commit/b2c8381e9377e91b7107f202d7669cff9185b8dc))
+* update Adobe Stock ([49a0897](https://github.com/dessant/search-by-image/commit/49a089756ef2823e0cbc14685b7dfba8d7c053b8))
+* update Stocksy ([602dcab](https://github.com/dessant/search-by-image/commit/602dcaba27517259f023897b4438a7cba0387324))
+* update TMview ([36c028e](https://github.com/dessant/search-by-image/commit/36c028e8eb9f545df7d6c253382290b81ef5c93f))
+* update trace.moe ([45a2cd0](https://github.com/dessant/search-by-image/commit/45a2cd0ab21ca9752153597af6b3f02710ad35f6))
+
 ## [5.0.0](https://github.com/dessant/search-by-image/compare/v4.9.0...v5.0.0) (2022-05-21)
 
 
