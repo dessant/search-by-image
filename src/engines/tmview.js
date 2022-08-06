@@ -5,10 +5,11 @@ const engine = 'tmview';
 
 async function search({session, search, image, storageIds}) {
   // previous search may be cached
+  let removeImage = true;
   processNode(
     '.image-remove button',
     function (node) {
-      if (node && !document.querySelector('.area-selection')) {
+      if (node && removeImage) {
         node.click();
       }
     },
@@ -18,11 +19,12 @@ async function search({session, search, image, storageIds}) {
   const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
 
+  removeImage = false;
   await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change', {bubbles: true}));
 
-  await findNode('.image-tools');
+  await findNode('.image-remove button');
 
   await sendReceipt(storageIds);
 
