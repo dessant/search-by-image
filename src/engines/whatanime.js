@@ -1,19 +1,17 @@
 import {findNode} from 'utils/common';
-import {initSearch, sendReceipt} from 'utils/engines';
-import {convertImage} from 'utils/app';
+import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'whatanime';
 
 async function search({session, search, image, storageIds}) {
-  const convImageDataUrl = await convertImage(image.imageDataUrl, {
-    type: 'image/jpeg',
-    maxSize: 640
-  });
+  const inputSelector = 'input[type=file]';
+  const input = await findNode(inputSelector);
+
+  await setFileInputData(inputSelector, input, image);
 
   await sendReceipt(storageIds);
 
-  (await findNode('#autoSearch')).checked = true;
-  (await findNode('#originalImage')).src = convImageDataUrl;
+  input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
 function init() {
