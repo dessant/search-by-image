@@ -251,7 +251,7 @@ const engines = {
   },
   stocksy: {
     image: {
-      target: 'https://www.stocksy.com/search/',
+      target: 'https://www.stocksy.com/',
       isExec: true
     }
   },
