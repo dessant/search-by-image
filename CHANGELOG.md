@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.2.0](https://github.com/dessant/search-by-image/compare/v5.1.0...v5.2.0) (2022-08-14)
+
+
+### Features
+
+* automatically resize large images ([035ae39](https://github.com/dessant/search-by-image/commit/035ae39a79bd9cf65b54fcaeae9e0522e9a084f7)), closes [#203](https://github.com/dessant/search-by-image/issues/203)
+* enable Google Lens in Safari on iOS ([3a2561f](https://github.com/dessant/search-by-image/commit/3a2561f0c8fcca7b5307eab4c0482728901f34a9))
+
 ## [5.1.0](https://github.com/dessant/search-by-image/compare/v5.0.0...v5.1.0) (2022-08-06)
 
 
