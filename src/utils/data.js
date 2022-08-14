@@ -267,36 +267,6 @@ const engines = {
       isExec: true
     }
   },
-  wayfair: {
-    image: {
-      target: 'https://www.wayfair.com/',
-      isExec: true
-    }
-  },
-  birchlane: {
-    image: {
-      target: 'https://www.birchlane.com/',
-      isExec: true
-    }
-  },
-  allmodern: {
-    image: {
-      target: 'https://www.allmodern.com/',
-      isExec: true
-    }
-  },
-  jossandmain: {
-    image: {
-      target: 'https://www.jossandmain.com/',
-      isExec: true
-    }
-  },
-  perigold: {
-    image: {
-      target: 'https://www.perigold.com/',
-      isExec: true
-    }
-  },
   ikea: {
     image: {
       target: 'https://www.ikea.com/',
