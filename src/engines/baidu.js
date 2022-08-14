@@ -1,11 +1,24 @@
 import {validateUrl} from 'utils/app';
 import {findNode, isMobile} from 'utils/common';
-import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
+import {
+  initSearch,
+  prepareImageForUpload,
+  setFileInputData,
+  sendReceipt
+} from 'utils/engines';
 
 const engine = 'baidu';
 
 async function search({session, search, image, storageIds}) {
-  if (await isMobile()) {
+  const mobile = await isMobile();
+
+  image = await prepareImageForUpload({
+    image,
+    engine,
+    target: mobile ? 'api' : 'ui'
+  });
+
+  if (mobile) {
     const data = new FormData();
     data.append('tn', 'pc');
     data.append('from', 'pc');

@@ -156,17 +156,17 @@ async function parseNode(node, session) {
     }
   } else if (nodeName === 'embed') {
     const data = node.src;
-    if (data && (await getImageElement(data))) {
+    if (data && (await getImageElement({url: data}))) {
       results.push({data});
     }
   } else if (nodeName === 'object') {
     const data = node.data;
-    if (data && (await getImageElement(data))) {
+    if (data && (await getImageElement({url: data}))) {
       results.push({data});
     }
   } else if (nodeName === 'iframe') {
     const data = node.src;
-    if (data && !node.srcdoc && (await getImageElement(data))) {
+    if (data && !node.srcdoc && (await getImageElement({url: data}))) {
       results.push({data});
     }
   } else if (nodeName === 'canvas') {

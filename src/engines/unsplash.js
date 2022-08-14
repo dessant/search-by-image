@@ -1,16 +1,27 @@
 import {validateUrl} from 'utils/app';
 import {findNode} from 'utils/common';
-import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
+import {
+  initSearch,
+  prepareImageForUpload,
+  setFileInputData,
+  sendReceipt
+} from 'utils/engines';
 
 const engine = 'unsplash';
 
 async function search({session, search, image, storageIds}) {
   await findNode('div#app > div[data-test=client-side-hydration-complete]');
 
-  // search not available with mobile layout
+  // search UI not available with mobile layout
   const button = document.querySelector(
     'div#popover-visual-search-form-nav > button[title="Visual search"]'
   );
+
+  image = await prepareImageForUpload({
+    image,
+    engine,
+    target: button ? 'ui' : 'api'
+  });
 
   if (button) {
     button.click();

@@ -35,6 +35,7 @@ import {
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
+  maxImageUploadSize,
   supportUrl,
   shareBridgeUrl
 } from 'utils/data';
@@ -296,7 +297,7 @@ async function fileUrlToImage(url) {
   const cnv = document.createElement('canvas');
   const ctx = cnv.getContext('2d');
 
-  const img = await getImageElement(url, {query: true});
+  const img = await getImageElement({url, query: true});
   if (img) {
     let {name, type} = getDataFromImageUrl(url);
     if (!['image/jpeg', 'image/png'].includes(type)) {
@@ -320,7 +321,7 @@ async function blobUrlToImage(url) {
   const cnv = document.createElement('canvas');
   const ctx = cnv.getContext('2d');
 
-  const img = await getImageElement(url, {query: true});
+  const img = await getImageElement({url, query: true});
   if (img) {
     cnv.width = img.naturalWidth;
     cnv.height = img.naturalHeight;
@@ -401,72 +402,155 @@ async function processImages(files) {
   }
 }
 
-async function convertImage(
-  dataUrl,
-  {type = 'image/png', maxSize = Infinity, getBlob = false, force = false} = {}
-) {
-  const img = await getImageElement(dataUrl);
+function getMaxImageDimension({maxSize = Infinity} = {}) {
+  if (!maxSize || maxSize === Infinity) {
+    return Infinity;
+  } else if (maxSize >= 8 * 1024 * 1024) {
+    return 1600;
+  } else if (maxSize >= 4 * 1024 * 1024) {
+    return 1200;
+  } else {
+    return 800;
+  }
+}
 
-  const sw = img.naturalWidth;
-  const sh = img.naturalHeight;
+function limitImageDimensions(sw, sh, {maxDimension = Infinity} = {}) {
   let dw;
   let dh;
 
-  if (sw > maxSize || sh > maxSize) {
+  if (sw > maxDimension || sh > maxDimension) {
     if (sw === sh) {
-      dw = dh = maxSize;
+      dw = dh = maxDimension;
     }
     if (sw > sh) {
-      dw = maxSize;
-      dh = (sh / sw) * maxSize;
+      dw = maxDimension;
+      dh = (sh / sw) * maxDimension;
     }
     if (sw < sh) {
-      dw = (sw / sh) * maxSize;
-      dh = maxSize;
+      dw = (sw / sh) * maxDimension;
+      dh = maxDimension;
     }
   } else {
     dw = sw;
     dh = sh;
   }
 
-  if (force || sw !== dw || sh !== dh || getDataUrlMimeType(dataUrl) !== type) {
+  return {width: dw, height: dh};
+}
+
+async function convertImage({
+  blob,
+  dataUrl,
+  currentType = '',
+  currentSize = 0,
+  newType = '',
+  maxSize = Infinity,
+  maxDimension = Infinity,
+  getBlob = false
+} = {}) {
+  if (maxSize !== Infinity) {
+    if (!currentSize) {
+      if (!blob) {
+        blob = dataUrlToBlob(dataUrl);
+      }
+      currentSize = blob.size;
+    }
+
+    if (maxDimension === Infinity) {
+      maxDimension = getMaxImageDimension({maxSize});
+    }
+  }
+
+  if (!currentType) {
+    currentType = blob?.type || getDataUrlMimeType(dataUrl);
+  }
+  if (!newType) {
+    newType = currentType;
+  }
+
+  const img = await getImageElement({url: dataUrl, blob});
+
+  let currentWidth = img.naturalWidth;
+  let currentHeight = img.naturalHeight;
+
+  while (
+    currentType !== newType ||
+    currentSize > maxSize ||
+    currentWidth > maxDimension ||
+    currentHeight > maxDimension
+  ) {
+    const {width: newWidth, height: newHeight} = limitImageDimensions(
+      currentWidth,
+      currentHeight,
+      {maxDimension}
+    );
+
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
 
-    cnv.width = dw;
-    cnv.height = dh;
+    cnv.width = newWidth;
+    cnv.height = newHeight;
 
-    if (type === 'image/jpeg') {
+    if (newType === 'image/jpeg') {
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, dw, dh);
+      ctx.fillRect(0, 0, newWidth, newHeight);
     }
 
-    ctx.drawImage(img, 0, 0, sw, sh, 0, 0, dw, dh);
+    ctx.drawImage(
+      img,
+      0,
+      0,
+      currentWidth,
+      currentHeight,
+      0,
+      0,
+      newWidth,
+      newHeight
+    );
 
-    return getBlob
-      ? canvasToBlob(cnv, {ctx, type})
-      : canvasToDataUrl(cnv, {ctx, type});
+    if (getBlob || maxSize < Infinity) {
+      blob = await canvasToBlob(cnv, {ctx, type: newType, clear: false});
+    }
+
+    if (maxSize !== Infinity) {
+      currentSize = blob.size;
+
+      if (currentSize > maxSize && maxDimension > 600) {
+        maxDimension -= 200;
+        continue;
+      }
+    }
+
+    return getBlob ? blob : canvasToDataUrl(cnv, {ctx, type: newType});
   }
 
-  return getBlob ? dataUrlToBlob(dataUrl) : dataUrl;
+  if (getBlob && !blob) {
+    blob = dataUrlToBlob(dataUrl);
+  }
+
+  return getBlob ? blob : dataUrl;
 }
 
 async function convertProcessedImage(
   image,
   {
-    throwError = false,
-    type = 'image/png',
-    getFile = false,
+    newType = '',
     maxSize = Infinity,
-    force = false
+    maxDimension = Infinity,
+    getFile = false,
+    setBlob = false,
+    throwError = false
   } = {}
 ) {
   try {
-    const blob = await convertImage(image.imageDataUrl, {
-      type,
+    const blob = await convertImage({
+      dataUrl: image.imageDataUrl,
+      currentType: image.imageType,
+      currentSize: image.imageSize,
+      newType,
       maxSize,
-      getBlob: true,
-      force
+      maxDimension,
+      getBlob: true
     });
     if (blob) {
       const file = normalizeImageFileAttributes(blob, {
@@ -476,7 +560,12 @@ async function convertProcessedImage(
         return file;
       }
 
-      return processImage(file);
+      const convImage = await processImage(file);
+      if (setBlob) {
+        convImage.imageBlob = blob;
+      }
+
+      return convImage;
     }
   } catch (err) {
     console.log(err.toString());
@@ -487,7 +576,7 @@ async function convertProcessedImage(
   }
 }
 
-function getImageElement(url, {query = false} = {}) {
+function getImageElement({url, blob, query = false} = {}) {
   return new Promise(resolve => {
     if (query) {
       const images = document.images;
@@ -504,16 +593,44 @@ function getImageElement(url, {query = false} = {}) {
       }
     }
 
+    // Firefox only supports data URLs of up to 32 MiB
+    if (
+      targetEnv === 'firefox' &&
+      url &&
+      url.startsWith('data:') &&
+      url.length > 32 * 1024 * 1024
+    ) {
+      try {
+        blob = dataUrlToBlob(url);
+      } catch {}
+    }
+
+    if (blob) {
+      url = URL.createObjectURL(blob);
+    }
+
+    function load(img) {
+      if (blob) {
+        URL.revokeObjectURL(url);
+      }
+
+      if (img) {
+        resolve(img);
+      } else {
+        resolve();
+      }
+    }
+
     const img = new Image();
 
     img.onload = () => {
-      resolve(img);
+      load(img);
     };
     img.onerror = () => {
-      resolve();
+      load();
     };
     img.onabort = () => {
-      resolve();
+      load();
     };
 
     img.src = url;
@@ -522,7 +639,7 @@ function getImageElement(url, {query = false} = {}) {
 
 async function captureVisibleTabArea(area) {
   const tabData = await browser.tabs.captureVisibleTab({format: 'png'});
-  const img = await getImageElement(tabData);
+  const img = await getImageElement({url: tabData});
 
   const {left, top, width, height, surfaceWidth} = area;
   const scale = img.naturalWidth / surfaceWidth;
@@ -657,52 +774,13 @@ function getLargeImageMessage(engine, maxSize) {
   ]);
 }
 
-function getMaxImageSize(engine) {
-  let maxSize;
-  if (['google', 'auDesign', 'nzTrademark', 'stocksy'].includes(engine)) {
-    maxSize = 20;
-  } else if (
-    ['tineye', 'baidu', 'sogou', 'depositphotos', 'mailru'].includes(engine)
-  ) {
-    maxSize = 10;
-  } else if (['karmaDecay'].includes(engine)) {
-    maxSize = 9;
-  } else if (['yandex', 'iqdb', 'auTrademark'].includes(engine)) {
-    maxSize = 8;
-  } else if (
-    [
-      'ascii2d',
-      'getty',
-      'istock',
-      'taobao',
-      'alamy',
-      '123rf',
-      'jpDesign',
-      'pixta',
-      'shutterstock',
-      'saucenao'
-    ].includes(engine)
-  ) {
-    maxSize = 5;
-  } else if (['jingdong'].includes(engine)) {
-    maxSize = 4;
-  } else if (
-    [
-      'qihoo',
-      'alibabaChina',
-      'esearch',
-      'tmview',
-      'branddb',
-      'madridMonitor'
-    ].includes(engine)
-  ) {
-    maxSize = 2;
-  }
+function getMaxImageUploadSize(engine, {target} = {}) {
+  const data = maxImageUploadSize[engine];
 
-  if (maxSize) {
-    return maxSize * 1024 * 1024;
-  } else {
-    return Infinity;
+  if (target) {
+    return data[target];
+  } else if (!data.api || !data.ui) {
+    return data.api || data.ui;
   }
 }
 
@@ -875,7 +953,10 @@ function getEngineMenuIcon(engine) {
 async function shareImage(image, {convert = false} = {}) {
   let convFile;
   if (convert && convertImageMimeTypes.includes(image.imageType)) {
-    convFile = await convertProcessedImage(image, {getFile: true, force: true});
+    convFile = await convertProcessedImage(image, {
+      newType: 'image/png',
+      getFile: true
+    });
   }
 
   const files = [
@@ -1173,6 +1254,8 @@ export {
   convertImage,
   convertProcessedImage,
   getImageElement,
+  getMaxImageDimension,
+  limitImageDimensions,
   captureVisibleTabArea,
   captureImage,
   getContentXHR,
@@ -1185,7 +1268,7 @@ export {
   getDataFromImageUrl,
   configApp,
   getLargeImageMessage,
-  getMaxImageSize,
+  getMaxImageUploadSize,
   hasBaseModule,
   insertBaseModule,
   isContextMenuSupported,

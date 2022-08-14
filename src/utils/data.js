@@ -594,6 +594,53 @@ const avifEngineSupport = [
   'pond5'
 ];
 
+const maxImageUploadSize = {
+  google: {api: 20 * 1024 * 1024},
+  bing: {api: 600 * 1024, ui: 20 * 1024 * 1024},
+  yandex: {api: 4 * 1024 * 1024, ui: Infinity},
+  baidu: {api: 2 * 1024 * 1024, ui: 10 * 1024 * 1024},
+  tineye: {ui: 10 * 1024 * 1024},
+  sogou: {ui: 10 * 1024 * 1024},
+  karmaDecay: {ui: 9 * 1024 * 1024},
+  whatanime: {ui: Infinity},
+  saucenao: {ui: 15 * 1024 * 1024},
+  iqdb: {ui: 8 * 1024 * 1024},
+  ascii2d: {ui: 5 * 1024 * 1024},
+  getty: {ui: 20 * 1024 * 1024},
+  istock: {ui: 20 * 1024 * 1024},
+  shutterstock: {ui: 25 * 1024 * 1024},
+  adobestock: {ui: 20 * 1024 * 1024},
+  depositphotos: {ui: 10 * 1024 * 1024},
+  pinterest: {api: Infinity},
+  qihoo: {ui: 2 * 1024 * 1024},
+  jingdong: {ui: 4 * 1024 * 1024},
+  taobao: {ui: 5 * 1024 * 1024},
+  alibabaChina: {ui: 20 * 1024 * 1024},
+  mailru: {ui: 5 * 1024 * 1024},
+  dreamstime: {ui: Infinity},
+  alamy: {ui: 5 * 1024 * 1024},
+  '123rf': {api: 5 * 1024 * 1024, ui: 5 * 1024 * 1024},
+  esearch: {ui: 5 * 1024 * 1024},
+  tmview: {ui: 2 * 1024 * 1024},
+  branddb: {ui: 2 * 1024 * 1024},
+  madridMonitor: {ui: 2 * 1024 * 1024},
+  auTrademark: {ui: 8 * 1024 * 1024},
+  auDesign: {ui: 20 * 1024 * 1024},
+  nzTrademark: {ui: 20 * 1024 * 1024},
+  jpDesign: {ui: 5 * 1024 * 1024},
+  pimeyes: {ui: Infinity},
+  stocksy: {ui: 20 * 1024 * 1024},
+  pond5: {ui: 20 * 1024 * 1024},
+  pixta: {ui: 5 * 1024 * 1024},
+  ikea: {ui: 20 * 1024 * 1024},
+  repostSleuth: {ui: Infinity},
+  unsplash: {api: Infinity, ui: 20 * 1024 * 1024},
+  shein: {ui: 10 * 1024 * 1024},
+  lykdat: {ui: 9 * 1024 * 1024},
+  wildberries: {ui: 8 * 1024 * 1024},
+  googleLens: {api: 20 * 1024 * 1024}
+};
+
 const chromeDesktopUA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36';
 
@@ -615,6 +662,7 @@ export {
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
+  maxImageUploadSize,
   chromeDesktopUA,
   chromeMobileUA,
   supportUrl,

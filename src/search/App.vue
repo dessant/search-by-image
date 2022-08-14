@@ -50,9 +50,14 @@
 import Masonry from 'masonry-layout';
 import imagesLoaded from 'imagesloaded';
 
-import {validateUrl, getMaxImageSize, getLargeImageMessage} from 'utils/app';
-import {getText, createTab, getActiveTab, dataUrlToBlob} from 'utils/common';
-import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
+import {validateUrl} from 'utils/app';
+import {getText, createTab, getActiveTab} from 'utils/common';
+import {
+  prepareImageForUpload,
+  searchGoogle,
+  searchGoogleLens,
+  searchPinterest
+} from 'utils/engines';
 
 export default {
   data: function () {
@@ -197,6 +202,9 @@ export default {
     });
 
     if (task) {
+      this.showSpinner = true;
+      this.dataLoaded = true;
+
       try {
         this.engine = task.search.engine;
 
@@ -205,19 +213,7 @@ export default {
           getText('extensionName')
         ]);
 
-        if (task.search.assetType === 'image') {
-          const maxSize = getMaxImageSize(this.engine);
-          if (task.search.imageSize > maxSize) {
-            this.error = getLargeImageMessage(this.engine, maxSize);
-            this.dataLoaded = true;
-            return;
-          }
-        }
-
-        this.showSpinner = true;
-        this.dataLoaded = true;
-
-        const image = await browser.runtime.sendMessage({
+        let image = await browser.runtime.sendMessage({
           id: 'storageRequest',
           asyncResponse: true,
           saveReceipt: true,
@@ -225,12 +221,24 @@ export default {
         });
 
         if (image) {
-          if (
-            task.search.assetType === 'image' &&
-            !(this.$env.isSafari && this.$env.isMobile)
-          ) {
-            image.imageBlob = dataUrlToBlob(image.imageDataUrl);
+          if (task.search.assetType === 'image') {
+            try {
+              image = await prepareImageForUpload({
+                image,
+                engine: this.engine,
+                target: 'api',
+                setBlob: !(this.$env.isSafari && this.$env.isMobile)
+              });
+            } catch (err) {
+              if (err.name === 'EngineError') {
+                this.error = err.message;
+                return;
+              }
+
+              throw err;
+            }
           }
+
           await this.search({
             session: task.session,
             search: task.search,
@@ -244,7 +252,6 @@ export default {
           'error_engine',
           getText(`engineName_${this.engine}`)
         );
-        this.dataLoaded = true;
 
         console.log(err.toString());
         throw err;

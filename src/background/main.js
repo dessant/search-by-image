@@ -563,13 +563,9 @@ async function searchImage(session, image, firstBatchItem = true) {
 
   let altImage, altImageId;
   if (altReceiptSearches.length) {
-    altImage = await convertProcessedImage(image, {force: true});
+    altImage = await convertProcessedImage(image, {newType: 'image/png'});
 
     if (altImage) {
-      altReceiptSearches.forEach(item => {
-        item.imageSize = altImage.imageSize;
-      });
-
       altImageId = await registry.addStorageItem(altImage, {
         receipts: {expected: altReceiptSearches.length, received: 0},
         expiryTime: 10.0,
@@ -581,11 +577,6 @@ async function searchImage(session, image, firstBatchItem = true) {
   const receiptSearches = searches.filter(
     item => item.sendsReceipt && (!altImageId || !item.isAltImage)
   );
-  if (image.imageSize) {
-    receiptSearches.forEach(item => {
-      item.imageSize = image.imageSize;
-    });
-  }
 
   let imageId;
   if (receiptSearches.length) {

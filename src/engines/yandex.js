@@ -3,11 +3,12 @@ import {v4 as uuidv4} from 'uuid';
 import {validateUrl, getContentXHR} from 'utils/app';
 import {findNode} from 'utils/common';
 import {
-  getValidHostname,
-  setFileInputData,
-  uploadCallback,
   initSearch,
-  sendReceipt
+  prepareImageForUpload,
+  setFileInputData,
+  sendReceipt,
+  getValidHostname,
+  uploadCallback
 } from 'utils/engines';
 import {targetEnv} from 'utils/config';
 
@@ -41,9 +42,17 @@ function showResults(xhr) {
 }
 
 async function search({session, search, image, storageIds}) {
-  if (
-    document.head.querySelector('meta[name="apple-mobile-web-app-capable"]')
-  ) {
+  const mobile = document.head.querySelector(
+    'meta[name="apple-mobile-web-app-capable"]'
+  );
+
+  image = await prepareImageForUpload({
+    image,
+    engine,
+    target: mobile ? 'api' : 'ui'
+  });
+
+  if (mobile) {
     const hostname = getHostname();
     const url =
       `https://${hostname}/images/touch/search?rpt=imageview&format=json` +

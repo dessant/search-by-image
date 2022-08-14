@@ -1,6 +1,10 @@
 import {v4 as uuidv4} from 'uuid';
 
-import {getMaxImageSize, getLargeImageMessage} from 'utils/app';
+import {
+  convertProcessedImage,
+  getMaxImageUploadSize,
+  getLargeImageMessage
+} from 'utils/app';
 import {dataUrlToBlob} from 'utils/common';
 
 function getValidHostname(validHostnames, engine) {
@@ -124,6 +128,7 @@ function showEngineError({message, errorId, engine}) {
       browser.i18n.getMessage(`engineName_${engine}`)
     );
   }
+
   browser.runtime.sendMessage({
     id: 'notification',
     message,
@@ -174,18 +179,7 @@ async function initSearch(searchFn, engine, taskId) {
     const storageIds = [taskId, task.imageId];
 
     try {
-      if (task.search.assetType === 'image') {
-        const maxSize = getMaxImageSize(engine);
-        if (task.search.imageSize > maxSize) {
-          showEngineError({
-            message: getLargeImageMessage(engine, maxSize),
-            engine
-          });
-          return;
-        }
-      }
-
-      const image = await browser.runtime.sendMessage({
+      let image = await browser.runtime.sendMessage({
         id: 'storageRequest',
         asyncResponse: true,
         storageId: task.imageId
@@ -193,8 +187,9 @@ async function initSearch(searchFn, engine, taskId) {
 
       if (image) {
         if (task.search.assetType === 'image') {
-          image.imageBlob = dataUrlToBlob(image.imageDataUrl);
+          image = await prepareImageForUpload({image, engine});
         }
+
         await searchFn({
           session: task.session,
           search: task.search,
@@ -209,7 +204,14 @@ async function initSearch(searchFn, engine, taskId) {
     } catch (err) {
       await sendReceipt(storageIds);
 
-      showEngineError({errorId: 'error_engine', engine});
+      const params = {engine};
+      if (err.name === 'EngineError') {
+        params.message = err.message;
+      } else {
+        params.errorId = 'error_engine';
+      }
+
+      showEngineError(params);
 
       console.log(err.toString());
       throw err;
@@ -308,6 +310,39 @@ async function searchPinterest({session, search, image} = {}) {
   return results;
 }
 
+class EngineError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'EngineError';
+  }
+}
+
+async function prepareImageForUpload({
+  image,
+  engine,
+  target,
+  newType = '',
+  setBlob = true
+} = {}) {
+  const maxSize = getMaxImageUploadSize(engine, {target});
+
+  if (maxSize) {
+    if (image.imageSize > maxSize) {
+      image = await convertProcessedImage(image, {newType, maxSize, setBlob});
+
+      if (!image) {
+        throw new EngineError(getLargeImageMessage(engine, maxSize));
+      }
+    } else {
+      if (setBlob) {
+        image.imageBlob = dataUrlToBlob(image.imageDataUrl);
+      }
+    }
+  }
+
+  return image;
+}
+
 export {
   getValidHostname,
   setFileInputData,
@@ -317,5 +352,7 @@ export {
   initSearch,
   searchGoogle,
   searchGoogleLens,
-  searchPinterest
+  searchPinterest,
+  EngineError,
+  prepareImageForUpload
 };

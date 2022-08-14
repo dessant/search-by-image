@@ -1,11 +1,24 @@
 import {findNode, isMobile} from 'utils/common';
-import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
-import {convertImage} from 'utils/app';
+import {
+  initSearch,
+  prepareImageForUpload,
+  setFileInputData,
+  sendReceipt
+} from 'utils/engines';
 
 const engine = 'bing';
 
 async function search({session, search, image, storageIds}) {
-  if (await isMobile()) {
+  const mobile = await isMobile();
+
+  image = await prepareImageForUpload({
+    image,
+    engine,
+    target: mobile ? 'api' : 'ui',
+    newType: 'image/jpeg'
+  });
+
+  if (mobile) {
     const form = document.createElement('form');
     form.setAttribute('data-c45ng3u9', '');
     form.id = 'sbi-upload-form';
@@ -23,22 +36,11 @@ async function search({session, search, image, storageIds}) {
 
     await sendReceipt(storageIds);
 
-    if (image.imageSize > 600 * 1024) {
-      const convImageDataUrl = await convertImage(image.imageDataUrl, {
-        type: 'image/jpeg',
-        maxSize: 640
-      });
+    input.value = image.imageDataUrl.substring(
+      image.imageDataUrl.indexOf(',') + 1
+    );
 
-      input.value = convImageDataUrl.substring(
-        convImageDataUrl.indexOf(',') + 1
-      );
-      form.submit();
-    } else {
-      input.value = image.imageDataUrl.substring(
-        image.imageDataUrl.indexOf(',') + 1
-      );
-      form.submit();
-    }
+    form.submit();
   } else {
     (await findNode('#sb_sbi')).click();
 
