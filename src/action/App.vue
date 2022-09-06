@@ -593,6 +593,7 @@ export default {
 
       if (activeTab && actionWidth && activeTab.width > actionWidth) {
         // popup
+        document.documentElement.style.height = '';
         if (this.$env.isMobile) {
           // mobile popup
           if (activeTab.width < 394) {
@@ -601,7 +602,6 @@ export default {
             document.body.style.minWidth = '354px';
           }
           this.$el.style.maxHeight = `${activeTab.height - 40}px`;
-          document.documentElement.style.height = '';
 
           if (this.$env.isIpados) {
             this.$refs.items.style.maxHeight = '392px';
