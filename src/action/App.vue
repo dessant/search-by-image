@@ -182,7 +182,8 @@ import {
   showSupportPage,
   getImagesFromClipboard,
   getEngineIcon,
-  canShare
+  canShare,
+  sendLargeMessage
 } from 'utils/app';
 import {getText, getActiveTab, createTab} from 'utils/common';
 import {enableContributions} from 'utils/config';
@@ -289,11 +290,13 @@ export default {
           }
         }
 
-        await browser.runtime.sendMessage({
-          id: 'actionPopupSubmit',
-          engine,
-          images,
-          imageUrl: this.imageUrl
+        await sendLargeMessage({
+          message: {
+            id: 'actionPopupSubmit',
+            engine,
+            images,
+            imageUrl: this.imageUrl
+          }
         });
 
         this.closeAction();

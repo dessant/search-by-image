@@ -3,7 +3,8 @@ import {v4 as uuidv4} from 'uuid';
 import {
   convertProcessedImage,
   getMaxImageUploadSize,
-  getLargeImageMessage
+  getLargeImageMessage,
+  sendLargeMessage
 } from 'utils/app';
 import {dataUrlToBlob} from 'utils/common';
 
@@ -179,10 +180,13 @@ async function initSearch(searchFn, engine, taskId) {
     const storageIds = [taskId, task.imageId];
 
     try {
-      let image = await browser.runtime.sendMessage({
-        id: 'storageRequest',
-        asyncResponse: true,
-        storageId: task.imageId
+      let image = await sendLargeMessage({
+        message: {
+          id: 'storageRequest',
+          asyncResponse: true,
+          storageId: task.imageId
+        },
+        transferResponse: true
       });
 
       if (image) {

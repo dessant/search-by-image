@@ -14,7 +14,8 @@ import {
   shareImage,
   getDataFromImageUrl,
   imageTypeSupport,
-  getSrcsetUrls
+  getSrcsetUrls,
+  sendLargeMessage
 } from 'utils/app';
 import {
   getBlankCanvasDataUrl,
@@ -397,27 +398,29 @@ async function parse(session) {
 }
 
 self.initParse = async function (session) {
-  const images = await parse(session).catch(err => {
-    console.log(err.toString());
+  try {
+    const images = await parse(session);
 
-    browser.runtime.sendMessage({
-      id: 'pageParseError',
-      session
-    });
-  });
-
-  if (images) {
     if (session.sessionType === 'share' && images.length === 1) {
       await shareImage(images[0], {
         convert: session.options.convertSharedImage
       });
     } else {
-      browser.runtime.sendMessage({
-        id: 'pageParseSubmit',
-        images,
-        session
+      await sendLargeMessage({
+        message: {
+          id: 'pageParseSubmit',
+          images,
+          session
+        }
       });
     }
+  } catch (err) {
+    console.log(err.toString());
+
+    await browser.runtime.sendMessage({
+      id: 'pageParseError',
+      session
+    });
   }
 };
 

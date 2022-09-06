@@ -50,7 +50,7 @@
 import Masonry from 'masonry-layout';
 import imagesLoaded from 'imagesloaded';
 
-import {validateUrl} from 'utils/app';
+import {validateUrl, sendLargeMessage} from 'utils/app';
 import {getText, createTab, getActiveTab} from 'utils/common';
 import {
   prepareImageForUpload,
@@ -213,11 +213,15 @@ export default {
           getText('extensionName')
         ]);
 
-        let image = await browser.runtime.sendMessage({
-          id: 'storageRequest',
-          asyncResponse: true,
-          saveReceipt: true,
-          storageId: task.imageId
+        let image = await sendLargeMessage({
+          message: {
+            id: 'storageRequest',
+            asyncResponse: true,
+            saveReceipt: true,
+            storageId: task.imageId
+          },
+          transferResponse: true,
+          openConnection: this.$env.isSafari
         });
 
         if (image) {

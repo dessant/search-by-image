@@ -1,3 +1,8 @@
+import {
+  sendLargeMessage,
+  processLargeMessage,
+  processMessageResponse
+} from 'utils/app';
 import {targetEnv} from 'utils/config';
 
 var contentStorage = {
@@ -43,40 +48,40 @@ function hideView(view) {
   }, 300);
 }
 
-function sendQueuedMessage() {
-  if (contentStorage.queuedMessage) {
-    messageView(contentStorage.queuedMessage);
+async function sendQueuedMessage() {
+  const message = contentStorage.queuedMessage;
+  if (message) {
     contentStorage.queuedMessage = null;
+
+    await messageView(message);
   }
 }
 
-function messageView(message) {
+async function messageView(message) {
   if (contentStorage.viewFrameId) {
-    browser.runtime.sendMessage({
+    await browser.runtime.sendMessage({
       id: 'routeMessage',
       messageFrameId: contentStorage.viewFrameId,
       message
     });
   } else if (contentStorage.viewMessagePort) {
-    contentStorage.viewMessagePort.postMessage(message);
+    await sendLargeMessage({
+      target: 'port',
+      messagePort: contentStorage.viewMessagePort,
+      message
+    });
   } else {
     contentStorage.queuedMessage = message;
   }
 }
 
-function onMessage(request, sender) {
-  // Samsung Internet 13: extension messages are sometimes also dispatched
-  // to the sender frame.
-  if (sender.url === document.URL) {
-    return;
-  }
-
+async function processMessage(request, sender) {
   if (request.id === 'openView') {
     showView(request.view);
-    messageView(request);
+    await messageView(request);
   } else if (request.id === 'closeView') {
     if (request.messageView) {
-      messageView({id: request.id});
+      await messageView({id: request.id});
     }
     hideView(request.view);
   } else if (request.id === 'messageView') {
@@ -87,16 +92,28 @@ function onMessage(request, sender) {
       delete request.flattenMessage;
       Object.assign(message, request);
     }
-    messageView(message);
+    await messageView(message);
   } else if (request.id === 'saveFrameId') {
     contentStorage.viewFrameId = request.senderFrameId;
-    sendQueuedMessage();
+    await sendQueuedMessage();
   }
 }
 
+function onMessage(request, sender, sendResponse) {
+  const response = processLargeMessage({
+    request,
+    sender,
+    requestHandler: processMessage
+  });
+
+  return processMessageResponse(response, sendResponse);
+}
+
 function onConnect(messagePort) {
-  contentStorage.viewMessagePort = messagePort;
-  sendQueuedMessage();
+  if (messagePort.name === 'view') {
+    contentStorage.viewMessagePort = messagePort;
+    sendQueuedMessage();
+  }
 }
 
 self.initContent = function () {
@@ -120,7 +137,7 @@ self.initContent = function () {
   contentStorage.viewFrame = viewFrame;
 
   browser.runtime.onMessage.addListener(onMessage);
-  if (targetEnv === 'safari') {
+  if (targetEnv !== 'firefox') {
     browser.runtime.onConnect.addListener(onConnect);
   }
 };

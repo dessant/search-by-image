@@ -174,7 +174,8 @@ import {
   imageFileExtToMimeType,
   getFilesFromClipboard,
   getEngineIcon,
-  validateShareId
+  validateShareId,
+  sendLargeMessage
 } from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
@@ -531,10 +532,13 @@ export default {
           throw new Error('cannot process images');
         }
 
-        await browser.runtime.sendMessage({
-          id: 'imageBrowseSubmit',
-          session,
-          images
+        await sendLargeMessage({
+          message: {
+            id: 'imageBrowseSubmit',
+            session,
+            images
+          },
+          openConnection: this.$env.isSafari
         });
       } catch (err) {
         this.showSpinner = false;

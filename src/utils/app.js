@@ -1,6 +1,6 @@
 import {difference} from 'lodash-es';
 import {fileTypeFromBuffer} from 'file-type';
-import {validate as uuidValidate} from 'uuid';
+import {v4 as uuidv4, validate as uuidValidate} from 'uuid';
 import {parseSrcset} from 'srcset';
 import filesize from 'filesize';
 
@@ -16,6 +16,7 @@ import {
   drawElementOnCanvas,
   blobToArray,
   blobToDataUrl,
+  splitAsciiString,
   canvasToDataUrl,
   canvasToBlob,
   executeCode,
@@ -406,11 +407,11 @@ function getMaxImageDimension({maxSize = Infinity} = {}) {
   if (!maxSize || maxSize === Infinity) {
     return Infinity;
   } else if (maxSize >= 8 * 1024 * 1024) {
-    return 1600;
+    return 1680;
   } else if (maxSize >= 4 * 1024 * 1024) {
-    return 1200;
+    return 1280;
   } else {
-    return 800;
+    return 880;
   }
 }
 
@@ -515,7 +516,7 @@ async function convertImage({
     if (maxSize !== Infinity) {
       currentSize = blob.size;
 
-      if (currentSize > maxSize && maxDimension > 600) {
+      if (currentSize > maxSize && maxDimension > 680) {
         maxDimension -= 200;
         continue;
       }
@@ -593,13 +594,8 @@ function getImageElement({url, blob, query = false} = {}) {
       }
     }
 
-    // Firefox only supports data URLs of up to 32 MiB
-    if (
-      targetEnv === 'firefox' &&
-      url &&
-      url.startsWith('data:') &&
-      url.length > 32 * 1024 * 1024
-    ) {
+    // Some browsers do not support large data URLs
+    if (url && url.startsWith('data:') && url.length > getMaxDataUrlSize()) {
       try {
         blob = dataUrlToBlob(url);
       } catch {}
@@ -757,9 +753,9 @@ function fetchImage(url, {credentials = false, token = ''} = {}) {
 }
 
 async function fetchImageFromBackgroundScript(url) {
-  const imageDataUrl = await browser.runtime.sendMessage({
-    id: 'fetchImage',
-    url
+  const imageDataUrl = await sendLargeMessage({
+    message: {id: 'fetchImage', url},
+    transferResponse: true
   });
 
   if (imageDataUrl) {
@@ -1230,6 +1226,414 @@ async function processImageUrl(url, {session, mustDownloadUrl = false} = {}) {
   return processedImage;
 }
 
+function waitForMessage({port, checkMessage = null, timeout = 120000} = {}) {
+  let isMessage;
+  const syncCallback = function (message) {
+    if (checkMessage(message)) {
+      isMessage = true;
+    }
+  };
+
+  port.onMessage.addListener(syncCallback);
+
+  return new Promise((resolve, reject) => {
+    const finish = function () {
+      removeCallbacks();
+
+      resolve();
+    };
+
+    const asyncCallback = function (message) {
+      if (checkMessage(message)) {
+        finish();
+      }
+    };
+
+    const removeCallbacks = function ({throwError = false} = {}) {
+      window.clearTimeout(timeoutId);
+      port.onDisconnect.removeListener(timeoutCallback);
+      port.onMessage.removeListener(syncCallback);
+      port.onMessage.removeListener(asyncCallback);
+
+      if (throwError) {
+        reject();
+      }
+    };
+
+    const timeoutCallback = function () {
+      removeCallbacks({throwError: true});
+    };
+
+    port.onDisconnect.addListener(timeoutCallback);
+    const timeoutId = window.setTimeout(timeoutCallback, timeout);
+
+    if (isMessage) {
+      finish();
+    } else {
+      port.onMessage.addListener(asyncCallback);
+    }
+  });
+}
+
+async function sendLargeMessage({
+  target = 'runtime',
+  tabId,
+  frameId,
+  messagePort,
+  message,
+  transferResponse = false,
+  openConnection = false
+} = {}) {
+  let messageError;
+  if (!transferResponse) {
+    try {
+      if (target === 'runtime') {
+        return await browser.runtime.sendMessage(message);
+      } else if (target === 'tab') {
+        return await browser.tabs.sendMessage(tabId, message, {frameId});
+      } else if (target === 'port') {
+        return messagePort.postMessage(message);
+      }
+    } catch (err) {
+      messageError = err;
+    }
+  }
+
+  const transferId = uuidv4();
+
+  // maxMessageSize is small enough to disregard size differences
+  // caused by Unicode characters in encodedMessage
+  const maxMessageSize = getMaxExtensionMessageSize();
+  const encodedMessage = JSON.stringify(message);
+
+  const transferMessage =
+    Boolean(messageError) || encodedMessage.length > maxMessageSize;
+
+  const isConnectionOwner = !Boolean(messagePort);
+
+  if (openConnection) {
+    messagePort = browser.runtime.connect({name: `message_${transferId}`});
+
+    const progress = waitForMessage({
+      port: messagePort,
+      checkMessage: function (message) {
+        if (
+          message.transfer?.id === transferId &&
+          message.transfer.type === 'connection' &&
+          message.transfer.complete
+        ) {
+          return true;
+        }
+      }
+    });
+
+    await progress;
+  }
+
+  return new Promise(async (resolve, reject) => {
+    let response = [];
+
+    const messageCallback = function (message) {
+      if (message.transfer?.id !== transferId) {
+        return;
+      }
+
+      if (message.transfer?.type === 'chunkedMessage') {
+        for (const data of splitAsciiString(encodedMessage, maxMessageSize)) {
+          messagePort.postMessage({
+            transfer: {type: 'chunkedMessage', data, id: transferId}
+          });
+        }
+
+        messagePort.postMessage({
+          transfer: {type: 'chunkedMessage', complete: true, id: transferId}
+        });
+      } else if (message.transfer?.type === 'chunkedResponse') {
+        if (message.transfer.complete) {
+          response = JSON.parse(response.join(''));
+        } else {
+          response.push(message.transfer.data);
+        }
+      } else if (message.transfer?.type === 'response') {
+        response = message.transfer.data;
+      }
+    };
+
+    let connectCallback;
+    if (messagePort) {
+      messagePort.onMessage.addListener(messageCallback);
+    } else {
+      connectCallback = function (port) {
+        if (port.name === transferId) {
+          messagePort = port;
+          messagePort.onMessage.addListener(messageCallback);
+
+          messagePort.postMessage({
+            transfer: {type: 'connection', complete: true, id: transferId}
+          });
+        }
+      };
+
+      browser.runtime.onConnect.addListener(connectCallback);
+    }
+
+    const removeCallbacks = function (error) {
+      if (connectCallback) {
+        browser.runtime.onConnect.removeListener(connectCallback);
+      }
+
+      if (messagePort) {
+        messagePort.onMessage.removeListener(messageCallback);
+
+        if (isConnectionOwner) {
+          try {
+            messagePort.disconnect();
+          } catch (err) {}
+        }
+      }
+
+      if (error) {
+        reject(error);
+      }
+    };
+
+    let result = null;
+    try {
+      const transfer = {
+        transferId,
+        transferMessage,
+        transferResponse,
+        openConnection: !openConnection
+      };
+      const data = transferMessage ? {transfer} : {...message, transfer};
+
+      if (target === 'runtime') {
+        result = await browser.runtime.sendMessage(data);
+      } else if (target === 'tab') {
+        result = await browser.tabs.sendMessage(tabId, data, {frameId});
+      } else if (target === 'port') {
+        const progress = waitForMessage({
+          port: messagePort,
+          checkMessage: function (message) {
+            if (
+              message.transfer?.id === transferId &&
+              message.transfer.type === 'message' &&
+              message.transfer.complete
+            ) {
+              return true;
+            }
+          }
+        });
+
+        messagePort.postMessage(data);
+
+        await progress;
+      }
+    } catch (err) {
+      removeCallbacks(err);
+    }
+
+    removeCallbacks();
+
+    resolve(transferResponse ? response : result);
+  });
+}
+
+async function processLargeMessage({
+  request,
+  sender,
+  requestHandler,
+  messagePortProvider
+} = {}) {
+  if (request.transfer?.type) {
+    // Internal message used for data transfer
+    return;
+  }
+
+  // Samsung Internet 13: extension messages are sometimes also dispatched
+  // to the sender frame.
+  if (sender.url === document.URL) {
+    return;
+  }
+
+  if (targetEnv === 'samsung') {
+    if (
+      /^internet-extension:\/\/.*\/src\/action\/index.html/.test(
+        sender.tab?.url
+      )
+    ) {
+      // Samsung Internet 18: runtime.onMessage provides sender.tab
+      // when the message is sent from the browser action,
+      // and tab.id refers to a nonexistent tab.
+      sender.tab = null;
+    }
+
+    if (sender.tab && sender.tab.id !== browser.tabs.TAB_ID_NONE) {
+      // Samsung Internet 13: runtime.onMessage provides wrong tab index.
+      sender.tab = await browser.tabs.get(sender.tab.id);
+    }
+  }
+
+  const transfer = request.transfer;
+
+  if (transfer) {
+    const transferId = transfer.transferId;
+
+    const isPortMessage = typeof sender.disconnect === 'function';
+
+    let messagePort;
+    if (isPortMessage) {
+      messagePort = sender;
+    } else if (transfer.openConnection) {
+      if (sender.tab) {
+        messagePort = browser.tabs.connect(sender.tab.id, {
+          name: transferId,
+          frameId: sender.frameId
+        });
+      } else {
+        messagePort = browser.runtime.connect({name: transferId});
+      }
+
+      const progress = waitForMessage({
+        port: messagePort,
+        checkMessage: function (message) {
+          if (
+            message.transfer?.id === transferId &&
+            message.transfer.type === 'connection' &&
+            message.transfer.complete
+          ) {
+            return true;
+          }
+        }
+      });
+
+      await progress;
+    } else {
+      messagePort = await messagePortProvider(transferId);
+    }
+
+    if (transfer.transferMessage) {
+      request = await new Promise((resolve, reject) => {
+        const messageData = [];
+
+        const messageCallback = function (message) {
+          if (message.transfer?.id !== transferId) {
+            return;
+          }
+
+          if (message.transfer?.type === 'chunkedMessage') {
+            if (message.transfer.complete) {
+              removeCallbacks();
+
+              resolve(JSON.parse(messageData.join('')));
+            } else {
+              messageData.push(message.transfer.data);
+            }
+          }
+        };
+
+        const removeCallbacks = function ({throwError = false} = {}) {
+          window.clearTimeout(timeoutId);
+          messagePort.onDisconnect.removeListener(timeoutCallback);
+          messagePort.onMessage.removeListener(messageCallback);
+
+          if (throwError) {
+            reject();
+          }
+        };
+
+        const timeoutCallback = function () {
+          removeCallbacks({throwError: true});
+        };
+
+        messagePort.onDisconnect.addListener(timeoutCallback);
+        const timeoutId = window.setTimeout(timeoutCallback, 120000); // 2 minutes
+
+        messagePort.onMessage.addListener(messageCallback);
+
+        // Request message transfer
+        messagePort.postMessage({
+          transfer: {type: 'chunkedMessage', id: transferId}
+        });
+      });
+
+      if (isPortMessage) {
+        // Signal message transfer end
+        messagePort.postMessage({
+          transfer: {type: 'message', complete: true, id: transferId}
+        });
+      }
+    }
+
+    let response = await requestHandler(request, sender);
+
+    if (!isPortMessage) {
+      // Messages sent through a port do not return responses
+
+      if (transfer.transferResponse) {
+        if (response === undefined) {
+          response = null;
+        }
+
+        try {
+          messagePort.postMessage({
+            transfer: {type: 'response', data: response, id: transferId}
+          });
+        } catch (err) {
+          const maxMessageSize = getMaxExtensionMessageSize();
+          const encodedMessage = JSON.stringify(response);
+
+          for (const data of splitAsciiString(encodedMessage, maxMessageSize)) {
+            messagePort.postMessage({
+              transfer: {type: 'chunkedResponse', data, id: transferId}
+            });
+          }
+
+          messagePort.postMessage({
+            transfer: {type: 'chunkedResponse', complete: true, id: transferId}
+          });
+        }
+      } else {
+        return response;
+      }
+    }
+  } else {
+    return requestHandler(request, sender);
+  }
+}
+
+function processMessageResponse(response, sendResponse) {
+  if (targetEnv === 'safari') {
+    response.then(function (result) {
+      // Safari 15: undefined response will cause sendMessage to never resolve.
+      if (result === undefined) {
+        result = null;
+      }
+      sendResponse(result);
+    });
+
+    return true;
+  } else {
+    return response;
+  }
+}
+
+function getMaxExtensionMessageSize() {
+  if (targetEnv === 'firefox') {
+    return 80 * 1024 * 1024;
+  } else {
+    return 40 * 1024 * 1024;
+  }
+}
+
+function getMaxDataUrlSize() {
+  if (['firefox', 'safari'].includes(targetEnv)) {
+    return 30 * 1024 * 1024;
+  } else {
+    return Infinity;
+  }
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1295,5 +1699,11 @@ export {
   isPreviewImageValid,
   getExtensionUrlPattern,
   getImageUrlFromContextMenuEvent,
-  processImageUrl
+  processImageUrl,
+  waitForMessage,
+  sendLargeMessage,
+  processLargeMessage,
+  processMessageResponse,
+  getMaxExtensionMessageSize,
+  getMaxDataUrlSize
 };

@@ -87,7 +87,9 @@ import {Dialog} from 'ext-components';
 import {
   shareImage,
   getFormattedImageDetails,
-  isPreviewImageValid
+  isPreviewImageValid,
+  sendLargeMessage,
+  processLargeMessage
 } from 'utils/app';
 import {getText} from 'utils/common';
 
@@ -134,19 +136,21 @@ export default {
   methods: {
     getText,
 
-    onMessage: function (request, sender) {
-      // Samsung Internet 13: extension messages are sometimes also dispatched
-      // to the sender frame.
-      if (sender && sender.url === document.URL) {
-        return;
-      }
-
+    processMessage: async function (request, sender) {
       if (request.id === 'openView') {
         this.setup(request.session, request.images);
         this.openDialog();
       } else if (request.id === 'closeView') {
         this.closeDialog();
       }
+    },
+
+    onMessage: function (request, sender) {
+      processLargeMessage({
+        request,
+        sender,
+        requestHandler: this.processMessage
+      });
     },
 
     onCancel: function () {
@@ -165,10 +169,13 @@ export default {
         });
         browser.runtime.sendMessage({id: 'cancelView', view: 'confirm'});
       } else {
-        browser.runtime.sendMessage({
-          id: 'imageConfirmationSubmit',
-          image,
-          session: this.$options.rawData.session
+        await sendLargeMessage({
+          message: {
+            id: 'imageConfirmationSubmit',
+            image,
+            session: this.$options.rawData.session
+          },
+          openConnection: this.$env.isSafari
         });
       }
     },
@@ -298,11 +305,7 @@ export default {
     },
 
     init: async function () {
-      if (this.$env.isSafari) {
-        const tab = await browser.tabs.getCurrent();
-        this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
-        this.contentMessagePort.onMessage.addListener(this.onMessage);
-      } else {
+      if (this.$env.isFirefox) {
         browser.runtime.onMessage.addListener(this.onMessage);
         browser.runtime.sendMessage({
           id: 'routeMessage',
@@ -310,6 +313,13 @@ export default {
           messageFrameId: 0,
           message: {id: 'saveFrameId'}
         });
+      } else {
+        const tab = await browser.tabs.getCurrent();
+        this.contentMessagePort = browser.tabs.connect(tab.id, {
+          name: 'view',
+          frameId: 0
+        });
+        this.contentMessagePort.onMessage.addListener(this.onMessage);
       }
     }
   },

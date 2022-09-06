@@ -1211,7 +1211,7 @@
   },
 
   "error_pageParseError": {
-    "message": "Something went wrong. Reload the page before searching again.",
+    "message": "Something went wrong. The web page could not be parsed.",
     "description": "Error message."
   },
 

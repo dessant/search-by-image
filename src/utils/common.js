@@ -154,6 +154,15 @@ function blobToDataUrl(blob) {
   });
 }
 
+function* splitAsciiString(string, maxBytes) {
+  let start = 0;
+  while (start < string.length) {
+    const end = Math.min(start + maxBytes, string.length);
+    yield string.slice(start, end);
+    start = end;
+  }
+}
+
 function getBlankCanvasDataUrl(width, height) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -461,6 +470,7 @@ export {
   dataUrlToBlob,
   blobToDataUrl,
   blobToArray,
+  splitAsciiString,
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   canvasToBlob,

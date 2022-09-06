@@ -150,11 +150,7 @@ export default {
     this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
     this.snackbar.closeOnEscape = false;
 
-    if (this.$env.isSafari) {
-      const tab = await browser.tabs.getCurrent();
-      this.contentMessagePort = browser.tabs.connect(tab.id, {frameId: 0});
-      this.contentMessagePort.onMessage.addListener(this.onMessage);
-    } else {
+    if (this.$env.isFirefox) {
       browser.runtime.onMessage.addListener(this.onMessage);
       browser.runtime.sendMessage({
         id: 'routeMessage',
@@ -162,6 +158,13 @@ export default {
         messageFrameId: 0,
         message: {id: 'saveFrameId'}
       });
+    } else {
+      const tab = await browser.tabs.getCurrent();
+      this.contentMessagePort = browser.tabs.connect(tab.id, {
+        name: 'view',
+        frameId: 0
+      });
+      this.contentMessagePort.onMessage.addListener(this.onMessage);
     }
   }
 };

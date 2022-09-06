@@ -59,7 +59,8 @@ import {IconButton} from 'ext-components';
 import {
   validateId,
   getFormattedImageDetails,
-  isPreviewImageValid
+  isPreviewImageValid,
+  sendLargeMessage
 } from 'utils/app';
 import {getText} from 'utils/common';
 
@@ -98,11 +99,15 @@ export default {
       const storageId = new URL(window.location.href).searchParams.get('id');
 
       if (validateId(storageId)) {
-        const image = await browser.runtime.sendMessage({
-          id: 'storageRequest',
-          asyncResponse: true,
-          saveReceipt: true,
-          storageId
+        const image = await sendLargeMessage({
+          message: {
+            id: 'storageRequest',
+            asyncResponse: true,
+            saveReceipt: true,
+            storageId
+          },
+          transferResponse: true,
+          openConnection: this.$env.isSafari
         });
 
         if (image) {

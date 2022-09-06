@@ -36,7 +36,10 @@ import {
   canShare,
   getExtensionUrlPattern,
   getImageUrlFromContextMenuEvent,
-  processImageUrl
+  processImageUrl,
+  sendLargeMessage,
+  processLargeMessage,
+  processMessageResponse
 } from 'utils/app';
 import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
@@ -442,15 +445,16 @@ async function openContentView(message, view) {
     await executeFile('/src/content/script.js', tabId);
   }
 
-  await browser.tabs.sendMessage(
+  await sendLargeMessage({
+    target: 'tab',
     tabId,
-    {
+    frameId: 0,
+    message: {
       id: 'openView',
       ...message,
       view
-    },
-    {frameId: 0}
-  );
+    }
+  });
 }
 
 async function showContentSelectionPointer(tabId) {
@@ -1049,26 +1053,20 @@ async function setBrowserAction() {
   }
 }
 
+async function getMessagePort(id) {
+  return registry.getStorageItem({storageId: id, saveReceipt: true});
+}
+
+async function setMessagePort(id, port) {
+  await registry.addStorageItem(port, {
+    receipts: {expected: 1, received: 0},
+    expiryTime: 1.0,
+    area: 'memory',
+    token: id
+  });
+}
+
 async function processMessage(request, sender) {
-  // Samsung Internet 13: extension messages are sometimes also dispatched
-  // to the sender frame.
-  if (sender.url === document.URL) {
-    return;
-  }
-
-  if (
-    targetEnv === 'samsung' &&
-    sender.tab &&
-    sender.tab.id !== browser.tabs.TAB_ID_NONE &&
-    !/^internet-extension:\/\/.*\/src\/action\/index.html/.test(sender.tab.url)
-  ) {
-    // Samsung Internet 13: runtime.onMessage provides wrong tab index.
-    // Samsung Internet 18: runtime.onMessage provides sender.tab
-    // when the message is sent from the browser action,
-    // and tab.id refers to a nonexistent tab.
-    sender.tab = await browser.tabs.get(sender.tab.id);
-  }
-
   if (request.id === 'cancelView') {
     if (request.view === 'select') {
       hideContentSelectionPointer(sender.tab.id);
@@ -1239,21 +1237,29 @@ async function processMessage(request, sender) {
   }
 }
 
-function onMessage(request, sender, sendResponse) {
-  const response = processMessage(request, sender);
+async function processConnection(port) {
+  if (port.name?.startsWith('message')) {
+    const id = port.name.split('_')[1];
 
-  if (targetEnv === 'safari') {
-    response.then(function (result) {
-      // Safari 15: undefined response will cause sendMessage to never resolve.
-      if (result === undefined) {
-        result = null;
-      }
-      sendResponse(result);
-    });
-    return true;
-  } else {
-    return response;
+    await setMessagePort(id, port);
+
+    port.postMessage({transfer: {type: 'connection', complete: true, id}});
   }
+}
+
+function onMessage(request, sender, sendResponse) {
+  const response = processLargeMessage({
+    request,
+    sender,
+    requestHandler: processMessage,
+    messagePortProvider: getMessagePort
+  });
+
+  return processMessageResponse(response, sendResponse);
+}
+
+function onConnect(port) {
+  processConnection(port);
 }
 
 async function onOptionChange() {
@@ -1270,7 +1276,7 @@ async function onStorageChange(changes, area) {
 
 async function onAlarm({name}) {
   if (name.startsWith('delete-storage-item')) {
-    const [_, storageId] = name.split('_');
+    const storageId = name.split('_')[1];
     await registry.deleteStorageItem({storageId});
   }
 }
@@ -1310,6 +1316,10 @@ function addMessageListener() {
   browser.runtime.onMessage.addListener(onMessage);
 }
 
+function addConnectListener() {
+  browser.runtime.onConnect.addListener(onConnect);
+}
+
 function addAlarmListener() {
   browser.alarms.onAlarm.addListener(onAlarm);
 }
@@ -1347,6 +1357,7 @@ function init() {
   addContextMenuListener();
   addBrowserActionListener();
   addMessageListener();
+  addConnectListener();
   addStorageListener();
   addAlarmListener();
   addInstallListener();
