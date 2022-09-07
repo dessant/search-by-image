@@ -91,7 +91,10 @@ const engines = {
     }
   },
   saucenao: {
-    url: {target: 'https://saucenao.com/search.php?url={imgUrl}'},
+    url: {
+      target: 'https://saucenao.com/',
+      isExec: true
+    },
     image: {
       target: 'https://saucenao.com/',
       isExec: true

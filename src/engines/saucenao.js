@@ -9,14 +9,24 @@ async function search({session, search, image, storageIds}) {
     autoSubmit.click();
   }
 
-  const inputSelector = 'input#fileInput';
-  const input = await findNode(inputSelector);
+  if (search.assetType === 'image') {
+    const inputSelector = 'input#fileInput';
+    const input = await findNode(inputSelector);
 
-  await setFileInputData(inputSelector, input, image);
+    await setFileInputData(inputSelector, input, image);
 
-  await sendReceipt(storageIds);
+    await sendReceipt(storageIds);
 
-  input.dispatchEvent(new Event('change'));
+    input.dispatchEvent(new Event('change'));
+  } else {
+    const input = await findNode('input#urlInput');
+
+    await sendReceipt(storageIds);
+
+    input.focus();
+    input.value = image.imageUrl;
+    input.blur();
+  }
 }
 
 function init() {
