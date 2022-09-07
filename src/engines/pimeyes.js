@@ -4,9 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'pimeyes';
 
 async function search({session, search, image, storageIds}) {
-  document.cookie = `uploadPermissions=${Date.now()}; path=/`;
-
-  const inputSelector = 'input#file-input';
+  const inputSelector = '.upload-file input#file-input';
 
   processNode(inputSelector, function (node) {
     node.addEventListener('click', ev => ev.preventDefault(), {
@@ -24,6 +22,28 @@ async function search({session, search, image, storageIds}) {
   await sendReceipt(storageIds);
 
   input.dispatchEvent(new Event('change'));
+
+  const searchButton = await findNode('.start-search-inner > button');
+
+  if (searchButton.classList.contains('disabled')) {
+    await findNode('.permissions input[type=checkbox]');
+
+    for (const checkbox of document.querySelectorAll(
+      '.permissions input[type=checkbox]'
+    )) {
+      if (!checkbox.checked) {
+        checkbox.click();
+      }
+    }
+
+    (
+      await findNode('.start-search-inner > button:not(.disabled)', {
+        observerOptions: {attributes: true, attributeFilter: ['class']}
+      })
+    ).click();
+  } else {
+    searchButton.click();
+  }
 }
 
 function init() {
