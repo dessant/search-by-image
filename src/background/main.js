@@ -990,7 +990,7 @@ async function viewImage(session, image) {
     const storageId = await registry.addStorageItem(image, {
       receipts: {expected: 1, received: 0},
       expiryTime: 1.0,
-      area: 'indexeddb'
+      area: 'memory'
     });
 
     tabUrl = `${browser.runtime.getURL(
