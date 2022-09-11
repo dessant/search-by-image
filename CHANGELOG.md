@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.3.0](https://github.com/dessant/search-by-image/compare/v5.2.0...v5.3.0) (2022-09-11)
+
+
+### Features
+
+* support large images ([296e9a1](https://github.com/dessant/search-by-image/commit/296e9a16c4203cec093e187e805d521f4700c101))
+
+
+### Bug Fixes
+
+* do not store viewed image in IndexedDB ([c201b02](https://github.com/dessant/search-by-image/commit/c201b0263c3d2f1ccc14a690719274be61cbfd8d))
+* reset extension popup height ([7621330](https://github.com/dessant/search-by-image/commit/7621330486aeab36e81f02bb07697ecebe6d7a8f)), closes [#208](https://github.com/dessant/search-by-image/issues/208)
+* update PimEyes ([c864d70](https://github.com/dessant/search-by-image/commit/c864d701307beedfb87fe9e972a3224bb9771673)), closes [#210](https://github.com/dessant/search-by-image/issues/210)
+* update SauceNAO ([04d50e3](https://github.com/dessant/search-by-image/commit/04d50e3a9dcecbdd6fe338aef509ddcd163ad5d5))
+* update SauceNAO ([1aa3328](https://github.com/dessant/search-by-image/commit/1aa3328bc7bf40f7c0ad6a4ef961ac2546eae824)), closes [#209](https://github.com/dessant/search-by-image/issues/209)
+* update toolbar style ([25bd573](https://github.com/dessant/search-by-image/commit/25bd573d7c71d121e3a8712d31728fc9f8553d90))
+
 ## [5.2.0](https://github.com/dessant/search-by-image/compare/v5.1.0...v5.2.0) (2022-08-14)
 
 
