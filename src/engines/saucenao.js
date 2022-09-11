@@ -23,9 +23,10 @@ async function search({session, search, image, storageIds}) {
 
     await sendReceipt(storageIds);
 
-    input.focus();
     input.value = image.imageUrl;
-    input.blur();
+
+    // input.blur() is only dispatched when the tab is active
+    input.dispatchEvent(new Event('blur'));
   }
 }
 
