@@ -317,6 +317,13 @@ const engines = {
       target: searchUrl,
       isTaskId: true
     }
+  },
+  lexica: {
+    url: {target: 'https://lexica.art/?q={imgUrl}'},
+    image: {
+      target: 'https://lexica.art/',
+      isExec: true
+    }
   }
 };
 
@@ -552,7 +559,8 @@ const webpEngineSupport = [
   'unsplash',
   'shein',
   'lykdat',
-  'googleLens'
+  'googleLens',
+  'lexica'
 ];
 
 // Search engines only support the image format in compatible browsers.
@@ -564,7 +572,8 @@ const avifEngineSupport = [
   'adobestock',
   'alibabaChina',
   'dreamstime',
-  'pond5'
+  'pond5',
+  'lexica'
 ];
 
 const maxImageUploadSize = {
@@ -611,7 +620,8 @@ const maxImageUploadSize = {
   shein: {ui: 10 * 1024 * 1024},
   lykdat: {ui: 9 * 1024 * 1024},
   wildberries: {ui: 8 * 1024 * 1024},
-  googleLens: {api: 20 * 1024 * 1024}
+  googleLens: {api: 20 * 1024 * 1024},
+  lexica: {ui: 30 * 1024 * 1024}
 };
 
 const chromeDesktopUA =
