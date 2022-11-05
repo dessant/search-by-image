@@ -25,7 +25,6 @@ const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
 
 const engines = {
   google: {
-    url: {target: 'https://www.google.com/searchbyimage?image_url={imgUrl}'},
     image: {
       target: searchUrl,
       isTaskId: true
