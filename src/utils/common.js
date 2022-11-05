@@ -43,16 +43,13 @@ async function createTab({
 
   let tab = await browser.tabs.create(props);
 
-  if (targetEnv === 'samsung' && index !== null) {
+  if (targetEnv === 'samsung') {
     // Samsung Internet 13: tabs.create returns previously active tab.
 
-    // Samsung Internet 13: tabs.query may not immediately return previously created tabs.
-    let count = 0;
-    while (count < 100 && (!tab || tab.url !== url || tab.index !== index)) {
-      [tab] = await browser.tabs.query({
-        lastFocusedWindow: true,
-        index
-      });
+    // Samsung Internet 13: tabs.query may not immediately return newly created tabs.
+    let count = 1;
+    while (count <= 500 && (!tab || tab.url !== url)) {
+      [tab] = await browser.tabs.query({lastFocusedWindow: true, url});
 
       await sleep(20);
       count += 1;
