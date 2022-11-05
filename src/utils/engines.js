@@ -235,16 +235,23 @@ async function searchGoogle({session, search, image} = {}) {
     body: data
   });
 
-  if (rsp.status !== 200) {
+  let tabUrl;
+
+  if (rsp.status === 200) {
+    tabUrl = rsp.url;
+  } else if (image.imageUrl) {
+    // fall back to searching with image URL
+    tabUrl =
+      'https:www.google.com/searchbyimage?image_url=' +
+      encodeURIComponent(image.imageUrl);
+  } else {
     throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
   }
-
-  let tabUrl = rsp.url;
 
   if (!session.options.localGoogle) {
     tabUrl = tabUrl.replace(
       /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
-      '$1com$2&gl=US'
+      '$1com$2&gws_rd=cr&gl=US'
     );
   }
 
