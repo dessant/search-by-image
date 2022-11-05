@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.4.0](https://github.com/dessant/search-by-image/compare/v5.3.0...v5.4.0) (2022-11-05)
+
+
+### Features
+
+* search on Lexica ([4c9449a](https://github.com/dessant/search-by-image/commit/4c9449a58baa3e5375090f0f13b7be7867bfce22))
+
+
+### Bug Fixes
+
+* fall back to searching with image URL on Google ([0a5ee19](https://github.com/dessant/search-by-image/commit/0a5ee19521fc8179a5b22ae6e4285a1336c266b2)), closes [#221](https://github.com/dessant/search-by-image/issues/221)
+* improve tab querying on Samsung Internet ([240f795](https://github.com/dessant/search-by-image/commit/240f795a23d2432a297a3c84f31d86623f2b4838))
+* update Google ([e0c1127](https://github.com/dessant/search-by-image/commit/e0c1127dbea8cb6e784e84b3d4e7d46f0ec36739)), closes [#221](https://github.com/dessant/search-by-image/issues/221)
+
 ## [5.3.0](https://github.com/dessant/search-by-image/compare/v5.2.0...v5.3.0) (2022-09-11)
 
 
