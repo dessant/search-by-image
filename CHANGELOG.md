@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.4.2](https://github.com/dessant/search-by-image/compare/v5.4.1...v5.4.2) (2022-11-23)
+
+
+### Bug Fixes
+
+* update 123RF ([4c0f7a2](https://github.com/dessant/search-by-image/commit/4c0f7a20eebc3b734e42da6f6f2cd43b81e47918))
+* update Global Brand Database ([560304c](https://github.com/dessant/search-by-image/commit/560304c769bea502a07016e636a6e2aa87d053d9))
+* update Shutterstock ([3ec6bea](https://github.com/dessant/search-by-image/commit/3ec6beae35f296537a9eed8e72d194678ae1adf7))
+
 ### [5.4.1](https://github.com/dessant/search-by-image/compare/v5.4.0...v5.4.1) (2022-11-23)
 
 
