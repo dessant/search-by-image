@@ -215,7 +215,7 @@ const engines = {
   },
   branddb: {
     image: {
-      target: 'https://www3.wipo.int/branddb/en/',
+      target: 'https://legacy.branddb.wipo.int/branddb/en/',
       isExec: true
     }
   },
