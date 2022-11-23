@@ -7,6 +7,7 @@ import {
   sendLargeMessage
 } from 'utils/app';
 import {dataUrlToBlob} from 'utils/common';
+import {chromeSbiSrc} from 'utils/data';
 
 function getValidHostname(validHostnames, engine) {
   const hostname = window.location.hostname;
@@ -228,6 +229,9 @@ async function initSearch(searchFn, engine, taskId) {
 async function searchGoogle({session, search, image} = {}) {
   const data = new FormData();
   data.append('encoded_image', image.imageBlob, image.imageFilename);
+  data.append('image_url', '');
+  data.append('sbisrc', chromeSbiSrc);
+
   const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
     referrer: '',
     mode: 'cors',
@@ -242,7 +246,7 @@ async function searchGoogle({session, search, image} = {}) {
   } else if (image.imageUrl) {
     // fall back to searching with image URL
     tabUrl =
-      'https:www.google.com/searchbyimage?image_url=' +
+      'https:www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url=' +
       encodeURIComponent(image.imageUrl);
   } else {
     throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
@@ -291,6 +295,7 @@ async function searchPinterest({session, search, image} = {}) {
   data.append('w', '1');
   data.append('h', '1');
   data.append('base_scheme', 'https');
+
   const rsp = await fetch(
     'https://api.pinterest.com/v3/visual_search/extension/image/',
     {

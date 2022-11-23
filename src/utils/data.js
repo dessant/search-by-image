@@ -25,6 +25,10 @@ const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
 
 const engines = {
   google: {
+    url: {
+      target:
+        'https://www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url={imgUrl}'
+    },
     image: {
       target: searchUrl,
       isTaskId: true
@@ -624,10 +628,12 @@ const maxImageUploadSize = {
 };
 
 const chromeDesktopUA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36';
 
 const chromeMobileUA =
-  'Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.79 Mobile Safari/537.36';
+  'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36';
+
+const chromeSbiSrc = 'Google Chrome 107.0.5304.107 (Official) Windows';
 
 const supportUrl = 'https://github.com/dessant/search-by-image/issues';
 
@@ -647,6 +653,7 @@ export {
   maxImageUploadSize,
   chromeDesktopUA,
   chromeMobileUA,
+  chromeSbiSrc,
   supportUrl,
   shareBridgeUrl
 };
