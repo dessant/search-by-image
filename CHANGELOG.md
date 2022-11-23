@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.4.1](https://github.com/dessant/search-by-image/compare/v5.4.0...v5.4.1) (2022-11-23)
+
+
+### Bug Fixes
+
+* update Google ([6a6831b](https://github.com/dessant/search-by-image/commit/6a6831bf2eb8806639c7020e0f9f41204ee92f80)), closes [#221](https://github.com/dessant/search-by-image/issues/221)
+
 ## [5.4.0](https://github.com/dessant/search-by-image/compare/v5.3.0...v5.4.0) (2022-11-05)
 
 
