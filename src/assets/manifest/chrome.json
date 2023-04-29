@@ -70,6 +70,23 @@
     }
   ],
 
+  "commands": {
+    "quick-capture": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Open capture"
+    },
+    "quick-select": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
+      },
+      "description": "Select Image"
+    }
+  },
+
   "web_accessible_resources": [
     "src/content/style.css",
     "src/select/pointer.css",

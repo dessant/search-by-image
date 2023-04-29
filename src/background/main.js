@@ -1298,6 +1298,54 @@ async function onStartup() {
   }
 }
 
+async function onKeyboardShortcut(command) {
+  console.log("shortcut", command);
+  const tab = await getActiveTab();
+
+  if (command === 'quick-capture') {
+    const engines = await getEnabledEngines();
+    const session = await createSession({
+      sessionOrigin: 'action',
+      searchMode: 'capture',
+      sourceTabId: tab.id,
+      sourceTabIndex: tab.index,
+      engines: engines[0]
+    });
+    await openContentView({session}, 'capture');
+  } else if (command === 'quick-select') {
+    if (
+      tab.url.startsWith('file://') &&
+      ['safari', 'samsung'].includes(targetEnv)
+    ) {
+      await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
+      return;
+    }
+
+    const engines = await getEnabledEngines();
+    const session = await createSession({
+      sessionOrigin: 'action',
+      searchMode: 'selectImage',
+      sessionType: 'search',
+      sourceTabId: tab.id,
+      sourceTabIndex: tab.index,
+      engines: [engines[0]]
+    });
+
+    await openContentView({session}, 'select');
+
+    if (await hasBaseModule(session.sourceTabId)) {
+      await showContentSelectionPointer(session.sourceTabId);
+    }
+  }
+  // onActionClick(session, tab.url);
+
+////////
+  // if (command === "quick-search") {
+  //     const engines = await getEnabledEngines();
+  //     onActionPopupClick(engines[0]);
+  // }
+}
+
 function addContextMenuListener() {
   if (browser.contextMenus) {
     browser.contextMenus.onClicked.addListener(onContextMenuItemClick);
@@ -1333,6 +1381,10 @@ function addStartupListener() {
   browser.runtime.onStartup.addListener(onStartup);
 }
 
+function addKeyboardShortcutListener() {
+  browser.commands.onCommand.addListener(onKeyboardShortcut);
+}
+
 async function setupUI() {
   const items = [setBrowserAction];
 
@@ -1362,6 +1414,7 @@ function init() {
   addAlarmListener();
   addInstallListener();
   addStartupListener();
+  addKeyboardShortcutListener();
 
   setup();
 }
