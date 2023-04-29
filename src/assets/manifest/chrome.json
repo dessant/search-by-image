@@ -78,12 +78,19 @@
       },
       "description": "Open capture"
     },
-    "quick-select": {
+    "quick-select-image": {
       "suggested_key": {
         "default": "Ctrl+Shift+X",
         "mac": "Command+Shift+X"
       },
       "description": "Select Image"
+    },
+    "quick-select-url": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Z",
+        "mac": "Command+Shift+Z"
+      },
+      "description": "Select Image URL"
     }
   },
 

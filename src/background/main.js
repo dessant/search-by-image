@@ -1301,49 +1301,42 @@ async function onStartup() {
 async function onKeyboardShortcut(command) {
   console.log("shortcut", command);
   const tab = await getActiveTab();
+  if (
+    tab.url.startsWith('file://') &&
+    ['safari', 'samsung'].includes(targetEnv)
+  ) {
+    await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
+    return;
+  }
+
+  const engines = await getEnabledEngines();
+  const session = await createSession({
+    sessionOrigin: 'action', // todo: add origin keyboard shortcut
+    sessionType: 'search',
+    sourceTabId: tab.id,
+    sourceTabIndex: tab.index,
+    engines: [engines[0]]
+  });
+
 
   if (command === 'quick-capture') {
-    const engines = await getEnabledEngines();
-    const session = await createSession({
-      sessionOrigin: 'action',
-      searchMode: 'capture',
-      sourceTabId: tab.id,
-      sourceTabIndex: tab.index,
-      engines: engines[0]
-    });
+    session.searchMode = 'capture';
     await openContentView({session}, 'capture');
-  } else if (command === 'quick-select') {
-    if (
-      tab.url.startsWith('file://') &&
-      ['safari', 'samsung'].includes(targetEnv)
-    ) {
-      await showNotification({messageId: 'error_invalidImageUrl_fileUrl'});
-      return;
+  } else if (command === 'quick-select-image') {
+    session.searchMode = 'selectImage';
+    await openContentView({session}, 'select');
+
+    if (await hasBaseModule(session.sourceTabId)) {
+      await showContentSelectionPointer(session.sourceTabId);
     }
-
-    const engines = await getEnabledEngines();
-    const session = await createSession({
-      sessionOrigin: 'action',
-      searchMode: 'selectImage',
-      sessionType: 'search',
-      sourceTabId: tab.id,
-      sourceTabIndex: tab.index,
-      engines: [engines[0]]
-    });
-
+  } else if (command === 'quick-select-url') {
+    session.searchMode = 'selectUrl';
     await openContentView({session}, 'select');
 
     if (await hasBaseModule(session.sourceTabId)) {
       await showContentSelectionPointer(session.sourceTabId);
     }
   }
-  // onActionClick(session, tab.url);
-
-////////
-  // if (command === "quick-search") {
-  //     const engines = await getEnabledEngines();
-  //     onActionPopupClick(engines[0]);
-  // }
 }
 
 function addContextMenuListener() {
