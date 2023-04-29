@@ -1311,7 +1311,6 @@ async function onKeyboardShortcut(command) {
 
   const engines = await getEnabledEngines();
   const session = await createSession({
-    sessionOrigin: 'action', // todo: add origin keyboard shortcut
     sessionOrigin: 'shortcut',
     sessionType: 'search',
     sourceTabId: tab.id,
