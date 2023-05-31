@@ -9,7 +9,7 @@ async function search({session, search, image, storageIds}) {
     window.dispatchEvent(new Event('touchstart'));
   }
 
-  (await findNode('.MuiSelect-select[aria-label="Image"]')).dispatchEvent(
+  (await findNode('.MuiSelect-select[aria-label*="image"]')).dispatchEvent(
     new MouseEvent('mousedown', {bubbles: true})
   );
 
