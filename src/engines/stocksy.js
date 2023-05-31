@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'stocksy';
 
 async function search({session, search, image, storageIds}) {
-  (await findNode('button[id$="btn-visual-search"]')).click();
+  (await findNode('button[name="triggerVisualSearch"]')).click();
 
   const inputSelector = 'input#vs-file';
   const input = await findNode(inputSelector);
