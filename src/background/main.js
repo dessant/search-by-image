@@ -742,7 +742,7 @@ async function getRequiredUserAgent(engine) {
     // while other search engines may need a desktop user agent.
     if (targetEnv === 'firefox' && ['google', 'ikea'].includes(engine)) {
       return chromeMobileUA;
-    } else if (['mailru', 'googleLens'].includes(engine)) {
+    } else if (['googleLens'].includes(engine)) {
       return chromeDesktopUA;
     }
   }

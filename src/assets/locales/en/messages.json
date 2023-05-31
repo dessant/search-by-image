@@ -99,11 +99,6 @@
     "description": "Name of the search engine."
   },
 
-  "engineName_jingdong": {
-    "message": "Jingdong",
-    "description": "Name of the search engine."
-  },
-
   "engineName_taobao": {
     "message": "Taobao",
     "description": "Name of the search engine."
@@ -111,11 +106,6 @@
 
   "engineName_alibabaChina": {
     "message": "Alibaba China",
-    "description": "Name of the search engine."
-  },
-
-  "engineName_mailru": {
-    "message": "Mail.ru",
     "description": "Name of the search engine."
   },
 
@@ -345,11 +335,6 @@
     "description": "Title of the menu item."
   },
 
-  "menuItemTitle_jingdong": {
-    "message": "Jingdong",
-    "description": "Title of the menu item."
-  },
-
   "menuItemTitle_taobao": {
     "message": "Taobao",
     "description": "Title of the menu item."
@@ -357,11 +342,6 @@
 
   "menuItemTitle_alibabaChina": {
     "message": "Alibaba China",
-    "description": "Title of the menu item."
-  },
-
-  "menuItemTitle_mailru": {
-    "message": "Mail.ru",
     "description": "Title of the menu item."
   },
 
@@ -611,11 +591,6 @@
     "description": "Title of the option."
   },
 
-  "optionTitle_jingdong": {
-    "message": "Jingdong",
-    "description": "Title of the option."
-  },
-
   "optionTitle_taobao": {
     "message": "Taobao",
     "description": "Title of the option."
@@ -623,11 +598,6 @@
 
   "optionTitle_alibabaChina": {
     "message": "Alibaba China",
-    "description": "Title of the option."
-  },
-
-  "optionTitle_mailru": {
-    "message": "Mail.ru Image Search",
     "description": "Title of the option."
   },
 

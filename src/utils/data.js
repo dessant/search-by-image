@@ -164,12 +164,6 @@ const engines = {
       isExec: true
     }
   },
-  jingdong: {
-    image: {
-      target: 'https://www.jd.com/',
-      isExec: true
-    }
-  },
   taobao: {
     image: {
       target: 'https://www.taobao.com/',
@@ -179,12 +173,6 @@ const engines = {
   alibabaChina: {
     image: {
       target: 'https://www.1688.com/',
-      isExec: true
-    }
-  },
-  mailru: {
-    image: {
-      target: 'https://go.mail.ru/search_images?fr=main&frm=main',
       isExec: true
     }
   },
@@ -335,14 +323,7 @@ const engines = {
   }
 };
 
-const censoredEngines = [
-  'baidu',
-  'sogou',
-  'qihoo',
-  'jingdong',
-  'taobao',
-  'alibabaChina'
-];
+const censoredEngines = ['baidu', 'sogou', 'qihoo', 'taobao', 'alibabaChina'];
 
 const engineIconAlias = {branddb: 'wipo', madridMonitor: 'wipo'};
 
@@ -579,7 +560,6 @@ const webpEngineSupport = [
   'pinterest',
   'qihoo',
   'alibabaChina',
-  'mailru',
   'dreamstime',
   'pimeyes',
   'pond5',
@@ -623,10 +603,8 @@ const maxImageUploadSize = {
   depositphotos: {ui: 10 * 1024 * 1024},
   pinterest: {api: Infinity},
   qihoo: {ui: 2 * 1024 * 1024},
-  jingdong: {ui: 4 * 1024 * 1024},
   taobao: {ui: 5 * 1024 * 1024},
   alibabaChina: {ui: 20 * 1024 * 1024},
-  mailru: {ui: 5 * 1024 * 1024},
   dreamstime: {ui: Infinity},
   alamy: {ui: 5 * 1024 * 1024},
   '123rf': {api: 5 * 1024 * 1024, ui: 5 * 1024 * 1024},

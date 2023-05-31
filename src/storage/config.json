@@ -44,7 +44,8 @@
       "20220516124148_open_images",
       "20220814142801_configure_engines",
       "20220924083846_add_lexica",
-      "20230415111029_add_theme_support"
+      "20230415111029_add_theme_support",
+      "20230531103023_remove_search_engines"
     ],
     "sync": []
   }
