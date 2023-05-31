@@ -1,57 +1,59 @@
 <template>
-  <div id="app" v-show="dataLoaded">
-    <div v-if="results.length">
-      <div v-show="resultsLoaded" class="title">
-        {{
-          getText('pageContent_search_title', getText(`engineName_${engine}`))
-        }}
-      </div>
-      <div class="grid">
+  <vn-app v-show="dataLoaded">
+    <div class="grid" v-if="results.length">
+      <div
+        class="grid-item"
+        tabindex="0"
+        @keyup.enter="openPage(index)"
+        :class="resultClasses"
+        v-for="(item, index) in results"
+        :key="index"
+      >
         <div
-          class="grid-item"
-          tabindex="0"
-          :data-index="index"
-          @keyup.enter="openPage"
-          :class="resultClasses"
-          v-for="(item, index) in results"
-          :key="index"
+          class="grid-item-image-wrap"
+          :title="getText('buttonTooltip_viewPage')"
+          @click="openPage(index)"
         >
-          <div
-            class="grid-item-image-wrap"
-            :data-index="index"
-            @click="openPage"
-          >
-            <img class="grid-item-image" :src="item.image" />
+          <img class="grid-item-image" :src="item.image" />
+        </div>
+        <div class="grid-item-footer">
+          <div class="grid-item-footer-text" :title="item.text">
+            {{ item.text }}
           </div>
-          <div class="grid-item-footer">
-            <div class="grid-item-footer-text">{{ item.text }}</div>
-            <img
-              class="grid-item-footer-button"
-              src="/src/assets/icons/misc/image.svg"
-              :data-index="index"
-              @click="openImage"
-            />
-          </div>
+          <vn-icon-button
+            class="grid-item-footer-button"
+            src="/src/assets/icons/misc/image.svg"
+            :title="getText('buttonTooltip_viewImage')"
+            @click="openImage(index)"
+          ></vn-icon-button>
         </div>
       </div>
     </div>
     <div v-if="!resultsLoaded" class="page-overlay">
       <div class="error-content" v-if="error">
-        <img class="error-icon" src="/src/assets/icons/misc/error.svg" />
+        <vn-icon
+          class="error-icon"
+          src="/src/assets/icons/misc/error.svg"
+        ></vn-icon>
         <div class="error-text">{{ error }}</div>
       </div>
 
-      <div v-if="showSpinner && !error" class="sk-rotating-plane"></div>
+      <img
+        v-if="showSpinner && !error"
+        class="spinner"
+        src="/src/assets/icons/misc/spinner.svg"
+      />
     </div>
-  </div>
+  </vn-app>
 </template>
 
 <script>
 import Masonry from 'masonry-layout';
 import imagesLoaded from 'imagesloaded';
+import {App, Icon, IconButton} from 'vueton';
 
-import {validateUrl, sendLargeMessage} from 'utils/app';
-import {getText, createTab, getActiveTab} from 'utils/common';
+import {validateUrl, sendLargeMessage, showPage} from 'utils/app';
+import {getText} from 'utils/common';
 import {
   prepareImageForUpload,
   searchGoogle,
@@ -60,6 +62,12 @@ import {
 } from 'utils/engines';
 
 export default {
+  components: {
+    [App.name]: App,
+    [Icon.name]: Icon,
+    [IconButton.name]: IconButton
+  },
+
   data: function () {
     return {
       dataLoaded: false,
@@ -82,6 +90,81 @@ export default {
 
   methods: {
     getText,
+
+    setup: async function () {
+      const storageId = new URL(window.location.href).searchParams.get('id');
+
+      const task = await browser.runtime.sendMessage({
+        id: 'storageRequest',
+        asyncResponse: true,
+        saveReceipt: true,
+        storageId
+      });
+
+      if (task) {
+        this.showSpinner = true;
+        this.dataLoaded = true;
+
+        try {
+          this.engine = task.search.engine;
+
+          document.title = getText('pageTitle', [
+            getText(`optionTitle_${this.engine}`),
+            getText('extensionName')
+          ]);
+
+          let image = await sendLargeMessage({
+            message: {
+              id: 'storageRequest',
+              asyncResponse: true,
+              saveReceipt: true,
+              storageId: task.imageId
+            },
+            transferResponse: true,
+            openConnection: this.$env.isSafari
+          });
+
+          if (image) {
+            if (task.search.assetType === 'image') {
+              try {
+                image = await prepareImageForUpload({
+                  image,
+                  engine: this.engine,
+                  target: 'api',
+                  setBlob: !(this.$env.isSafari && this.$env.isMobile)
+                });
+              } catch (err) {
+                if (err.name === 'EngineError') {
+                  this.error = err.message;
+                  return;
+                }
+
+                throw err;
+              }
+            }
+
+            await this.search({
+              session: task.session,
+              search: task.search,
+              image
+            });
+          } else {
+            this.error = getText('error_invalidPageUrl');
+          }
+        } catch (err) {
+          this.error = getText(
+            'error_engine',
+            getText(`engineName_${this.engine}`)
+          );
+
+          console.log(err.toString());
+          throw err;
+        }
+      } else {
+        this.error = getText('error_invalidPageUrl');
+        this.dataLoaded = true;
+      }
+    },
 
     search: async function ({session, search, image} = {}) {
       if (this.engine === 'pinterest') {
@@ -166,134 +249,40 @@ export default {
           masonry.once('layoutComplete', () => {
             this.showSpinner = false;
             this.resultsLoaded = true;
-            document.body.classList.add('overflow-visible');
           });
           masonry.layout();
         });
       });
     },
 
-    openPage: async function (ev) {
-      await this.openTab(this.results[ev.currentTarget.dataset.index].page);
+    openPage: async function (index) {
+      await this.openTab(this.results[index].page);
     },
 
-    openImage: async function (ev) {
-      await this.openTab(this.results[ev.target.dataset.index].image);
+    openImage: async function (index) {
+      await this.openTab(this.results[index].image);
     },
 
     openTab: async function (url) {
-      const activeTab = await getActiveTab();
-      await createTab({
-        url,
-        index: activeTab.index + 1,
-        openerTabId: activeTab.id
-      });
+      await showPage({url});
     }
   },
 
-  created: async function () {
-    const storageId = new URL(window.location.href).searchParams.get('id');
-
-    const task = await browser.runtime.sendMessage({
-      id: 'storageRequest',
-      asyncResponse: true,
-      saveReceipt: true,
-      storageId
-    });
-
-    if (task) {
-      this.showSpinner = true;
-      this.dataLoaded = true;
-
-      try {
-        this.engine = task.search.engine;
-
-        document.title = getText('pageTitle', [
-          getText(`optionTitle_${this.engine}`),
-          getText('extensionName')
-        ]);
-
-        let image = await sendLargeMessage({
-          message: {
-            id: 'storageRequest',
-            asyncResponse: true,
-            saveReceipt: true,
-            storageId: task.imageId
-          },
-          transferResponse: true,
-          openConnection: this.$env.isSafari
-        });
-
-        if (image) {
-          if (task.search.assetType === 'image') {
-            try {
-              image = await prepareImageForUpload({
-                image,
-                engine: this.engine,
-                target: 'api',
-                setBlob: !(this.$env.isSafari && this.$env.isMobile)
-              });
-            } catch (err) {
-              if (err.name === 'EngineError') {
-                this.error = err.message;
-                return;
-              }
-
-              throw err;
-            }
-          }
-
-          await this.search({
-            session: task.session,
-            search: task.search,
-            image
-          });
-        } else {
-          this.error = getText('error_invalidPageUrl');
-        }
-      } catch (err) {
-        this.error = getText(
-          'error_engine',
-          getText(`engineName_${this.engine}`)
-        );
-
-        console.log(err.toString());
-        throw err;
-      }
-    } else {
-      this.error = getText('error_invalidPageUrl');
-      this.dataLoaded = true;
-    }
+  created: function () {
+    this.setup();
   }
 };
 </script>
 
 <style lang="scss">
-$spinkit-size: 36px;
-$spinkit-spinner-color: #e74c3c;
+@use 'vueton/styles' as vueton;
 
-@import 'spinkit/scss/spinners/1-rotating-plane';
-@import '@material/theme/mixins';
-@import '@material/typography/mixins';
-
-.overflow-visible {
-  overflow: visible;
-}
-
-html,
-body {
-  width: 100%;
-  height: 100%;
-}
+@include vueton.theme-base;
+@include vueton.transitions;
 
 body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
-  background-color: #ffffff;
   display: flex;
   justify-content: center;
-  overflow: hidden;
 }
 
 .page-overlay {
@@ -312,6 +301,11 @@ body {
   padding: 8px;
 }
 
+.spinner {
+  width: 36px;
+  height: 36px;
+}
+
 .error-content {
   display: flex;
   align-items: center;
@@ -321,41 +315,37 @@ body {
   & .error-icon {
     width: 48px;
     height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     margin-right: 24px;
+    @include vueton.theme-prop(background-color, error);
   }
 
   & .error-text {
-    @include mdc-typography(subtitle1);
-    @include mdc-theme-prop(color, #252525);
+    @include vueton.md2-typography(subtitle1);
     max-width: 520px;
   }
 }
 
-#app {
-  width: 100%;
+.grid {
+  padding: 8px;
+
+  width: 288px;
+  @media (min-width: 424px) {
+    width: 424px;
+  }
   @media (min-width: 576px) {
-    width: 464px;
+    width: 448px;
   }
   @media (min-width: 768px) {
-    width: 696px;
+    width: 664px;
   }
   @media (min-width: 992px) {
-    width: 928px;
+    width: 880px;
   }
   @media (min-width: 1200px) {
-    width: 1160px;
+    width: 1096px;
   }
-}
-
-.title {
-  @include mdc-typography(headline6);
-  @media (min-width: 576px) {
-    @include mdc-typography(headline5);
-  }
-  margin-left: 16px;
-  margin-right: 16px;
-  margin-top: 24px;
-  margin-bottom: 24px;
 }
 
 .grid-item {
@@ -364,7 +354,8 @@ body {
     width: 200px;
   }
   margin: 8px;
-  padding: 8px;
+  padding: 16px;
+  padding-bottom: 12px;
   transition: opacity 0.3s ease;
   opacity: 0;
 }
@@ -387,21 +378,22 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background-color: #bdc3c7;
-  border-radius: 4px;
+  @include vueton.theme-prop(background-color, surface-variant);
+  border-radius: 16px;
   transition: all 0.2s ease;
   transform: scale(0.96);
   opacity: 0;
 }
 
 .grid-item:focus::before,
+.grid-item:focus-within::before,
 .grid-item:hover::before {
   transform: scale(1);
-  opacity: 0.26;
+  opacity: 0.4;
 }
 
 .grid-item-image-wrap {
-  min-height: 120px;
+  min-height: 56px;
   max-height: 300px;
   display: flex;
   flex-direction: column;
@@ -419,16 +411,16 @@ body {
 }
 
 .grid-item-footer {
-  height: 24px;
-  margin-top: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  column-gap: 8px;
+  height: 24px;
+  margin-top: 12px;
+  justify-content: space-between;
 }
 
 .grid-item-footer-text {
-  padding-left: 4px;
-  @include mdc-typography(caption);
+  @include vueton.md2-typography(caption);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -437,14 +429,10 @@ body {
 .grid-item-footer-button {
   width: 24px;
   height: 24px;
-  margin-left: 12px;
-  cursor: pointer;
-  opacity: 0.7;
-}
+  margin-right: -12px;
 
-.title,
-.error-text,
-.grid-item-footer-text {
-  @include mdc-theme-prop(color, #252525);
+  & .vn-icon {
+    opacity: 0.8;
+  }
 }
 </style>

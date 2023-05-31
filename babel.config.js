@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 
 const corejsVersion = require(path.join(
   path.dirname(require.resolve('core-js')),
@@ -21,9 +21,7 @@ module.exports = function (api) {
   const plugins = [];
 
   const ignore = [
-    new RegExp(
-      `node_modules\\${path.sep}(?!(ext-components|ext-contribute|wesa)\\${path.sep}).*`
-    )
+    new RegExp(`node_modules\\${path.sep}(?!(vueton|wesa)\\${path.sep}).*`)
   ];
 
   const parserOpts = {plugins: ['importAssertions']};

@@ -11,14 +11,19 @@ const optionKeys = [
   'searchModeContextMenu',
   'bypassImageHostBlocking',
   'shareImageContextMenu',
-  'shareImageAction',
   'convertSharedImage',
   'autoPasteAction',
   'confirmPaste',
   'detectAltImageDimension',
   'viewImageContextMenu',
-  'viewImageAction',
-  'viewImageUseViewer'
+  'viewImageUseViewer',
+  'appTheme',
+  'showContribPage',
+  'showEngineIcons',
+  'pinActionToolbarViewImage',
+  'pinActionToolbarShareImage',
+  'pinActionToolbarOptions',
+  'pinActionToolbarContribute'
 ];
 
 const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
@@ -339,6 +344,28 @@ const censoredEngines = [
   'alibabaChina'
 ];
 
+const engineIconAlias = {branddb: 'wipo', madridMonitor: 'wipo'};
+
+const engineIconVariants = {
+  getty: ['dark'],
+  istock: ['dark'],
+  depositphotos: ['dark'],
+  alamy: ['dark'],
+  '123rf': ['dark'],
+  nzTrademark: ['dark'],
+  stocksy: ['dark'],
+  unsplash: ['dark'],
+  lykdat: ['dark'],
+  lexica: ['dark'],
+  jpDesign: ['dark'],
+  pimeyes: ['dark'],
+  pond5: ['dark'],
+  saucenao: ['dark'],
+  ascii2d: ['dark'],
+  tmview: ['dark'],
+  pixta: ['dark']
+};
+
 const rasterEngineIcons = [
   'iqdb',
   'karmaDecay',
@@ -346,8 +373,6 @@ const rasterEngineIcons = [
   'whatanime',
   'repostSleuth'
 ];
-
-const engineIconAlias = {branddb: 'wipo', madridMonitor: 'wipo'};
 
 // https://github.com/jshttp/mime-db
 const imageMimeTypes = {
@@ -628,12 +653,12 @@ const maxImageUploadSize = {
 };
 
 const chromeDesktopUA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36';
 
 const chromeMobileUA =
-  'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36';
+  'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36';
 
-const chromeSbiSrc = 'Google Chrome 107.0.5304.107 (Official) Windows';
+const chromeSbiSrc = 'Google Chrome 110.0.5481.78 (Official) Windows';
 
 const supportUrl = 'https://github.com/dessant/search-by-image/issues';
 
@@ -642,9 +667,10 @@ const shareBridgeUrl = 'https://searchbyimage.vapps.dev/share';
 export {
   optionKeys,
   engines,
+  censoredEngines,
   rasterEngineIcons,
   engineIconAlias,
-  censoredEngines,
+  engineIconVariants,
   imageMimeTypes,
   imageTypeNames,
   convertImageMimeTypes,

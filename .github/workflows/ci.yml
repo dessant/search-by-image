@@ -46,11 +46,6 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Get release information
-        id: release_info
-        run: |
-          echo ::set-output name=TAG::${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -61,8 +56,8 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.release_info.outputs.TAG }}
-          name: ${{ steps.release_info.outputs.TAG }}
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           body: |
             Download and install the extension from the [extension store](https://github.com/dessant/search-by-image#readme) of your browser.
 

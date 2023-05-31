@@ -1,12 +1,12 @@
-const path = require('path');
-const {exec} = require('child_process');
+const path = require('node:path');
+const {exec} = require('node:child_process');
 const {
   lstatSync,
   readdirSync,
   readFileSync,
   writeFileSync,
   rmSync
-} = require('fs');
+} = require('node:fs');
 
 const {series, parallel, src, dest} = require('gulp');
 const postcss = require('gulp-postcss');
@@ -117,7 +117,7 @@ async function images(done) {
   }
 
   await new Promise(resolve => {
-    src(['src/assets/icons/@(app|browse|engines|misc)/*.@(png|svg)'], {
+    src('src/assets/icons/@(app|engines|misc)/*.@(png|svg)', {
       base: '.'
     })
       .pipe(gulpif(isProduction, imagemin()))
@@ -128,7 +128,7 @@ async function images(done) {
 
   if (enableContributions) {
     await new Promise(resolve => {
-      src('node_modules/ext-contribute/src/assets/*.@(jpg|png|svg)')
+      src('node_modules/vueton/components/contribute/assets/*.@(png|svg)')
         .pipe(gulpif(isProduction, imagemin()))
         .pipe(dest(path.join(distDir, 'src/contribute/assets')))
         .on('error', done)
@@ -229,13 +229,13 @@ This software is released under the terms of the GNU General Public License v3.0
 See the LICENSE file for further information.
 `;
     writeFileSync(path.join(distDir, 'NOTICE'), notice);
-    return src(['LICENSE']).pipe(dest(distDir));
+    return src('LICENSE').pipe(dest(distDir));
   }
 }
 
 function zip(done) {
   exec(
-    `web-ext build -s dist/${targetEnv} -a artifacts/${targetEnv} -n '{name}-{version}-${targetEnv}.zip' --overwrite-dest`,
+    `web-ext build -s dist/${targetEnv} -a artifacts/${targetEnv} -n "{name}-{version}-${targetEnv}.zip" --overwrite-dest`,
     function (err, stdout, stderr) {
       console.log(stdout);
       console.log(stderr);

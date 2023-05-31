@@ -71,7 +71,7 @@
       "matches": ["http://*/*", "https://*/*"],
       "all_frames": true,
       "run_at": "document_start",
-      "js": ["src/insert/script.js"]
+      "js": ["src/base/script.js"]
     }
   ],
 

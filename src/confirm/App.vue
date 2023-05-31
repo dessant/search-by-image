@@ -1,106 +1,153 @@
 <template>
-  <v-dialog
-    id="sbi-dialog-select"
-    :title="getText('dialogTitle_imageConfirmation')"
-    :cancel-text="getText('buttonText_cancel')"
-    :show-dialog="showDialog"
-    @cancel="onCancel"
-  >
-    <div class="preview-images">
-      <div
-        class="tile-container"
-        tabindex="0"
-        :data-index="index"
-        @click="onSelection"
-        @keyup.enter="onSelection"
-        v-for="(img, index) in previewImages"
-        :key="index"
-      >
-        <picture class="image-container">
-          <source :srcset="img.image.imageDataUrl || img.image.imageUrl" />
-          <img
-            class="image"
-            src="/src/assets/icons/misc/broken-image.svg"
-            :data-index="index"
-            @error.once="onPreviewImageError"
-            @load="onPreviewImageLoad"
-            :alt="img.image.imageFilename"
-          />
-        </picture>
+  <vn-app>
+    <vn-dialog
+      v-model="showDialog"
+      content-class="confirmation-dialog__content"
+      transition="scale-transition"
+      scrollable
+      persistent
+    >
+      <vn-card>
+        <vn-card-title>{{
+          getText('dialogTitle_imageConfirmation')
+        }}</vn-card-title>
 
-        <div class="image-details" v-if="imagesLoaded">
-          <template
-            v-if="
-              largestImageDimension &&
-              (img.imageWidth === largestImageWidth ||
-                img.imageHeight === largestImageHeight ||
-                img.imageDimension === largestImageDimension)
-            "
-          >
-            <div class="image-dimension-icon-container">
-              <img
-                class="image-dimension-icon"
-                src="/src/assets/icons/misc/largest-image-width.svg"
-                v-if="
-                  img.imageWidth === largestImageWidth &&
-                  img.imageHeight < largestImageHeight
-                "
-              />
-              <img
-                class="image-dimension-icon"
-                src="/src/assets/icons/misc/largest-image-height.svg"
-                v-if="
-                  img.imageHeight === largestImageHeight &&
-                  img.imageWidth < largestImageWidth
-                "
-              />
-              <img
-                class="image-dimension-icon"
-                src="/src/assets/icons/misc/largest-image-dimension.svg"
-                v-if="img.imageDimension === largestImageDimension"
-              />
-            </div>
-            <div class="image-data-separator">•</div>
-          </template>
+        <vn-divider :class="separatorClasses"></vn-divider>
 
-          <template
-            v-for="(detail, detailIndex) in filterImageDetails(
-              img.imageDetails
-            )"
-            :key="detailIndex"
-          >
-            <div class="image-data-separator" v-if="detailIndex">•</div>
-            <div :class="{[`image-${detail.kind}-text`]: true}">
-              {{ detail.text }}
+        <vn-card-text tabindex="-1">
+          <div class="preview-images">
+            <div
+              class="tile-container"
+              tabindex="0"
+              :data-index="index"
+              @click="onSelection"
+              @keyup.enter="onSelection"
+              v-for="(img, index) in previewImages"
+              :key="index"
+            >
+              <picture class="image-container">
+                <source
+                  :srcset="img.image.imageDataUrl || img.image.imageUrl"
+                />
+                <img
+                  class="image"
+                  :src="`/src/assets/icons/misc/${
+                    theme === 'dark' ? 'broken-image-dark' : 'broken-image'
+                  }.svg`"
+                  :data-index="index"
+                  @error.once="onPreviewImageError"
+                  @load="onPreviewImageLoad"
+                  :alt="img.image.imageFilename"
+                />
+              </picture>
+
+              <div class="image-details" v-if="imagesLoaded">
+                <template
+                  v-if="
+                    largestImageDimension &&
+                    (img.imageWidth === largestImageWidth ||
+                      img.imageHeight === largestImageHeight ||
+                      img.imageDimension === largestImageDimension)
+                  "
+                >
+                  <div class="image-dimension-icon-container">
+                    <vn-icon
+                      class="image-dimension-icon"
+                      src="/src/assets/icons/misc/swap-horiz.svg"
+                      :title="getText('pageContent_widest_image')"
+                      v-if="
+                        img.imageWidth === largestImageWidth &&
+                        img.imageHeight < largestImageHeight
+                      "
+                    ></vn-icon>
+                    <vn-icon
+                      class="image-dimension-icon"
+                      src="/src/assets/icons/misc/swap-vert.svg"
+                      :title="getText('pageContent_tallest_image')"
+                      v-if="
+                        img.imageHeight === largestImageHeight &&
+                        img.imageWidth < largestImageWidth
+                      "
+                    ></vn-icon>
+                    <vn-icon
+                      class="image-dimension-icon"
+                      src="/src/assets/icons/misc/open-with.svg"
+                      :title="getText('pageContent_largest_image')"
+                      v-if="img.imageDimension === largestImageDimension"
+                    ></vn-icon>
+                  </div>
+                  <div class="image-data-separator">•</div>
+                </template>
+
+                <template
+                  v-for="(detail, detailIndex) in filterImageDetails(
+                    img.imageDetails
+                  )"
+                  :key="detailIndex"
+                >
+                  <div class="image-data-separator" v-if="detailIndex">•</div>
+                  <div :class="{[`image-${detail.kind}-text`]: true}">
+                    {{ detail.text }}
+                  </div>
+                </template>
+              </div>
             </div>
-          </template>
-        </div>
-      </div>
-    </div>
-  </v-dialog>
+          </div>
+        </vn-card-text>
+
+        <vn-divider :class="separatorClasses"></vn-divider>
+
+        <vn-card-actions>
+          <vn-button @click="onCancel" variant="tonal">
+            {{ getText('buttonLabel_cancel') }}
+          </vn-button>
+        </vn-card-actions>
+      </vn-card>
+    </vn-dialog>
+  </vn-app>
 </template>
 
 <script>
 import {markRaw} from 'vue';
-import {Dialog} from 'ext-components';
+import {
+  App,
+  Button,
+  Card,
+  CardActions,
+  CardText,
+  CardTitle,
+  Dialog,
+  Divider,
+  Icon
+} from 'vueton';
 
 import {
   shareImage,
   getFormattedImageDetails,
   isPreviewImageValid,
   sendLargeMessage,
-  processLargeMessage
+  processLargeMessage,
+  getAppTheme
 } from 'utils/app';
 import {getText} from 'utils/common';
 
 export default {
   components: {
-    [Dialog.name]: Dialog
+    [App.name]: App,
+    [Button.name]: Button,
+    [Card.name]: Card,
+    [CardActions.name]: CardActions,
+    [CardText.name]: CardText,
+    [CardTitle.name]: CardTitle,
+    [Dialog.name]: Dialog,
+    [Divider.name]: Divider,
+    [Icon.name]: Icon
   },
 
   data: function () {
     return {
       showDialog: false,
+      hasScrollBar: false,
 
       previewImages: [],
 
@@ -110,22 +157,17 @@ export default {
       largestImageDimension: 0,
       largestImageIndex: null,
 
-      minWidthViewport: false
+      minWidthViewport: false,
+
+      theme: ''
     };
   },
 
   computed: {
     separatorClasses: function () {
       return {
-        visible: this.searchAllEngines || this.hasScrollBar
+        visible: this.hasScrollBar
       };
-    },
-    showSettings: function () {
-      return (
-        this.searchModeAction === 'url' ||
-        (this.searchModeAction === 'browse' &&
-          (this.browseEnabled || this.pasteEnabled))
-      );
     }
   },
 
@@ -281,11 +323,25 @@ export default {
     initResizeObservers: function () {
       const mql = window.matchMedia('(min-width: 400px)');
       mql.addEventListener('change', this.setMinWidthViewport);
+
       this.setMinWidthViewport(mql);
+
+      const observer = new ResizeObserver(this.configureScrollBar);
+      const content = document.querySelector('.preview-images');
+      observer.observe(content);
+      observer.observe(content.parentNode);
+
+      this.configureScrollBar();
     },
 
     setMinWidthViewport: function (ev) {
       this.minWidthViewport = ev.matches;
+    },
+
+    configureScrollBar: function () {
+      const content = document.querySelector('.preview-images').parentNode;
+
+      this.hasScrollBar = content.scrollHeight > content.clientHeight;
     },
 
     setup: function (session, images) {
@@ -321,11 +377,27 @@ export default {
         });
         this.contentMessagePort.onMessage.addListener(this.onMessage);
       }
-    }
-  },
 
-  created: function () {
-    this.initResizeObservers();
+      this.theme = await getAppTheme();
+      document.addEventListener('themeChange', ev => {
+        this.theme = ev.detail;
+      });
+
+      window.addEventListener(
+        'keydown',
+        ev => {
+          if (ev.key === 'Escape') {
+            ev.preventDefault();
+            ev.stopImmediatePropagation();
+
+            this.onCancel();
+          }
+        },
+        {capture: true, passive: false}
+      );
+
+      this.initResizeObservers();
+    }
   },
 
   mounted: function () {
@@ -335,15 +407,57 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@material/button/mixins';
-@import '@material/ripple/mixins';
-@import '@material/theme/mixins';
-@import '@material/typography/mixins';
+@use 'vueton/styles' as vueton;
 
-body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
+@include vueton.theme-base;
+@include vueton.transitions;
+
+:root {
+  // the document background is not transparent in dark mode
+  color-scheme: light !important;
+}
+
+.v-application {
+  background: transparent !important;
+}
+
+.vn-dialog {
+  & .confirmation-dialog__content {
+    transform-origin: center center !important;
+
+    width: initial !important;
+    max-width: initial !important;
+    max-height: calc(100% - 32px) !important;
+
+    & .vn-card {
+      @include vueton.theme-prop(background-color, menu-surface);
+
+      & .vn-divider {
+        opacity: 0;
+        transition: none;
+      }
+
+      & .vn-card-title {
+        padding-bottom: 16px !important;
+      }
+
+      & .vn-card-text {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+      }
+
+      & .vn-card-actions {
+        padding-top: 16px !important;
+        padding-bottom: 16px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+
+        & .vn-button {
+          @include vueton.theme-prop(color, primary);
+        }
+      }
+    }
+  }
 }
 
 .preview-images {
@@ -365,12 +479,12 @@ body {
 
 .tile-container {
   width: 248px;
-  height: 222px;
+  height: 226px;
   @media (min-width: 400px) {
     width: 320px;
-    height: 276px;
+    height: 280px;
   }
-  padding: 8px;
+  padding: 16px;
   box-sizing: border-box;
   position: relative;
   cursor: pointer;
@@ -391,8 +505,8 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background-color: #bdc3c7;
-  border-radius: 8px;
+  @include vueton.theme-prop(background-color, surface-variant);
+  border-radius: 16px;
   transition: all 0.2s ease;
   transform: scale(0.96);
   opacity: 0;
@@ -401,16 +515,16 @@ body {
 .tile-container:focus::before,
 .tile-container:hover::before {
   transform: scale(1);
-  opacity: 0.26;
+  opacity: 1;
 }
 
 .image-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 174px;
+  height: 162px;
   @media (min-width: 400px) {
-    height: 228px;
+    height: 216px;
   }
 }
 
@@ -418,9 +532,9 @@ body {
   display: flex;
   object-fit: scale-down;
   max-width: 100%;
-  max-height: 174px;
+  max-height: 162px;
   @media (min-width: 400px) {
-    max-height: 228px;
+    max-height: 216px;
   }
 }
 
@@ -429,7 +543,7 @@ body {
   align-items: center;
   justify-content: center;
   column-gap: 6px;
-  margin-top: 8px;
+  margin-top: 12px;
   max-width: 100%;
   height: 24px;
 }
@@ -441,16 +555,15 @@ body {
 }
 
 .image-dimension-icon {
-  width: 14px;
-  height: 14px;
-  opacity: 0.7;
+  width: 14px !important;
+  height: 14px !important;
 }
 
 .image-dimension-text,
 .image-size-text,
 .image-type-text,
 .image-data-separator {
-  @include mdc-typography(caption);
+  @include vueton.md2-typography(caption);
   white-space: nowrap;
 }
 
@@ -459,32 +572,7 @@ body {
   text-overflow: ellipsis;
 }
 
-.mdc-dialog__surface {
-  border-radius: 16px !important;
-  min-width: initial !important;
-  max-width: initial !important;
-}
-
-.mdc-dialog__title {
-  @include mdc-theme-prop(color, #252525);
-}
-
-.mdc-dialog__content {
-  padding-bottom: 9px !important;
-}
-
-.mdc-dialog__button {
-  @include mdc-button-ink-color(#4e5bb6);
-  @include mdc-button-shape-radius(16px);
-
-  & .mdc-button__ripple {
-    @include mdc-states-base-color(#8188e9);
-  }
-}
-
-.safari {
-  & .mdc-dialog__button {
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-  }
+.visible {
+  opacity: 1 !important;
 }
 </style>

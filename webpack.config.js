@@ -1,9 +1,10 @@
-const path = require('path');
-const {lstatSync, readdirSync} = require('fs');
+const path = require('node:path');
+const {lstatSync, readdirSync} = require('node:fs');
 
 const webpack = require('webpack');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const {VueLoaderPlugin} = require('vue-loader');
+const {VuetifyPlugin} = require('webpack-plugin-vuetify');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const storageRevisions = require('./src/storage/config.json').revisions;
@@ -40,8 +41,10 @@ const plugins = [
     }
   }),
   new VueLoaderPlugin(),
+  new VuetifyPlugin(),
   new MiniCssExtractPlugin({
-    filename: '[name]/style.css'
+    filename: '[name]/style.css',
+    ignoreOrder: true
   }),
   isProduction ? new LodashModuleReplacementPlugin({shorthands: true}) : null
 ].filter(Boolean);
@@ -50,6 +53,7 @@ const enginesRootDir = path.join(__dirname, 'src/engines');
 const engines = readdirSync(enginesRootDir)
   .filter(file => lstatSync(path.join(enginesRootDir, file)).isFile())
   .map(file => file.split('.')[0]);
+
 const entries = Object.fromEntries(
   engines.map(engine => [engine, `./src/engines/${engine}.js`])
 );
@@ -70,7 +74,7 @@ module.exports = {
     browse: './src/browse/main.js',
     search: './src/search/main.js',
     view: './src/view/main.js',
-    insert: './src/insert/main.js',
+    base: './src/base/main.js',
     content: './src/content/main.js',
     parse: './src/parse/main.js',
     tab: './src/tab/main.js',

@@ -1,5 +1,5 @@
 <template>
-  <div id="app" v-if="dataLoaded" :class="appClasses">
+  <vn-app v-if="dataLoaded" :class="appClasses">
     <div class="section-engines">
       <div class="section-title" v-once>
         {{ getText('optionSectionTitle_engines') }}
@@ -15,17 +15,12 @@
       >
         <template #item="{element}">
           <div class="option">
-            <v-form-field
-              :input-id="element"
+            <vn-checkbox
               :label="getText(`optionTitle_${element}`)"
+              :model-value="engineEnabled(element)"
+              @click="setEngineState(element, $event.target.checked)"
             >
-              <v-checkbox
-                :id="element"
-                :checked="engineEnabled(element)"
-                @update:checked="setEngineState(element, $event)"
-              >
-              </v-checkbox>
-            </v-form-field>
+            </vn-checkbox>
           </div>
         </template>
       </v-draggable>
@@ -37,55 +32,40 @@
       </div>
       <div class="option-wrap">
         <div class="option">
-          <v-form-field
-            input-id="sic"
+          <vn-switch
             :label="getText('optionTitle_showInContextMenu')"
-          >
-            <v-switch
-              id="sic"
-              v-model:checked="options.showInContextMenu"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.showInContextMenu"
+          ></vn-switch>
         </div>
         <div class="option select">
-          <v-select
+          <vn-select
             :label="getText('optionTitle_searchMode')"
-            v-model:value="options.searchModeContextMenu"
-            :options="listItems.searchModeContextMenu"
-            outlined
+            :items="listItems.searchModeContextMenu"
+            v-model="options.searchModeContextMenu"
+            transition="scale-transition"
           >
-          </v-select>
+          </vn-select>
         </div>
         <div class="option select" v-if="searchAllEnginesEnabled">
-          <v-select
+          <vn-select
             :label="getText('optionTitle_searchAllEngines')"
-            v-model:value="options.searchAllEnginesContextMenu"
-            :options="listItems.searchAllEnginesContextMenu"
-            outlined
+            :items="listItems.searchAllEnginesContextMenu"
+            v-model="options.searchAllEnginesContextMenu"
+            transition="scale-transition"
           >
-          </v-select>
+          </vn-select>
         </div>
         <div class="option">
-          <v-form-field
-            input-id="vicm"
+          <vn-switch
             :label="getText('optionTitle_viewImageContextMenu')"
-          >
-            <v-switch
-              id="vicm"
-              v-model:checked="options.viewImageContextMenu"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.viewImageContextMenu"
+          ></vn-switch>
         </div>
         <div class="option" v-if="shareEnabled">
-          <v-form-field
-            input-id="sicm"
+          <vn-switch
             :label="getText('optionTitle_shareImageContextMenu')"
-          >
-            <v-switch
-              id="sicm"
-              v-model:checked="options.shareImageContextMenu"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.shareImageContextMenu"
+          ></vn-switch>
         </div>
       </div>
     </div>
@@ -102,58 +82,31 @@
       </div>
       <div class="option-wrap">
         <div class="option select">
-          <v-select
+          <vn-select
             :label="getText('optionTitle_searchMode')"
-            v-model:value="options.searchModeAction"
-            :options="listItems.searchModeAction"
-            outlined
+            :items="listItems.searchModeAction"
+            v-model="options.searchModeAction"
+            transition="scale-transition"
           >
-          </v-select>
+          </vn-select>
         </div>
         <div class="option select" v-if="searchAllEnginesEnabled">
-          <v-select
+          <vn-select
             :label="getText('optionTitle_searchAllEngines')"
-            v-model:value="options.searchAllEnginesAction"
-            :options="listItems.searchAllEnginesAction"
-            outlined
+            :items="listItems.searchAllEnginesAction"
+            v-model="options.searchAllEnginesAction"
+            transition="scale-transition"
           >
-          </v-select>
-        </div>
-        <div class="option">
-          <v-form-field
-            input-id="via"
-            :label="getText('optionTitle_viewImageAction')"
-          >
-            <v-switch
-              id="via"
-              v-model:checked="options.viewImageAction"
-            ></v-switch>
-          </v-form-field>
-        </div>
-        <div class="option" v-if="shareEnabled">
-          <v-form-field
-            input-id="sia"
-            :label="getText('optionTitle_shareImageAction')"
-          >
-            <v-switch
-              id="sia"
-              v-model:checked="options.shareImageAction"
-            ></v-switch>
-          </v-form-field>
+          </vn-select>
         </div>
         <div
           class="option"
           v-if="options.searchModeAction === 'browse' && autoPasteEnabled"
         >
-          <v-form-field
-            input-id="ap"
+          <vn-switch
             :label="getText('optionTitle_autoPasteAction')"
-          >
-            <v-switch
-              id="ap"
-              v-model:checked="options.autoPasteAction"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.autoPasteAction"
+          ></vn-switch>
         </div>
       </div>
     </div>
@@ -163,113 +116,112 @@
         {{ getText('optionSectionTitle_misc') }}
       </div>
       <div class="option-wrap">
+        <div class="option select">
+          <vn-select
+            :label="getText('optionTitle_appTheme')"
+            :items="listItems.appTheme"
+            v-model="options.appTheme"
+            transition="scale-transition"
+          >
+          </vn-select>
+        </div>
+
         <div class="option" v-if="!$env.isAndroid">
-          <v-form-field
-            input-id="tib"
+          <vn-switch
             :label="getText('optionTitle_tabInBackgound')"
-          >
-            <v-switch
-              id="tib"
-              v-model:checked="options.tabInBackgound"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.tabInBackgound"
+          ></vn-switch>
         </div>
         <div class="option">
-          <v-form-field
-            input-id="ifp"
+          <vn-switch
             :label="getText('optionTitle_imgFullParse')"
-          >
-            <v-switch
-              id="ifp"
-              v-model:checked="options.imgFullParse"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.imgFullParse"
+          ></vn-switch>
         </div>
         <div class="option">
-          <v-form-field
-            input-id="dais"
+          <vn-switch
             :label="getText('optionTitle_detectAltImageDimension')"
-          >
-            <v-switch
-              id="dais"
-              v-model:checked="options.detectAltImageDimension"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.detectAltImageDimension"
+          ></vn-switch>
         </div>
         <div class="option" v-if="shareEnabled">
-          <v-form-field
-            input-id="csi"
+          <vn-switch
             :label="getText('optionTitle_convertSharedImage')"
-          >
-            <v-switch
-              id="csi"
-              v-model:checked="options.convertSharedImage"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.convertSharedImage"
+          ></vn-switch>
         </div>
         <div class="option">
-          <v-form-field
-            input-id="viuv"
+          <vn-switch
             :label="getText('optionTitle_viewImageUseViewer')"
-          >
-            <v-switch
-              id="viuv"
-              v-model:checked="options.viewImageUseViewer"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.viewImageUseViewer"
+          ></vn-switch>
         </div>
         <div class="option" v-if="pasteEnabled">
-          <v-form-field
-            input-id="cp"
+          <vn-switch
             :label="getText('optionTitle_confirmPaste')"
-          >
-            <v-switch id="cp" v-model:checked="options.confirmPaste"></v-switch>
-          </v-form-field>
+            v-model="options.confirmPaste"
+          ></vn-switch>
         </div>
         <div class="option">
-          <v-form-field
-            input-id="bih"
+          <vn-switch
             :label="getText('optionTitle_bypassImageHostBlocking')"
-          >
-            <v-switch
-              id="bih"
-              v-model:checked="options.bypassImageHostBlocking"
-            ></v-switch>
-          </v-form-field>
+            v-model="options.bypassImageHostBlocking"
+          ></vn-switch>
         </div>
         <div class="option">
-          <v-form-field
-            input-id="lg"
+          <vn-switch
             :label="getText('optionTitle_localGoogle')"
-          >
-            <v-switch id="lg" v-model:checked="options.localGoogle"></v-switch>
-          </v-form-field>
+            v-model="options.localGoogle"
+          ></vn-switch>
+        </div>
+        <div class="option">
+          <vn-switch
+            :label="getText('optionTitle_showEngineIcons')"
+            v-model="options.showEngineIcons"
+          ></vn-switch>
+        </div>
+        <div class="option" v-if="enableContributions">
+          <vn-switch
+            :label="getText('optionTitle_showContribPage')"
+            v-model="options.showContribPage"
+          ></vn-switch>
+        </div>
+        <div class="option button" v-if="enableContributions">
+          <vn-button
+            class="contribute-button vn-icon--start"
+            @click="showContribute"
+            ><vn-icon
+              src="/src/assets/icons/misc/favorite-filled.svg"
+            ></vn-icon>
+            {{ getText('buttonLabel_contribute') }}
+          </vn-button>
         </div>
       </div>
     </div>
-
-    <div class="section-placeholder"></div>
-  </div>
+  </vn-app>
 </template>
 
 <script>
 import {toRaw} from 'vue';
-import draggable from 'vuedraggable';
+import {App, Button, Checkbox, Icon, Select, Switch} from 'vueton';
 import {includes, without} from 'lodash-es';
-import {Checkbox, FormField, Switch, Select} from 'ext-components';
+import draggable from 'vuedraggable';
 
 import storage from 'storage/storage';
-import {getListItems, canShare} from 'utils/app';
+import {getListItems, canShare, showContributePage} from 'utils/app';
 import {getText} from 'utils/common';
+import {enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
 export default {
   components: {
     'v-draggable': draggable,
+    [App.name]: App,
+    [Button.name]: Button,
     [Checkbox.name]: Checkbox,
+    [Icon.name]: Icon,
     [Switch.name]: Switch,
-    [Select.name]: Select,
-    [FormField.name]: FormField
+    [Select.name]: Select
   },
 
   data: function () {
@@ -315,8 +267,15 @@ export default {
         ...getListItems(
           {searchModeAction},
           {scope: 'optionValue_searchModeAction'}
+        ),
+        ...getListItems(
+          {appTheme: ['auto', 'light', 'dark']},
+          {scope: 'optionValue_appTheme'}
         )
       },
+
+      enableContributions,
+
       contextMenuEnabled: true,
       searchAllEnginesEnabled: true,
       shareEnabled: true,
@@ -336,14 +295,15 @@ export default {
         searchModeContextMenu: '',
         bypassImageHostBlocking: false,
         shareImageContextMenu: false,
-        shareImageAction: false,
         convertSharedImage: false,
         autoPasteAction: false,
         confirmPaste: false,
         detectAltImageDimension: false,
         viewImageContextMenu: false,
-        viewImageAction: false,
-        viewImageUseViewer: false
+        viewImageUseViewer: false,
+        appTheme: '',
+        showContribPage: false,
+        showEngineIcons: false
       }
     };
   },
@@ -405,6 +365,10 @@ export default {
       } else {
         this.options.disabledEngines.push(engine);
       }
+    },
+
+    showContribute: async function () {
+      await showContributePage();
     }
   },
 
@@ -420,141 +384,82 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@material/select/mdc-select';
-@import '@material/checkbox/mixins';
-@import '@material/switch/mixins';
-@import '@material/theme/mixins';
-@import '@material/typography/mixins';
+@use 'vueton/styles' as vueton;
 
-body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
-  background-color: #ffffff;
-  overflow: visible !important;
-}
+@include vueton.theme-base;
+@include vueton.transitions;
 
-#app {
+.v-application__wrap {
   display: grid;
   grid-row-gap: 32px;
   grid-column-gap: 48px;
   padding: 24px;
-}
-
-.mdc-checkbox {
-  @include mdc-checkbox-container-colors(#8188e9, #00000000, #8188e9, #8188e9);
-  @include mdc-checkbox-focus-indicator-color(#8188e9);
-  margin-right: 4px;
-}
-
-.mdc-switch {
-  @include mdc-switch-toggled-on-color(#8188e9);
-  margin-right: 16px;
-}
-
-.mdc-select {
-  @include mdc-select-ink-color(#252525);
-  @include mdc-select-focused-label-color(#252525);
-  @include mdc-select-outline-color(#777777);
-  @include mdc-select-hover-outline-color(#8188e9);
-  @include mdc-select-focused-outline-color(#8188e9);
-  @include mdc-select-outline-shape-radius(16px);
-
-  & .mdc-select__dropdown-icon {
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%23454545'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z'/%3E%3C/svg%3E")
-      no-repeat center !important;
-    top: 50% !important;
-    transform: translateY(-50%);
-  }
-
-  &.mdc-select--activated .mdc-select__dropdown-icon {
-    transform: rotate(180deg) translateY(50%);
-  }
-
-  & .mdc-list {
-    padding: 0 !important;
-  }
-
-  & .mdc-menu-surface {
-    border-radius: 16px !important;
-  }
-}
-
-.section-title,
-.section-desc,
-.mdc-form-field,
-.mdc-list-item {
-  @include mdc-theme-prop(color, #252525);
+  grid-auto-rows: min-content;
+  grid-auto-columns: min-content;
 }
 
 .section-title {
-  @include mdc-typography(headline6);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  line-height: 32px;
 }
 
 .section-desc {
-  @include mdc-typography(body2);
-  padding-top: 8px;
-}
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+  line-height: 20px;
 
-.section-placeholder {
-  display: none;
+  padding-top: 8px;
+  width: 272px;
 }
 
 .option-wrap {
   display: grid;
   grid-row-gap: 24px;
   padding-top: 24px;
-  grid-auto-columns: min-content;
 }
 
 .option {
   display: flex;
   align-items: center;
-  height: 24px;
+  height: 20px;
 
-  & .mdc-form-field {
-    max-width: calc(100vw - 48px);
+  &.button {
+    height: 40px;
+  }
 
-    & label {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
+  &.select,
+  &.text-field {
+    height: 56px;
   }
 }
 
-.option.select {
-  align-items: start;
-  height: 56px;
+.contribute-button {
+  @include vueton.theme-prop(color, primary);
 
-  & .mdc-select__anchor,
-  & .mdc-select__menu {
-    max-width: calc(100vw - 48px);
-  }
-
-  & .mdc-select__selected-text {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  & .vn-icon {
+    @include vueton.theme-prop(background-color, cta);
   }
 }
 
 @media (min-width: 1024px) {
-  #app {
+  .v-application__wrap {
     grid-template-columns: 464px 464px;
-    grid-template-rows: min-content min-content 1fr;
+    grid-template-rows: min-content 1fr;
     grid-template-areas:
       'engines toolbar'
-      'engines misc'
-      'engines placeholder';
+      'engines misc';
+  }
 
-    &.feature-context-menu {
-      grid-template-rows: min-content min-content min-content 1fr;
+  .feature-context-menu {
+    & .v-application__wrap {
+      grid-template-rows: min-content min-content 1fr;
       grid-template-areas:
         'engines context-menu'
         'engines toolbar'
-        'engines misc'
-        'engines placeholder';
+        'engines misc';
     }
   }
 
@@ -572,11 +477,6 @@ body {
 
   .section-misc {
     grid-area: misc;
-  }
-
-  .section-placeholder {
-    grid-area: placeholder;
-    display: initial;
   }
 }
 </style>

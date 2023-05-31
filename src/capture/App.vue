@@ -1,51 +1,44 @@
 <template>
-  <div id="app" :class="appClasses">
+  <vn-app :class="appClasses">
     <div ref="canvasWrap" class="canvas-wrap">
       <canvas id="canvas"></canvas>
     </div>
-    <div ref="snackbar" class="mdc-snackbar">
-      <div class="mdc-snackbar__surface">
-        <div class="mdc-snackbar__label">
-          {{ getText('snackbarMessage_imageCapture') }}
-        </div>
-        <div class="mdc-snackbar__actions">
-          <v-button
-            class="capture-button"
-            :ripple="false"
-            :label="getText('buttonText_search')"
-            @click="onCapture"
-          >
-          </v-button>
+    <vn-snackbar v-model="openSnackbar" :timeout="-1">
+      <vn-icon-button
+        src="/src/assets/icons/misc/close.svg"
+        :title="getText('buttonTooltip_close')"
+        @click="onCancel"
+      ></vn-icon-button>
 
-          <v-icon-button
-            class="cancel-button"
-            :ripple="false"
-            src="/src/assets/icons/misc/close-alt.svg"
-            @click="onCancel"
-          >
-          </v-icon-button>
-        </div>
-      </div>
-    </div>
-  </div>
+      {{ getText('snackbarMessage_imageCapture') }}
+
+      <template v-slot:actions>
+        <vn-button class="capture-button" @click="onCapture" variant="tonal">
+          {{ getText('buttonLabel_search') }}
+        </vn-button>
+      </template>
+    </vn-snackbar>
+  </vn-app>
 </template>
 
 <script>
 import Cropper from 'cropperjs';
-import {MDCSnackbar} from '@material/snackbar';
-import {Button, IconButton} from 'ext-components';
+import {App, Button, IconButton, Snackbar} from 'vueton';
 
 import {getText} from 'utils/common';
 
 export default {
   components: {
+    [App.name]: App,
     [Button.name]: Button,
-    [IconButton.name]: IconButton
+    [IconButton.name]: IconButton,
+    [Snackbar.name]: Snackbar
   },
 
   data: function () {
     return {
-      canvasHidden: false
+      canvasHidden: false,
+      openSnackbar: false
     };
   },
 
@@ -63,6 +56,25 @@ export default {
 
   methods: {
     getText,
+
+    setup: async function () {
+      if (this.$env.isFirefox) {
+        browser.runtime.onMessage.addListener(this.onMessage);
+        browser.runtime.sendMessage({
+          id: 'routeMessage',
+          setSenderFrameId: true,
+          messageFrameId: 0,
+          message: {id: 'saveFrameId'}
+        });
+      } else {
+        const tab = await browser.tabs.getCurrent();
+        this.contentMessagePort = browser.tabs.connect(tab.id, {
+          name: 'view',
+          frameId: 0
+        });
+        this.contentMessagePort.onMessage.addListener(this.onMessage);
+      }
+    },
 
     onMessage: function (request, sender) {
       // Samsung Internet 13: extension messages are sometimes also dispatched
@@ -85,7 +97,7 @@ export default {
     },
 
     onCapture: function () {
-      const area = this.cropper.getCropBoxData();
+      const area = this.getCaptureArea();
 
       if (!area.width) {
         browser.runtime.sendMessage({
@@ -110,8 +122,17 @@ export default {
       this.hideCapture();
     },
 
+    getCaptureArea: function () {
+      const area = this.cropper.getCropBoxData();
+      // include crop area margins
+      area.top += 4;
+      area.left += 4;
+
+      return area;
+    },
+
     showCapture: function () {
-      this.snackbar.open();
+      this.showSnackbar();
 
       this.canvasHidden = false;
       if (!this.cropper) {
@@ -136,66 +157,113 @@ export default {
     },
 
     hideCapture: function () {
-      this.snackbar.close();
+      this.hideSnackbar();
 
       this.canvasHidden = true;
       if (this.cropper) {
         this.cropper.clear();
       }
+    },
+
+    showSnackbar: function () {
+      this.openSnackbar = true;
+    },
+
+    hideSnackbar: function () {
+      this.openSnackbar = false;
     }
   },
 
-  mounted: async function () {
-    this.snackbar = new MDCSnackbar(this.$refs.snackbar);
-    this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
-    this.snackbar.closeOnEscape = false;
-
-    if (this.$env.isFirefox) {
-      browser.runtime.onMessage.addListener(this.onMessage);
-      browser.runtime.sendMessage({
-        id: 'routeMessage',
-        setSenderFrameId: true,
-        messageFrameId: 0,
-        message: {id: 'saveFrameId'}
-      });
-    } else {
-      const tab = await browser.tabs.getCurrent();
-      this.contentMessagePort = browser.tabs.connect(tab.id, {
-        name: 'view',
-        frameId: 0
-      });
-      this.contentMessagePort.onMessage.addListener(this.onMessage);
-    }
+  mounted: function () {
+    this.setup();
   }
 };
 </script>
 
 <style lang="scss">
-@import '@material/snackbar/mdc-snackbar';
-@import '@material/button/mixins';
-@import '@material/icon-button/mixins';
-@import '@material/ripple/mixins';
-@import '@material/typography/mixins';
-@import '~cropperjs/dist/cropper';
+@use 'vueton/styles' as vueton;
+@use 'cropperjs/dist/cropper';
+
+@include vueton.theme-base;
+@include vueton.transitions;
 
 html,
 body,
-#app,
+.vn-app,
+.v-application__wrap,
 #canvas {
   width: 100%;
   height: 100%;
 }
 
 body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
   overflow: hidden;
 }
 
+:root {
+  // the document background is not transparent in dark mode
+  color-scheme: light !important;
+}
+
+.v-application {
+  background: transparent !important;
+}
+
+.vn-snackbar {
+  & .v-snackbar__wrapper {
+    margin-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    background-color: var(--md-ref-palette-primary30) !important;
+
+    & .v-snackbar__content {
+      font-size: 16px;
+      font-weight: 500;
+
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      padding-top: 0px;
+      padding-bottom: 0px;
+      padding-left: 4px;
+      padding-right: 16px;
+
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    & .vn-icon-button {
+      @include vueton.theme-prop(color, inverse-primary);
+
+      & .vn-icon {
+        @include vueton.theme-prop(background-color, inverse-on-surface);
+      }
+
+      & .vn-icon-button__state {
+        @include vueton.theme-prop(background-color, inverse-primary);
+      }
+    }
+
+    & .capture-button {
+      padding-left: 24px;
+      padding-right: 24px;
+
+      & .v-btn__content {
+        font-size: 16px !important;
+        @include vueton.theme-prop(color, inverse-on-surface);
+      }
+
+      @include vueton.theme-prop(color, inverse-primary);
+    }
+  }
+}
+
 .canvas-wrap {
-  width: 100%;
-  height: calc(100% - calc(64px + env(safe-area-inset-bottom, 0px)));
+  margin-top: 4px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: calc(100% - 4px - 4px);
+  height: calc(100% - 4px - 64px - env(safe-area-inset-bottom, 0px));
 }
 
 .canvas-hidden .canvas-wrap {
@@ -276,7 +344,7 @@ body {
       width: 16px;
       height: 16px;
       content: '';
-      color: #8188e9;
+      color: var(--md-ref-palette-primary50);
     }
   }
 
@@ -290,7 +358,7 @@ body {
       right: 14px;
       border-top: 4px solid;
       border-right: 4px solid;
-      border-top-right-radius: 4px;
+      border-top-right-radius: 6px;
     }
   }
 
@@ -304,7 +372,7 @@ body {
       left: 14px;
       border-top: 4px solid;
       border-left: 4px solid;
-      border-top-left-radius: 4px;
+      border-top-left-radius: 6px;
     }
   }
 
@@ -318,7 +386,7 @@ body {
       left: 14px;
       border-bottom: 4px solid;
       border-left: 4px solid;
-      border-bottom-left-radius: 4px;
+      border-bottom-left-radius: 6px;
     }
   }
 
@@ -332,54 +400,38 @@ body {
       bottom: 14px;
       border-right: 4px solid;
       border-bottom: 4px solid;
-      border-bottom-right-radius: 4px;
+      border-bottom-right-radius: 6px;
     }
   }
 }
 
-.mdc-snackbar {
-  @include mdc-snackbar-fill-color(#312a65);
-  @include mdc-snackbar-shape-radius(8px);
-  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-}
-
-.mdc-snackbar__surface {
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.12),
-    0px 6px 10px 0px rgba(0, 0, 0, 0.08), 0px 1px 12px 0px rgba(0, 0, 0, 0.06);
-  border-radius: 16px !important;
-}
-
-.mdc-snackbar__label {
-  font-size: 17px;
-  font-weight: 500;
-}
-
-.capture-button {
-  @include mdc-button-ink-color(#a7aae1);
-  @include mdc-button-shape-radius(16px);
-  font-size: 17px;
-
-  & .mdc-button__ripple {
-    @include mdc-states-base-color(#ffffff);
+.v-theme--dark {
+  &.vn-snackbar {
+    & .v-snackbar__wrapper {
+      background-color: var(--md-ref-palette-primary80) !important;
+    }
   }
-}
 
-.cancel-button {
-  @include mdc-icon-button-icon-size(22px, 22px, 7px);
-  @include mdc-icon-button-ink-color(rgba(255, 255, 255, 0.87));
-  margin-left: 8px;
-}
-
-.safari {
-  & .capture-button {
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  & .cropper-point {
+    &.point-ne,
+    &.point-nw,
+    &.point-sw,
+    &.point-se {
+      &::after {
+        color: var(--md-ref-palette-primary60);
+      }
+    }
   }
 }
 
 /* tablets */
 @media (min-width: 480px) {
-  .mdc-snackbar__surface {
-    min-width: 440px !important;
+  html {
+    & .vn-snackbar {
+      & .v-snackbar__wrapper {
+        min-width: 360px;
+      }
+    }
   }
 }
 </style>

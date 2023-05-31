@@ -1,3 +1,5 @@
+import {v4 as uuidv4} from 'uuid';
+
 import {targetEnv} from 'utils/config';
 
 function getText(messageName, substitutions) {
@@ -23,40 +25,39 @@ async function createTab({
   token = '',
   index = null,
   active = true,
-  openerTabId = null
+  openerTabId = null,
+  getTab = false
 } = {}) {
   if (!url) {
     url = getNewTabUrl(token);
   }
 
   const props = {url, active};
+
   if (index !== null) {
     props.index = index;
   }
-  if (
-    openerTabId !== null &&
-    openerTabId !== browser.tabs.TAB_ID_NONE &&
-    !(await isAndroid())
-  ) {
+  if (openerTabId !== null) {
     props.openerTabId = openerTabId;
   }
 
   let tab = await browser.tabs.create(props);
 
-  if (targetEnv === 'samsung') {
-    // Samsung Internet 13: tabs.create returns previously active tab.
+  if (getTab) {
+    if (targetEnv === 'samsung') {
+      // Samsung Internet 13: tabs.create returns previously active tab.
+      // Samsung Internet 13: tabs.query may not immediately return newly created tabs.
+      let count = 1;
+      while (count <= 500 && (!tab || tab.url !== url)) {
+        [tab] = await browser.tabs.query({lastFocusedWindow: true, url});
 
-    // Samsung Internet 13: tabs.query may not immediately return newly created tabs.
-    let count = 1;
-    while (count <= 500 && (!tab || tab.url !== url)) {
-      [tab] = await browser.tabs.query({lastFocusedWindow: true, url});
-
-      await sleep(20);
-      count += 1;
+        await sleep(20);
+        count += 1;
+      }
     }
-  }
 
-  return tab;
+    return tab;
+  }
 }
 
 function getNewTabUrl(token) {
@@ -453,6 +454,18 @@ async function isMobile() {
   return ['android', 'ios', 'ipados'].includes(os);
 }
 
+function getDarkColorSchemeQuery() {
+  return window.matchMedia('(prefers-color-scheme: dark)');
+}
+
+function getDayPrecisionEpoch(epoch) {
+  if (!epoch) {
+    epoch = Date.now();
+  }
+
+  return epoch - (epoch % 86400000);
+}
+
 export {
   onError,
   onComplete,
@@ -478,6 +491,8 @@ export {
   filenameToFileExt,
   isAndroid,
   isMobile,
+  getDarkColorSchemeQuery,
+  getDayPrecisionEpoch,
   findNode,
   processNode,
   getActiveTab,

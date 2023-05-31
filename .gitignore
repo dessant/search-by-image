@@ -1,15 +1,18 @@
 /.assets/
 /app/
-
-node_modules/
 /artifacts/
 /dist/
 
-/.vscode
+/report.json
+/report.html
 
 /web-ext-config.js
 
+node_modules/
 /npm-debug.log
 
-/report.json
-/report.html
+/.vscode
+
+xcuserdata/
+
+.DS_Store

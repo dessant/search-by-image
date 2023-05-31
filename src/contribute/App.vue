@@ -1,22 +1,25 @@
 <template>
-  <div id="app">
-    <v-contribute
+  <vn-app>
+    <vn-contribute
       :extName="extName"
       :extSlug="extSlug"
       :notice="notice"
       @open="contribute"
     >
-    </v-contribute>
-  </div>
+    </vn-contribute>
+  </vn-app>
 </template>
 
 <script>
-import {Contribute} from 'ext-contribute';
+import {App} from 'vueton';
+import {Contribute} from 'vueton/components/contribute';
 
-import {getText, getActiveTab} from 'utils/common';
+import {showPage} from 'utils/app';
+import {getText} from 'utils/common';
 
 export default {
   components: {
+    [App.name]: App,
     [Contribute.name]: Contribute
   },
 
@@ -29,10 +32,16 @@ export default {
   },
 
   methods: {
-    contribute: async function ({url} = {}) {
-      const activeTab = await getActiveTab();
+    setup: function () {
+      const query = new URL(window.location.href).searchParams;
+      if (query.get('action') === 'auto') {
+        this.notice = `This page is shown once a year while using the extension,
+        the search results can be found in the next tab.`;
+      }
+    },
 
-      await browser.tabs.create({url, index: activeTab.index + 1});
+    contribute: async function ({url} = {}) {
+      await showPage({url});
     }
   },
 
@@ -42,25 +51,18 @@ export default {
       this.extName
     ]);
 
-    const query = new URL(window.location.href).searchParams;
-    if (query.get('action') === 'search') {
-      this.notice = `This page is shown during your 10th and 100th search,
-        the search results can be found next to the current tab.`;
-    }
+    this.setup();
   }
 };
 </script>
 
 <style lang="scss">
-@import '@material/typography/mixins';
+@use 'vueton/styles' as vueton;
 
-body {
+@include vueton.theme-base;
+
+.v-application__wrap {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
-  background-color: #ffffff;
 }
 </style>

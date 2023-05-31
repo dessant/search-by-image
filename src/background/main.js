@@ -24,9 +24,8 @@ import {
   getSearches,
   createSession,
   showNotification,
-  showContributePage,
   captureImage,
-  hasBaseModule,
+  hasModule,
   insertBaseModule,
   fetchImage,
   isContextMenuSupported,
@@ -39,12 +38,16 @@ import {
   processImageUrl,
   sendLargeMessage,
   processLargeMessage,
-  processMessageResponse
+  processMessageResponse,
+  processAppUse,
+  getAppTheme,
+  showPage,
+  getOpenerTabId
 } from 'utils/app';
 import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
-import {targetEnv, enableContributions} from 'utils/config';
+import {targetEnv} from 'utils/config';
 
 const queue = new Queue({concurrency: 1});
 
@@ -237,6 +240,7 @@ async function createMenu() {
   const env = await getPlatform({fallback: false});
 
   const options = await storage.get(optionKeys);
+  const theme = await getAppTheme(options.appTheme);
 
   const contexts = [
     'audio',
@@ -260,7 +264,7 @@ async function createMenu() {
   }
 
   const extUrlPattern = getExtensionUrlPattern();
-  const setIcons = env.isFirefox;
+  const setIcons = env.isFirefox && options.showEngineIcons;
   const searchAllEngines =
     !env.isSamsung && options.searchAllEnginesContextMenu;
   const viewEnabled = options.viewImageContextMenu;
@@ -334,12 +338,24 @@ async function createMenu() {
     }
 
     if (shareEnabled) {
+      const title = getText('menuItemTitle_shareImage');
+
       createMenuItem({
         id: 'share_1',
-        title: getText('menuItemTitle_shareImage'),
+        title,
         contexts,
         documentUrlPatterns
       });
+
+      if (extUrlPattern) {
+        createMenuItem({
+          id: 'share_2',
+          title,
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern]
+        });
+      }
+
       addSeparator = true;
     }
 
@@ -364,7 +380,8 @@ async function createMenu() {
 
     if (searchAllEngines === 'sub') {
       const title = getText('menuItemTitle_allEngines');
-      const icons = setIcons && getEngineMenuIcon('allEngines');
+      const icons =
+        setIcons && getEngineMenuIcon('allEngines', {variant: theme});
 
       createMenuItem({
         id: 'search_allEngines_1',
@@ -406,7 +423,7 @@ async function createMenu() {
 
     enEngines.forEach(function (engine) {
       const title = getText(`menuItemTitle_${engine}`);
-      const icons = setIcons && getEngineMenuIcon(engine);
+      const icons = setIcons && getEngineMenuIcon(engine, {variant: theme});
 
       createMenuItem({
         id: `search_${engine}_1`,
@@ -432,7 +449,7 @@ async function createMenu() {
 async function openContentView(message, view) {
   const tabId = message.session.sourceTabId;
 
-  if (!(await hasBaseModule(tabId))) {
+  if (!(await hasModule({tabId, module: 'base'}))) {
     await showNotification({messageId: 'error_scriptsNotAllowed'});
     return;
   }
@@ -528,14 +545,13 @@ async function searchImage(session, image, firstBatchItem = true) {
   let tabActive = firstBatchItem;
 
   let contributePageTabId;
-  if (enableContributions && firstBatchItem) {
-    let {searchCount} = await storage.get('searchCount');
-    searchCount += 1;
-    await storage.set({searchCount});
-    if ([10, 100].includes(searchCount)) {
-      const tab = await showContributePage('search');
-      contributePageTabId = tab.id;
-      session.sourceTabIndex += 1;
+
+  if (firstBatchItem) {
+    const contribPageTab = await processAppUse();
+
+    if (contribPageTab) {
+      contributePageTabId = contribPageTab.id;
+      session.sourceTabIndex = contribPageTab.index;
       tabActive = false;
     }
   }
@@ -639,7 +655,8 @@ async function searchEngine(session, search, image, imageId, tabActive) {
   const tab = await createTab({
     token,
     index: session.sourceTabIndex,
-    active: tabActive
+    active: tabActive,
+    getTab: true
   });
   const tabId = tab.id;
 
@@ -804,7 +821,13 @@ async function onContextMenuItemClick(info, tab) {
   const session = await createSession(sessionData);
 
   if (sessionType === 'view') {
-    if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
+    if (
+      !(await hasModule({
+        tabId: session.sourceTabId,
+        frameId: session.sourceFrameId,
+        module: 'base'
+      }))
+    ) {
       let processedImage;
 
       const url = getImageUrlFromContextMenuEvent(info);
@@ -822,16 +845,38 @@ async function onContextMenuItemClick(info, tab) {
       await searchClickTarget(session);
     }
   } else if (sessionType === 'share') {
-    if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
+    if (
+      !(await hasModule({
+        tabId: session.sourceTabId,
+        frameId: session.sourceFrameId,
+        module: 'base'
+      }))
+    ) {
       await showNotification({messageId: 'error_scriptsNotAllowed'});
     } else {
       await searchClickTarget(session);
     }
   } else if (sessionType === 'search') {
     if (session.searchMode === 'capture') {
-      await openContentView({session}, 'capture');
+      if (
+        !(await hasModule({
+          tabId: session.sourceTabId,
+          frameId: session.sourceFrameId,
+          module: 'base'
+        }))
+      ) {
+        await showNotification({messageId: 'error_scriptsNotAllowed'});
+      } else {
+        await openContentView({session}, 'capture');
+      }
     } else {
-      if (!(await hasBaseModule(session.sourceTabId, session.sourceFrameId))) {
+      if (
+        !(await hasModule({
+          tabId: session.sourceTabId,
+          frameId: session.sourceFrameId,
+          module: 'base'
+        }))
+      ) {
         let processedImage;
 
         const url = getImageUrlFromContextMenuEvent(info);
@@ -863,7 +908,7 @@ async function onActionClick(session, tabUrl) {
     await createTab({
       url: `${browseUrl}?id=${storageId}`,
       index: session.sourceTabIndex + 1,
-      openerTabId: session.sourceTabId
+      openerTabId: await getOpenerTabId(session.sourceTabId)
     });
   } else if (session.searchMode === 'capture') {
     await openContentView({session}, 'capture');
@@ -878,7 +923,7 @@ async function onActionClick(session, tabUrl) {
 
     await openContentView({session}, 'select');
 
-    if (await hasBaseModule(session.sourceTabId)) {
+    if (await hasModule({tabId: session.sourceTabId, module: 'base'})) {
       await showContentSelectionPointer(session.sourceTabId);
     }
   }
@@ -961,7 +1006,7 @@ async function initShare() {
 
   await openContentView({session}, 'select');
 
-  if (await hasBaseModule(session.sourceTabId)) {
+  if (await hasModule({tabId: session.sourceTabId, module: 'base'})) {
     await showContentSelectionPointer(session.sourceTabId);
   }
 }
@@ -978,7 +1023,7 @@ async function initView() {
 
   await openContentView({session}, 'select');
 
-  if (await hasBaseModule(session.sourceTabId)) {
+  if (await hasModule({tabId: session.sourceTabId, module: 'base'})) {
     await showContentSelectionPointer(session.sourceTabId);
   }
 }
@@ -1234,6 +1279,8 @@ async function processMessage(request, sender) {
     } catch (err) {
       return Promise.resolve({error: err.toString()});
     }
+  } else if (request.id === 'showPage') {
+    await showPage({url: request.url});
   }
 }
 

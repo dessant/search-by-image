@@ -896,16 +896,6 @@
     "description": "Value of the option."
   },
 
-  "optionTitle_viewImageAction": {
-    "message": "Open images",
-    "description": "Title of the option."
-  },
-
-  "optionTitle_shareImageAction": {
-    "message": "Share images",
-    "description": "Title of the option."
-  },
-
   "optionTitle_autoPasteAction": {
     "message": "Detect images from clipboard",
     "description": "Title of the option."
@@ -918,6 +908,36 @@
 
   "optionTitle_tabInBackgound": {
     "message": "Open new tabs in the background",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_appTheme": {
+    "message": "Theme",
+    "description": "Title of the option."
+  },
+
+  "optionValue_appTheme_auto": {
+    "message": "System default",
+    "description": "Value of the option."
+  },
+
+  "optionValue_appTheme_light": {
+    "message": "Light",
+    "description": "Value of the option."
+  },
+
+  "optionValue_appTheme_dark": {
+    "message": "Dark",
+    "description": "Value of the option."
+  },
+
+  "optionTitle_showEngineIcons": {
+    "message": "Show search engine icons",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_showContribPage": {
+    "message": "Show contribution page",
     "description": "Title of the option."
   },
 
@@ -971,24 +991,29 @@
     "description": "Text of the snackbar."
   },
 
-  "buttonText_cancel": {
+  "buttonLabel_cancel": {
     "message": "Cancel",
     "description": "Text of the button."
   },
 
-  "buttonText_browse": {
+  "buttonLabel_browse": {
     "message": "Browse",
     "description": "Text of the button."
   },
 
-  "buttonText_paste": {
+  "buttonLabel_paste": {
     "message": "Paste",
     "description": "Text of the button."
   },
 
-  "buttonText_search": {
+  "buttonLabel_search": {
     "message": "Search",
     "description": "Text of the button."
+  },
+
+  "buttonLabel_contribute": {
+    "message": "Contribute",
+    "description": "Label of the button."
   },
 
   "buttonTooltip_viewImage": {
@@ -1011,6 +1036,26 @@
     "description": "Tooltip of the button."
   },
 
+  "buttonTooltip_searchMode": {
+    "message": "Search mode",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_options": {
+    "message": "Options",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_pin": {
+    "message": "Pin",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_unpin": {
+    "message": "Unpin",
+    "description": "Tooltip of the button."
+  },
+
   "buttonTooltip_clearImage": {
     "message": "Clear images",
     "description": "Tooltip of the button."
@@ -1018,6 +1063,16 @@
 
   "buttonTooltip_copyImageUrl": {
     "message": "Copy image URL",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_close": {
+    "message": "Close",
+    "description": "Tooltip of the button."
+  },
+
+  "buttonTooltip_viewPage": {
+    "message": "Open page",
     "description": "Tooltip of the button."
   },
 
@@ -1036,15 +1091,19 @@
     "description": "Page content."
   },
 
-  "pageContent_search_title": {
-    "message": "Search results from $ENGINE$",
-    "description": "Page content.",
-    "placeholders": {
-      "engine": {
-        "content": "$1",
-        "example": "Google"
-      }
-    }
+  "pageContent_largest_image": {
+    "message": "Largest image",
+    "description": "Page content."
+  },
+
+  "pageContent_widest_image": {
+    "message": "Widest image",
+    "description": "Page content."
+  },
+
+  "pageContent_tallest_image": {
+    "message": "Tallest image",
+    "description": "Page content."
   },
 
   "inputPlaceholder_imageUrl": {
@@ -1085,6 +1144,21 @@
   "pageTitle_contribute": {
     "message": "Contribute",
     "description": "Title of the page."
+  },
+
+  "actionMenu_viewImage": {
+    "message": "Open image",
+    "description": "Title of the menu item."
+  },
+
+  "actionMenu_shareImage": {
+    "message": "Share image",
+    "description": "Title of the menu item."
+  },
+
+  "actionMenu_contribute": {
+    "message": "Contribute",
+    "description": "Title of the menu item."
   },
 
   "actionMenu_options": {

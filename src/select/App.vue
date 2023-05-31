@@ -1,33 +1,33 @@
 <template>
-  <div id="app">
-    <div ref="snackbar" class="mdc-snackbar">
-      <div class="mdc-snackbar__surface">
-        <div class="mdc-snackbar__label">
-          {{ getText('snackbarMessage_imageSelection') }}
-        </div>
-        <div class="mdc-snackbar__actions">
-          <v-icon-button
-            class="cancel-button"
-            :ripple="false"
-            src="/src/assets/icons/misc/close-alt.svg"
-            @click="onCancel"
-          >
-          </v-icon-button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <vn-app>
+    <vn-snackbar v-model="openSnackbar" :timeout="-1">
+      <vn-icon-button
+        src="/src/assets/icons/misc/close.svg"
+        :title="getText('buttonTooltip_close')"
+        @click="onCancel"
+      ></vn-icon-button>
+
+      {{ getText('snackbarMessage_imageSelection') }}
+    </vn-snackbar>
+  </vn-app>
 </template>
 
 <script>
-import {MDCSnackbar} from '@material/snackbar';
-import {IconButton} from 'ext-components';
+import {App, IconButton, Snackbar} from 'vueton';
 
 import {getText} from 'utils/common';
 
 export default {
   components: {
-    [IconButton.name]: IconButton
+    [App.name]: App,
+    [IconButton.name]: IconButton,
+    [Snackbar.name]: Snackbar
+  },
+
+  data: function () {
+    return {
+      openSnackbar: false
+    };
   },
 
   rawData: {
@@ -36,6 +36,25 @@ export default {
 
   methods: {
     getText,
+
+    setup: async function () {
+      if (this.$env.isFirefox) {
+        browser.runtime.onMessage.addListener(this.onMessage);
+        browser.runtime.sendMessage({
+          id: 'routeMessage',
+          setSenderFrameId: true,
+          messageFrameId: 0,
+          message: {id: 'saveFrameId'}
+        });
+      } else {
+        const tab = await browser.tabs.getCurrent();
+        this.contentMessagePort = browser.tabs.connect(tab.id, {
+          name: 'view',
+          frameId: 0
+        });
+        this.contentMessagePort.onMessage.addListener(this.onMessage);
+      }
+    },
 
     onMessage: function (request, sender) {
       // Samsung Internet 13: extension messages are sometimes also dispatched
@@ -46,11 +65,11 @@ export default {
 
       if (request.id === 'openView') {
         this.$options.rawData.session = request.session;
-        this.snackbar.open();
+        this.showSnackbar();
       } else if (request.id === 'closeView') {
-        this.snackbar.close();
+        this.hideSnackbar();
       } else if (request.id === 'imageSelectionSubmit') {
-        this.snackbar.close();
+        this.hideSnackbar();
 
         const session = this.$options.rawData.session;
         session.sourceFrameId = request.senderFrameId;
@@ -60,82 +79,90 @@ export default {
     },
 
     onCancel: function () {
-      this.snackbar.close();
+      this.hideSnackbar();
       browser.runtime.sendMessage({id: 'cancelView', view: 'select'});
+    },
+
+    showSnackbar: function () {
+      this.openSnackbar = true;
+    },
+
+    hideSnackbar: function () {
+      this.openSnackbar = false;
     }
   },
 
-  mounted: async function () {
-    this.snackbar = new MDCSnackbar(this.$refs.snackbar);
-    this.snackbar.foundation_.autoDismissTimeoutMs_ = 31556952000; // 1 year
-    this.snackbar.closeOnEscape = false;
-
-    if (this.$env.isFirefox) {
-      browser.runtime.onMessage.addListener(this.onMessage);
-      browser.runtime.sendMessage({
-        id: 'routeMessage',
-        setSenderFrameId: true,
-        messageFrameId: 0,
-        message: {id: 'saveFrameId'}
-      });
-    } else {
-      const tab = await browser.tabs.getCurrent();
-      this.contentMessagePort = browser.tabs.connect(tab.id, {
-        name: 'view',
-        frameId: 0
-      });
-      this.contentMessagePort.onMessage.addListener(this.onMessage);
-    }
+  mounted: function () {
+    this.setup();
   }
 };
 </script>
 
 <style lang="scss">
-@import '@material/snackbar/mdc-snackbar';
-@import '@material/icon-button/mixins';
-@import '@material/typography/mixins';
+@use 'vueton/styles' as vueton;
+
+@include vueton.theme-base;
+@include vueton.transitions;
 
 html,
-body {
+body,
+.vn-app,
+.v-application__wrap {
   width: 100%;
   height: 100%;
 }
 
-body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
+:root {
+  // the document background is not transparent in dark mode
+  color-scheme: light !important;
 }
 
-#app {
-  height: 100%;
+.v-application {
+  background: transparent !important;
 }
 
-.mdc-snackbar {
-  @include mdc-snackbar-fill-color(#312a65);
-  @include mdc-snackbar-shape-radius(8px);
+.vn-snackbar {
+  & .v-snackbar__wrapper {
+    min-width: initial !important;
+    background-color: var(--md-ref-palette-primary30) !important;
+
+    & .v-snackbar__content {
+      font-size: 16px;
+      font-weight: 500;
+
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      padding-top: 0px;
+      padding-bottom: 0px;
+      padding-left: 4px;
+      padding-right: 32px;
+
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    & .vn-icon-button {
+      @include vueton.theme-prop(color, inverse-primary);
+
+      & .vn-icon {
+        @include vueton.theme-prop(background-color, inverse-on-surface);
+      }
+
+      & .vn-icon-button__state {
+        @include vueton.theme-prop(background-color, inverse-primary);
+      }
+    }
+  }
 }
 
-.mdc-snackbar__surface {
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.12),
-    0px 6px 10px 0px rgba(0, 0, 0, 0.08), 0px 1px 12px 0px rgba(0, 0, 0, 0.06);
-  border-radius: 16px !important;
-}
-
-.mdc-snackbar__label {
-  font-size: 17px;
-  font-weight: 500;
-}
-
-.cancel-button {
-  @include mdc-icon-button-icon-size(22px, 22px, 7px);
-  @include mdc-icon-button-ink-color(rgba(255, 255, 255, 0.87));
-}
-
-/* tablets */
-@media (min-width: 480px) {
-  .mdc-snackbar__surface {
-    min-width: 400px !important;
+.v-theme--dark {
+  &.vn-snackbar {
+    & .v-snackbar__wrapper {
+      background-color: var(--md-ref-palette-primary80) !important;
+    }
   }
 }
 </style>

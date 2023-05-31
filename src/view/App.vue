@@ -1,5 +1,5 @@
 <template>
-  <div id="app" v-if="dataLoaded">
+  <vn-app v-if="dataLoaded">
     <div class="view-content" v-if="previewImage && !showError">
       <div class="image-header">
         <div class="image-url-container" v-if="previewImage.imageUrl">
@@ -10,11 +10,11 @@
             >{{ previewImage.imageUrl }}</a
           >
 
-          <v-icon-button
-            src="/src/assets/icons/misc/copy.svg"
+          <vn-icon-button
+            src="/src/assets/icons/misc/content-copy.svg"
             :title="getText('buttonTooltip_copyImageUrl')"
             @click="copyImageUrl"
-          ></v-icon-button>
+          ></vn-icon-button>
         </div>
 
         <div class="image-details-container">
@@ -38,7 +38,9 @@
         />
         <img
           class="image"
-          src="/src/assets/icons/misc/broken-image.svg"
+          :src="`/src/assets/icons/misc/${
+            theme === 'dark' ? 'broken-image-dark' : 'broken-image'
+          }.svg`"
           @error.once="onPreviewImageError"
           @load="onPreviewImageLoad"
           :alt="previewImage.imageFilename"
@@ -47,25 +49,31 @@
     </div>
 
     <div class="error-content" v-if="showError">
-      <img class="error-icon" src="/src/assets/icons/misc/error.svg" />
+      <vn-icon
+        class="error-icon"
+        src="/src/assets/icons/misc/error.svg"
+      ></vn-icon>
       <div class="error-text">{{ showError }}</div>
     </div>
-  </div>
+  </vn-app>
 </template>
 
 <script>
-import {IconButton} from 'ext-components';
+import {App, Icon, IconButton} from 'vueton';
 
 import {
   validateId,
   getFormattedImageDetails,
   isPreviewImageValid,
-  sendLargeMessage
+  sendLargeMessage,
+  getAppTheme
 } from 'utils/app';
 import {getText} from 'utils/common';
 
 export default {
   components: {
+    [App.name]: App,
+    [Icon.name]: Icon,
     [IconButton.name]: IconButton
   },
 
@@ -76,7 +84,9 @@ export default {
 
       previewImage: null,
       imageDetails: [],
-      imageLoaded: false
+      imageLoaded: false,
+
+      theme: ''
     };
   },
 
@@ -123,6 +133,11 @@ export default {
       } else {
         this.showError = getText('error_invalidPageUrl');
       }
+
+      this.theme = await getAppTheme();
+      document.addEventListener('themeChange', ev => {
+        this.theme = ev.detail;
+      });
     },
 
     onPreviewImageLoad: function () {
@@ -175,26 +190,23 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@material/theme/mixins';
-@import '@material/typography/mixins';
+@use 'vueton/styles' as vueton;
+
+@include vueton.theme-base;
+@include vueton.transitions;
 
 html,
 body,
-#app {
+.vn-app,
+.v-application__wrap {
   width: 100%;
   height: 100%;
 }
 
-body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
-}
-
-#app {
+.v-application__wrap {
   display: flex;
   justify-content: center;
-  background-color: #f2f2f7;
+  flex-direction: row;
 }
 
 .view-content {
@@ -217,15 +229,14 @@ body {
     padding-top: 16px;
     padding-bottom: 16px;
     padding-left: 24px;
-    padding-right: 8px;
+    padding-right: 12px;
     box-sizing: border-box;
     max-width: min(960px, 100%);
 
     background-color: #fff;
     border-radius: 16px;
 
-    @include mdc-typography(subtitle1);
-    @include mdc-theme-prop(color, #252525);
+    @include vueton.md2-typography(subtitle1);
     font-size: 14px;
 
     & .image-url-container {
@@ -271,7 +282,7 @@ body {
         display: flex;
         align-items: center;
         column-gap: 8px;
-        padding-right: 16px;
+        padding-right: 12px;
         width: 100%;
 
         & .image-dimension-text,
@@ -307,19 +318,45 @@ body {
 .error-content {
   display: flex;
   align-items: center;
-  margin: auto;
   padding: 16px;
 
   & .error-icon {
     width: 48px;
     height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     margin-right: 24px;
+    @include vueton.theme-prop(background-color, error);
   }
 
   & .error-text {
-    @include mdc-typography(subtitle1);
-    @include mdc-theme-prop(color, #252525);
+    @include vueton.md2-typography(subtitle1);
     max-width: 520px;
+  }
+}
+
+.v-theme--light {
+  & .v-application__wrap {
+    background-color: var(--md-ref-palette-color5-1);
+  }
+}
+
+.v-theme--dark {
+  & .v-application__wrap {
+    & .image-header {
+      @include vueton.theme-prop(background-color, menu-surface);
+
+      & .image-url-container {
+        & .image-url-link {
+          color: rgb(76, 164, 252);
+        }
+
+        & .image-url-link:hover,
+        & .image-url-link:active {
+          color: rgb(106, 180, 254);
+        }
+      }
+    }
   }
 }
 

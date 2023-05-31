@@ -2,7 +2,7 @@ import {difference} from 'lodash-es';
 import {fileTypeFromBuffer} from 'file-type';
 import {v4 as uuidv4, validate as uuidValidate} from 'uuid';
 import {parseSrcset} from 'srcset';
-import filesize from 'filesize';
+import {filesize} from 'filesize';
 
 import storage from 'storage/storage';
 import {
@@ -22,15 +22,18 @@ import {
   executeCode,
   getPlatform,
   shareFiles,
-  isAndroid
+  getDayPrecisionEpoch,
+  isAndroid,
+  getDarkColorSchemeQuery
 } from 'utils/common';
-import {targetEnv} from 'utils/config';
+import {targetEnv, enableContributions} from 'utils/config';
 import {
   optionKeys,
   engines,
   censoredEngines,
   rasterEngineIcons,
   engineIconAlias,
+  engineIconVariants,
   imageMimeTypes,
   imageTypeNames,
   convertImageMimeTypes,
@@ -175,7 +178,13 @@ async function createSession(data) {
   return session;
 }
 
-function showNotification({message, messageId, title, type = 'info'} = {}) {
+async function showNotification({
+  message,
+  messageId,
+  title,
+  type = 'info',
+  timeout = 0
+} = {}) {
   if (!title) {
     title = getText('extensionName');
   }
@@ -189,46 +198,48 @@ function showNotification({message, messageId, title, type = 'info'} = {}) {
       message
     });
   } else {
-    return browser.notifications.create(`sbi-notification-${type}`, {
-      type: 'basic',
-      title,
-      message,
-      iconUrl: '/src/assets/icons/app/icon-64.png'
-    });
+    const notification = await browser.notifications.create(
+      `sbi-notification-${type}`,
+      {
+        type: 'basic',
+        title,
+        message,
+        iconUrl: '/src/assets/icons/app/icon-64.png'
+      }
+    );
+
+    if (timeout) {
+      window.setTimeout(() => {
+        browser.notifications.clear(notification);
+      }, timeout);
+    }
+
+    return notification;
   }
 }
 
 function getListItems(data, {scope = '', shortScope = ''} = {}) {
-  const labels = {};
+  const results = {};
+
   for (const [group, items] of Object.entries(data)) {
-    labels[group] = [];
-    items.forEach(function (value) {
-      const item = {
-        id: value,
-        label: getText(`${scope ? scope + '_' : ''}${value}`)
-      };
-      if (shortScope) {
-        item.shortLabel = getText(`${shortScope}_${value}`);
+    results[group] = [];
+
+    items.forEach(function (item) {
+      if (item.value === undefined) {
+        item = {value: item};
       }
-      labels[group].push(item);
+
+      item.title = getText(`${scope ? scope + '_' : ''}${item.value}`);
+
+      if (shortScope) {
+        item.shortTitle = getText(`${shortScope}_${item.value}`);
+      }
+
+      results[group].push(item);
     });
   }
-  return labels;
-}
 
-async function showContributePage(action = '') {
-  await storage.set({contribPageLastOpen: Date.now()});
-  const activeTab = await getActiveTab();
-  let url = browser.runtime.getURL('/src/contribute/index.html');
-  if (action) {
-    url = `${url}?action=${action}`;
-  }
-  return createTab({url, index: activeTab.index + 1});
-}
-
-async function showSupportPage() {
-  const activeTab = await getActiveTab();
-  await createTab({url: supportUrl, index: activeTab.index + 1});
+  return results;
 }
 
 function validateUrl(url, {allowDataUrl = false} = {}) {
@@ -342,8 +353,13 @@ async function normalizeImage(file, {name} = {}) {
     return;
   }
 
-  const chunk = await blobToArray(file.slice(0, 4100));
-  const {mime: realType} = (await fileTypeFromBuffer(chunk)) || {};
+  // ignore unreadable files
+  const chunk = await blobToArray(file.slice(0, 4100)).catch(err => null);
+
+  let realType;
+  if (chunk) {
+    ({mime: realType} = (await fileTypeFromBuffer(chunk)) || {});
+  }
 
   if (realType) {
     if (isImageMimeType(realType)) {
@@ -780,18 +796,28 @@ function getMaxImageUploadSize(engine, {target} = {}) {
   }
 }
 
-async function hasBaseModule(tabId, frameId = 0) {
+async function hasModule({tabId, frameId = 0, module, insert = false} = {}) {
   try {
-    const [isBaseModule] = await browser.tabs.executeScript(tabId, {
+    const [isModule] = await browser.tabs.executeScript(tabId, {
       frameId,
       runAt: 'document_start',
-      code: `typeof baseModule !== 'undefined'`
+      code: `typeof ${module}Module !== 'undefined'`
     });
 
-    if (isBaseModule) {
+    if (!isModule && insert) {
+      await browser.tabs.executeScript(tabId, {
+        frameId,
+        runAt: 'document_start',
+        file: `/src/${module}/script.js`
+      });
+    }
+
+    if (isModule || insert) {
       return true;
     }
   } catch (err) {}
+
+  return false;
 }
 
 async function insertBaseModule({activeTab = false} = {}) {
@@ -814,7 +840,7 @@ async function insertBaseModule({activeTab = false} = {}) {
     browser.tabs.executeScript(tab.id, {
       allFrames: true,
       runAt: 'document_start',
-      file: '/src/insert/script.js'
+      file: '/src/base/script.js'
     });
   }
 }
@@ -924,17 +950,28 @@ async function getImagesFromClipboard() {
   }
 }
 
-function getEngineIcon(engine) {
-  const name = engineIconAlias[engine] || engine;
-  const ext = rasterEngineIcons.includes(name) ? 'png' : 'svg';
+function getEngineIcon(engine, {variant = ''} = {}) {
+  engine = engineIconAlias[engine] || engine;
+
+  let name = engine;
+  if (variant && engineIconVariants[engine]?.includes(variant)) {
+    name += `-${variant}`;
+  }
+
+  const ext = rasterEngineIcons.includes(engine) ? 'png' : 'svg';
 
   return `/src/assets/icons/engines/${name}.${ext}`;
 }
 
-function getEngineMenuIcon(engine) {
-  const name = engineIconAlias[engine] || engine;
+function getEngineMenuIcon(engine, {variant = ''} = {}) {
+  engine = engineIconAlias[engine] || engine;
 
-  if (rasterEngineIcons.includes(name)) {
+  let name = engine;
+  if (variant && engineIconVariants[engine]?.includes(variant)) {
+    name += `-${variant}`;
+  }
+
+  if (rasterEngineIcons.includes(engine)) {
     return {
       16: `src/assets/icons/engines/${name}-16.png`,
       32: `src/assets/icons/engines/${name}-32.png`
@@ -1098,7 +1135,8 @@ function getSrcsetUrls(srcset) {
 async function configApp(app) {
   const platform = await getPlatform();
 
-  document.documentElement.classList.add(platform.targetEnv, platform.os);
+  const classes = [platform.targetEnv, platform.os];
+  document.documentElement.classList.add(...classes);
 
   if (app) {
     app.config.globalProperties.$env = platform;
@@ -1106,11 +1144,7 @@ async function configApp(app) {
 }
 
 async function loadFonts(fonts) {
-  for (const font of fonts) {
-    try {
-      await document.fonts.load(font);
-    } catch (err) {}
-  }
+  await Promise.allSettled(fonts.map(font => document.fonts.load(font)));
 }
 
 function getFormattedImageDetails({
@@ -1634,6 +1668,168 @@ function getMaxDataUrlSize() {
   }
 }
 
+async function getOpenerTabId(tabId) {
+  if (tabId !== browser.tabs.TAB_ID_NONE && !(await getPlatform()).isMobile) {
+    return tabId;
+  }
+
+  return null;
+}
+
+async function showPage({
+  url = '',
+  setOpenerTab = true,
+  getTab = false,
+  activeTab = null
+} = {}) {
+  if (!activeTab) {
+    activeTab = await getActiveTab();
+  }
+
+  const props = {url, index: activeTab.index + 1, active: true, getTab};
+
+  if (setOpenerTab) {
+    props.openerTabId = await getOpenerTabId(activeTab.id);
+  }
+
+  return createTab(props);
+}
+
+async function autoShowContributePage({
+  minUseCount = 0, // 0-1000
+  minInstallDays = 0,
+  minLastOpenDays = 0,
+  minLastAutoOpenDays = 0,
+  action = 'auto',
+  activeTab = null
+} = {}) {
+  if (enableContributions) {
+    const options = await storage.get([
+      'showContribPage',
+      'useCount',
+      'installTime',
+      'contribPageLastOpen',
+      'contribPageLastAutoOpen'
+    ]);
+
+    const epoch = getDayPrecisionEpoch();
+
+    if (
+      options.showContribPage &&
+      options.useCount >= minUseCount &&
+      epoch - options.installTime >= minInstallDays * 86400000 &&
+      epoch - options.contribPageLastOpen >= minLastOpenDays * 86400000 &&
+      epoch - options.contribPageLastAutoOpen >= minLastAutoOpenDays * 86400000
+    ) {
+      await storage.set({
+        contribPageLastOpen: epoch,
+        contribPageLastAutoOpen: epoch
+      });
+
+      return showContributePage({
+        action,
+        updateStats: false,
+        activeTab,
+        getTab: true
+      });
+    }
+  }
+}
+
+let useCountLastUpdate = 0;
+async function updateUseCount({
+  valueChange = 1,
+  maxUseCount = Infinity,
+  minInterval = 0
+} = {}) {
+  if (Date.now() - useCountLastUpdate >= minInterval) {
+    useCountLastUpdate = Date.now();
+
+    const {useCount} = await storage.get('useCount');
+
+    if (useCount < maxUseCount) {
+      await storage.set({useCount: useCount + valueChange});
+    } else if (useCount > maxUseCount) {
+      await storage.set({useCount: maxUseCount});
+    }
+  }
+}
+
+async function processAppUse({action = 'auto', activeTab = null} = {}) {
+  await updateUseCount({
+    valueChange: 1,
+    maxUseCount: 1000
+  });
+
+  return autoShowContributePage({
+    minUseCount: 10,
+    minInstallDays: 14,
+    minLastOpenDays: 14,
+    minLastAutoOpenDays: 365,
+    activeTab,
+    action
+  });
+}
+
+async function showContributePage({
+  action = '',
+  updateStats = true,
+  getTab = false,
+  activeTab = null
+} = {}) {
+  if (updateStats) {
+    await storage.set({contribPageLastOpen: getDayPrecisionEpoch()});
+  }
+
+  let url = browser.runtime.getURL('/src/contribute/index.html');
+  if (action) {
+    url = `${url}?action=${action}`;
+  }
+
+  return showPage({url, getTab, activeTab});
+}
+
+async function showOptionsPage({getTab = false, activeTab = null} = {}) {
+  // Samsung Internet 13: runtime.openOptionsPage fails.
+  // runtime.openOptionsPage adds new tab at the end of the tab list.
+  return showPage({
+    url: browser.runtime.getURL('/src/options/index.html'),
+    getTab,
+    activeTab
+  });
+}
+
+async function showSupportPage({getTab = false, activeTab = null} = {}) {
+  return showPage({url: supportUrl, getTab, activeTab});
+}
+
+function handleBrowserActionEscapeKey() {
+  // Keep the browser action open when a menu or popup is active
+
+  // Firefox: extensions cannot handle the Escape key event
+  window.addEventListener(
+    'keydown',
+    ev => {
+      if (ev.key === 'Escape' && document.querySelector('.v-overlay--active')) {
+        ev.preventDefault();
+      }
+    },
+    {capture: true, passive: false}
+  );
+}
+
+async function getAppTheme(theme) {
+  if (!theme) {
+    ({appTheme: theme} = await storage.get('appTheme'));
+  }
+
+  if (theme === 'auto') {
+    theme = getDarkColorSchemeQuery().matches ? 'dark' : 'light';
+  }
+
+  return theme;
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1644,6 +1840,8 @@ export {
   showNotification,
   getListItems,
   showContributePage,
+  autoShowContributePage,
+  showOptionsPage,
   showSupportPage,
   validateUrl,
   normalizeImageFilename,
@@ -1673,7 +1871,9 @@ export {
   configApp,
   getLargeImageMessage,
   getMaxImageUploadSize,
-  hasBaseModule,
+  getOpenerTabId,
+  showPage,
+  hasModule,
   insertBaseModule,
   isContextMenuSupported,
   checkSearchEngineAccess,
@@ -1705,5 +1905,8 @@ export {
   processLargeMessage,
   processMessageResponse,
   getMaxExtensionMessageSize,
-  getMaxDataUrlSize
+  getMaxDataUrlSize,
+  handleBrowserActionEscapeKey,
+  getAppTheme,
+  processAppUse
 };

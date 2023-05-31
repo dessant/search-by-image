@@ -1,55 +1,131 @@
 <template>
-  <div id="app" v-show="dataLoaded">
+  <vn-app v-show="dataLoaded">
     <div class="header">
-      <v-dense-select
-        class="search-mode-menu"
-        v-model:value="searchModeAction"
-        :options="listItems.searchModeAction"
-      >
-      </v-dense-select>
-      <div class="header-buttons">
-        <v-icon-button
-          v-if="enableContributions"
-          class="contribute-button"
-          src="/src/contribute/assets/heart.svg"
-          :title="getText('buttonTooltip_contribute')"
-          @click="showContribute"
-        ></v-icon-button>
-
-        <v-icon-button
-          v-if="viewEnabled"
-          class="view-button"
-          src="/src/assets/icons/misc/open.svg"
-          :title="getText('buttonTooltip_viewImage')"
-          @click="viewImage"
-        ></v-icon-button>
-
-        <v-icon-button
-          v-if="shareEnabled"
-          class="share-button"
-          :src="`/src/assets/icons/misc/${
-            $env.isSafari ? 'ios-share' : 'share'
-          }.svg`"
-          :title="getText('buttonTooltip_shareImage')"
-          @click="shareImage"
-        ></v-icon-button>
-
-        <v-icon-button
-          class="menu-button"
-          src="/src/assets/icons/misc/more.svg"
-          :title="getText('buttonTooltip_menu')"
-          @click="showActionMenu"
+      <div class="header-content">
+        <vn-select
+          ref="searchModeButton"
+          class="search-mode-menu"
+          v-model="searchModeAction"
+          :menu-props="{
+            contentClass: 'v-select__content search-mode-menu__content'
+          }"
+          :items="listItems.searchModeAction"
+          :title="getText('buttonTooltip_searchMode')"
+          transition="scale-transition"
+          density="compact"
+          v-ripple
         >
-        </v-icon-button>
+          <template v-slot:item="{item, props}">
+            <vn-list-item v-bind="props">
+              <template v-slot:prepend>
+                <vn-icon
+                  :src="`/src/assets/icons/misc/${item.raw.icon}.svg`"
+                ></vn-icon>
+              </template>
+            </vn-list-item>
+          </template>
+        </vn-select>
       </div>
 
-      <v-menu
+      <div class="header-content header-buttons">
+        <div class="header-content header-pinned-buttons">
+          <vn-icon-button
+            v-if="enableContributions && pinActionToolbarContribute"
+            class="contribute-button"
+            src="/src/assets/icons/misc/favorite-filled.svg"
+            :title="getText('buttonTooltip_contribute')"
+            @click="showContribute"
+          ></vn-icon-button>
+
+          <vn-icon-button
+            v-if="pinActionToolbarViewImage"
+            class="view-image-button"
+            src="/src/assets/icons/misc/open-in-new.svg"
+            :title="getText('buttonTooltip_viewImage')"
+            @click="viewImage"
+          ></vn-icon-button>
+
+          <vn-icon-button
+            v-if="shareEnabled && pinActionToolbarShareImage"
+            class="share-image-button"
+            :src="`/src/assets/icons/misc/${
+              $env.isSafari ? 'ios-share' : 'share'
+            }.svg`"
+            :title="getText('buttonTooltip_shareImage')"
+            @click="shareImage"
+          ></vn-icon-button>
+
+          <vn-icon-button
+            v-if="pinActionToolbarOptions"
+            class="options-button"
+            src="/src/assets/icons/misc/settings.svg"
+            :title="getText('buttonTooltip_options')"
+            @click="showOptions"
+          ></vn-icon-button>
+        </div>
+
+        <vn-menu-icon-button
+          id="menu-button"
+          class="menu-button"
+          src="/src/assets/icons/misc/more-vert.svg"
+          :title="getText('buttonTooltip_menu')"
+          menu-ref="actionMenu"
+          menu-list-ref="actionMenuList"
+        >
+        </vn-menu-icon-button>
+      </div>
+
+      <vn-menu
         ref="actionMenu"
-        class="action-menu"
-        :ripple="true"
-        :items="listItems.actionMenu"
-        @selected="onActionMenuSelect"
-      ></v-menu>
+        activator="#menu-button"
+        content-class="action-menu__content"
+        :close-on-content-click="false"
+        transition="scale-transition"
+        v-model="openActionMenu"
+      >
+        <vn-list ref="actionMenuList">
+          <template
+            v-for="(item, index) of listItems.actionMenu"
+            :key="item.value"
+          >
+            <vn-divider
+              v-if="
+                item.value === 'divider' &&
+                (item.isVisible || this[item.isVisibleStateProp])
+              "
+            ></vn-divider>
+
+            <vn-list-item
+              v-if="
+                item.value !== 'divider' &&
+                (item.isVisible || this[item.isVisibleStateProp])
+              "
+              :title="item.title"
+              @click="onActionMenuSelect(item.value)"
+            >
+              <template v-slot:prepend>
+                <vn-icon
+                  :src="`/src/assets/icons/misc/${item.icon}.svg`"
+                ></vn-icon>
+              </template>
+
+              <template v-slot:append v-if="item.isPinnedStateProp">
+                <vn-icon-button
+                  src="/src/assets/icons/misc/push-pin-light.svg"
+                  src-on="/src/assets/icons/misc/push-pin-filled-light.svg"
+                  :title="getText('buttonTooltip_pin')"
+                  :title-on="getText('buttonTooltip_unpin')"
+                  :on="this[item.isPinnedStateProp]"
+                  @update:on="updatePinnedButtonState(item, $event)"
+                  @click.stop
+                  @keydown.enter.stop
+                  @keydown.space.stop
+                ></vn-icon-button>
+              </template>
+            </vn-list-item>
+          </template>
+        </vn-list>
+      </vn-menu>
     </div>
 
     <transition
@@ -62,12 +138,14 @@
     >
       <div class="settings" v-if="showSettings">
         <div class="url-settings" v-if="searchModeAction === 'url'">
-          <v-textfield
+          <vn-text-field
             ref="imageUrlInput"
-            v-model:value.trim="imageUrl"
+            v-model.trim="imageUrl"
             :placeholder="getText('inputPlaceholder_imageUrl')"
-            fullwidth
-          ></v-textfield>
+            variant="underlined"
+            spellcheck="false"
+          >
+          </vn-text-field>
         </div>
 
         <div class="browse-settings" v-if="searchModeAction === 'browse'">
@@ -81,22 +159,24 @@
               multiple
               @change="onBrowseInputChange"
             />
-            <v-button
-              class="outline-button"
+            <vn-button
+              class="browse-button"
               v-if="browseEnabled"
-              outlined
-              :label="getText('buttonText_browse')"
               :disabled="processing"
               @click="onBrowseButtonClick"
-            ></v-button>
-            <v-button
-              class="outline-button"
+              variant="tonal"
+            >
+              {{ getText('buttonLabel_browse') }}
+            </vn-button>
+            <vn-button
+              class="browse-button"
               v-if="pasteEnabled"
-              outlined
-              :label="getText('buttonText_paste')"
               :disabled="processing"
               @click="onPasteButtonClick"
-            ></v-button>
+              variant="tonal"
+            >
+              {{ getText('buttonLabel_paste') }}
+            </vn-button>
           </div>
 
           <div
@@ -112,63 +192,86 @@
                 <source :srcset="img.objectUrl" :type="img.image.type" />
                 <img
                   class="tile"
-                  src="/src/assets/icons/misc/broken-image.svg"
+                  :src="`/src/assets/icons/misc/${
+                    theme === 'dark' ? 'broken-image-dark' : 'broken-image'
+                  }.svg`"
                   @error.once="setBrokenPreviewImage"
                   :alt="img.image.name"
                 />
               </picture>
             </div>
 
-            <v-icon-button
+            <vn-icon-button
               class="preview-close-button"
               src="/src/assets/icons/misc/close.svg"
               :title="getText('buttonTooltip_clearImage')"
               @click="hidePreviewImages"
-            ></v-icon-button>
+            ></vn-icon-button>
           </div>
         </div>
       </div>
     </transition>
 
-    <div class="list-padding-top"></div>
-    <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
-      <li class="mdc-list-item list-item" @click="onEngineClick('allEngines')">
-        <img
-          class="mdc-list-item__graphic list-item-icon"
-          :src="getEngineIcon('allEngines')"
-        />
-        {{ getText('menuItemTitle_allEngines') }}
-      </li>
-    </ul>
-    <ul class="mdc-list list list-separator" :class="separatorClasses">
-      <li role="separator" class="mdc-list-divider"></li>
-    </ul>
-    <div class="list-items-wrap" ref="items" @scroll="onListScroll">
+    <vn-divider class="header-separator" :class="separatorClasses"></vn-divider>
+
+    <div
+      class="list-items-wrap"
+      ref="items"
+      @scroll="onListScroll"
+      tabindex="-1"
+    >
       <resize-observer @notify="onListSizeChange"></resize-observer>
-      <ul class="mdc-list list list-items">
-        <li
-          class="mdc-list-item list-item"
-          v-for="engine in engines"
-          :key="engine.id"
-          @click="onEngineClick(engine)"
+      <vn-list class="list-items">
+        <vn-list-item
+          v-if="searchAllEngines"
+          :title="getText('menuItemTitle_allEngines')"
+          @click="onEngineClick('allEngines')"
         >
-          <img
-            class="mdc-list-item__graphic list-item-icon"
-            :src="getEngineIcon(engine)"
-          />
-          {{ getText(`menuItemTitle_${engine}`) }}
-        </li>
-      </ul>
+          <template v-slot:prepend v-if="showEngineIcons">
+            <img
+              class="list-item-icon"
+              v-if="showEngineIcons"
+              :src="getEngineIcon('allEngines', {variant: theme})"
+            />
+          </template>
+        </vn-list-item>
+
+        <vn-divider class="list-separator" v-if="searchAllEngines"></vn-divider>
+
+        <template v-for="item of engines">
+          <vn-list-item
+            :title="getText(`menuItemTitle_${item}`)"
+            @click="onEngineClick(item)"
+          >
+            <template v-slot:prepend v-if="showEngineIcons">
+              <img
+                class="list-item-icon"
+                :src="getEngineIcon(item, {variant: theme})"
+              />
+            </template>
+          </vn-list-item>
+        </template>
+      </vn-list>
     </div>
-  </div>
+  </vn-app>
 </template>
 
 <script>
-import {markRaw} from 'vue';
+import {markRaw, toRaw} from 'vue';
 import {ResizeObserver} from 'vue-resize';
-import {MDCList} from '@material/list';
-import {MDCRipple} from '@material/ripple';
-import {Button, IconButton, TextField, Menu} from 'ext-components';
+import {
+  App,
+  Button,
+  Divider,
+  Icon,
+  IconButton,
+  List,
+  ListItem,
+  Menu,
+  MenuIconButton,
+  Select,
+  TextField
+} from 'vueton';
 
 import storage from 'storage/storage';
 import {
@@ -179,40 +282,50 @@ import {
   validateUrl,
   getListItems,
   showContributePage,
+  showOptionsPage,
   showSupportPage,
   getImagesFromClipboard,
   getEngineIcon,
   canShare,
-  sendLargeMessage
+  sendLargeMessage,
+  handleBrowserActionEscapeKey,
+  getAppTheme
 } from 'utils/app';
-import {getText, getActiveTab, createTab} from 'utils/common';
+import {getText, getActiveTab} from 'utils/common';
 import {enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
-import DenseSelect from './components/DenseSelect';
-
 export default {
   components: {
+    [App.name]: App,
     [Button.name]: Button,
+    [Divider.name]: Divider,
+    [Icon.name]: Icon,
     [IconButton.name]: IconButton,
-    [TextField.name]: TextField,
+    [List.name]: List,
+    [ListItem.name]: ListItem,
     [Menu.name]: Menu,
-    [DenseSelect.name]: DenseSelect,
+    [MenuIconButton.name]: MenuIconButton,
+    [Select.name]: Select,
+    [TextField.name]: TextField,
     [ResizeObserver.name]: ResizeObserver
   },
 
   data: function () {
     let searchModeAction = [
-      'selectUrl',
-      'selectImage',
-      'capture',
-      'browse',
-      'url'
+      {value: 'selectUrl', icon: 'image-link-light'},
+      {value: 'selectImage', icon: 'image-light'},
+      {value: 'capture', icon: 'crop-free-light'},
+      {value: 'browse', icon: 'upload-light'},
+      {value: 'url', icon: 'link-light'}
     ];
+
     if (this.$env.isSamsung || (this.$env.isSafari && this.$env.isMobile)) {
       // Samsung Internet 13: tabs.captureVisibleTab fails.
       // Safari 15: captured tab image is padded on mobile.
-      searchModeAction = searchModeAction.filter(item => item !== 'capture');
+      searchModeAction = searchModeAction.filter(
+        item => item.value !== 'capture'
+      );
     }
 
     return {
@@ -228,7 +341,43 @@ export default {
 
       listItems: {
         ...getListItems(
-          {actionMenu: ['options', 'support']},
+          {
+            actionMenu: [
+              {
+                value: 'viewImage',
+                icon: 'open-in-new-light',
+                isVisible: true,
+                isPinnedStateProp: 'pinActionToolbarViewImage'
+              },
+              {
+                value: 'shareImage',
+                icon: this.$env.isSafari ? 'ios-share-light' : 'share-light',
+                isVisibleStateProp: 'shareEnabled',
+                isPinnedStateProp: 'pinActionToolbarShareImage'
+              },
+              {
+                value: 'divider',
+                isVisible: true
+              },
+              {
+                value: 'options',
+                icon: 'settings-light',
+                isVisible: true,
+                isPinnedStateProp: 'pinActionToolbarOptions'
+              },
+              {
+                value: 'contribute',
+                icon: 'favorite-light',
+                isVisibleStateProp: 'enableContributions',
+                isPinnedStateProp: 'pinActionToolbarContribute'
+              },
+              {
+                value: 'support',
+                icon: 'help-light',
+                isVisible: true
+              }
+            ]
+          },
           {scope: 'actionMenu'}
         ),
         ...getListItems(
@@ -237,10 +386,22 @@ export default {
         )
       },
       hasScrollBar: false,
+      isScrolled: false,
 
       engines: [],
       searchAllEngines: false,
-      viewEnabled: false,
+      showEngineIcons: false,
+
+      theme: '',
+
+      maxPinnedToolbarButtons: 3,
+      pinActionToolbarViewImage: false,
+      pinActionToolbarShareImage: false,
+      pinActionToolbarOptions: false,
+      pinActionToolbarContribute: false,
+
+      openActionMenu: false,
+
       shareEnabled: false,
       browseEnabled: false,
       pasteEnabled: false,
@@ -252,7 +413,7 @@ export default {
   computed: {
     separatorClasses: function () {
       return {
-        visible: this.searchAllEngines || this.hasScrollBar
+        visible: this.isScrolled
       };
     },
     showSettings: function () {
@@ -319,8 +480,6 @@ export default {
     },
 
     onSearchModeChange: function (newValue, oldValue) {
-      storage.set({searchModeAction: newValue});
-
       if (newValue === 'browse') {
         this.setupBrowseSearchModeSettings();
 
@@ -429,15 +588,7 @@ export default {
     },
 
     showOptions: async function () {
-      if (this.$env.isSamsung) {
-        // Samsung Internet 13: runtime.openOptionsPage fails.
-        await createTab({
-          url: browser.runtime.getURL('/src/options/index.html')
-        });
-      } else {
-        await browser.runtime.openOptionsPage();
-      }
-
+      await showOptionsPage();
       this.closeAction();
     },
 
@@ -447,15 +598,47 @@ export default {
     },
 
     showActionMenu: function () {
-      this.$refs.actionMenu.emitter.emit('open');
+      this.openActionMenu = true;
+    },
+
+    hideActionMenu: function () {
+      this.openActionMenu = false;
     },
 
     onActionMenuSelect: async function (item) {
-      if (item === 'options') {
+      this.hideActionMenu();
+
+      if (item === 'viewImage') {
+        await this.viewImage();
+      } else if (item === 'shareImage') {
+        await this.shareImage();
+      } else if (item === 'options') {
         await this.showOptions();
+      } else if (item === 'contribute') {
+        await this.showContribute();
       } else if (item === 'support') {
         await this.showSupport();
       }
+    },
+
+    setupPinnedButtons: function ({maxPins = 0} = {}) {
+      const pinnedButtons = this.listItems.actionMenu.filter(
+        item =>
+          this[item.isPinnedStateProp] &&
+          (item.isVisible || this[item.isVisibleStateProp])
+      );
+
+      for (const button of pinnedButtons.reverse().slice(maxPins)) {
+        this[button.isPinnedStateProp] = false;
+      }
+    },
+
+    updatePinnedButtonState: function (item, state) {
+      if (state) {
+        this.setupPinnedButtons({maxPins: this.maxPinnedToolbarButtons - 1});
+      }
+
+      this[item.isPinnedStateProp] = state;
     },
 
     closeAction: async function () {
@@ -519,7 +702,7 @@ export default {
     },
 
     focusImageUrlInput: function () {
-      this.$refs.imageUrlInput.$refs.input.focus();
+      this.$refs.imageUrlInput.$el.querySelector('input')?.focus();
     },
 
     settingsBeforeEnter: function () {
@@ -560,12 +743,9 @@ export default {
     },
 
     configureScrollBar: function () {
-      if (this.$env.isAndroid || this.$env.isSafari) {
-        this.hasScrollBar = this.$refs.items.scrollTop;
-      } else {
-        const items = this.$refs.items;
-        this.hasScrollBar = items.scrollHeight > items.clientHeight;
-      }
+      const items = this.$refs.items;
+      this.hasScrollBar = items.scrollHeight > items.clientHeight;
+      this.isScrolled = Boolean(items.scrollTop);
     },
 
     lockPopupHeight: function () {
@@ -593,7 +773,9 @@ export default {
 
       if (activeTab && actionWidth && activeTab.width > actionWidth) {
         // popup
-        document.documentElement.style.height = '';
+        if (!document.documentElement.style.height.endsWith('px')) {
+          document.documentElement.style.height = '';
+        }
         if (this.$env.isMobile) {
           // mobile popup
           if (activeTab.width < 394) {
@@ -604,11 +786,13 @@ export default {
           this.$el.style.maxHeight = `${activeTab.height - 40}px`;
 
           if (this.$env.isIpados) {
-            this.$refs.items.style.maxHeight = '392px';
+            // 9 * 48px (list item) + 8px (padding)
+            this.$refs.items.style.maxHeight = '440px';
           }
         } else {
           // desktop popup
-          this.$refs.items.style.maxHeight = '392px';
+          // 9 * 48px (list item) + 8px (padding)
+          this.$refs.items.style.maxHeight = '440px';
         }
       } else {
         // full-width page
@@ -621,70 +805,95 @@ export default {
         this.$el.style.maxHeight = 'initial';
         this.$refs.items.style.maxHeight = 'initial';
       }
+    },
+
+    setup: async function () {
+      window.addEventListener('resize', this.setViewportSize);
+      window.addEventListener('orientationchange', () =>
+        window.setTimeout(this.setViewportSize, 1000)
+      );
+      await this.setViewportSize();
+
+      const options = await storage.get(optionKeys);
+      const enEngines = await getEnabledEngines(options);
+
+      if (
+        this.$env.isFirefox &&
+        this.$env.isAndroid &&
+        (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
+      ) {
+        // Removing the action popup has no effect on Firefox for Android
+        showNotification({messageId: 'error_optionsNotApplied'});
+        return;
+      }
+
+      this.engines = enEngines;
+      this.searchAllEngines =
+        options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
+      this.showEngineIcons = options.showEngineIcons;
+
+      const syncOptions = [
+        'searchModeAction',
+        'pinActionToolbarViewImage',
+        'pinActionToolbarShareImage',
+        'pinActionToolbarOptions',
+        'pinActionToolbarContribute'
+      ];
+
+      for (const option of syncOptions) {
+        this[option] = options[option];
+
+        this.$watch(
+          option,
+          async function (value) {
+            await storage.set({[option]: toRaw(value)});
+          },
+          {deep: true}
+        );
+      }
+
+      this.shareEnabled = canShare(this.$env);
+
+      this.browseEnabled =
+        !this.$env.isLinux &&
+        !this.$env.isSamsung &&
+        !this.$env.isFirefox &&
+        !(this.$env.isSafari && this.$env.isMacos);
+
+      this.pasteEnabled =
+        !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
+
+      this.autoPasteEnabled =
+        options.autoPasteAction &&
+        !this.$env.isSafari &&
+        !this.$env.isSamsung &&
+        !(this.$env.isMobile && this.$env.isFirefox);
+
+      this.setupPinnedButtons({maxPins: this.maxPinnedToolbarButtons});
+
+      this.$watch('searchModeAction', this.onSearchModeChange);
+
+      if (this.searchModeAction === 'browse') {
+        this.setupBrowseSearchModeSettings();
+      }
+
+      this.theme = await getAppTheme(options.appTheme);
+      document.addEventListener('themeChange', ev => {
+        this.theme = ev.detail;
+      });
+
+      this.dataLoaded = true;
     }
   },
 
-  created: async function () {
-    window.addEventListener('resize', this.setViewportSize);
-    window.addEventListener('orientationchange', () =>
-      window.setTimeout(this.setViewportSize, 1000)
-    );
-    await this.setViewportSize();
-
-    const options = await storage.get(optionKeys);
-    const enEngines = await getEnabledEngines(options);
-
-    if (
-      this.$env.isFirefox &&
-      this.$env.isAndroid &&
-      (enEngines.length <= 1 || options.searchAllEnginesAction === 'main')
-    ) {
-      // Firefox for Android: removing the action popup has no effect.
-      showNotification({messageId: 'error_optionsNotApplied'});
-      return;
-    }
-
-    this.engines = enEngines;
-    this.searchAllEngines =
-      options.searchAllEnginesAction === 'sub' && !this.$env.isSamsung;
-    this.searchModeAction = options.searchModeAction;
-
-    this.viewEnabled = options.viewImageAction;
-
-    this.shareEnabled = options.shareImageAction && canShare(this.$env);
-
-    this.browseEnabled =
-      !this.$env.isLinux && !this.$env.isSamsung && !this.$env.isFirefox;
-
-    this.pasteEnabled =
-      !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
-
-    this.autoPasteEnabled =
-      options.autoPasteAction &&
-      !this.$env.isSafari &&
-      !this.$env.isSamsung &&
-      !(this.$env.isMobile && this.$env.isFirefox);
-
-    this.$watch('searchModeAction', this.onSearchModeChange);
-
-    if (this.searchModeAction === 'browse') {
-      this.setupBrowseSearchModeSettings();
-    }
-
-    this.dataLoaded = true;
+  created: function () {
+    this.setup();
   },
 
   mounted: function () {
-    window.setTimeout(() => {
-      for (const listEl of document.querySelectorAll(
-        '.list-bulk-button, .list-items'
-      )) {
-        const list = new MDCList(listEl);
-        for (const el of list.listElements) {
-          MDCRipple.attachTo(el);
-        }
-      }
+    handleBrowserActionEscapeKey();
 
+    window.setTimeout(() => {
       if (this.searchModeAction === 'url' && !this.$env.isMobile) {
         this.focusImageUrlInput();
       }
@@ -699,102 +908,105 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@material/list/mdc-list';
-@import '@material/select/mdc-select';
+@use 'vueton/styles' as vueton;
+@use 'vue-resize/dist/vue-resize';
 
-@import '@material/icon-button/mixins';
-@import '@material/button/mixins';
-@import '@material/ripple/mixins';
-@import '@material/theme/mixins';
-@import '@material/textfield/mixins';
-@import '@material/typography/mixins';
-
-@import 'vue-resize/dist/vue-resize';
+@include vueton.theme-base;
+@include vueton.transitions;
 
 body,
-#app {
+.vn-app,
+.v-application__wrap {
   height: 100%;
 }
 
-#app {
+.v-application__wrap {
   display: flex;
   flex-direction: column;
+
+  min-height: initial;
+}
+
+.v-overlay__content {
+  max-height: calc(100% - 56px - 16px) !important;
 }
 
 body {
-  margin: 0;
   min-width: 354px;
   overflow: hidden;
-  @include mdc-typography-base;
-  font-size: 100%;
-  background-color: #ffffff;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  column-gap: 24px;
+  column-gap: 8px;
   white-space: nowrap;
-  padding-top: 16px;
-  padding-left: 16px;
+  padding-left: 4px;
   padding-right: 4px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
-.header-buttons {
+.header-content {
   display: flex;
   align-items: center;
   height: 24px;
 }
 
-.contribute-button,
-.share-button,
-.view-button,
-.menu-button,
-.preview-close-button {
-  @include mdc-icon-button-icon-size(24px, 24px, 6px);
+.header-buttons {
+  column-gap: 4px;
 
-  &::before {
-    --mdc-ripple-fg-size: 20px;
-    --mdc-ripple-fg-scale: 1.8;
-    --mdc-ripple-left: 8px;
-    --mdc-ripple-top: 8px;
+  & .header-pinned-buttons {
+    column-gap: 8px;
   }
 }
 
-.contribute-button,
-.share-button,
-.view-button {
-  margin-left: 8px;
+.contribute-button {
+  & .vn-icon {
+    @include vueton.theme-prop(background-color, cta);
+  }
 }
 
-.menu-button {
-  margin-left: 4px;
-}
-
-.search-mode-menu .mdc-select__menu {
-  position: fixed !important;
+.search-mode-menu__content {
   top: 56px !important;
   left: 16px !important;
+  transform-origin: center top !important;
+
+  & .v-list-item {
+    & .v-list-item__prepend {
+      margin-left: 12px;
+    }
+
+    & .v-list-item-title {
+      padding-left: 12px !important;
+    }
+  }
 }
 
-.action-menu {
-  left: auto !important;
+.action-menu__content {
   top: 56px !important;
-  right: 16px;
-  transform-origin: top right !important;
+  left: auto !important;
+  right: 16px !important;
+  transform-origin: right top !important;
+
+  & .v-list-item {
+    & .v-list-item__append {
+      margin-right: 4px !important;
+    }
+  }
 }
 
 .settings {
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding-top: 8px;
+  padding-bottom: 24px;
 }
 
 .settings-enter-active,
 .settings-leave-active {
   max-height: 100px;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding-top: 8px;
+  padding-bottom: 24px;
   transition: max-height 0.3s ease, padding-top 0.3s ease,
     padding-bottom 0.3s ease, opacity 0.2s ease;
 }
@@ -808,12 +1020,13 @@ body {
 }
 
 .url-settings {
+  height: 52px;
   padding-left: 16px;
   padding-right: 16px;
 }
 
 .browse-settings {
-  height: 56px;
+  height: 52px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -822,21 +1035,15 @@ body {
     display: grid;
     grid-auto-flow: column;
     grid-column-gap: 24px;
-    height: 36px;
+    height: 40px;
+  }
+
+  & .browse-button {
+    @include vueton.theme-prop(color, primary);
   }
 
   & .browse-input {
     display: none;
-  }
-
-  & .outline-button {
-    @include mdc-button-ink-color(#4e5bb6);
-    @include mdc-button-outline-color(#4e5bb6);
-    @include mdc-button-shape-radius(16px);
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#8188e9);
-    }
   }
 }
 
@@ -858,12 +1065,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 56px;
+    height: 48px;
   }
 
   & .tile {
     max-width: 100%;
-    max-height: 56px;
+    max-height: 48px;
     object-fit: scale-down;
 
     border-radius: 8px;
@@ -876,28 +1083,17 @@ body {
   }
 }
 
-.list {
-  padding: 0 !important;
-}
-
-.list-padding-top {
-  margin-bottom: 8px;
-}
-
-.list-bulk-button {
-  position: relative;
-  height: 48px;
-}
-
-.list-separator {
-  position: relative;
-  height: 1px;
-  opacity: 0;
+.header-separator {
+  opacity: 0 !important;
   transition: opacity 0.1s ease;
 }
 
+.list-separator {
+  margin-top: -1px;
+}
+
 .visible {
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 .list-items-wrap {
@@ -908,84 +1104,18 @@ body {
   padding-bottom: 8px !important;
 }
 
-.list-item {
-  padding-left: 16px;
-  padding-right: 48px;
-  cursor: pointer;
-}
-
 .list-item-icon {
-  margin-right: 16px !important;
-}
-
-.mdc-list {
-  padding: 0;
-}
-
-.mdc-list-item {
-  @include mdc-theme-prop(color, #252525);
-}
-
-.mdc-menu-surface {
-  border-radius: 16px;
-}
-
-.mdc-text-field {
-  @include mdc-text-field-ink-color(#252525);
-  @include mdc-text-field-caret-color(#8188e9);
-  @include mdc-text-field-bottom-line-color(#4e5bb6);
-  @include mdc-text-field-line-ripple-color(#8188e9);
-}
-
-.mdc-select {
-  @include mdc-select-ink-color(#252525);
-
-  & .mdc-select__dropdown-icon {
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%23454545'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z'/%3E%3C/svg%3E")
-      no-repeat center !important;
-  }
-
-  & .mdc-select__selected-text {
-    height: 29px !important;
-    border-bottom: none !important;
-  }
-}
-
-html:not(.firefox) .mdc-select {
-  & .mdc-select__selected-text {
-    padding-top: 1px !important;
-  }
-}
-
-html.safari .mdc-select {
-  & .mdc-select__selected-text {
-    padding-top: 2px !important;
-  }
+  width: 24px;
+  height: 24px;
 }
 
 html.firefox.android {
   height: 100%;
 }
 
-.safari {
-  & .list-item:hover::before {
-    opacity: 0 !important;
-  }
-}
-
-.safari {
-  & .browse-settings {
-    & .outline-button {
-      -webkit-mask-image: -webkit-radial-gradient(white, black);
-    }
-  }
-
-  &.macos {
-    & .browse-settings {
-      & .outline-button {
-        transform: translate3d(0px, 0px, 0px);
-      }
-    }
+html.samsung {
+  & .v-application__wrap {
+    height: initial;
   }
 }
 </style>

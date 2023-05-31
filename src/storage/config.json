@@ -43,7 +43,8 @@
       "20220516051842_update_search_mode_ids",
       "20220516124148_open_images",
       "20220814142801_configure_engines",
-      "20220924083846_add_lexica"
+      "20220924083846_add_lexica",
+      "20230415111029_add_theme_support"
     ],
     "sync": []
   }

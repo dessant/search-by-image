@@ -1,7 +1,7 @@
 <template>
-  <div id="app" v-if="dataLoaded" :class="appClasses">
+  <vn-app v-if="dataLoaded" :class="appClasses">
     <div class="browse-content" v-if="!isShare && !showSpinner && !showError">
-      <div class="browse-area" v-show="showBrowseArea">
+      <div v-show="showBrowseArea">
         <div
           class="drop-zone"
           v-if="dropEnabled"
@@ -14,12 +14,10 @@
         ></div>
 
         <div class="drop-zone-content">
-          <img
+          <vn-icon
             class="drop-zone-icon"
-            :src="`/src/assets/icons/browse/drop-zone-${
-              dropState ? 'drop' : 'drag'
-            }.svg`"
-          />
+            src="/src/assets/icons/misc/image.svg"
+          ></vn-icon>
 
           <div class="drop-zone-text">
             {{
@@ -38,21 +36,24 @@
               multiple
               @change="onFileEvent($event, 'input-event')"
             />
-            <v-button
-              class="outline-button"
-              outlined
-              :label="getText('buttonText_browse')"
+
+            <vn-button
+              class="browse-button"
               :disabled="processing"
               @click="onBrowseButtonClick"
-            ></v-button>
-            <v-button
-              class="outline-button"
+              variant="tonal"
+            >
+              {{ getText('buttonLabel_browse') }}
+            </vn-button>
+            <vn-button
+              class="browse-button"
               v-if="pasteEnabled"
-              outlined
-              :label="getText('buttonText_paste')"
               :disabled="processing"
               @click="onPasteButtonClick"
-            ></v-button>
+              variant="tonal"
+            >
+              {{ getText('buttonLabel_paste') }}
+            </vn-button>
           </div>
         </div>
       </div>
@@ -67,7 +68,9 @@
             <source :srcset="img.objectUrl" :type="img.image.type" />
             <img
               class="tile"
-              src="/src/assets/icons/misc/broken-image.svg"
+              :src="`/src/assets/icons/misc/${
+                theme === 'dark' ? 'broken-image-dark' : 'broken-image'
+              }.svg`"
               @error.once="setBrokenPreviewImage"
               :alt="img.image.name"
             />
@@ -75,20 +78,22 @@
         </div>
 
         <div class="preview-buttons">
-          <v-button
-            class="outline-button"
-            outlined
-            :label="getText('buttonText_cancel')"
+          <vn-button
+            class="browse-button"
             :disabled="processing"
             @click="onCancelButtonClick"
-          ></v-button>
-          <v-button
-            class="outline-button"
-            outlined
-            :label="getText('buttonText_search')"
+            variant="text"
+          >
+            {{ getText('buttonLabel_cancel') }}
+          </vn-button>
+          <vn-button
+            class="browse-button"
             :disabled="processing"
             @click="onSearchButtonClick"
-          ></v-button>
+            variant="tonal"
+          >
+            {{ getText('buttonLabel_search') }}
+          </vn-button>
         </div>
       </div>
     </div>
@@ -103,65 +108,67 @@
           <source :srcset="img.objectUrl" :type="img.image.type" />
           <img
             class="tile"
-            src="/src/assets/icons/misc/broken-image.svg"
+            :src="`/src/assets/icons/misc/${
+              theme === 'dark' ? 'broken-image-dark' : 'broken-image'
+            }.svg`"
             @error.once="setBrokenPreviewImage"
             :alt="img.image.name"
           />
         </picture>
       </div>
 
-      <div class="list-container">
-        <ul class="mdc-list list list-bulk-button" v-if="searchAllEngines">
-          <li
-            class="mdc-list-item list-item"
-            @click="onEngineClick('allEngines')"
-          >
+      <vn-list class="list-items">
+        <vn-list-item
+          v-if="searchAllEngines"
+          :title="getText('menuItemTitle_allEngines')"
+          @click="onEngineClick('allEngines')"
+        >
+          <template v-slot:prepend v-if="showEngineIcons">
             <img
-              class="mdc-list-item__graphic list-item-icon"
-              :src="getEngineIcon('allEngines')"
+              class="list-item-icon"
+              v-if="showEngineIcons"
+              :src="getEngineIcon('allEngines', {variant: theme})"
             />
-            {{ getText('menuItemTitle_allEngines') }}
-          </li>
-        </ul>
+          </template>
+        </vn-list-item>
 
-        <ul class="mdc-list list list-separator">
-          <li role="separator" class="mdc-list-divider"></li>
-        </ul>
+        <vn-divider class="list-separator" v-if="searchAllEngines"></vn-divider>
 
-        <ul class="mdc-list list list-items">
-          <li
-            class="mdc-list-item list-item"
-            v-for="engine in engines"
-            :key="engine.id"
-            @click="onEngineClick(engine)"
+        <template v-for="item of engines">
+          <vn-list-item
+            :title="getText(`menuItemTitle_${item}`)"
+            @click="onEngineClick(item)"
           >
-            <img
-              class="mdc-list-item__graphic list-item-icon"
-              :src="getEngineIcon(engine)"
-            />
-            {{ getText(`menuItemTitle_${engine}`) }}
-          </li>
-        </ul>
-      </div>
+            <template v-slot:prepend v-if="showEngineIcons">
+              <img
+                class="list-item-icon"
+                :src="getEngineIcon(item, {variant: theme})"
+              />
+            </template>
+          </vn-list-item>
+        </template>
+      </vn-list>
     </div>
 
     <div class="error-content" v-if="showError">
-      <img class="error-icon" src="/src/assets/icons/misc/error.svg" />
+      <vn-icon
+        class="error-icon"
+        src="/src/assets/icons/misc/error.svg"
+      ></vn-icon>
       <div class="error-text">{{ showError }}</div>
     </div>
 
-    <div
+    <img
       v-if="showSpinner && !showError"
-      class="spinner sk-rotating-plane"
-    ></div>
-  </div>
+      class="spinner"
+      src="/src/assets/icons/misc/spinner.svg"
+    />
+  </vn-app>
 </template>
 
 <script>
 import {markRaw} from 'vue';
-import {MDCList} from '@material/list';
-import {MDCRipple} from '@material/ripple';
-import {Button} from 'ext-components';
+import {App, Button, Divider, Icon, List, ListItem} from 'vueton';
 
 import storage from 'storage/storage';
 import {
@@ -175,14 +182,20 @@ import {
   getFilesFromClipboard,
   getEngineIcon,
   validateShareId,
-  sendLargeMessage
+  sendLargeMessage,
+  getAppTheme
 } from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
 
 export default {
   components: {
-    [Button.name]: Button
+    [App.name]: App,
+    [Button.name]: Button,
+    [Divider.name]: Divider,
+    [Icon.name]: Icon,
+    [List.name]: List,
+    [ListItem.name]: ListItem
   },
 
   data: function () {
@@ -202,20 +215,23 @@ export default {
 
       engines: [],
       searchAllEngines: false,
+      showEngineIcons: false,
 
       pasteEnabled: false,
       dropEnabled: false,
 
-      confirmPaste: false
+      confirmPaste: false,
+
+      theme: ''
     };
   },
 
   computed: {
     appClasses: function () {
       return {
-        'list-separator-hidden': !this.searchAllEngines,
         'browse-view': !this.isShare,
-        'share-view': this.isShare
+        'share-view': this.isShare,
+        'drop-state': this.dropState
       };
     }
   },
@@ -295,6 +311,7 @@ export default {
               this.searchAllEngines =
                 options.searchAllEnginesAction === 'sub' &&
                 !this.$env.isSamsung;
+              this.showEngineIcons = options.showEngineIcons;
             }
           } else {
             this.showError = getText('error_invalidImageFile');
@@ -333,6 +350,11 @@ export default {
           this.showError = getText('error_invalidPageUrl');
         }
       }
+
+      this.theme = await getAppTheme(options.appTheme);
+      document.addEventListener('themeChange', ev => {
+        this.theme = ev.detail;
+      });
     },
 
     startProcessing: function () {
@@ -557,56 +579,23 @@ export default {
       new URL(window.location.href).searchParams.get('origin') === 'share';
 
     this.initSetup();
-  },
-
-  mounted: function () {
-    if (this.isShare) {
-      window.setTimeout(() => {
-        for (const listEl of document.querySelectorAll(
-          '.list-bulk-button, .list-items'
-        )) {
-          const list = new MDCList(listEl);
-          for (const el of list.listElements) {
-            MDCRipple.attachTo(el);
-          }
-        }
-      }, 500);
-    }
   }
 };
 </script>
 
 <style lang="scss">
-$spinkit-size: 36px;
-$spinkit-spinner-color: #e74c3c;
+@use 'vueton/styles' as vueton;
 
-@import 'spinkit/scss/spinners/1-rotating-plane';
-@import '@material/list/mdc-list';
+@include vueton.theme-base;
+@include vueton.transitions;
 
-@import '@material/button/mixins';
-@import '@material/ripple/mixins';
-@import '@material/theme/mixins';
-@import '@material/typography/mixins';
-
-html,
-body,
-#app {
-  width: 100%;
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  @include mdc-typography-base;
-  font-size: 100%;
-}
-
-#app {
+.v-application__wrap {
   display: flex;
   justify-content: safe center;
+  flex-direction: row;
 }
 
-#app.browse-view {
+.browse-view {
   align-items: safe center;
 
   & .browse-content {
@@ -630,12 +619,10 @@ body {
     justify-content: center;
     flex-direction: column;
     pointer-events: none;
-    background-color: #fff;
   }
 
   & .drop-zone-text {
-    @include mdc-typography(subtitle1);
-    @include mdc-theme-prop(color, #252525);
+    @include vueton.md2-typography(subtitle1);
     margin-top: 16px;
     @media (min-height: 480px) {
       margin-top: 24px;
@@ -645,20 +632,28 @@ body {
   & .drop-zone-icon {
     width: 128px;
     height: 128px;
+    @include vueton.theme-prop(background-color, surface-variant);
+  }
+
+  &.drop-state {
+    & .drop-zone-icon {
+      background-color: var(--md-ref-palette-color6-1) !important;
+    }
   }
 
   & .browse-buttons {
     display: grid;
     grid-auto-flow: column;
     grid-column-gap: 24px;
-    height: 36px;
+    height: 40px;
     margin-top: 72px;
     @media (min-height: 480px) {
       margin-top: 96px;
     }
 
-    & .outline-button {
+    & .browse-button {
       pointer-events: auto;
+      @include vueton.theme-prop(color, primary);
     }
   }
 
@@ -708,7 +703,7 @@ body {
       display: grid;
       grid-auto-flow: column;
       grid-column-gap: 24px;
-      height: 36px;
+      height: 40px;
       margin-top: 48px;
       @media (min-height: 480px) {
         margin-top: 72px;
@@ -716,21 +711,14 @@ body {
     }
   }
 
-  & .outline-button {
-    @include mdc-button-ink-color(#4e5bb6);
-    @include mdc-button-outline-color(#4e5bb6);
-    @include mdc-button-shape-radius(16px);
-
-    & .mdc-button__ripple {
-      @include mdc-states-base-color(#8188e9);
-    }
+  & .browse-button {
+    @include vueton.theme-prop(color, primary);
   }
 }
 
-#app.share-view {
+.share-view {
   align-items: flex-start;
   overflow-x: auto;
-  background-color: #f2f2f7;
 
   & .share-content {
     width: 100%;
@@ -764,107 +752,59 @@ body {
       0px 6px 10px 0px rgba(0, 0, 0, 0.08), 0px 1px 12px 0px rgba(0, 0, 0, 0.06);
   }
 
-  & .list-container {
+  & .list-items {
     border-radius: 16px;
-    background-color: #ffffff;
-  }
-
-  & .list {
-    padding: 0 !important;
-  }
-
-  & .list-bulk-button {
-    position: relative;
-    height: 48px;
-  }
-
-  & .list-bulk-button li {
-    border-radius: 16px 16px 0px 0px;
   }
 
   & .list-separator {
-    position: relative;
-    height: 1px;
-  }
-
-  &.list-separator-hidden .list-separator {
-    display: none;
-  }
-
-  & .mdc-list-divider {
-    margin-left: 56px;
-  }
-
-  &.list-separator-hidden .list-items li:first-child {
-    border-radius: 16px 16px 0px 0px;
-  }
-
-  & .list-items li:last-child {
-    border-radius: 0px 0px 16px 16px;
-  }
-
-  & .list-item {
-    padding-left: 16px;
-    padding-right: 48px;
-    cursor: pointer;
+    margin-top: -1px;
   }
 
   & .list-item-icon {
-    margin-right: 16px !important;
-  }
-
-  & .mdc-list {
-    padding: 0;
-  }
-
-  & .mdc-list-item {
-    @include mdc-theme-prop(color, #252525);
+    width: 24px;
+    height: 24px;
   }
 }
 
 .error-content {
   display: flex;
   align-items: center;
-  margin: auto;
   padding: 16px;
 
   & .error-icon {
     width: 48px;
     height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     margin-right: 24px;
+    @include vueton.theme-prop(background-color, error);
   }
 
   & .error-text {
-    @include mdc-typography(subtitle1);
-    @include mdc-theme-prop(color, #252525);
+    @include vueton.md2-typography(subtitle1);
     max-width: 520px;
   }
 }
 
 .spinner {
   align-self: center;
+  width: 36px;
+  height: 36px;
 }
 
-.safari {
-  & #app.browse-view {
-    & .outline-button {
-      -webkit-mask-image: -webkit-radial-gradient(white, black);
-    }
+.v-theme--light {
+  &.share-view {
+    background-color: var(--md-ref-palette-color5-1);
   }
+}
 
-  & #app.share-view {
-    & .list-bulk-button li,
-    &.list-separator-hidden .list-items li:first-child,
-    & .list-items li:last-child {
-      -webkit-mask-image: -webkit-radial-gradient(white, black);
-      transform: translate3d(0px, 0px, 0px);
-    }
-  }
+.v-theme--dark {
+  &.share-view {
+    & .list-items {
+      @include vueton.theme-prop(background-color, menu-surface);
 
-  &.macos {
-    & #app.browse-view {
-      & .outline-button {
-        transform: translate3d(0px, 0px, 0px);
+      & .list-separator {
+        @include vueton.theme-prop(border-color, outline-variant);
       }
     }
   }
@@ -872,7 +812,7 @@ body {
 
 /* tablets */
 @media (min-width: 480px) {
-  #app.share-view {
+  .share-view {
     & .share-content {
       width: auto;
       min-width: 320px;
