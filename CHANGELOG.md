@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.5.0](https://github.com/dessant/search-by-image/compare/v5.4.2...v5.5.0) (2023-05-31)
+
+
+### Features
+
+* migrate to Vuetify ([4029df8](https://github.com/dessant/search-by-image/commit/4029df8c7fdade74aabda6702a98429649ff5534))
+
+
+### Bug Fixes
+
+* remove deprecated search engines ([8e769d9](https://github.com/dessant/search-by-image/commit/8e769d949d96115c5d19a31c113ace4906db5c84))
+* update Dreamstime ([9834315](https://github.com/dessant/search-by-image/commit/9834315d3031dcec12335dbbccc37e47973afe67))
+* update Getty ([ca156f0](https://github.com/dessant/search-by-image/commit/ca156f0a60cf5a5ab567fa4257e27593d42da4c3))
+* update iStock ([2bd90c6](https://github.com/dessant/search-by-image/commit/2bd90c6821d4f400d25de6ec6b5fe0031ebc3c90))
+* update Shutterstock ([358d662](https://github.com/dessant/search-by-image/commit/358d662251b54f7d2e44540dcb15a25db511bc00))
+* update Stocksy ([7c9f3b5](https://github.com/dessant/search-by-image/commit/7c9f3b55dead8f9c7103a58e7ec67347593789c5))
+* update Taobao ([c07c1d7](https://github.com/dessant/search-by-image/commit/c07c1d7652903f7cf577c72317a27a9767b431f2))
+* update Wildberries ([3e3dc6b](https://github.com/dessant/search-by-image/commit/3e3dc6b137e5a86719bc7024ac35d03b18d0e95d))
+
 ### [5.4.2](https://github.com/dessant/search-by-image/compare/v5.4.1...v5.4.2) (2022-11-23)
 
 
