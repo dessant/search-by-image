@@ -1,11 +1,11 @@
-import {findNode} from 'utils/common';
+import {findNode, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'wildberries';
 
 async function search({session, search, image, storageIds}) {
   // wait for search service to load
-  await findNode('.chat__footer');
+  await sleep(1000);
 
   (
     await findNode('#searchByImageContainer .search-catalog__btn--photo')
