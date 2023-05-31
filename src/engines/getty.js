@@ -7,7 +7,7 @@ async function search({session, search, image, storageIds}) {
   (
     await Promise.race([
       findNode('button[class*="SearchByImageButton"]'),
-      findNode('.search-bar__camera a.search-camera-icon') // new layout
+      findNode('button[data-testid="search-by-image-button"]') // new layout
     ])
   ).click();
 
