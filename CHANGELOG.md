@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
+* Dark mode
 * migrate to Vuetify ([4029df8](https://github.com/dessant/search-by-image/commit/4029df8c7fdade74aabda6702a98429649ff5534))
 
 
