@@ -532,7 +532,7 @@ async function convertImage({
     if (maxSize !== Infinity) {
       currentSize = blob.size;
 
-      if (currentSize > maxSize && maxDimension > 680) {
+      if (currentSize > maxSize && maxDimension > 480) {
         maxDimension -= 200;
         continue;
       }

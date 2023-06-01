@@ -320,6 +320,16 @@ const engines = {
       target: 'https://lexica.art/',
       isExec: true
     }
+  },
+  kagi: {
+    url: {
+      target: 'https://kagi.com/images',
+      isExec: true
+    },
+    image: {
+      target: 'https://kagi.com/images',
+      isExec: true
+    }
   }
 };
 
@@ -627,7 +637,8 @@ const maxImageUploadSize = {
   lykdat: {ui: 9 * 1024 * 1024},
   wildberries: {ui: 8 * 1024 * 1024},
   googleLens: {api: 20 * 1024 * 1024},
-  lexica: {ui: 30 * 1024 * 1024}
+  lexica: {ui: 30 * 1024 * 1024},
+  kagi: {ui: 1 * 1024 * 1024}
 };
 
 const chromeDesktopUA =

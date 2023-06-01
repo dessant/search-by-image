@@ -45,7 +45,8 @@
       "20220814142801_configure_engines",
       "20220924083846_add_lexica",
       "20230415111029_add_theme_support",
-      "20230531103023_remove_search_engines"
+      "20230531103023_remove_search_engines",
+      "20230601115626_add_kagi"
     ],
     "sync": []
   }
