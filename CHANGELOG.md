@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.6.0](https://github.com/dessant/search-by-image/compare/v5.5.0...v5.6.0) (2023-06-01)
+
+
+### Features
+
+* search on Kagi ([70e9745](https://github.com/dessant/search-by-image/commit/70e97450aeaabe7c9360332b8d8f49d321b53607)), closes [#248](https://github.com/dessant/search-by-image/issues/248)
+
+
+### Bug Fixes
+
+* align search results ([08f8b3f](https://github.com/dessant/search-by-image/commit/08f8b3f3ba51bfe74a20a1dca99acd8652e734b5))
+
 ## [5.5.0](https://github.com/dessant/search-by-image/compare/v5.4.2...v5.5.0) (2023-05-31)
 
 
