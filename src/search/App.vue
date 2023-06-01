@@ -280,9 +280,18 @@ export default {
 @include vueton.theme-base;
 @include vueton.transitions;
 
-body {
+html,
+body,
+.v-application,
+.v-application__wrap {
+  width: 100%;
+}
+
+body,
+.v-application__wrap {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .page-overlay {
