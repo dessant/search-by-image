@@ -1,8 +1,11 @@
 import {
   sendLargeMessage,
   processLargeMessage,
-  processMessageResponse
+  processMessageResponse,
+  getAppTheme,
+  addThemeListener
 } from 'utils/app';
+import {addCssClass} from 'utils/common';
 import {targetEnv} from 'utils/config';
 
 var contentStorage = {
@@ -11,6 +14,32 @@ var contentStorage = {
   viewMessagePort: null,
   queuedMessage: null
 };
+
+function addViewFrame() {
+  const shadowHost = document.createElement('div');
+  const shadowRoot = shadowHost.attachShadow({mode: 'closed'});
+
+  const css = document.createElement('link');
+  css.setAttribute('rel', 'stylesheet');
+  css.setAttribute('href', browser.runtime.getURL('/src/content/style.css'));
+  shadowRoot.appendChild(css);
+
+  const viewFrame = document.createElement('iframe');
+  viewFrame.classList.add('hidden');
+
+  css.addEventListener(
+    'load',
+    async function () {
+      await configTheme(viewFrame);
+      shadowRoot.appendChild(viewFrame);
+    },
+    {once: true}
+  );
+
+  document.body.appendChild(shadowHost);
+
+  contentStorage.viewFrame = viewFrame;
+}
 
 function showView(view) {
   const currentView = contentStorage.viewFrame.id;
@@ -116,25 +145,25 @@ function onConnect(messagePort) {
   }
 }
 
+async function configTheme(viewFrame) {
+  // Opaque background may be flashed when an iframe is added to the DOM
+  viewFrame.classList.add('fade-in');
+
+  async function setTheme() {
+    const theme = await getAppTheme();
+
+    addCssClass(viewFrame, `theme-${theme}`, {
+      replaceClass: `theme-${theme === 'light' ? 'dark' : 'light'}`
+    });
+  }
+
+  addThemeListener(setTheme);
+
+  await setTheme();
+}
+
 self.initContent = function () {
-  const shadowHost = document.createElement('div');
-  const shadowRoot = shadowHost.attachShadow({mode: 'closed'});
-
-  const css = document.createElement('link');
-  css.setAttribute('rel', 'stylesheet');
-  css.setAttribute('href', browser.runtime.getURL('/src/content/style.css'));
-  shadowRoot.appendChild(css);
-
-  const viewFrame = document.createElement('iframe');
-  viewFrame.classList.add('hidden');
-
-  css.addEventListener('load', () => shadowRoot.appendChild(viewFrame), {
-    once: true
-  });
-
-  document.body.appendChild(shadowHost);
-
-  contentStorage.viewFrame = viewFrame;
+  addViewFrame();
 
   browser.runtime.onMessage.addListener(onMessage);
   if (targetEnv !== 'firefox') {

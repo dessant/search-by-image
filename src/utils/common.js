@@ -466,6 +466,15 @@ function getDayPrecisionEpoch(epoch) {
   return epoch - (epoch % 86400000);
 }
 
+function addCssClass(node, newClass, {replaceClass = ''} = {}) {
+  const replaced =
+    replaceClass && node.classList.replace(replaceClass, newClass);
+
+  if (!replaced) {
+    node.classList.add(newClass);
+  }
+}
+
 export {
   onError,
   onComplete,
@@ -498,5 +507,6 @@ export {
   getActiveTab,
   getPlatform,
   shareFiles,
-  sleep
+  sleep,
+  addCssClass
 };

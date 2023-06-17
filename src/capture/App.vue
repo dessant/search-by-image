@@ -200,11 +200,6 @@ body {
   overflow: hidden;
 }
 
-:root {
-  // the document background is not transparent in dark mode
-  color-scheme: light !important;
-}
-
 .v-application {
   background: transparent !important;
 }

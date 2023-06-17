@@ -1,7 +1,6 @@
 import {createVuetify} from 'vuetify';
 
-import {getAppTheme} from 'utils/app';
-import {getDarkColorSchemeQuery} from 'utils/common';
+import {getAppTheme, addThemeListener} from 'utils/app';
 
 const LightTheme = {
   dark: false,
@@ -23,9 +22,11 @@ const DarkTheme = {
   }
 };
 
-async function configTheme(vuetify) {
-  async function setTheme(theme, {dispatchChange = true} = {}) {
-    theme = await getAppTheme();
+async function configTheme(vuetify, {theme = ''} = {}) {
+  async function setTheme({theme = '', dispatchChange = true} = {}) {
+    if (!theme) {
+      theme = await getAppTheme();
+    }
 
     document.documentElement.style.setProperty('color-scheme', theme);
     vuetify.theme.global.name.value = theme;
@@ -35,23 +36,18 @@ async function configTheme(vuetify) {
     }
   }
 
-  getDarkColorSchemeQuery().addEventListener('change', function () {
-    setTheme();
-  });
+  addThemeListener(setTheme);
 
-  browser.storage.onChanged.addListener(function (changes, area) {
-    if (area === 'local' && changes.appTheme) {
-      setTheme(changes.appTheme.newValue);
-    }
-  });
-
-  await setTheme({dispatchChange: false});
+  await setTheme({theme, dispatchChange: false});
 }
 
 async function configVuetify(app) {
+  const theme = await getAppTheme();
+
   const vuetify = createVuetify({
     theme: {
-      themes: {light: LightTheme, dark: DarkTheme}
+      themes: {light: LightTheme, dark: DarkTheme},
+      defaultTheme: theme
     },
     defaults: {
       VDialog: {
@@ -69,7 +65,7 @@ async function configVuetify(app) {
     }
   });
 
-  await configTheme(vuetify);
+  await configTheme(vuetify, {theme});
 
   app.use(vuetify);
 }

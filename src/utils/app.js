@@ -1830,6 +1830,25 @@ async function getAppTheme(theme) {
   return theme;
 }
 
+function addSystemThemeListener(callback) {
+  getDarkColorSchemeQuery().addEventListener('change', function () {
+    callback();
+  });
+}
+
+function addAppThemeListener(callback) {
+  browser.storage.onChanged.addListener(function (changes, area) {
+    if (area === 'local' && changes.appTheme) {
+      callback();
+    }
+  });
+}
+
+function addThemeListener(callback) {
+  addSystemThemeListener(callback);
+  addAppThemeListener(callback);
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1908,5 +1927,8 @@ export {
   getMaxDataUrlSize,
   handleBrowserActionEscapeKey,
   getAppTheme,
-  processAppUse
+  processAppUse,
+  addSystemThemeListener,
+  addAppThemeListener,
+  addThemeListener
 };

@@ -32,3 +32,29 @@
 .hidden {
   display: none !important;
 }
+
+.fade-in:not(.hidden) {
+  animation-name: fadeIn !important;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0) !important;
+  animation-fill-mode: both !important;
+  animation-duration: 0.1s !important;
+  animation-delay: 0.05s !important;
+}
+
+@keyframes fadeIn {
+  0% {
+      opacity: 0;
+  }
+
+  100% {
+      opacity: 1;
+   }
+}
+
+.theme-light {
+  color-scheme: light !important;
+}
+
+.theme-dark {
+  color-scheme: dark !important;
+}

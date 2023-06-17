@@ -412,11 +412,6 @@ export default {
 @include vueton.theme-base;
 @include vueton.transitions;
 
-:root {
-  // the document background is not transparent in dark mode
-  color-scheme: light !important;
-}
-
 .v-application {
   background: transparent !important;
 }
