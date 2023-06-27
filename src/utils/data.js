@@ -330,6 +330,32 @@ const engines = {
       target: 'https://kagi.com/images',
       isExec: true
     }
+  },
+  haveibeentrained: {
+    url: {target: 'https://haveibeentrained.com/?url={imgUrl}'},
+    image: {
+      target: 'https://haveibeentrained.com/',
+      isExec: true
+    }
+  },
+  enterpix: {
+    image: {
+      target: 'https://enterpix.app/',
+      isExec: true
+    }
+  },
+  immerse: {
+    url: {target: 'https://www.immerse.zone/image?url={imgUrl}'},
+    image: {
+      target: 'https://www.immerse.zone/',
+      isExec: true
+    }
+  },
+  clipretrieval: {
+    image: {
+      target: 'https://knn.laion.ai/',
+      isExec: true
+    }
   }
 };
 
@@ -354,7 +380,9 @@ const engineIconVariants = {
   saucenao: ['dark'],
   ascii2d: ['dark'],
   tmview: ['dark'],
-  pixta: ['dark']
+  pixta: ['dark'],
+  immerse: ['dark'],
+  clipretrieval: ['dark']
 };
 
 const rasterEngineIcons = [
@@ -578,7 +606,11 @@ const webpEngineSupport = [
   'shein',
   'lykdat',
   'googleLens',
-  'lexica'
+  'lexica',
+  'haveibeentrained',
+  'enterpix',
+  'immerse',
+  'clipretrieval'
 ];
 
 // Search engines only support the image format in compatible browsers.
@@ -591,7 +623,8 @@ const avifEngineSupport = [
   'alibabaChina',
   'dreamstime',
   'pond5',
-  'lexica'
+  'lexica',
+  'enterpix'
 ];
 
 const maxImageUploadSize = {
@@ -638,7 +671,11 @@ const maxImageUploadSize = {
   wildberries: {ui: 8 * 1024 * 1024},
   googleLens: {api: 20 * 1024 * 1024},
   lexica: {ui: 30 * 1024 * 1024},
-  kagi: {ui: 1 * 1024 * 1024}
+  kagi: {ui: 1 * 1024 * 1024},
+  haveibeentrained: {ui: 10 * 1024 * 1024},
+  enterpix: {ui: 5 * 1024 * 1024},
+  immerse: {ui: 10 * 1024 * 1024},
+  clipretrieval: {ui: 15 * 1024 * 1024}
 };
 
 const chromeDesktopUA =
