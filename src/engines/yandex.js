@@ -1,7 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
 
 import {validateUrl, getContentXHR} from 'utils/app';
-import {findNode} from 'utils/common';
+import {findNode, makeDocumentVisible} from 'utils/common';
 import {
   initSearch,
   prepareImageForUpload,
@@ -189,6 +189,7 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
+  makeDocumentVisible();
   if (!window.location.pathname.startsWith('/showcaptcha')) {
     initSearch(search, engine, taskId);
   }

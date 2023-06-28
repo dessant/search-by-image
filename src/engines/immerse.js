@@ -1,4 +1,4 @@
-import {findNode} from 'utils/common';
+import {findNode, makeDocumentVisible} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'immerse';
@@ -22,6 +22,7 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
+  makeDocumentVisible();
   initSearch(search, engine, taskId);
 }
 

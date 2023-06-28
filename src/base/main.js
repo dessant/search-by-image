@@ -114,11 +114,6 @@ function main() {
   };
 
   async function checkTask() {
-    if (document.readyState !== 'complete') {
-      document.addEventListener('readystatechange', checkTask, {once: true});
-      return;
-    }
-
     const {taskRegistry} = await storage.get('taskRegistry');
     if (Date.now() - taskRegistry.lastTaskStart < 600000) {
       await browser.runtime.sendMessage({id: 'taskRequest'});

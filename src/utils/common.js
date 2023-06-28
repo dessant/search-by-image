@@ -475,6 +475,116 @@ function addCssClass(node, newClass, {replaceClass = ''} = {}) {
   }
 }
 
+function waitForDocumentLoad() {
+  return new Promise(resolve => {
+    function checkState() {
+      if (document.readyState === 'complete') {
+        resolve();
+      } else {
+        document.addEventListener('readystatechange', checkState, {once: true});
+      }
+    }
+
+    checkState();
+  });
+}
+
+function makeDocumentVisible() {
+  // Script may be injected multiple times.
+  if (self.documentVisibleModule) {
+    return;
+  } else {
+    self.documentVisibleModule = true;
+  }
+
+  function patchContext(eventName) {
+    let visibilityState = document.visibilityState;
+
+    function updateVisibilityState(ev) {
+      visibilityState = ev.detail;
+    }
+
+    document.addEventListener(eventName, updateVisibilityState, {
+      capture: true
+    });
+
+    let lastCallTime = 0;
+    window.requestAnimationFrame = new Proxy(window.requestAnimationFrame, {
+      apply(target, thisArg, argumentsList) {
+        if (visibilityState === 'visible') {
+          return Reflect.apply(target, thisArg, argumentsList);
+        } else {
+          const currentTime = Date.now();
+          const callDelay = Math.max(0, 16 - (currentTime - lastCallTime));
+
+          lastCallTime = currentTime + callDelay;
+
+          const timeoutId = window.setTimeout(function () {
+            argumentsList[0](performance.now());
+          }, callDelay);
+
+          return timeoutId;
+        }
+      }
+    });
+
+    window.cancelAnimationFrame = new Proxy(window.cancelAnimationFrame, {
+      apply(target, thisArg, argumentsList) {
+        if (visibilityState === 'visible') {
+          return Reflect.apply(target, thisArg, argumentsList);
+        } else {
+          window.clearTimeout(argumentsList[0]);
+        }
+      }
+    });
+
+    Object.defineProperty(document, 'visibilityState', {
+      get() {
+        return 'visible';
+      }
+    });
+
+    Object.defineProperty(document, 'hidden', {
+      get() {
+        return false;
+      }
+    });
+
+    Document.prototype.hasFocus = function () {
+      return true;
+    };
+
+    function stopEvent(ev) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+    }
+
+    window.addEventListener('pagehide', stopEvent, {capture: true});
+    window.addEventListener('blur', stopEvent, {capture: true});
+
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.dispatchEvent(new PageTransitionEvent('pageshow'));
+    window.dispatchEvent(new FocusEvent('focus'));
+  }
+
+  const eventName = uuidv4();
+
+  function dispatchVisibilityState() {
+    document.dispatchEvent(
+      new CustomEvent(eventName, {detail: document.visibilityState})
+    );
+  }
+
+  document.addEventListener('visibilitychange', dispatchVisibilityState, {
+    capture: true
+  });
+
+  const script = document.createElement('script');
+  script.textContent = `(${patchContext.toString()})("${eventName}")`;
+  document.documentElement.appendChild(script);
+  script.remove();
+}
+
 export {
   onError,
   onComplete,
@@ -508,5 +618,7 @@ export {
   getPlatform,
   shareFiles,
   sleep,
-  addCssClass
+  addCssClass,
+  waitForDocumentLoad,
+  makeDocumentVisible
 };

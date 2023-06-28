@@ -6,7 +6,7 @@ import {
   getLargeImageMessage,
   sendLargeMessage
 } from 'utils/app';
-import {dataUrlToBlob} from 'utils/common';
+import {dataUrlToBlob, waitForDocumentLoad} from 'utils/common';
 import {chromeSbiSrc} from 'utils/data';
 
 function getValidHostname(validHostnames, engine) {
@@ -170,6 +170,8 @@ async function initSearch(searchFn, engine, taskId) {
   } else {
     return;
   }
+
+  await waitForDocumentLoad();
 
   self.task = await browser.runtime.sendMessage({
     id: 'storageRequest',
