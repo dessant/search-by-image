@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.7.0](https://github.com/dessant/search-by-image/compare/v5.6.0...v5.7.0) (2023-07-02)
+
+
+### Features
+
+* search on Have I Been Trained, Enterpix, Immerse and Clip Retrieval ([86f10b2](https://github.com/dessant/search-by-image/commit/86f10b2d2dc06f39e3e5f2e9aaa855bbf7d82a2b)), closes [#220](https://github.com/dessant/search-by-image/issues/220)
+
+
+### Bug Fixes
+
+* ensure transparent page content background ([7db98b7](https://github.com/dessant/search-by-image/commit/7db98b7ed0186c392f2569971360136368956cda))
+* pass JSON string to page context ([30ee53f](https://github.com/dessant/search-by-image/commit/30ee53fd0283ad00e4b904a5d436711b41211410))
+* simulate active tab ([45924bb](https://github.com/dessant/search-by-image/commit/45924bb0cafa264ae78a339564d002a334b3ec42))
+* update Getty ([28871aa](https://github.com/dessant/search-by-image/commit/28871aa4a5d5cb6b2a8a7bf89f3681fbfbee70c3))
+* update iStock search ([6140156](https://github.com/dessant/search-by-image/commit/6140156d6480f720d0c27fe5eb56f5f4e2df6279))
+
 ## [5.6.0](https://github.com/dessant/search-by-image/compare/v5.5.0...v5.6.0) (2023-06-01)
 
 
