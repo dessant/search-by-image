@@ -78,7 +78,7 @@ async function setFileInputData(
         ev.stopImmediatePropagation();
         window.clearTimeout(timeoutId);
 
-        patchFileInputProperty(ev.detail);
+        patchFileInputProperty(JSON.parse(ev.detail));
       };
 
       const timeoutId = window.setTimeout(function () {
@@ -103,12 +103,12 @@ async function setFileInputData(
 
     document.dispatchEvent(
       new CustomEvent(eventName, {
-        detail: {
+        detail: JSON.stringify({
           selector,
           imageDataUrl: image.imageDataUrl,
           imageFilename: image.imageFilename,
           imageType: image.imageType
-        }
+        })
       })
     );
   } else {
