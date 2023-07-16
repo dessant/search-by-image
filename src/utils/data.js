@@ -356,6 +356,12 @@ const engines = {
       target: 'https://knn.laion.ai/',
       isExec: true
     }
+  },
+  freepik: {
+    image: {
+      target: 'https://www.freepik.com/search',
+      isExec: true
+    }
   }
 };
 
@@ -382,7 +388,8 @@ const engineIconVariants = {
   tmview: ['dark'],
   pixta: ['dark'],
   immerse: ['dark'],
-  clipretrieval: ['dark']
+  clipretrieval: ['dark'],
+  freepik: ['dark']
 };
 
 const rasterEngineIcons = [
@@ -675,7 +682,8 @@ const maxImageUploadSize = {
   haveibeentrained: {ui: 10 * 1024 * 1024},
   enterpix: {ui: 5 * 1024 * 1024},
   immerse: {ui: 10 * 1024 * 1024},
-  clipretrieval: {ui: 15 * 1024 * 1024}
+  clipretrieval: {ui: 15 * 1024 * 1024},
+  freepik: {ui: 60 * 1024 * 1024}
 };
 
 const chromeDesktopUA =

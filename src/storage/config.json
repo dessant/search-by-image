@@ -47,7 +47,8 @@
       "20230415111029_add_theme_support",
       "20230531103023_remove_search_engines",
       "20230601115626_add_kagi",
-      "20230624145626_add_search_engines"
+      "20230624145626_add_search_engines",
+      "20230716121432_add_freepik"
     ],
     "sync": []
   }

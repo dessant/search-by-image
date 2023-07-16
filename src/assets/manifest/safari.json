@@ -51,14 +51,11 @@
       "64": "src/assets/icons/app/icon-64.png",
       "96": "src/assets/icons/app/icon-96.png",
       "128": "src/assets/icons/app/icon-128.png"
-    },
-    "browser_style": false
+    }
   },
 
   "options_ui": {
-    "page": "src/options/index.html",
-    "browser_style": false,
-    "open_in_tab": true
+    "page": "src/options/index.html"
   },
 
   "background": {
