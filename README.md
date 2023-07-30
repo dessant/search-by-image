@@ -4,22 +4,36 @@
 <p align="center">
   </br></br>
   <a href="https://chrome.google.com/webstore/detail/search-by-image/cnojnbdhbhnkbcieeekonklommdnndci">
-    <img height="58" src="https://i.imgur.com/K9Yh8G9.png" alt="Chrome Web Store"></a>
-  <a href="https://addons.mozilla.org/en-US/firefox/addon/search_by_image/">
-    <img height="58" src="https://i.imgur.com/2jJOtTI.png" alt="Firefox add-ons"></a>
+    <picture>
+      <source srcset="https://i.imgur.com/hcbQhpp.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/ClF2bZl.png" alt="Chrome Web Store"></picture></a>
+  <a href="https://addons.mozilla.org/firefox/addon/search_by_image/">
+    <picture>
+      <source srcset="https://i.imgur.com/ZluoP7T.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/4PobQqE.png" alt="Firefox add-ons"></picture></a>
   <a href="https://microsoftedge.microsoft.com/addons/detail/search-by-image/hckehkfhdkpmdlonmjaagiodlpjbonmc">
-    <img height="58" src="https://i.imgur.com/es2YFRA.png" alt="Microsoft Store"></a>
-  <a href="https://addons.opera.com/en/extensions/details/search-by-image/">
-    <img height="58" src="https://i.imgur.com/IYYsrwg.png" alt="Opera add-ons"></a>
+    <picture>
+      <source srcset="https://i.imgur.com/Jog9cQP.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/aiprUt8.png" alt="Microsoft Store"></picture></a>
+  <a href="https://addons.opera.com/extensions/details/search-by-image/">
+    <picture>
+      <source srcset="https://i.imgur.com/ziehy0f.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/ytVATu0.png" alt="Opera add-ons"></picture></a>
   </br></br>
 </p>
 <p align="center">
   <a href="https://galaxystore.samsung.com/detail/dev.armin.searchbyimage">
-    <img height="58" src="https://i.imgur.com/UT5Rgrw.png" alt="Galaxy Store"></a>
+    <picture>
+      <source srcset="https://i.imgur.com/OyMEO0Y.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/Ze8z5ac.png" alt="Galaxy Store"></picture></a>
   <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106?platform=iphone">
-    <img height="58" src="https://i.imgur.com/40lhQiL.png" alt="App Store"></a>
+    <picture>
+      <source srcset="https://i.imgur.com/jljkC9V.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/uhzgtdR.png" alt="App Store"></picture></a>
   <a href="https://apps.apple.com/us/app/search-by-image-for-safari/id1544552106?platform=mac">
-    <img height="58" src="https://i.imgur.com/JGvQ2Zc.png" alt="Mac App Store"></a>
+    <picture>
+      <source srcset="https://i.imgur.com/A8NELAl.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/LC92P1Y.png" alt="Mac App Store"></picture></a>
   </br></br>
 </p>
 
