@@ -5,8 +5,8 @@
   </br></br>
   <a href="https://chrome.google.com/webstore/detail/search-by-image/cnojnbdhbhnkbcieeekonklommdnndci">
     <picture>
-      <source srcset="https://i.imgur.com/hcbQhpp.png" media="(prefers-color-scheme: dark)">
-      <img height="58" src="https://i.imgur.com/ClF2bZl.png" alt="Chrome Web Store"></picture></a>
+      <source srcset="https://i.imgur.com/XBIE9pk.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/oGxig2F.png" alt="Chrome Web Store"></picture></a>
   <a href="https://addons.mozilla.org/firefox/addon/search_by_image/">
     <picture>
       <source srcset="https://i.imgur.com/ZluoP7T.png" media="(prefers-color-scheme: dark)">
