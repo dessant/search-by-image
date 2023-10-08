@@ -57,7 +57,6 @@ import {getText} from 'utils/common';
 import {
   prepareImageForUpload,
   searchGoogle,
-  searchGoogleLens,
   searchPinterest
 } from 'utils/engines';
 
@@ -205,29 +204,6 @@ export default {
           tabUrl = rsp.data;
         } else {
           tabUrl = await searchGoogle({session, search, image});
-        }
-
-        if (validateUrl(tabUrl)) {
-          window.location.replace(tabUrl);
-        }
-      } else if (this.engine === 'googleLens') {
-        let tabUrl;
-        if (this.$env.isSafari && this.$env.isMobile) {
-          // Safari 15: cross-origin request from extension page is blocked on mobile.
-          const rsp = await browser.runtime.sendMessage({
-            id: 'searchImage',
-            session,
-            search,
-            image
-          });
-
-          if (rsp.error) {
-            throw new Error(rsp.error);
-          }
-
-          tabUrl = rsp.data;
-        } else {
-          tabUrl = await searchGoogleLens({session, search, image});
         }
 
         if (validateUrl(tabUrl)) {

@@ -264,31 +264,6 @@ async function searchGoogle({session, search, image} = {}) {
   return tabUrl;
 }
 
-async function searchGoogleLens({session, search, image} = {}) {
-  const data = new FormData();
-  data.append('encoded_image', image.imageBlob, image.imageFilename);
-
-  const rsp = await fetch(
-    `https://lens.google.com/upload?ep=ccm&s=&st=${Date.now()}`,
-    {
-      referrer: '',
-      mode: 'cors',
-      method: 'POST',
-      body: data
-    }
-  );
-
-  if (rsp.status !== 200) {
-    throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
-  }
-
-  const response = await rsp.text();
-
-  const tabUrl = response.match(/<meta .*URL=(https?:\/\/.*)"/)[1];
-
-  return tabUrl;
-}
-
 async function searchPinterest({session, search, image} = {}) {
   const data = new FormData();
   data.append('image', image.imageBlob, image.imageFilename);
@@ -369,7 +344,6 @@ export {
   sendReceipt,
   initSearch,
   searchGoogle,
-  searchGoogleLens,
   searchPinterest,
   EngineError,
   prepareImageForUpload

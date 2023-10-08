@@ -24,7 +24,8 @@ import {
   shareFiles,
   getDayPrecisionEpoch,
   isAndroid,
-  getDarkColorSchemeQuery
+  getDarkColorSchemeQuery,
+  isValidTab
 } from 'utils/common';
 import {targetEnv, enableContributions} from 'utils/config';
 import {
@@ -1502,7 +1503,7 @@ async function processLargeMessage({
       sender.tab = null;
     }
 
-    if (sender.tab && sender.tab.id !== browser.tabs.TAB_ID_NONE) {
+    if (await isValidTab({tab: sender.tab})) {
       // Samsung Internet 13: runtime.onMessage provides wrong tab index.
       sender.tab = await browser.tabs.get(sender.tab.id);
     }
@@ -1668,9 +1669,13 @@ function getMaxDataUrlSize() {
   }
 }
 
-async function getOpenerTabId(tabId) {
-  if (tabId !== browser.tabs.TAB_ID_NONE && !(await getPlatform()).isMobile) {
-    return tabId;
+async function getOpenerTabId({tab, tabId = null} = {}) {
+  if (!tab && tabId !== null) {
+    tab = await browser.tabs.get(tabId).catch(err => null);
+  }
+
+  if ((await isValidTab({tab})) && !(await getPlatform()).isMobile) {
+    return tab.id;
   }
 
   return null;
@@ -1689,7 +1694,7 @@ async function showPage({
   const props = {url, index: activeTab.index + 1, active: true, getTab};
 
   if (setOpenerTab) {
-    props.openerTabId = await getOpenerTabId(activeTab.id);
+    props.openerTabId = await getOpenerTabId({tab: activeTab});
   }
 
   return createTab(props);

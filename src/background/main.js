@@ -44,7 +44,8 @@ import {
   showPage,
   getOpenerTabId
 } from 'utils/app';
-import {searchGoogle, searchGoogleLens, searchPinterest} from 'utils/engines';
+import {isValidTab} from 'utils/common';
+import {searchGoogle, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv} from 'utils/config';
@@ -697,6 +698,36 @@ async function setupNewEngineTab(tabId, tabUrl, token, engine) {
         },
         ['blocking']
       );
+    } else if (targetEnv === 'safari') {
+      // Safari 16.4 or later
+      if (browser.declarativeNetRequest?.updateSessionRules) {
+        await browser.declarativeNetRequest.updateSessionRules({
+          addRules: [
+            {
+              id: tabId,
+              action: {
+                type: 'modifyHeaders',
+                requestHeaders: [
+                  {header: 'User-Agent', operation: 'set', value: userAgent}
+                ]
+              },
+              condition: {
+                // Safari: tabIds is not supported
+                urlFilter: `${tabUrl}*`,
+                resourceTypes: ['main_frame', 'sub_frame']
+              }
+            }
+          ]
+        });
+
+        window.setTimeout(function () {
+          browser.declarativeNetRequest.updateSessionRules({
+            removeRuleIds: [tabId]
+          });
+        }, 60000);
+      } else {
+        await showNotification({messageId: 'error_engineSafariOutdated'});
+      }
     } else {
       setUserAgentHeader(tabId, userAgent);
     }
@@ -737,7 +768,7 @@ async function setupNewEngineTab(tabId, tabUrl, token, engine) {
 }
 
 async function getRequiredUserAgent(engine) {
-  if (await isAndroid()) {
+  if (await isMobile()) {
     // Google only works with a Chrome user agent on Firefox for Android,
     // while other search engines may need a desktop user agent.
     if (targetEnv === 'firefox' && ['google', 'ikea'].includes(engine)) {
@@ -800,7 +831,7 @@ async function handleParseResults(session, images) {
 }
 
 async function onContextMenuItemClick(info, tab) {
-  if (targetEnv === 'samsung' && tab.id !== browser.tabs.TAB_ID_NONE) {
+  if (targetEnv === 'samsung' && (await isValidTab({tab}))) {
     // Samsung Internet 13: contextMenus.onClicked provides wrong tab index.
     tab = await browser.tabs.get(tab.id);
   }
@@ -908,7 +939,7 @@ async function onActionClick(session, tabUrl) {
     await createTab({
       url: `${browseUrl}?id=${storageId}`,
       index: session.sourceTabIndex + 1,
-      openerTabId: await getOpenerTabId(session.sourceTabId)
+      openerTabId: await getOpenerTabId({tabId: session.sourceTabId})
     });
   } else if (session.searchMode === 'capture') {
     await openContentView({session}, 'capture');
@@ -930,7 +961,7 @@ async function onActionClick(session, tabUrl) {
 }
 
 async function onActionButtonClick(tab) {
-  if (targetEnv === 'samsung' && tab.id !== browser.tabs.TAB_ID_NONE) {
+  if (targetEnv === 'samsung' && (await isValidTab({tab}))) {
     // Samsung Internet 13: browserAction.onClicked provides wrong tab index.
     tab = await browser.tabs.get(tab.id);
   }
@@ -1269,8 +1300,6 @@ async function processMessage(request, sender) {
       let data;
       if (search.engine === 'google') {
         data = await searchGoogle({session, search, image});
-      } else if (search.engine === 'googleLens') {
-        data = await searchGoogleLens({session, search, image});
       } else if (search.engine === 'pinterest') {
         data = await searchPinterest({session, search, image});
       }

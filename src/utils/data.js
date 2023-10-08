@@ -310,8 +310,8 @@ const engines = {
   },
   googleLens: {
     image: {
-      target: searchUrl,
-      isTaskId: true
+      target: 'https://www.google.com/imghp',
+      isExec: true
     }
   },
   lexica: {
@@ -407,9 +407,10 @@ const imageMimeTypes = {
   'image/avci': ['avci'],
   'image/avcs': ['avcs'],
   'image/avif': ['avif'],
-  'image/bmp': ['bmp'],
+  'image/bmp': ['bmp', 'dib'],
   'image/cgm': ['cgm'],
   'image/dicom-rle': ['drle'],
+  'image/dpx': ['dpx'],
   'image/emf': ['emf'],
   'image/fits': ['fits'],
   'image/g3fax': ['g3'],
@@ -426,7 +427,7 @@ const imageMimeTypes = {
   'image/jpeg': ['jpg', 'jpeg', 'jpe'],
   'image/jph': ['jph'],
   'image/jphc': ['jhc'],
-  'image/jpm': ['jpm'],
+  'image/jpm': ['jpm', 'jpgm'],
   'image/jpx': ['jpx', 'jpf'],
   'image/jxr': ['jxr'],
   'image/jxra': ['jxra'],
@@ -438,7 +439,7 @@ const imageMimeTypes = {
   'image/ktx': ['ktx'],
   'image/ktx2': ['ktx2'],
   'image/png': ['png'],
-  'image/prs.btif': ['btif'],
+  'image/prs.btif': ['btif', 'btf'],
   'image/prs.pti': ['pti'],
   'image/sgi': ['sgi'],
   'image/svg+xml': ['svg', 'svgz'],

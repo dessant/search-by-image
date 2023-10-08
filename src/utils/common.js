@@ -248,26 +248,43 @@ function filenameToFileExt(name) {
   return (/(?:\.([^.]+))?$/.exec(name)[1] || '').toLowerCase();
 }
 
+function querySelectorXpath(rootNode, selector) {
+  return document.evaluate(
+    selector,
+    rootNode,
+    null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
+    null
+  ).singleNodeValue;
+}
+
+function nodeQuerySelector(rootNode, selector, {selectorType = 'css'} = {}) {
+  return selectorType === 'css'
+    ? rootNode.querySelector(selector)
+    : querySelectorXpath(rootNode, selector);
+}
+
 function findNode(
   selector,
   {
     timeout = 60000,
     throwError = true,
     observerOptions = null,
-    rootNode = null
+    rootNode = null,
+    selectorType = 'css'
   } = {}
 ) {
   return new Promise((resolve, reject) => {
     rootNode = rootNode || document;
 
-    const el = rootNode.querySelector(selector);
+    const el = nodeQuerySelector(rootNode, selector, {selectorType});
     if (el) {
       resolve(el);
       return;
     }
 
     const observer = new MutationObserver(function (mutations, obs) {
-      const el = rootNode.querySelector(selector);
+      const el = nodeQuerySelector(rootNode, selector, {selectorType});
       if (el) {
         obs.disconnect();
         window.clearTimeout(timeoutId);
@@ -305,6 +322,7 @@ async function processNode(
     throwError = true,
     observerOptions = null,
     rootNode = null,
+    selectorType = 'css',
     reprocess = false
   } = {}
 ) {
@@ -314,12 +332,13 @@ async function processNode(
     timeout,
     throwError,
     observerOptions,
-    rootNode
+    rootNode,
+    selectorType
   });
 
   if (reprocess) {
     const observer = new MutationObserver(function (mutations, obs) {
-      const el = rootNode.querySelector(selector);
+      const el = nodeQuerySelector(rootNode, selector, {selectorType});
       if (el && !el.isSameNode(node)) {
         node = el;
         actionFn(node);
@@ -585,6 +604,16 @@ function makeDocumentVisible() {
   script.remove();
 }
 
+async function isValidTab({tab, tabId = null} = {}) {
+  if (!tab && tabId !== null) {
+    tab = await browser.tabs.get(tabId).catch(err => null);
+  }
+
+  if (tab && tab.id !== browser.tabs.TAB_ID_NONE) {
+    return true;
+  }
+}
+
 export {
   onError,
   onComplete,
@@ -612,6 +641,8 @@ export {
   isMobile,
   getDarkColorSchemeQuery,
   getDayPrecisionEpoch,
+  querySelectorXpath,
+  nodeQuerySelector,
   findNode,
   processNode,
   getActiveTab,
@@ -620,5 +651,6 @@ export {
   sleep,
   addCssClass,
   waitForDocumentLoad,
-  makeDocumentVisible
+  makeDocumentVisible,
+  isValidTab
 };

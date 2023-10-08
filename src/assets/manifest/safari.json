@@ -22,7 +22,8 @@
     "activeTab",
     "nativeMessaging",
     "webNavigation",
-    "<all_urls>"
+    "<all_urls>",
+    "declarativeNetRequestWithHostAccess"
   ],
 
   "icons": {

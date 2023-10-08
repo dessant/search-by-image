@@ -291,7 +291,7 @@ import {
   handleBrowserActionEscapeKey,
   getAppTheme
 } from 'utils/app';
-import {getText, getActiveTab} from 'utils/common';
+import {getText, getActiveTab, isValidTab} from 'utils/common';
 import {enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
@@ -648,8 +648,7 @@ export default {
       // Samsung Internet 18: tabs.getCurrent returns a tab
       // instead of undefined, and tab.id refers to a nonexistent tab.
       if (
-        currentTab &&
-        currentTab.id !== browser.tabs.TAB_ID_NONE &&
+        (await isValidTab({tab: currentTab})) &&
         !this.$env.isSafari &&
         !this.$env.isSamsung
       ) {

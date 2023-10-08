@@ -1359,6 +1359,11 @@
     "description": "Error message."
   },
 
+  "error_engineSafariOutdated": {
+    "message": "The search engine is only supported in Safari 16.4 or later.",
+    "description": "Error message."
+  },
+
   "error_pageParseError": {
     "message": "Something went wrong. The web page could not be parsed.",
     "description": "Error message."
