@@ -1,38 +1,31 @@
 import {findNode} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
-import {targetEnv} from 'utils/config';
 
 const engine = 'branddb';
 
 async function search({session, search, image, storageIds}) {
-  await Promise.race([
-    findNode('tr[id="0"]'), // desktop
-    findNode('.flowItemBox .flowItem[foo="0"]') // mobile
-  ]);
+  await findNode('body[style^="opacity: 1"]', {
+    observerOptions: {attributes: true, attributeFilter: ['class']}
+  });
 
-  (await findNode('a[href="#image_filter"]')).click();
-
-  await findNode('.fileTarget-open');
-
-  const inputSelector = 'input#imageFileUpload';
+  const inputSelector = 'input#fileInput';
   const input = await findNode(inputSelector);
 
-  await setFileInputData(inputSelector, input, image, {
-    patchInput: targetEnv === 'safari'
-  });
+  await setFileInputData(inputSelector, input, image);
 
   input.dispatchEvent(new Event('change'));
 
   // wait for image to load
-  await findNode('.ui-icon-pencil');
-
-  // select Concept strategy
-  (await findNode('a[data-hasqtip="52"]')).click();
+  await findNode('.b-icon--edit');
 
   await sendReceipt(storageIds);
 
   window.setTimeout(async () => {
-    (await findNode('#image_filter .addFilterButton')).click();
+    (
+      await findNode(
+        'button.search.b-button--is-type_primary:not(.b-button--is-disabled)'
+      )
+    ).click();
   }, 100);
 }
 
