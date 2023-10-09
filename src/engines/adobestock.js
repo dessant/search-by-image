@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'adobestock';
 
 async function search({session, search, image, storageIds}) {
-  (await findNode('button[aria-label="Visual Search"]')).click();
+  (await findNode('button[aria-label="Find similar"]')).click();
 
   const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
