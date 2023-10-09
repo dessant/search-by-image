@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.8.0](https://github.com/dessant/search-by-image/compare/v5.7.0...v5.8.0) (2023-10-09)
+
+
+### Features
+
+* search on Freepik ([0bdae0c](https://github.com/dessant/search-by-image/commit/0bdae0c3666727d2ab14e323171def01707146c2))
+
+
+### Bug Fixes
+
+* remove Unsplash ([ac7bc1a](https://github.com/dessant/search-by-image/commit/ac7bc1ae4dff11faa05b81d41893cd353dfca3ba))
+* update Adobe Stock ([b65b58c](https://github.com/dessant/search-by-image/commit/b65b58cf8cce8e27c5e3cbfba8203c63680093bb))
+* update Global Brand Database ([5f4888a](https://github.com/dessant/search-by-image/commit/5f4888af58c41f3e1acc961d41dab056638b1438))
+* update Google Lens ([3a9ac9e](https://github.com/dessant/search-by-image/commit/3a9ac9ea216b464f142fea81c23e27fe26b4a2e4)), closes [#273](https://github.com/dessant/search-by-image/issues/273)
+* update IKEA ([3baf1cf](https://github.com/dessant/search-by-image/commit/3baf1cf741790376ef8058bd040848d1a0c6d797))
+* update Madrid Monitor ([38ee851](https://github.com/dessant/search-by-image/commit/38ee85105e5357a64e72a289868e6919732984dc))
+* update Reddit Repost Sleuth ([ff9fe18](https://github.com/dessant/search-by-image/commit/ff9fe18512c1ac2c481b53acdfa03fb3c7bfa460)), closes [#272](https://github.com/dessant/search-by-image/issues/272)
+
 ## [5.7.0](https://github.com/dessant/search-by-image/compare/v5.6.0...v5.7.0) (2023-07-02)
 
 
