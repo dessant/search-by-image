@@ -48,7 +48,8 @@
       "20230531103023_remove_search_engines",
       "20230601115626_add_kagi",
       "20230624145626_add_search_engines",
-      "20230716121432_add_freepik"
+      "20230716121432_add_freepik",
+      "20231009185955_remove_unsplash"
     ],
     "sync": []
   }

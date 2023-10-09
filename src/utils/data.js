@@ -208,7 +208,7 @@ const engines = {
   },
   branddb: {
     image: {
-      target: 'https://legacy.branddb.wipo.int/branddb/en/',
+      target: 'https://branddb.wipo.int/en/similarlogo',
       isExec: true
     }
   },
@@ -281,12 +281,6 @@ const engines = {
     image: {
       target:
         'https://repostsleuth.com/search?targetImageMatch=60&filterSameAuthor=false',
-      isExec: true
-    }
-  },
-  unsplash: {
-    image: {
-      target: 'https://unsplash.com/',
       isExec: true
     }
   },
@@ -377,7 +371,6 @@ const engineIconVariants = {
   '123rf': ['dark'],
   nzTrademark: ['dark'],
   stocksy: ['dark'],
-  unsplash: ['dark'],
   lykdat: ['dark'],
   lexica: ['dark'],
   jpDesign: ['dark'],
@@ -610,7 +603,6 @@ const webpEngineSupport = [
   'pimeyes',
   'pond5',
   'ikea',
-  'unsplash',
   'shein',
   'lykdat',
   'googleLens',
@@ -673,7 +665,6 @@ const maxImageUploadSize = {
   pixta: {ui: 5 * 1024 * 1024},
   ikea: {ui: 20 * 1024 * 1024},
   repostSleuth: {ui: Infinity},
-  unsplash: {api: Infinity, ui: 20 * 1024 * 1024},
   shein: {ui: 10 * 1024 * 1024},
   lykdat: {ui: 9 * 1024 * 1024},
   wildberries: {ui: 8 * 1024 * 1024},
