@@ -248,7 +248,9 @@ function filenameToFileExt(name) {
   return (/(?:\.([^.]+))?$/.exec(name)[1] || '').toLowerCase();
 }
 
-function querySelectorXpath(rootNode, selector) {
+function querySelectorXpath(selector, {rootNode = null} = {}) {
+  rootNode = rootNode || document;
+
   return document.evaluate(
     selector,
     rootNode,
@@ -258,10 +260,15 @@ function querySelectorXpath(rootNode, selector) {
   ).singleNodeValue;
 }
 
-function nodeQuerySelector(rootNode, selector, {selectorType = 'css'} = {}) {
+function nodeQuerySelector(
+  selector,
+  {rootNode = null, selectorType = 'css'} = {}
+) {
+  rootNode = rootNode || document;
+
   return selectorType === 'css'
     ? rootNode.querySelector(selector)
-    : querySelectorXpath(rootNode, selector);
+    : querySelectorXpath(selector, {rootNode});
 }
 
 function findNode(
@@ -277,14 +284,14 @@ function findNode(
   return new Promise((resolve, reject) => {
     rootNode = rootNode || document;
 
-    const el = nodeQuerySelector(rootNode, selector, {selectorType});
+    const el = nodeQuerySelector(selector, {rootNode, selectorType});
     if (el) {
       resolve(el);
       return;
     }
 
     const observer = new MutationObserver(function (mutations, obs) {
-      const el = nodeQuerySelector(rootNode, selector, {selectorType});
+      const el = nodeQuerySelector(selector, {rootNode, selectorType});
       if (el) {
         obs.disconnect();
         window.clearTimeout(timeoutId);
@@ -338,7 +345,7 @@ async function processNode(
 
   if (reprocess) {
     const observer = new MutationObserver(function (mutations, obs) {
-      const el = nodeQuerySelector(rootNode, selector, {selectorType});
+      const el = nodeQuerySelector(selector, {rootNode, selectorType});
       if (el && !el.isSameNode(node)) {
         node = el;
         actionFn(node);

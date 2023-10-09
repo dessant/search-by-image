@@ -14,7 +14,10 @@ async function search({session, search, image, storageIds}) {
 
     input.dispatchEvent(new Event('change'));
   } else {
-    const input = await findNode('input[placeholder="https://redd.it/xyz"]');
+    const input = await findNode(
+      '//input[preceding-sibling::label[contains(., "Image URL")]]',
+      {selectorType: 'xpath'}
+    );
 
     input.value = image.imageUrl;
 
@@ -23,7 +26,11 @@ async function search({session, search, image, storageIds}) {
     input.dispatchEvent(new Event('input'));
   }
 
-  (await findNode('main button.primary')).click();
+  (
+    await findNode('.v-main button.primary:not(.v-btn--disabled)', {
+      observerOptions: {attributes: true, attributeFilter: ['class']}
+    })
+  ).click();
 }
 
 function init() {
