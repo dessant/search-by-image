@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.8.1](https://github.com/dessant/search-by-image/compare/v5.8.0...v5.8.1) (2023-10-10)
+
+
+### Bug Fixes
+
+* maintain compatibility with Firefox for Android ([abcadb4](https://github.com/dessant/search-by-image/commit/abcadb4919aa466313564315b1dd6e9993605edd))
+
 ## [5.8.0](https://github.com/dessant/search-by-image/compare/v5.7.0...v5.8.0) (2023-10-09)
 
 
