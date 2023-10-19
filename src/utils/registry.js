@@ -95,7 +95,7 @@ async function addStorageItem(
     isTask = false
   } = {}
 ) {
-  if (area === 'indexeddb' && !['safari'].includes(targetEnv)) {
+  if (area === 'indexeddb' && !['firefox', 'safari'].includes(targetEnv)) {
     area = 'memory';
   }
 
