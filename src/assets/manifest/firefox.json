@@ -19,7 +19,6 @@
 
   "permissions": [
     "alarms",
-    "clipboardRead",
     "contextMenus",
     "storage",
     "unlimitedStorage",
@@ -30,6 +29,8 @@
     "webRequestBlocking",
     "<all_urls>"
   ],
+
+  "optional_permissions": ["clipboardRead"],
 
   "content_security_policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data: blob:; connect-src * blob:; object-src 'none';",
 

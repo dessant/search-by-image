@@ -289,7 +289,9 @@ import {
   canShare,
   sendLargeMessage,
   handleBrowserActionEscapeKey,
-  getAppTheme
+  getAppTheme,
+  hasClipboardReadPermission,
+  requestClipboardReadPermission
 } from 'utils/app';
 import {getText, getActiveTab, isValidTab} from 'utils/common';
 import {enableContributions} from 'utils/config';
@@ -512,9 +514,15 @@ export default {
     onPasteButtonClick: function () {
       if (!this.startProcessing()) return;
 
-      this.processClipboardImages({showError: true}).finally(() => {
-        this.stopProcessing();
-      });
+      requestClipboardReadPermission()
+        .then(granted =>
+          granted
+            ? this.processClipboardImages({showError: true})
+            : showNotification({messageId: 'error_noClipboardReadAccess'})
+        )
+        .finally(() => {
+          this.stopProcessing();
+        });
     },
 
     onEngineClick: function (engine) {
@@ -866,7 +874,8 @@ export default {
         options.autoPasteAction &&
         !this.$env.isSafari &&
         !this.$env.isSamsung &&
-        !(this.$env.isMobile && this.$env.isFirefox);
+        !(this.$env.isMobile && this.$env.isFirefox) &&
+        (await hasClipboardReadPermission());
 
       this.setupPinnedButtons({maxPins: this.maxPinnedToolbarButtons});
 
@@ -1006,8 +1015,11 @@ body {
   max-height: 100px;
   padding-top: 8px;
   padding-bottom: 24px;
-  transition: max-height 0.3s ease, padding-top 0.3s ease,
-    padding-bottom 0.3s ease, opacity 0.2s ease;
+  transition:
+    max-height 0.3s ease,
+    padding-top 0.3s ease,
+    padding-bottom 0.3s ease,
+    opacity 0.2s ease;
 }
 
 .settings-enter-from,
@@ -1073,8 +1085,10 @@ body {
     object-fit: scale-down;
 
     border-radius: 8px;
-    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.06),
-      0px 6px 10px 0px rgba(0, 0, 0, 0.04), 0px 1px 12px 0px rgba(0, 0, 0, 0.03);
+    box-shadow:
+      0px 3px 5px -1px rgba(0, 0, 0, 0.06),
+      0px 6px 10px 0px rgba(0, 0, 0, 0.04),
+      0px 1px 12px 0px rgba(0, 0, 0, 0.03);
   }
 
   & .preview-close-button {

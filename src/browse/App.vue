@@ -183,7 +183,8 @@ import {
   getEngineIcon,
   validateShareId,
   sendLargeMessage,
-  getAppTheme
+  getAppTheme,
+  requestClipboardReadPermission
 } from 'utils/app';
 import {getText} from 'utils/common';
 import {optionKeys} from 'utils/data';
@@ -409,9 +410,15 @@ export default {
     onPasteButtonClick: function () {
       if (!this.startProcessing()) return;
 
-      this.processClipboardImages().finally(() => {
-        this.stopProcessing();
-      });
+      requestClipboardReadPermission()
+        .then(granted =>
+          granted
+            ? this.processClipboardImages()
+            : showNotification({messageId: 'error_noClipboardReadAccess'})
+        )
+        .finally(() => {
+          this.stopProcessing();
+        });
     },
 
     onFileEvent: function (ev, source) {
@@ -694,7 +701,8 @@ export default {
       }
 
       border-radius: 8px;
-      box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.06),
+      box-shadow:
+        0px 3px 5px -1px rgba(0, 0, 0, 0.06),
         0px 6px 10px 0px rgba(0, 0, 0, 0.04),
         0px 1px 12px 0px rgba(0, 0, 0, 0.03);
     }
@@ -748,8 +756,10 @@ export default {
     max-height: 96px;
 
     border-radius: 8px;
-    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.12),
-      0px 6px 10px 0px rgba(0, 0, 0, 0.08), 0px 1px 12px 0px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0px 3px 5px -1px rgba(0, 0, 0, 0.12),
+      0px 6px 10px 0px rgba(0, 0, 0, 0.08),
+      0px 1px 12px 0px rgba(0, 0, 0, 0.06);
   }
 
   & .list-items {

@@ -208,7 +208,12 @@ import {includes, without} from 'lodash-es';
 import draggable from 'vuedraggable';
 
 import storage from 'storage/storage';
-import {getListItems, canShare, showContributePage} from 'utils/app';
+import {
+  getListItems,
+  canShare,
+  showContributePage,
+  hasClipboardReadPermission
+} from 'utils/app';
 import {getText} from 'utils/common';
 import {enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
@@ -347,7 +352,8 @@ export default {
       this.autoPasteEnabled =
         !this.$env.isSafari &&
         !this.$env.isSamsung &&
-        !(this.$env.isMobile && this.$env.isFirefox);
+        !(this.$env.isMobile && this.$env.isFirefox) &&
+        (await hasClipboardReadPermission());
 
       this.dataLoaded = true;
     },

@@ -1349,6 +1349,16 @@
     "description": "Error message."
   },
 
+  "error_noClipboardReadAccess": {
+    "message": "Cannot get data from the clipboard.",
+    "description": "Error message."
+  },
+
+  "error_noClipboardWriteAccess": {
+    "message": "Cannot add data to the clipboard.",
+    "description": "Error message."
+  },
+
   "error_pageParseError": {
     "message": "Something went wrong. The web page could not be parsed.",
     "description": "Error message."

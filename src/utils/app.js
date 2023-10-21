@@ -1854,6 +1854,19 @@ function addThemeListener(callback) {
   addAppThemeListener(callback);
 }
 
+async function hasClipboardReadPermission() {
+  return browser.permissions.contains({permissions: ['clipboardRead']});
+}
+
+async function requestClipboardReadPermission() {
+  // Safari: requesting clipboard access is handled by the browser
+  if (targetEnv === 'safari') {
+    return true;
+  }
+
+  return browser.permissions.request({permissions: ['clipboardRead']});
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -1935,5 +1948,7 @@ export {
   processAppUse,
   addSystemThemeListener,
   addAppThemeListener,
-  addThemeListener
+  addThemeListener,
+  hasClipboardReadPermission,
+  requestClipboardReadPermission
 };
