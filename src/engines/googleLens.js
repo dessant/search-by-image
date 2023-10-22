@@ -36,13 +36,26 @@ async function search({session, search, image, storageIds}) {
 
   await clickButton();
 
-  const input = await findNode(inputSelector);
+  if (search.assetType === 'image') {
+    const input = await findNode(inputSelector);
 
-  await setFileInputData(inputSelector, input, image);
+    await setFileInputData(inputSelector, input, image);
 
-  await sendReceipt(storageIds);
+    await sendReceipt(storageIds);
 
-  input.dispatchEvent(new Event('change'));
+    input.dispatchEvent(new Event('change'));
+  } else {
+    const input = await findNode(
+      `//div[count(child::*)=2]/input[following-sibling::div[@role="button"]]`,
+      {selectorType: 'xpath'}
+    );
+
+    input.value = image.imageUrl;
+
+    await sendReceipt(storageIds);
+
+    input.nextElementSibling.click();
+  }
 }
 
 function init() {

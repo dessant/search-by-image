@@ -303,6 +303,10 @@ const engines = {
     }
   },
   googleLens: {
+    url: {
+      target: 'https://www.google.com/imghp',
+      isExec: true
+    },
     image: {
       target: 'https://www.google.com/imghp',
       isExec: true
