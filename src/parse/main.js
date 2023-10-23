@@ -402,18 +402,25 @@ self.initParse = async function (session) {
     const images = await parse(session);
 
     if (session.sessionType === 'share' && images.length === 1) {
-      await shareImage(images[0], {
-        convert: session.options.convertSharedImage
-      });
-    } else {
-      await sendLargeMessage({
-        message: {
-          id: 'pageParseSubmit',
-          images,
-          session
-        }
-      });
+      // Safari 17: transient activation does not always propagate to
+      // the content script context, navigator.userActivation.isActive is false.
+      if (targetEnv === 'safari') {
+        images[0].mustConfirm = true;
+      } else {
+        await shareImage(images[0], {
+          convert: session.options.convertSharedImage
+        });
+        return;
+      }
     }
+
+    await sendLargeMessage({
+      message: {
+        id: 'pageParseSubmit',
+        images,
+        session
+      }
+    });
   } catch (err) {
     console.log(err.toString());
 

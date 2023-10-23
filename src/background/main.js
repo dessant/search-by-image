@@ -819,7 +819,7 @@ async function searchClickTarget(session) {
 async function handleParseResults(session, images) {
   if (!images.length) {
     await showNotification({messageId: 'error_imageNotFound'});
-  } else if (images.length > 1) {
+  } else if (images.length > 1 || images[0].mustConfirm) {
     await openContentView({session, images}, 'confirm');
   } else {
     if (session.sessionType === 'search') {
@@ -1193,7 +1193,8 @@ async function processMessage(request, sender) {
   } else if (request.id === 'pageParseSubmit') {
     if (
       request.session.sessionOrigin === 'action' &&
-      request.images.length <= 1
+      request.images.length <= 1 &&
+      !request.images[0]?.mustConfirm
     ) {
       browser.tabs.sendMessage(
         sender.tab.id,

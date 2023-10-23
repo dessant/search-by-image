@@ -25,6 +25,7 @@ function addViewFrame() {
   shadowRoot.appendChild(css);
 
   const viewFrame = document.createElement('iframe');
+  viewFrame.setAttribute('allow', 'web-share');
   viewFrame.classList.add('hidden');
 
   css.addEventListener(
