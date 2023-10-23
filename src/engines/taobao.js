@@ -1,4 +1,4 @@
-import {findNode} from 'utils/common';
+import {findNode, executeCodeMainContext} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'taobao';
@@ -29,10 +29,7 @@ async function search({session, search, image, storageIds}) {
     };
   }
 
-  const script = document.createElement('script');
-  script.textContent = `(${patchContext.toString()})()`;
-  document.documentElement.appendChild(script);
-  script.remove();
+  executeCodeMainContext(`(${patchContext.toString()})()`);
 
   (
     await findNode(

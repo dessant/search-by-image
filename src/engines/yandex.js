@@ -1,7 +1,11 @@
 import {v4 as uuidv4} from 'uuid';
 
 import {validateUrl, getContentXHR} from 'utils/app';
-import {findNode, makeDocumentVisible} from 'utils/common';
+import {
+  findNode,
+  makeDocumentVisible,
+  executeCodeMainContext
+} from 'utils/common';
 import {
   initSearch,
   prepareImageForUpload,
@@ -147,16 +151,17 @@ async function search({session, search, image, storageIds}) {
           checkService();
         }
 
-        const script = document.createElement('script');
+        let nonce = '';
         if (['firefox', 'safari'].includes(targetEnv)) {
           const nonceNode = document.querySelector('script[nonce]');
           if (nonceNode) {
-            script.nonce = nonceNode.nonce;
+            nonce = nonceNode.nonce;
           }
         }
-        script.textContent = `(${serviceObserver.toString()})("${eventName}")`;
-        document.documentElement.appendChild(script);
-        script.remove();
+        executeCodeMainContext(
+          `(${serviceObserver.toString()})("${eventName}")`,
+          {nonce}
+        );
       });
     }
 

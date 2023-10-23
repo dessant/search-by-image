@@ -6,7 +6,11 @@ import {
   getLargeImageMessage,
   sendLargeMessage
 } from 'utils/app';
-import {dataUrlToBlob, waitForDocumentLoad} from 'utils/common';
+import {
+  dataUrlToBlob,
+  waitForDocumentLoad,
+  executeCodeMainContext
+} from 'utils/common';
 import {chromeSbiSrc} from 'utils/data';
 
 function getValidHostname(validHostnames, engine) {
@@ -96,10 +100,7 @@ async function setFileInputData(
 
     const eventName = uuidv4();
 
-    const script = document.createElement('script');
-    script.textContent = `(${patch.toString()})("${eventName}")`;
-    document.documentElement.appendChild(script);
-    script.remove();
+    executeCodeMainContext(`(${patch.toString()})("${eventName}")`);
 
     document.dispatchEvent(
       new CustomEvent(eventName, {
