@@ -433,7 +433,9 @@ async function getPlatform({fallback = true} = {}) {
       }));
     } catch (err) {
       if (fallback) {
-        ({os, arch} = await browser.runtime.sendMessage({
+        ({
+          response: {os, arch}
+        } = await browser.runtime.sendMessage({
           id: 'sendNativeMessage',
           message: {id: 'getPlatform'}
         }));
@@ -520,13 +522,11 @@ async function shareFiles(files) {
 }
 
 async function isAndroid() {
-  const {os} = await getPlatform();
-  return os === 'android';
+  return (await getPlatform()).isAndroid;
 }
 
 async function isMobile() {
-  const {os} = await getPlatform();
-  return ['android', 'ios', 'ipados'].includes(os);
+  return (await getPlatform()).isMobile;
 }
 
 function getDarkColorSchemeQuery() {

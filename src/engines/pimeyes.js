@@ -23,26 +23,31 @@ async function search({session, search, image, storageIds}) {
 
   input.dispatchEvent(new Event('change'));
 
-  const searchButton = await findNode('.start-search-inner > button');
+  const searchButton = await findNode('.start-search-inner > button', {
+    throwError: false
+  });
 
-  if (searchButton.classList.contains('disabled')) {
-    await findNode('.permissions input[type=checkbox]');
+  // button is missing when no faces were detected
+  if (searchButton) {
+    if (searchButton.classList.contains('disabled')) {
+      await findNode('.permissions input[type=checkbox]');
 
-    for (const checkbox of document.querySelectorAll(
-      '.permissions input[type=checkbox]'
-    )) {
-      if (!checkbox.checked) {
-        checkbox.click();
+      for (const checkbox of document.querySelectorAll(
+        '.permissions input[type=checkbox]'
+      )) {
+        if (!checkbox.checked) {
+          checkbox.click();
+        }
       }
-    }
 
-    (
-      await findNode('.start-search-inner > button:not(.disabled)', {
-        observerOptions: {attributes: true, attributeFilter: ['class']}
-      })
-    ).click();
-  } else {
-    searchButton.click();
+      (
+        await findNode('.start-search-inner > button:not(.disabled)', {
+          observerOptions: {attributes: true, attributeFilter: ['class']}
+        })
+      ).click();
+    } else {
+      searchButton.click();
+    }
   }
 }
 
