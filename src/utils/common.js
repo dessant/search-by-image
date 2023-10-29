@@ -425,6 +425,22 @@ async function getPlatform({fallback = true} = {}) {
     // Samsung Internet 13: runtime.getPlatformInfo fails.
     os = 'android';
     arch = '';
+  } else if (targetEnv === 'safari') {
+    // Safari: runtime.getPlatformInfo returns 'ios' on iPadOS.
+    try {
+      ({os, arch} = await browser.runtime.sendNativeMessage('application.id', {
+        id: 'getPlatform'
+      }));
+    } catch (err) {
+      if (fallback) {
+        ({os, arch} = await browser.runtime.sendMessage({
+          id: 'sendNativeMessage',
+          message: {id: 'getPlatform'}
+        }));
+      } else {
+        throw err;
+      }
+    }
   } else {
     try {
       ({os, arch} = await browser.runtime.getPlatformInfo());
@@ -443,16 +459,9 @@ async function getPlatform({fallback = true} = {}) {
     os = 'macos';
   }
 
-  if (
-    navigator.platform === 'MacIntel' &&
-    (os === 'ios' || typeof navigator.standalone !== 'undefined')
-  ) {
-    os = 'ipados';
-  }
-
-  if (arch === 'x86-32') {
+  if (['x86-32', 'i386'].includes(arch)) {
     arch = '386';
-  } else if (arch === 'x86-64') {
+  } else if (['x86-64', 'x86_64'].includes(arch)) {
     arch = 'amd64';
   } else if (arch.startsWith('arm')) {
     arch = 'arm';
