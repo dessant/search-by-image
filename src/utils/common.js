@@ -667,6 +667,10 @@ async function isValidTab({tab, tabId = null} = {}) {
   }
 }
 
+function stringToInt(string) {
+  return parseInt(string, 10);
+}
+
 export {
   onError,
   onComplete,
@@ -707,5 +711,6 @@ export {
   addCssClass,
   waitForDocumentLoad,
   makeDocumentVisible,
-  isValidTab
+  isValidTab,
+  stringToInt
 };

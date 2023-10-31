@@ -16,7 +16,8 @@ import {
   isAndroid,
   isMobile,
   getActiveTab,
-  getPlatform
+  getPlatform,
+  stringToInt
 } from 'utils/common';
 import {
   getEnabledEngines,
@@ -720,11 +721,9 @@ async function setupNewEngineTab(tabId, tabUrl, token, engine) {
           ]
         });
 
-        window.setTimeout(function () {
-          browser.declarativeNetRequest.updateSessionRules({
-            removeRuleIds: [tabId]
-          });
-        }, 60000);
+        browser.alarms.create(`delete-net-request-session-rule_${tabId}`, {
+          delayInMinutes: 1
+        });
       } else {
         await showNotification({messageId: 'error_engineSafariOutdated'});
       }
@@ -1355,6 +1354,11 @@ async function onAlarm({name}) {
   if (name.startsWith('delete-storage-item')) {
     const storageId = name.split('_')[1];
     await registry.deleteStorageItem({storageId});
+  } else if (name.startsWith('delete-net-request-session-rule')) {
+    const ruleId = stringToInt(name.split('_')[1]);
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [ruleId]
+    });
   }
 }
 
