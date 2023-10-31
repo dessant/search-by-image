@@ -151,6 +151,12 @@ module.exports = {
               sassOptions: {
                 includePaths: ['node_modules'],
                 quietDeps: true
+              },
+              additionalData: (content, loaderContext) => {
+                return `
+                  $target-env: "${targetEnv}";
+                  ${content}
+                `;
               }
             }
           }

@@ -1131,4 +1131,12 @@ html.samsung {
     height: initial;
   }
 }
+
+// Safari 17: the popover opens after a delay the first time the action
+// button is clicked on macOS 14, unless the height is declared.
+@if $target-env == 'safari' {
+  html {
+    min-height: 56px;
+  }
+}
 </style>
