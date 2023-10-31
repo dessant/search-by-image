@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/dessant/search-by-image/compare/v5.8.1...v6.0.0) (2023-10-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* browser versions older than Firefox 115
+are no longer supported
+
+### Features
+
+* search with image URL on Google Lens ([caefb90](https://github.com/dessant/search-by-image/commit/caefb905255e67cd8f1f47741037b113fe0e00e6))
+* update Freepik icon ([e408d18](https://github.com/dessant/search-by-image/commit/e408d186d1e05fcaad13aa630172f4e533225f9d))
+* use non-persistent background page in Firefox ([6bb518c](https://github.com/dessant/search-by-image/commit/6bb518c2e3a8cdfc5710e8531e9289cf8eb4c335))
+* use optional permission for clipboard access ([f805a49](https://github.com/dessant/search-by-image/commit/f805a490e9a08ef6371f39bc7f7d38b47fe281e9))
+
+
+### Bug Fixes
+
+* detect iPadOS in Safari ([02751d9](https://github.com/dessant/search-by-image/commit/02751d9f1ce9d1f34f6e743641eaae2c1177b9c5))
+* set initial browser action popup height in Safari ([be031ea](https://github.com/dessant/search-by-image/commit/be031eabcd97507e12ac996183da47ba711ff6da))
+* update image sharing ([ae19e2c](https://github.com/dessant/search-by-image/commit/ae19e2cbd02888a81d993569c356937601efff0e))
+* update PimEyes ([53e7301](https://github.com/dessant/search-by-image/commit/53e7301fc30d299d16a950e9d5df800748d6046f))
+* use alarms to remove declarativeNetRequest session rules ([941d1ee](https://github.com/dessant/search-by-image/commit/941d1eee7195e4bc2e846e5fa7a1609ae03df5a4))
+
 ### [5.8.1](https://github.com/dessant/search-by-image/compare/v5.8.0...v5.8.1) (2023-10-10)
 
 
