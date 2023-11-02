@@ -360,6 +360,12 @@ const engines = {
       target: 'https://www.freepik.com/search',
       isExec: true
     }
+  },
+  icons8: {
+    image: {
+      target: 'https://icons8.com/',
+      isExec: true
+    }
   }
 };
 
@@ -614,7 +620,8 @@ const webpEngineSupport = [
   'haveibeentrained',
   'enterpix',
   'immerse',
-  'clipretrieval'
+  'clipretrieval',
+  'icons8'
 ];
 
 // Search engines only support the image format in compatible browsers.
@@ -679,7 +686,8 @@ const maxImageUploadSize = {
   enterpix: {ui: 5 * 1024 * 1024},
   immerse: {ui: 10 * 1024 * 1024},
   clipretrieval: {ui: 15 * 1024 * 1024},
-  freepik: {ui: 60 * 1024 * 1024}
+  freepik: {ui: 60 * 1024 * 1024},
+  icons8: {ui: 5 * 1024 * 1024}
 };
 
 const chromeDesktopUA =
