@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.1.0](https://github.com/dessant/search-by-image/compare/v6.0.0...v6.1.0) (2023-11-02)
+
+
+### Features
+
+* search on Icons8 ([f6253b8](https://github.com/dessant/search-by-image/commit/f6253b890808f22d779e05587c93049ae7375641))
+
+
+### Bug Fixes
+
+* rework new tab setup and platform detection ([90a9066](https://github.com/dessant/search-by-image/commit/90a906649f008e203632b8833ad2b3d0e8e583f2))
+
 ## [6.0.0](https://github.com/dessant/search-by-image/compare/v5.8.1...v6.0.0) (2023-10-31)
 
 
