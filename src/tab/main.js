@@ -1,13 +1,15 @@
-const token = new URL(window.location.href).searchParams.get('id');
+async function getLocationData() {
+  const token = new URL(window.location.href).searchParams.get('id');
+
+  return browser.runtime.sendMessage({
+    id: 'storageRequest',
+    asyncResponse: true,
+    saveReceipt: true,
+    storageId: token
+  });
+}
 
 function setLocation(tabUrl, keepHistory) {
-  // Function may be called multiple times.
-  if (self.locationUpdated) {
-    return;
-  } else {
-    self.locationUpdated = true;
-  }
-
   if (keepHistory) {
     window.location.href = tabUrl;
   } else {
@@ -15,39 +17,21 @@ function setLocation(tabUrl, keepHistory) {
   }
 }
 
-async function getLocationData() {
-  if (token) {
-    return browser.runtime.sendMessage({
-      id: 'storageRequest',
-      asyncResponse: true,
-      saveReceipt: true,
-      storageId: token
-    });
-  }
+async function setupTab(steps) {
+  return browser.runtime.sendMessage({id: 'setupTab', steps});
 }
 
 async function start() {
   const data = await getLocationData();
-  if (data) {
-    setLocation(data.tabUrl, data.keepHistory);
-  }
-}
 
-function onMessage(request, sender) {
-  // Samsung Internet 13: extension messages are sometimes also dispatched
-  // to the sender frame.
-  if (sender.url === document.URL) {
-    return;
+  if (data.setupSteps) {
+    await setupTab(data.setupSteps);
   }
 
-  if (request.id === 'setTabLocation' && request.token === token) {
-    start();
-  }
+  setLocation(data.tabUrl, data.keepHistory);
 }
 
 function init() {
-  browser.runtime.onMessage.addListener(onMessage);
-
   start();
 }
 

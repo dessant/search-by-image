@@ -653,84 +653,35 @@ async function searchEngine(session, search, image, imageId, tabActive) {
   }
 
   const token = uuidv4();
-
-  const tab = await createTab({
-    token,
-    index: session.sourceTabIndex,
-    active: tabActive,
-    getTab: true
-  });
-  const tabId = tab.id;
-
-  if (search.sendsReceipt) {
-    await registry.addTaskRegistryItem({taskId, tabId});
-  }
+  const beaconToken = targetEnv === 'samsung' ? uuidv4() : '';
 
   const tabUrl = await getTabUrl(session, search, image, taskId);
 
-  await setupNewEngineTab(tabId, tabUrl, token, search.engine);
-}
+  const setupSteps = [];
 
-async function setupNewEngineTab(tabId, tabUrl, token, engine) {
-  let beaconToken;
-  const userAgent = await getRequiredUserAgent(engine);
+  const userAgent = await getRequiredUserAgent(search.engine);
   if (userAgent) {
-    if (targetEnv === 'samsung') {
-      // Samsung Internet 13: webRequest listener filtering by tab ID
-      // provided by tabs.createTab returns requests from different tab.
-      beaconToken = uuidv4();
-
-      function requestCallback(details) {
-        removeCallback();
-        setUserAgentHeader(details.tabId, userAgent);
-      }
-
-      const removeCallback = function () {
-        window.clearTimeout(timeoutId);
-        browser.webRequest.onBeforeRequest.removeListener(requestCallback);
-      };
-      const timeoutId = window.setTimeout(removeCallback, 10000); // 10 seconds
-
-      browser.webRequest.onBeforeRequest.addListener(
-        requestCallback,
-        {
-          urls: [getNewTabUrl(beaconToken)],
-          types: ['main_frame']
-        },
-        ['blocking']
-      );
-    } else if (targetEnv === 'safari') {
-      // Safari 16.4 or later
-      if (browser.declarativeNetRequest?.updateSessionRules) {
-        await browser.declarativeNetRequest.updateSessionRules({
-          addRules: [
-            {
-              id: tabId,
-              action: {
-                type: 'modifyHeaders',
-                requestHeaders: [
-                  {header: 'User-Agent', operation: 'set', value: userAgent}
-                ]
-              },
-              condition: {
-                // Safari: tabIds is not supported
-                urlFilter: `${tabUrl}*`,
-                resourceTypes: ['main_frame', 'sub_frame']
-              }
-            }
-          ]
-        });
-
-        browser.alarms.create(`delete-net-request-session-rule_${tabId}`, {
-          delayInMinutes: 1
-        });
-      } else {
-        await showNotification({messageId: 'error_engineSafariOutdated'});
-      }
-    } else {
-      setUserAgentHeader(tabId, userAgent);
-    }
+    setupSteps.push({id: 'setUserAgent', tabUrl, userAgent, beaconToken});
   }
+
+  if (search.sendsReceipt) {
+    setupSteps.push({id: 'addTask', taskId});
+  }
+
+  const storageItem = {
+    tabUrl: beaconToken ? getNewTabUrl(beaconToken) : tabUrl,
+    keepHistory: false
+  };
+
+  if (setupSteps.length) {
+    storageItem.setupSteps = setupSteps;
+  }
+
+  await registry.addStorageItem(storageItem, {
+    receipts: {expected: 1, received: 0},
+    expiryTime: 1.0,
+    token
+  });
 
   if (beaconToken) {
     await registry.addStorageItem(
@@ -743,26 +694,89 @@ async function setupNewEngineTab(tabId, tabUrl, token, engine) {
     );
   }
 
-  await registry.addStorageItem(
-    {
-      tabUrl: beaconToken ? getNewTabUrl(beaconToken) : tabUrl,
-      keepHistory: false
-    },
-    {
-      receipts: {expected: 1, received: 0},
-      expiryTime: 1.0,
-      token
-    }
-  );
+  await createTab({token, index: session.sourceTabIndex, active: tabActive});
+}
 
-  if (targetEnv === 'safari') {
-    browser.runtime
-      .sendMessage({id: 'setTabLocation', token})
-      .catch(err => null);
+async function setupTab(sender, steps) {
+  const results = {};
+
+  for (const step of steps) {
+    if (step.id === 'setUserAgent') {
+      await setTabUserAgent({
+        tabId: sender.tab.id,
+        tabUrl: step.tabUrl,
+        userAgent: step.userAgent,
+        beaconToken: step.beaconToken
+      });
+
+      results[step.id] = '';
+    } else if (step.id === 'addTask') {
+      await registry.addTaskRegistryItem({
+        taskId: step.taskId,
+        tabId: sender.tab.id
+      });
+
+      results[step.id] = '';
+    }
+  }
+
+  return results;
+}
+
+async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
+  if (targetEnv === 'samsung') {
+    // Samsung Internet 13: webRequest listener filtering by tab ID
+    // provided by tabs.createTab returns requests from different tab.
+
+    function requestCallback(details) {
+      removeCallback();
+      setUserAgentHeader(details.tabId, userAgent);
+    }
+
+    const removeCallback = function () {
+      window.clearTimeout(timeoutId);
+      browser.webRequest.onBeforeRequest.removeListener(requestCallback);
+    };
+    const timeoutId = window.setTimeout(removeCallback, 10000); // 10 seconds
+
+    browser.webRequest.onBeforeRequest.addListener(
+      requestCallback,
+      {
+        urls: [getNewTabUrl(beaconToken)],
+        types: ['main_frame']
+      },
+      ['blocking']
+    );
+  } else if (targetEnv === 'safari') {
+    // Safari 16.4 or later
+    if (browser.declarativeNetRequest?.updateSessionRules) {
+      await browser.declarativeNetRequest.updateSessionRules({
+        addRules: [
+          {
+            id: tabId,
+            action: {
+              type: 'modifyHeaders',
+              requestHeaders: [
+                {header: 'User-Agent', operation: 'set', value: userAgent}
+              ]
+            },
+            condition: {
+              // Safari: tabIds is not supported
+              urlFilter: `${tabUrl}*`,
+              resourceTypes: ['main_frame', 'sub_frame']
+            }
+          }
+        ]
+      });
+
+      browser.alarms.create(`delete-net-request-session-rule_${tabId}`, {
+        delayInMinutes: 1
+      });
+    } else {
+      await showNotification({messageId: 'error_engineSafariOutdated'});
+    }
   } else {
-    browser.tabs
-      .sendMessage(tabId, {id: 'setTabLocation', token}, {frameId: 0})
-      .catch(err => null);
+    setUserAgentHeader(tabId, userAgent);
   }
 }
 
@@ -1257,7 +1271,7 @@ async function processMessage(request, sender) {
     );
     return Promise.resolve({response});
   } else if (request.id === 'getPlatform') {
-    return getPlatform({fallback: false});
+    return getPlatform();
   } else if (request.id === 'storageRequest') {
     const data = await registry.getStorageItem({
       storageId: request.storageId,
@@ -1310,6 +1324,8 @@ async function processMessage(request, sender) {
     }
   } else if (request.id === 'showPage') {
     await showPage({url: request.url});
+  } else if (request.id === 'setupTab') {
+    return setupTab(sender, request.steps);
   }
 }
 

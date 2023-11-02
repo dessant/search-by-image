@@ -9,7 +9,7 @@ async function isStorageArea({area = 'local'} = {}) {
   }
 }
 
-const storageReady = {};
+const storageReady = {session: true};
 async function isStorageReady({area = 'local'} = {}) {
   if (storageReady[area]) {
     return true;
