@@ -7,7 +7,7 @@ async function initStorage({area = 'local'} = {}) {
     getAvailableRevisions: async ({area} = {}) =>
       (
         await import(/* webpackMode: "eager" */ 'storage/config.json', {
-          assert: {type: 'json'}
+          with: {type: 'json'}
         })
       ).revisions[area],
     getCurrentRevision: async ({area} = {}) =>
@@ -23,13 +23,11 @@ async function initStorage({area = 'local'} = {}) {
 
 async function migrateLegacyStorage() {
   if (await isStorageArea({area: 'sync'})) {
-    const {storageVersion: syncVersion} = await browser.storage.sync.get(
-      'storageVersion'
-    );
+    const {storageVersion: syncVersion} =
+      await browser.storage.sync.get('storageVersion');
     if (syncVersion && syncVersion.length < 14) {
-      const {storageVersion: localVersion} = await browser.storage.local.get(
-        'storageVersion'
-      );
+      const {storageVersion: localVersion} =
+        await browser.storage.local.get('storageVersion');
 
       if (!localVersion || localVersion.length < 14) {
         const syncData = await browser.storage.sync.get(null);

@@ -2,7 +2,6 @@ const path = require('node:path');
 const {lstatSync, readdirSync} = require('node:fs');
 
 const webpack = require('webpack');
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const {VueLoaderPlugin} = require('vue-loader');
 const {VuetifyPlugin} = require('webpack-plugin-vuetify');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -45,9 +44,8 @@ const plugins = [
   new MiniCssExtractPlugin({
     filename: '[name]/style.css',
     ignoreOrder: true
-  }),
-  isProduction ? new LodashModuleReplacementPlugin({shorthands: true}) : null
-].filter(Boolean);
+  })
+];
 
 const enginesRootDir = path.join(__dirname, 'src/engines');
 const engines = readdirSync(enginesRootDir)

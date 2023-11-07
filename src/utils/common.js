@@ -736,6 +736,7 @@ export {
   processNode,
   getActiveTab,
   getPlatform,
+  getPlatformInfo,
   shareFiles,
   sleep,
   addCssClass,
