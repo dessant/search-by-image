@@ -7,15 +7,8 @@ async function search({session, search, image, storageIds}) {
   // wait for search service to load
   await sleep(1000);
 
-  (
-    await findNode('#searchByImageContainer .search-catalog__btn--photo')
-  ).click();
-
-  const inputSelector =
-    '.search-catalog__photo--active #searchByImageForm input[type=file]';
-  const input = await findNode(inputSelector, {
-    observerOptions: {attributes: true, attributeFilter: ['class']}
-  });
+  const inputSelector = 'input[type=file][data-link*="searchByImage"]';
+  const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
 
