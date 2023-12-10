@@ -596,6 +596,8 @@ function makeDocumentVisible() {
   }
 
   function patchContext(eventName) {
+    const prefixes = ['moz', 'webkit'];
+
     let visibilityState = document.visibilityState;
 
     function updateVisibilityState(ev) {
@@ -607,7 +609,7 @@ function makeDocumentVisible() {
     });
 
     let lastCallTime = 0;
-    window.requestAnimationFrame = new Proxy(window.requestAnimationFrame, {
+    const requestAnimationFrameProxy = new Proxy(window.requestAnimationFrame, {
       apply(target, thisArg, argumentsList) {
         if (visibilityState === 'visible') {
           return Reflect.apply(target, thisArg, argumentsList);
@@ -626,7 +628,18 @@ function makeDocumentVisible() {
       }
     });
 
-    window.cancelAnimationFrame = new Proxy(window.cancelAnimationFrame, {
+    window.requestAnimationFrame = requestAnimationFrameProxy;
+    for (const prefix of prefixes) {
+      if (`${prefix}RequestAnimationFrame` in window) {
+        Object.defineProperty(
+          window,
+          `${prefix}RequestAnimationFrame`,
+          requestAnimationFrameProxy
+        );
+      }
+    }
+
+    const cancelAnimationFrameProxy = new Proxy(window.cancelAnimationFrame, {
       apply(target, thisArg, argumentsList) {
         if (visibilityState === 'visible') {
           return Reflect.apply(target, thisArg, argumentsList);
@@ -636,17 +649,46 @@ function makeDocumentVisible() {
       }
     });
 
-    Object.defineProperty(document, 'visibilityState', {
+    window.cancelAnimationFrame = cancelAnimationFrameProxy;
+    for (const prefix of prefixes) {
+      if (`${prefix}CancelAnimationFrame` in window) {
+        Object.defineProperty(
+          window,
+          `${prefix}CancelAnimationFrame`,
+          cancelAnimationFrameProxy
+        );
+      }
+    }
+
+    const visibilityStateProperty = {
       get() {
         return 'visible';
       }
-    });
+    };
 
-    Object.defineProperty(document, 'hidden', {
+    Object.defineProperty(document, 'visibilityState', visibilityStateProperty);
+    for (const prefix of prefixes) {
+      if (`${prefix}VisibilityState` in document) {
+        Object.defineProperty(
+          document,
+          `${prefix}VisibilityState`,
+          visibilityStateProperty
+        );
+      }
+    }
+
+    const hiddenProperty = {
       get() {
         return false;
       }
-    });
+    };
+
+    Object.defineProperty(document, 'hidden', hiddenProperty);
+    for (const prefix of prefixes) {
+      if (`${prefix}Hidden` in document) {
+        Object.defineProperty(document, `${prefix}Hidden`, hiddenProperty);
+      }
+    }
 
     Document.prototype.hasFocus = function () {
       return true;
@@ -660,7 +702,15 @@ function makeDocumentVisible() {
     window.addEventListener('pagehide', stopEvent, {capture: true});
     window.addEventListener('blur', stopEvent, {capture: true});
 
-    document.dispatchEvent(new Event('visibilitychange'));
+    document.dispatchEvent(new Event('visibilitychange', {bubbles: true}));
+    for (const prefix of prefixes) {
+      if (`${prefix}VisibilityState` in document) {
+        document.dispatchEvent(
+          new Event(`${prefix}visibilitychange`, {bubbles: true})
+        );
+      }
+    }
+
     window.dispatchEvent(new PageTransitionEvent('pageshow'));
     window.dispatchEvent(new FocusEvent('focus'));
   }
