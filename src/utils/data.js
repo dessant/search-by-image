@@ -136,7 +136,7 @@ const engines = {
   },
   shutterstock: {
     image: {
-      target: 'https://www.shutterstock.com/',
+      target: 'https://www.shutterstock.com/images',
       isExec: true
     }
   },
