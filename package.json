@@ -80,7 +80,6 @@
     "gulp-jsonmin": "^1.2.0",
     "gulp-merge-json": "^2.1.2",
     "gulp-postcss": "^9.0.1",
-    "lodash-webpack-plugin": "^0.11.6",
     "mini-css-extract-plugin": "^2.7.6",
     "npm-check-updates": "^16.14.6",
     "postcss": "^8.4.31",
