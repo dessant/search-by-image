@@ -1,6 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [6.1.1](https://github.com/dessant/search-by-image/compare/v6.1.0...v6.1.1) (2023-12-16)
+
+
+### Bug Fixes
+
+* update active tab simulation ([64aea23](https://github.com/dessant/search-by-image/commit/64aea231b93dd615c836e67883d76071604d3bb3))
+* update PIXTA ([9624708](https://github.com/dessant/search-by-image/commit/9624708e706c00a9e11edb37a4d0cab5fcbed324))
+* update Shutterstock ([ead4ebe](https://github.com/dessant/search-by-image/commit/ead4ebec888df804f0569a9affcb97b4f5523d70))
+* update Wildberries ([b72fd96](https://github.com/dessant/search-by-image/commit/b72fd96ade007a94273f10a7862f05e4f1cc5d18))
 
 ## [6.1.0](https://github.com/dessant/search-by-image/compare/v6.0.0...v6.1.0) (2023-11-02)
 
