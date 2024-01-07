@@ -5,7 +5,7 @@ const engine = 'pond5';
 
 async function search({session, search, image, storageIds}) {
   (
-    await findNode('div#main form.SiteSearch div.js-reverseSearchInputIcon')
+    await findNode('div#main form.SiteSearch button.js-reverseSearchInputIcon')
   ).click();
 
   const inputSelector = 'input#vissimFileSelector';
