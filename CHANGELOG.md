@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.1.2](https://github.com/dessant/search-by-image/compare/v6.1.1...v6.1.2) (2024-01-27)
+
+
+### Bug Fixes
+
+* update Pond5 ([0f5ab36](https://github.com/dessant/search-by-image/commit/0f5ab364997f8a84b044985c5b38b005745bc7c6))
+
 ## [6.1.1](https://github.com/dessant/search-by-image/compare/v6.1.0...v6.1.1) (2023-12-16)
 
 
