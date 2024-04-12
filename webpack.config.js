@@ -85,7 +85,8 @@ module.exports = {
         ? 'engines/[name]/script.js'
         : '[name]/script.js';
     },
-    chunkFilename: '[name]/script.js'
+    chunkFilename: '[name]/script.js',
+    asyncChunks: false
   },
   optimization: {
     splitChunks: {

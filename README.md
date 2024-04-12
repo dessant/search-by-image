@@ -100,7 +100,7 @@ and the browser toolbar from the extension's options.
 
 ## License
 
-Copyright (c) 2017-2023 Armin Sebastian
+Copyright (c) 2017-2024 Armin Sebastian
 
 This software is released under the terms of the GNU General Public License v3.0.
 See the [LICENSE](LICENSE) file for further information.

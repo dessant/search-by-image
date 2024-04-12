@@ -84,7 +84,10 @@ async function images(done) {
   // Chrome Web Store does not correctly display optimized icons
   if (isProduction && targetEnv !== 'chrome') {
     await new Promise(resolve => {
-      src(path.join(distDir, 'src/assets/icons/app/*.png'), {base: '.'})
+      src(path.join(distDir, 'src/assets/icons/app/*.png'), {
+        base: '.',
+        encoding: false
+      })
         .pipe(imagemin())
         .pipe(dest('.'))
         .on('error', done)
@@ -107,7 +110,10 @@ async function images(done) {
     }
     if (isProduction) {
       await new Promise(resolve => {
-        src(path.join(distDir, 'src/assets/icons/engines/*.png'), {base: '.'})
+        src(path.join(distDir, 'src/assets/icons/engines/*.png'), {
+          base: '.',
+          encoding: false
+        })
           .pipe(imagemin())
           .pipe(dest('.'))
           .on('error', done)
@@ -118,7 +124,8 @@ async function images(done) {
 
   await new Promise(resolve => {
     src('src/assets/icons/@(app|engines|misc)/*.@(png|svg)', {
-      base: '.'
+      base: '.',
+      encoding: false
     })
       .pipe(gulpif(isProduction, imagemin()))
       .pipe(dest(distDir))
@@ -128,7 +135,9 @@ async function images(done) {
 
   if (enableContributions) {
     await new Promise(resolve => {
-      src('node_modules/vueton/components/contribute/assets/*.@(png|svg)')
+      src('node_modules/vueton/components/contribute/assets/*.@(png|svg)', {
+        encoding: false
+      })
         .pipe(gulpif(isProduction, imagemin()))
         .pipe(dest(path.join(distDir, 'src/contribute/assets')))
         .on('error', done)
@@ -148,7 +157,8 @@ async function fonts(done) {
 
   await new Promise(resolve => {
     src(
-      'node_modules/@fontsource/roboto/files/roboto-latin-@(400|500|700)-normal.woff2'
+      'node_modules/@fontsource/roboto/files/roboto-latin-@(400|500|700)-normal.woff2',
+      {encoding: false}
     )
       .pipe(dest(path.join(distDir, 'src/assets/fonts/files')))
       .on('error', done)
