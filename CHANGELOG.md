@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.0.0](https://github.com/dessant/search-by-image/compare/v6.1.2...v7.0.0) (2024-05-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* browser versions older than Chrome 123, Edge 123,
+Opera 109 and Safari 16.4 are no longer supported
+
+### Features
+
+* upgrade to Manifest V3 in Chrome ([aba275e](https://github.com/dessant/search-by-image/commit/aba275eee6a3c6b825d63fd086f18e66587387e7))
+
 ## [6.1.2](https://github.com/dessant/search-by-image/compare/v6.1.1...v6.1.2) (2024-01-27)
 
 
