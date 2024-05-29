@@ -1,22 +1,10 @@
-import {findNode, executeCodeMainContext} from 'utils/common';
+import {findNode, executeScriptMainContext} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'lexica';
 
 async function search({session, search, image, storageIds}) {
-  function overrideEventDispatch() {
-    const inputDispatchEvent = HTMLInputElement.prototype.dispatchEvent;
-
-    HTMLInputElement.prototype.dispatchEvent = function (ev) {
-      if (this.type === 'file' && ev.type === 'click') {
-        HTMLInputElement.prototype.dispatchEvent = inputDispatchEvent;
-      } else {
-        inputDispatchEvent.apply(this, arguments);
-      }
-    };
-  }
-
-  executeCodeMainContext(`(${overrideEventDispatch.toString()})()`);
+  await executeScriptMainContext({func: 'lexicaOverrideEventDispatch'});
 
   (await findNode('input#main-search')).nextElementSibling.click();
 

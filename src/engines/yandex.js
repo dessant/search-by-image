@@ -4,7 +4,7 @@ import {validateUrl, getContentXHR} from 'utils/app';
 import {
   findNode,
   makeDocumentVisible,
-  executeCodeMainContext
+  executeScriptMainContext
 } from 'utils/common';
 import {
   initSearch,
@@ -14,7 +14,6 @@ import {
   getValidHostname,
   uploadCallback
 } from 'utils/engines';
-import {targetEnv} from 'utils/config';
 
 const engine = 'yandex';
 
@@ -130,38 +129,10 @@ async function search({session, search, image, storageIds}) {
           once: true
         });
 
-        function serviceObserver(eventName) {
-          let stop;
-
-          const checkService = function () {
-            if (
-              window.Ya?.reactBus?.e['cbir:search-by-image:start']?.length >= 4
-            ) {
-              window.clearTimeout(timeoutId);
-              document.dispatchEvent(new Event(eventName));
-            } else if (!stop) {
-              window.setTimeout(checkService, 200);
-            }
-          };
-
-          const timeoutId = window.setTimeout(function () {
-            stop = true;
-          }, 60000); // 1 minute
-
-          checkService();
-        }
-
-        let nonce = '';
-        if (['firefox', 'safari'].includes(targetEnv)) {
-          const nonceNode = document.querySelector('script[nonce]');
-          if (nonceNode) {
-            nonce = nonceNode.nonce;
-          }
-        }
-        executeCodeMainContext(
-          `(${serviceObserver.toString()})("${eventName}")`,
-          {nonce}
-        );
+        executeScriptMainContext({
+          func: 'yandexServiceObserver',
+          args: [eventName]
+        });
       });
     }
 

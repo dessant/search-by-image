@@ -32,7 +32,8 @@ const engines = {
   google: {
     url: {
       target:
-        'https://www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url={imgUrl}'
+        'https://www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url={imgUrl}',
+      isExec: true
     },
     image: {
       target: searchUrl,

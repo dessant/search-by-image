@@ -1,24 +1,9 @@
 import {v4 as uuidv4} from 'uuid';
 import Queue from 'p-queue';
 
-import {initStorage, migrateLegacyStorage} from 'storage/init';
+import {initStorage} from 'storage/init';
 import {isStorageReady} from 'storage/storage';
 import storage from 'storage/storage';
-import {
-  getText,
-  createTab,
-  getNewTabUrl,
-  executeCode,
-  executeFile,
-  onComplete,
-  dataUrlToBlob,
-  blobToDataUrl,
-  isAndroid,
-  isMobile,
-  getActiveTab,
-  getPlatform,
-  stringToInt
-} from 'utils/common';
 import {
   getEnabledEngines,
   getSupportedEngines,
@@ -41,151 +26,325 @@ import {
   processLargeMessage,
   processMessageResponse,
   processAppUse,
+  setAppVersion,
+  getStartupState,
   getAppTheme,
   showPage,
   getOpenerTabId
 } from 'utils/app';
-import {isValidTab} from 'utils/common';
+import {
+  getText,
+  insertCSS,
+  executeScript,
+  createTab,
+  getNewTabUrl,
+  isValidTab,
+  getActiveTab,
+  dataUrlToBlob,
+  blobToDataUrl,
+  getRandomInt,
+  isAndroid,
+  isMobile,
+  getPlatform,
+  stringToInt,
+  runOnce
+} from 'utils/common';
+import {getScriptFunction} from 'utils/scripts';
 import {searchGoogle, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
-import {targetEnv} from 'utils/config';
+import {targetEnv, mv3} from 'utils/config';
 
 const queue = new Queue({concurrency: 1});
 
-function setContentRequestHeaders(token, url, {referrer = ''} = {}) {
-  let requestId;
-  let origin;
+async function addContentRequestListener({
+  url,
+  origin = '',
+  referrer = '',
+  tabId,
+  token
+} = {}) {
+  if (mv3) {
+    const ruleId = getRandomInt(1, 5000) + tabId;
 
-  const requestCallback = function (details) {
-    const tokenHeader = details.requestHeaders.find(
-      header =>
-        header.name.toLowerCase() === 'accept' &&
-        header.value === token &&
-        details.url === url &&
-        details.method === 'GET'
-    );
-    if (tokenHeader) {
-      tokenHeader.value = '*/*';
+    const ruleAction = {type: 'modifyHeaders'};
+
+    const requestHeaders = [];
+    if (referrer) {
+      requestHeaders.push({
+        header: 'Referer',
+        operation: 'set',
+        value: referrer
+      });
     }
 
-    if (tokenHeader || details.requestId === requestId) {
-      requestId = details.requestId;
+    const responseHeaders = [];
+    if (origin) {
+      responseHeaders.push(
+        {
+          header: 'Access-Control-Allow-Origin',
+          operation: 'set',
+          value: origin
+        },
+        {
+          header: 'Access-Control-Allow-Credentials',
+          operation: 'set',
+          value: 'true'
+        }
+      );
+    }
 
-      if (referrer) {
-        const referrerHeader = details.requestHeaders.find(
-          header => header.name.toLowerCase() === 'referer'
+    if (requestHeaders.length) {
+      ruleAction.requestHeaders = requestHeaders;
+    }
+
+    if (responseHeaders.length) {
+      ruleAction.responseHeaders = responseHeaders;
+    }
+
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [ruleId],
+      addRules: [
+        {
+          id: ruleId,
+          action: ruleAction,
+          condition: {
+            tabIds: [tabId],
+            urlFilter: `${url}*`,
+            resourceTypes: ['xmlhttprequest', 'other']
+          }
+        }
+      ]
+    });
+
+    browser.alarms.create(`delete-net-request-session-rule_${ruleId}`, {
+      delayInMinutes: 2
+    });
+
+    return ruleId;
+  } else {
+    let requestId;
+    let origin;
+
+    const requestCallback = function (details) {
+      const tokenHeader = details.requestHeaders.find(
+        header =>
+          header.name.toLowerCase() === 'accept' &&
+          header.value === token &&
+          details.url === url &&
+          details.method === 'GET'
+      );
+      if (tokenHeader) {
+        tokenHeader.value = '*/*';
+      }
+
+      if (tokenHeader || details.requestId === requestId) {
+        requestId = details.requestId;
+
+        if (referrer) {
+          const referrerHeader = details.requestHeaders.find(
+            header => header.name.toLowerCase() === 'referer'
+          );
+
+          if (referrerHeader) {
+            referrerHeader.value = referrer;
+          } else {
+            details.requestHeaders.push({
+              name: 'Referer',
+              value: referrer
+            });
+          }
+        }
+
+        const originHeader = details.requestHeaders.find(
+          header => header.name.toLowerCase() === 'origin'
         );
 
-        if (referrerHeader) {
-          referrerHeader.value = referrer;
+        if (originHeader) {
+          origin = originHeader.value;
+        }
+
+        return {requestHeaders: details.requestHeaders};
+      }
+    };
+
+    const requestExtraInfo = ['blocking', 'requestHeaders'];
+    if (targetEnv !== 'firefox') {
+      requestExtraInfo.push('extraHeaders');
+    }
+
+    browser.webRequest.onBeforeSendHeaders.addListener(
+      requestCallback,
+      {
+        urls: ['<all_urls>'],
+        types: ['xmlhttprequest']
+      },
+      requestExtraInfo
+    );
+
+    const responseCallback = function (details) {
+      if (details.requestId === requestId && origin) {
+        const allowOriginHeader = details.responseHeaders.find(
+          header => header.name.toLowerCase() === 'access-control-allow-origin'
+        );
+
+        if (allowOriginHeader) {
+          allowOriginHeader.value = origin;
         } else {
-          details.requestHeaders.push({
-            name: 'Referer',
-            value: referrer
+          details.responseHeaders.push({
+            name: 'Access-Control-Allow-Origin',
+            value: origin
           });
         }
+
+        const allowCredentialsHeader = details.responseHeaders.find(
+          header =>
+            header.name.toLowerCase() === 'access-control-allow-credentials'
+        );
+
+        if (allowCredentialsHeader) {
+          allowCredentialsHeader.value = 'true';
+        } else {
+          details.responseHeaders.push({
+            name: 'Access-Control-Allow-Credentials',
+            value: 'true'
+          });
+        }
+
+        return {responseHeaders: details.responseHeaders};
       }
+    };
 
-      const originHeader = details.requestHeaders.find(
-        header => header.name.toLowerCase() === 'origin'
-      );
-
-      if (originHeader) {
-        origin = originHeader.value;
-      }
-
-      return {requestHeaders: details.requestHeaders};
+    const responseExtraInfo = ['blocking', 'responseHeaders'];
+    if (targetEnv !== 'firefox') {
+      responseExtraInfo.push('extraHeaders');
     }
-  };
 
-  const requestExtraInfo = ['blocking', 'requestHeaders'];
-  if (targetEnv !== 'firefox') {
-    requestExtraInfo.push('extraHeaders');
-  }
+    browser.webRequest.onHeadersReceived.addListener(
+      responseCallback,
+      {
+        urls: ['<all_urls>'],
+        types: ['xmlhttprequest']
+      },
+      responseExtraInfo
+    );
 
-  browser.webRequest.onBeforeSendHeaders.addListener(
-    requestCallback,
-    {
+    const completeCallback = function (details) {
+      if (details.requestId === requestId) {
+        removeCallbacks();
+      }
+    };
+
+    const removeCallbacks = function () {
+      window.clearTimeout(timeoutId);
+      browser.webRequest.onBeforeSendHeaders.removeListener(requestCallback);
+      browser.webRequest.onHeadersReceived.removeListener(responseCallback);
+      browser.webRequest.onCompleted.removeListener(completeCallback);
+      browser.webRequest.onErrorOccurred.removeListener(completeCallback);
+    };
+    const timeoutId = window.setTimeout(removeCallbacks, 120000); // 2 minutes
+
+    browser.webRequest.onCompleted.addListener(completeCallback, {
       urls: ['<all_urls>'],
       types: ['xmlhttprequest']
-    },
-    requestExtraInfo
-  );
-
-  const responseCallback = function (details) {
-    if (details.requestId === requestId && origin) {
-      const allowOriginHeader = details.responseHeaders.find(
-        header => header.name.toLowerCase() === 'access-control-allow-origin'
-      );
-
-      if (allowOriginHeader) {
-        allowOriginHeader.value = origin;
-      } else {
-        details.responseHeaders.push({
-          name: 'Access-Control-Allow-Origin',
-          value: origin
-        });
-      }
-
-      const allowCredentialsHeader = details.responseHeaders.find(
-        header =>
-          header.name.toLowerCase() === 'access-control-allow-credentials'
-      );
-
-      if (allowCredentialsHeader) {
-        allowCredentialsHeader.value = 'true';
-      } else {
-        details.responseHeaders.push({
-          name: 'Access-Control-Allow-Credentials',
-          value: 'true'
-        });
-      }
-
-      return {responseHeaders: details.responseHeaders};
-    }
-  };
-
-  const responseExtraInfo = ['blocking', 'responseHeaders'];
-  if (targetEnv !== 'firefox') {
-    responseExtraInfo.push('extraHeaders');
-  }
-
-  browser.webRequest.onHeadersReceived.addListener(
-    responseCallback,
-    {
+    });
+    browser.webRequest.onErrorOccurred.addListener(completeCallback, {
       urls: ['<all_urls>'],
       types: ['xmlhttprequest']
-    },
-    responseExtraInfo
-  );
-
-  const completeCallback = function (details) {
-    if (details.requestId === requestId) {
-      removeCallbacks();
-    }
-  };
-
-  const removeCallbacks = function () {
-    window.clearTimeout(timeoutId);
-    browser.webRequest.onBeforeSendHeaders.removeListener(requestCallback);
-    browser.webRequest.onHeadersReceived.removeListener(responseCallback);
-    browser.webRequest.onCompleted.removeListener(completeCallback);
-    browser.webRequest.onErrorOccurred.removeListener(completeCallback);
-  };
-  const timeoutId = window.setTimeout(removeCallbacks, 120000); // 2 minutes
-
-  browser.webRequest.onCompleted.addListener(completeCallback, {
-    urls: ['<all_urls>'],
-    types: ['xmlhttprequest']
-  });
-  browser.webRequest.onErrorOccurred.addListener(completeCallback, {
-    urls: ['<all_urls>'],
-    types: ['xmlhttprequest']
-  });
+    });
+  }
 }
 
-function setUserAgentHeader(tabId, userAgent) {
+async function removeContentRequestListener({ruleId} = {}) {
+  if (mv3) {
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [ruleId]
+    });
+
+    await browser.alarms.clear(`delete-net-request-session-rule_${ruleId}`);
+  }
+}
+
+async function setUserAgentHeader({tabId, tabUrl, userAgent} = {}) {
+  const ruleId = getRandomInt(1, 5000) + tabId;
+
+  if (targetEnv === 'safari') {
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [ruleId],
+      addRules: [
+        {
+          id: ruleId,
+          action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+              {header: 'User-Agent', operation: 'set', value: userAgent}
+            ]
+          },
+          condition: {
+            // Safari: tabIds is not supported
+            urlFilter: `${tabUrl}*`,
+            resourceTypes: [
+              'font',
+              'image',
+              'main_frame',
+              'media',
+              'ping',
+              'script',
+              'stylesheet',
+              'sub_frame',
+              'websocket',
+              'xmlhttprequest',
+              'other'
+            ]
+          }
+        }
+      ]
+    });
+
+    browser.alarms.create(`delete-net-request-session-rule_${ruleId}`, {
+      delayInMinutes: 2
+    });
+  } else if (mv3) {
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [ruleId],
+      addRules: [
+        {
+          id: ruleId,
+          action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+              {header: 'User-Agent', operation: 'set', value: userAgent}
+            ]
+          },
+          condition: {
+            tabIds: [tabId],
+            resourceTypes: [
+              'font',
+              'image',
+              'main_frame',
+              'media',
+              'ping',
+              'script',
+              'stylesheet',
+              'sub_frame',
+              'websocket',
+              'xmlhttprequest',
+              'other'
+            ]
+          }
+        }
+      ]
+    });
+
+    browser.alarms.create(`delete-net-request-session-rule_${ruleId}`, {
+      delayInMinutes: 2
+    });
+  } else {
+    setWebRequestUserAgentHeader({tabId, userAgent});
+  }
+}
+
+function setWebRequestUserAgentHeader({tabId, userAgent} = {}) {
   const engineRequestCallback = function (details) {
     for (const header of details.requestHeaders) {
       if (header.name.toLowerCase() === 'user-agent') {
@@ -206,7 +365,64 @@ function setUserAgentHeader(tabId, userAgent) {
   );
 }
 
-function createMenuItem({
+async function createMenuItem(item) {
+  return new Promise((resolve, reject) => {
+    let menuItemId;
+
+    function callback() {
+      if (browser.runtime.lastError) {
+        reject(browser.runtime.lastError);
+      }
+
+      resolve(menuItemId);
+    }
+
+    // creates context menu item for current instance
+    menuItemId = browser.contextMenus.create(item, callback);
+  });
+}
+
+async function removeMenuItem(menuItemId, {throwError = false} = {}) {
+  try {
+    // removes context menu item from current instance
+    await browser.contextMenus.remove(menuItemId);
+  } catch (err) {
+    if (throwError) {
+      throw err;
+    }
+  }
+}
+
+async function createMenu() {
+  const menuKey = browser.extension.inIncognitoContext
+    ? 'privateMenuItems'
+    : 'menuItems';
+
+  const {showInContextMenu, [menuKey]: currentItems} = await storage.get([
+    'showInContextMenu',
+    menuKey
+  ]);
+
+  for (const itemId of currentItems) {
+    await removeMenuItem(itemId);
+  }
+
+  const newItems = showInContextMenu ? await getMenuItems() : [];
+  await storage.set({[menuKey]: newItems.map(item => item.id)});
+
+  try {
+    for (const item of newItems) {
+      await createMenuItem(item);
+    }
+  } catch (err) {
+    // removes context menu items from all instances
+    await browser.contextMenus.removeAll();
+
+    throw err;
+  }
+}
+
+async function getMenuItem({
   id,
   title = '',
   contexts,
@@ -234,15 +450,13 @@ function createMenuItem({
     params.icons = icons;
   }
 
-  // creates context menu item for current instance
-  browser.contextMenus.create(params, onComplete);
+  return params;
 }
 
-async function createMenu() {
-  const env = await getPlatform({fallback: false});
+async function getMenuItems() {
+  const env = await getPlatform();
 
   const options = await storage.get(optionKeys);
-  const theme = await getAppTheme(options.appTheme);
 
   const contexts = [
     'audio',
@@ -260,19 +474,27 @@ async function createMenu() {
     contexts.push('page');
   }
 
+  const setIcons = env.isFirefox && options.showEngineIcons;
+
+  let theme;
+  if (setIcons) {
+    theme = await getAppTheme(options.appTheme);
+  }
+
   const documentUrlPatterns = ['http://*/*', 'https://*/*'];
   if (!['safari', 'samsung'].includes(targetEnv)) {
     documentUrlPatterns.push('file:///*');
   }
 
   const extUrlPattern = getExtensionUrlPattern();
-  const setIcons = env.isFirefox && options.showEngineIcons;
   const searchAllEngines =
     !env.isSamsung && options.searchAllEnginesContextMenu;
   const viewEnabled = options.viewImageContextMenu;
   const shareEnabled = options.shareImageContextMenu && canShare(env);
 
   const enEngines = await getEnabledEngines(options);
+
+  const items = [];
 
   if (enEngines.length === 1) {
     const engine = enEngines[0];
@@ -281,38 +503,46 @@ async function createMenu() {
       getText(`menuItemTitle_${engine}`)
     );
 
-    createMenuItem({
-      id: `search_${engine}_1`,
-      title,
-      contexts,
-      documentUrlPatterns
-    });
+    items.push(
+      await getMenuItem({
+        id: `search_${engine}_1`,
+        title,
+        contexts,
+        documentUrlPatterns
+      })
+    );
 
     if (extUrlPattern) {
-      createMenuItem({
-        id: `search_${engine}_2`,
-        title,
-        contexts: ['image'],
-        documentUrlPatterns: [extUrlPattern]
-      });
+      items.push(
+        await getMenuItem({
+          id: `search_${engine}_2`,
+          title,
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern]
+        })
+      );
     }
   } else if (enEngines.length > 1 && searchAllEngines === 'main') {
     const title = getText('mainMenuItemTitle_allEngines');
 
-    createMenuItem({
-      id: 'search_allEngines_1',
-      title,
-      contexts,
-      documentUrlPatterns
-    });
+    items.push(
+      await getMenuItem({
+        id: 'search_allEngines_1',
+        title,
+        contexts,
+        documentUrlPatterns
+      })
+    );
 
     if (extUrlPattern) {
-      createMenuItem({
-        id: 'search_allEngines_2',
-        title,
-        contexts: ['image'],
-        documentUrlPatterns: [extUrlPattern]
-      });
+      items.push(
+        await getMenuItem({
+          id: 'search_allEngines_2',
+          title,
+          contexts: ['image'],
+          documentUrlPatterns: [extUrlPattern]
+        })
+      );
     }
   } else if (enEngines.length > 1) {
     let addSeparator = false;
@@ -320,20 +550,24 @@ async function createMenu() {
     if (viewEnabled) {
       const title = getText('menuItemTitle_viewImage');
 
-      createMenuItem({
-        id: 'view_1',
-        title,
-        contexts,
-        documentUrlPatterns
-      });
+      items.push(
+        await getMenuItem({
+          id: 'view_1',
+          title,
+          contexts,
+          documentUrlPatterns
+        })
+      );
 
       if (extUrlPattern) {
-        createMenuItem({
-          id: 'view_2',
-          title,
-          contexts: ['image'],
-          documentUrlPatterns: [extUrlPattern]
-        });
+        items.push(
+          await getMenuItem({
+            id: 'view_2',
+            title,
+            contexts: ['image'],
+            documentUrlPatterns: [extUrlPattern]
+          })
+        );
       }
 
       addSeparator = true;
@@ -342,20 +576,24 @@ async function createMenu() {
     if (shareEnabled) {
       const title = getText('menuItemTitle_shareImage');
 
-      createMenuItem({
-        id: 'share_1',
-        title,
-        contexts,
-        documentUrlPatterns
-      });
+      items.push(
+        await getMenuItem({
+          id: 'share_1',
+          title,
+          contexts,
+          documentUrlPatterns
+        })
+      );
 
       if (extUrlPattern) {
-        createMenuItem({
-          id: 'share_2',
-          title,
-          contexts: ['image'],
-          documentUrlPatterns: [extUrlPattern]
-        });
+        items.push(
+          await getMenuItem({
+            id: 'share_2',
+            title,
+            contexts: ['image'],
+            documentUrlPatterns: [extUrlPattern]
+          })
+        );
       }
 
       addSeparator = true;
@@ -363,20 +601,24 @@ async function createMenu() {
 
     if (addSeparator && !env.isSamsung) {
       // Samsung Internet: separator not visible, creates gap that responds to input.
-      createMenuItem({
-        id: 'sep_1',
-        contexts,
-        type: 'separator',
-        documentUrlPatterns
-      });
+      items.push(
+        await getMenuItem({
+          id: 'sep_1',
+          contexts,
+          type: 'separator',
+          documentUrlPatterns
+        })
+      );
 
       if (extUrlPattern) {
-        createMenuItem({
-          id: 'sep_2',
-          type: 'separator',
-          contexts: ['image'],
-          documentUrlPatterns: [extUrlPattern]
-        });
+        items.push(
+          await getMenuItem({
+            id: 'sep_2',
+            type: 'separator',
+            contexts: ['image'],
+            documentUrlPatterns: [extUrlPattern]
+          })
+        );
       }
     }
 
@@ -385,67 +627,81 @@ async function createMenu() {
       const icons =
         setIcons && getEngineMenuIcon('allEngines', {variant: theme});
 
-      createMenuItem({
-        id: 'search_allEngines_1',
-        title,
-        contexts,
-        documentUrlPatterns,
-        icons
-      });
+      items.push(
+        await getMenuItem({
+          id: 'search_allEngines_1',
+          title,
+          contexts,
+          documentUrlPatterns,
+          icons
+        })
+      );
 
       if (extUrlPattern) {
-        createMenuItem({
-          id: 'search_allEngines_2',
-          title,
-          contexts: ['image'],
-          documentUrlPatterns: [extUrlPattern],
-          icons
-        });
+        items.push(
+          await getMenuItem({
+            id: 'search_allEngines_2',
+            title,
+            contexts: ['image'],
+            documentUrlPatterns: [extUrlPattern],
+            icons
+          })
+        );
       }
 
       if (!env.isSamsung) {
         // Samsung Internet: separator not visible, creates gap that responds to input.
-        createMenuItem({
-          id: 'sep_3',
-          contexts,
-          type: 'separator',
-          documentUrlPatterns
-        });
+        items.push(
+          await getMenuItem({
+            id: 'sep_3',
+            contexts,
+            type: 'separator',
+            documentUrlPatterns
+          })
+        );
 
         if (extUrlPattern) {
-          createMenuItem({
-            id: 'sep_4',
-            type: 'separator',
-            contexts: ['image'],
-            documentUrlPatterns: [extUrlPattern]
-          });
+          items.push(
+            await getMenuItem({
+              id: 'sep_4',
+              type: 'separator',
+              contexts: ['image'],
+              documentUrlPatterns: [extUrlPattern]
+            })
+          );
         }
       }
     }
 
-    enEngines.forEach(function (engine) {
+    for (const engine of enEngines) {
       const title = getText(`menuItemTitle_${engine}`);
       const icons = setIcons && getEngineMenuIcon(engine, {variant: theme});
 
-      createMenuItem({
-        id: `search_${engine}_1`,
-        title,
-        contexts,
-        documentUrlPatterns,
-        icons
-      });
+      items.push(
+        await getMenuItem({
+          id: `search_${engine}_1`,
+          title,
+          contexts,
+          documentUrlPatterns,
+          icons
+        })
+      );
 
       if (extUrlPattern) {
-        createMenuItem({
-          id: `search_${engine}_2`,
-          title,
-          contexts: ['image'],
-          documentUrlPatterns: [extUrlPattern],
-          icons
-        });
+        items.push(
+          await getMenuItem({
+            id: `search_${engine}_2`,
+            title,
+            contexts: ['image'],
+            documentUrlPatterns: [extUrlPattern],
+            icons
+          })
+        );
       }
-    });
+    }
   }
+
+  return items;
 }
 
 async function openContentView(message, view) {
@@ -456,12 +712,14 @@ async function openContentView(message, view) {
     return;
   }
 
-  const [isContentModule] = await executeCode(
-    `typeof initContent !== 'undefined'`,
+  const [isContentModule] = await executeScript({
+    func: () => typeof initContent !== 'undefined',
+    code: `typeof initContent !== 'undefined'`,
     tabId
-  );
+  });
+
   if (!isContentModule) {
-    await executeFile('/src/content/script.js', tabId);
+    await executeScript({files: ['/src/content/script.js'], tabId});
   }
 
   await sendLargeMessage({
@@ -477,28 +735,40 @@ async function openContentView(message, view) {
 }
 
 async function showContentSelectionPointer(tabId) {
-  return browser.tabs.executeScript(tabId, {
-    allFrames: true,
-    runAt: 'document_start',
+  return executeScript({
+    func: () => {
+      if (typeof addTouchListener !== 'undefined') {
+        self.addTouchListener();
+        self.showPointer();
+      }
+    },
     code: `
       if (typeof addTouchListener !== 'undefined') {
         addTouchListener();
         showPointer();
       }
-    `
+    `,
+    tabId,
+    allFrames: true
   });
 }
 
 async function hideContentSelectionPointer(tabId) {
-  return browser.tabs.executeScript(tabId, {
-    allFrames: true,
-    runAt: 'document_start',
+  return executeScript({
+    func: () => {
+      if (typeof removeTouchListener !== 'undefined') {
+        self.removeTouchListener();
+        self.hidePointer();
+      }
+    },
     code: `
       if (typeof removeTouchListener !== 'undefined') {
         removeTouchListener();
         hidePointer();
       }
-    `
+    `,
+    tabId,
+    allFrames: true
   });
 }
 
@@ -510,12 +780,13 @@ async function getTabUrl(session, search, image, taskId) {
     tabUrl = tabUrl.replace('{id}', taskId);
   }
 
-  if (!search.isExec && !search.isTaskId) {
+  if (search.assetType === 'url') {
     let imgUrl = image.imageUrl;
     if (engine !== 'ascii2d') {
       imgUrl = encodeURIComponent(imgUrl);
     }
     tabUrl = tabUrl.replace('{imgUrl}', imgUrl);
+
     if (engine === 'google' && !session.options.localGoogle) {
       tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
     }
@@ -730,7 +1001,7 @@ async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
 
     function requestCallback(details) {
       removeCallback();
-      setUserAgentHeader(details.tabId, userAgent);
+      setWebRequestUserAgentHeader({tabId: details.tabId, userAgent});
     }
 
     const removeCallback = function () {
@@ -747,36 +1018,8 @@ async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
       },
       ['blocking']
     );
-  } else if (targetEnv === 'safari') {
-    // Safari 16.4 or later
-    if (browser.declarativeNetRequest?.updateSessionRules) {
-      await browser.declarativeNetRequest.updateSessionRules({
-        addRules: [
-          {
-            id: tabId,
-            action: {
-              type: 'modifyHeaders',
-              requestHeaders: [
-                {header: 'User-Agent', operation: 'set', value: userAgent}
-              ]
-            },
-            condition: {
-              // Safari: tabIds is not supported
-              urlFilter: `${tabUrl}*`,
-              resourceTypes: ['main_frame', 'sub_frame']
-            }
-          }
-        ]
-      });
-
-      browser.alarms.create(`delete-net-request-session-rule_${tabId}`, {
-        delayInMinutes: 1
-      });
-    } else {
-      await showNotification({messageId: 'error_engineSafariOutdated'});
-    }
   } else {
-    setUserAgentHeader(tabId, userAgent);
+    await setUserAgentHeader({tabId, tabUrl, userAgent});
   }
 }
 
@@ -794,29 +1037,32 @@ async function getRequiredUserAgent(engine) {
 
 async function execEngine(tabId, engine, taskId) {
   if (['bing'].includes(engine)) {
-    await browser.tabs.insertCSS(tabId, {
-      runAt: 'document_start',
-      file: `/src/engines/css/${engine}.css`
-    });
+    await insertCSS({files: [`/src/engines/css/${engine}.css`], tabId});
   }
 
-  await executeCode(`var taskId = '${taskId}';`, tabId);
-  await executeFile(`/src/commons-engine/script.js`, tabId);
-  await executeFile(`/src/engines/${engine}/script.js`, tabId);
+  await executeScript({
+    func: taskId => (self.taskId = taskId),
+    args: [taskId],
+    code: `var taskId = '${taskId}';`,
+    tabId
+  });
+  await executeScript({files: ['/src/commons-engine/script.js'], tabId});
+  await executeScript({files: [`/src/engines/${engine}/script.js`], tabId});
 }
 
 async function searchClickTarget(session) {
-  const [isParseModule] = await executeCode(
-    `typeof initParse !== 'undefined'`,
-    session.sourceTabId,
-    session.sourceFrameId
-  );
+  const [isParseModule] = await executeScript({
+    func: () => typeof initParse !== 'undefined',
+    code: `typeof initParse !== 'undefined'`,
+    tabId: session.sourceTabId,
+    frameIds: [session.sourceFrameId]
+  });
   if (!isParseModule) {
-    await executeFile(
-      '/src/parse/script.js',
-      session.sourceTabId,
-      session.sourceFrameId
-    );
+    await executeScript({
+      files: ['/src/parse/script.js'],
+      tabId: session.sourceTabId,
+      frameIds: [session.sourceFrameId]
+    });
   }
 
   await browser.tabs.sendMessage(
@@ -1093,17 +1339,14 @@ async function viewImage(session, image) {
 }
 
 async function setContextMenu() {
-  // removes context menu items from all instances
-  await browser.contextMenus.removeAll();
-
-  const {showInContextMenu} = await storage.get('showInContextMenu');
-  if (showInContextMenu) {
-    if (['chrome', 'edge', 'opera'].includes(targetEnv)) {
-      // notify all background script instances
-      await storage.set({setContextMenuEvent: Date.now()});
-    } else {
-      await createMenu();
-    }
+  if (['chrome', 'edge', 'opera'].includes(targetEnv)) {
+    // notify all background script instances
+    await storage.set(
+      {setContextMenuEvent: Date.now()},
+      {area: mv3 ? 'session' : 'local'}
+    );
+  } else {
+    await createMenu();
   }
 }
 
@@ -1115,30 +1358,32 @@ async function setBrowserAction() {
   ]);
   const enEngines = await getEnabledEngines(options);
 
+  const action = mv3 ? browser.action : browser.browserAction;
+
   if (enEngines.length === 1) {
-    browser.browserAction.setTitle({
+    action.setTitle({
       title: getText(
         'actionTitle_engine',
         getText(`menuItemTitle_${enEngines[0]}`)
       )
     });
-    browser.browserAction.setPopup({popup: ''});
+    action.setPopup({popup: ''});
     return;
   }
 
   if (options.searchAllEnginesAction === 'main' && enEngines.length > 1) {
-    browser.browserAction.setTitle({
+    action.setTitle({
       title: getText('actionTitle_allEngines')
     });
-    browser.browserAction.setPopup({popup: ''});
+    action.setPopup({popup: ''});
     return;
   }
 
-  browser.browserAction.setTitle({title: getText('extensionName')});
+  action.setTitle({title: getText('extensionName')});
   if (!enEngines.length) {
-    browser.browserAction.setPopup({popup: ''});
+    action.setPopup({popup: ''});
   } else {
-    browser.browserAction.setPopup({popup: '/src/action/index.html'});
+    action.setPopup({popup: '/src/action/index.html'});
   }
 }
 
@@ -1231,10 +1476,16 @@ async function processMessage(request, sender) {
     }
 
     showNotification({messageId: 'error_pageParseError'});
-  } else if (request.id === 'setContentRequestHeaders') {
-    setContentRequestHeaders(request.token, request.url, {
-      referrer: request.referrer
+  } else if (request.id === 'addContentRequestListener') {
+    return addContentRequestListener({
+      url: request.url,
+      origin: request.origin,
+      referrer: request.referrer,
+      tabId: sender.tab.id,
+      token: request.token
     });
+  } else if (request.id === 'removeContentRequestListener') {
+    await removeContentRequestListener({ruleId: request.ruleId});
   } else if (request.id === 'fetchImage') {
     const imageBlob = await fetchImage(request.url);
     const imageDataUrl = imageBlob && (await blobToDataUrl(imageBlob));
@@ -1326,6 +1577,20 @@ async function processMessage(request, sender) {
     await showPage({url: request.url});
   } else if (request.id === 'setupTab') {
     return setupTab(sender, request.steps);
+  } else if (request.id === 'executeScript') {
+    const params = request.params;
+    if (request.setSenderTabId) {
+      params.tabId = sender.tab.id;
+    }
+    if (request.setSenderFrameId) {
+      params.frameIds = [sender.frameId];
+    }
+
+    if (params.func) {
+      params.func = getScriptFunction(params.func);
+    }
+
+    return executeScript(params);
   }
 }
 
@@ -1359,8 +1624,8 @@ async function onOptionChange() {
 }
 
 async function onStorageChange(changes, area) {
-  if (area === 'local' && (await isStorageReady())) {
-    if (changes.setContextMenuEvent) {
+  if (changes.setContextMenuEvent?.newValue) {
+    if (await isStorageReady({area: mv3 ? 'session' : 'local'})) {
       await queue.add(createMenu);
     }
   }
@@ -1379,20 +1644,13 @@ async function onAlarm({name}) {
 }
 
 async function onInstall(details) {
-  if (
-    ['install', 'update'].includes(details.reason) &&
-    ['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)
-  ) {
-    await insertBaseModule();
+  if (['install', 'update'].includes(details.reason)) {
+    await setup({event: 'install'});
   }
 }
 
 async function onStartup() {
-  if (['samsung'].includes(targetEnv)) {
-    // Samsung Internet: Content script is not always run in restored
-    // active tab on startup.
-    await insertBaseModule({activeTab: true});
-  }
+  await setup({event: 'startup'});
 }
 
 function addContextMenuListener() {
@@ -1401,8 +1659,12 @@ function addContextMenuListener() {
   }
 }
 
-function addBrowserActionListener() {
-  browser.browserAction.onClicked.addListener(onActionButtonClick);
+function addActionListener() {
+  if (mv3) {
+    browser.action.onClicked.addListener(onActionButtonClick);
+  } else {
+    browser.browserAction.onClicked.addListener(onActionButtonClick);
+  }
 }
 
 function addStorageListener() {
@@ -1426,7 +1688,6 @@ function addInstallListener() {
 }
 
 function addStartupListener() {
-  // Not fired in private browsing mode.
   browser.runtime.onStartup.addListener(onStartup);
 }
 
@@ -1440,19 +1701,46 @@ async function setupUI() {
   await queue.addAll(items);
 }
 
-async function setup() {
-  if (!(await isStorageReady())) {
-    await migrateLegacyStorage();
-    await initStorage();
+async function setup({event = ''} = {}) {
+  const startup = await getStartupState({event});
+
+  if (startup.setupInstance) {
+    await runOnce('setupInstance', async () => {
+      if (!(await isStorageReady())) {
+        await initStorage({data: startup});
+      }
+
+      if (['chrome', 'edge', 'opera', 'samsung'].includes(targetEnv)) {
+        await insertBaseModule();
+      }
+
+      if (startup.update) {
+        await setAppVersion();
+      }
+    });
   }
 
-  await setupUI();
-  await registry.cleanupRegistry();
+  if (startup.setupSession) {
+    await runOnce('setupSession', async () => {
+      if (mv3 && !(await isStorageReady({area: 'session'}))) {
+        await initStorage({area: 'session', silent: true});
+      }
+
+      if (['samsung'].includes(targetEnv) && !startup.setupInstance) {
+        // Samsung Internet: Content script does not always run in restored
+        // active tab on startup.
+        await insertBaseModule({activeTab: true});
+      }
+
+      await setupUI();
+      await registry.cleanupRegistry();
+    });
+  }
 }
 
 function init() {
   addContextMenuListener();
-  addBrowserActionListener();
+  addActionListener();
   addMessageListener();
   addConnectListener();
   addStorageListener();

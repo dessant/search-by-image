@@ -7,6 +7,7 @@ import {filesize} from 'filesize';
 import storage from 'storage/storage';
 import {
   getText,
+  executeScript,
   createTab,
   getActiveTab,
   getDataUrlMimeType,
@@ -17,9 +18,9 @@ import {
   blobToArray,
   blobToDataUrl,
   splitAsciiString,
+  getCanvas,
   canvasToDataUrl,
   canvasToBlob,
-  executeCode,
   getPlatform,
   shareFiles,
   getDayPrecisionEpoch,
@@ -27,7 +28,13 @@ import {
   getDarkColorSchemeQuery,
   isValidTab
 } from 'utils/common';
-import {targetEnv, enableContributions} from 'utils/config';
+import {
+  targetEnv,
+  enableContributions,
+  storageRevisions,
+  appVersion,
+  mv3
+} from 'utils/config';
 import {
   optionKeys,
   engines,
@@ -210,7 +217,7 @@ async function showNotification({
     );
 
     if (timeout) {
-      window.setTimeout(() => {
+      self.setTimeout(() => {
         browser.notifications.clear(notification);
       }, timeout);
     }
@@ -241,6 +248,443 @@ function getListItems(data, {scope = '', shortScope = ''} = {}) {
   }
 
   return results;
+}
+
+async function hasModule({tabId, frameId = 0, module, insert = false} = {}) {
+  try {
+    const [isModule] = await executeScript({
+      func: name => typeof self[`${name}Module`] !== 'undefined',
+      args: [module],
+      code: `typeof ${module}Module !== 'undefined'`,
+      tabId,
+      frameIds: [frameId]
+    });
+
+    if (!isModule && insert) {
+      await executeScript({
+        files: [`/src/${module}/script.js`],
+        tabId,
+        frameIds: [frameId]
+      });
+    }
+
+    if (isModule || insert) {
+      return true;
+    }
+  } catch (err) {}
+
+  return false;
+}
+
+async function insertBaseModule({activeTab = false} = {}) {
+  const tabs = [];
+  if (activeTab) {
+    const tab = await getActiveTab();
+    if (tab) {
+      tabs.push(tab);
+    }
+  } else {
+    tabs.push(
+      ...(await browser.tabs.query({
+        url: ['http://*/*', 'https://*/*'],
+        windowType: 'normal'
+      }))
+    );
+  }
+
+  for (const tab of tabs) {
+    executeScript({
+      files: ['/src/base/script.js'],
+      tabId: tab.id,
+      allFrames: true
+    });
+  }
+}
+
+async function loadFonts(fonts) {
+  await Promise.allSettled(fonts.map(font => document.fonts.load(font)));
+}
+
+async function configApp(app) {
+  const platform = await getPlatform();
+
+  const classes = [platform.targetEnv, platform.os];
+  document.documentElement.classList.add(...classes);
+
+  if (app) {
+    app.config.globalProperties.$env = platform;
+  }
+}
+
+async function getAppTheme(theme) {
+  if (!theme) {
+    ({appTheme: theme} = await storage.get('appTheme'));
+  }
+
+  if (theme === 'auto') {
+    theme = getDarkColorSchemeQuery().matches ? 'dark' : 'light';
+  }
+
+  return theme;
+}
+
+function addSystemThemeListener(callback) {
+  getDarkColorSchemeQuery().addEventListener('change', function () {
+    callback();
+  });
+}
+
+function addAppThemeListener(callback) {
+  browser.storage.onChanged.addListener(function (changes, area) {
+    if (area === 'local' && changes.appTheme) {
+      callback();
+    }
+  });
+}
+
+function addThemeListener(callback) {
+  addSystemThemeListener(callback);
+  addAppThemeListener(callback);
+}
+
+async function getOpenerTabId({tab, tabId = null} = {}) {
+  if (!tab && tabId !== null) {
+    tab = await browser.tabs.get(tabId).catch(err => null);
+  }
+
+  if ((await isValidTab({tab})) && !(await getPlatform()).isMobile) {
+    return tab.id;
+  }
+
+  return null;
+}
+
+async function showPage({
+  url = '',
+  setOpenerTab = true,
+  getTab = false,
+  activeTab = null
+} = {}) {
+  if (!activeTab) {
+    activeTab = await getActiveTab();
+  }
+
+  const props = {url, index: activeTab.index + 1, active: true, getTab};
+
+  if (setOpenerTab) {
+    props.openerTabId = await getOpenerTabId({tab: activeTab});
+  }
+
+  return createTab(props);
+}
+
+async function autoShowContributePage({
+  minUseCount = 0, // 0-1000
+  minInstallDays = 0,
+  minLastOpenDays = 0,
+  minLastAutoOpenDays = 0,
+  action = 'auto',
+  activeTab = null
+} = {}) {
+  if (enableContributions) {
+    const options = await storage.get([
+      'showContribPage',
+      'useCount',
+      'installTime',
+      'contribPageLastOpen',
+      'contribPageLastAutoOpen'
+    ]);
+
+    const epoch = getDayPrecisionEpoch();
+
+    if (
+      options.showContribPage &&
+      options.useCount >= minUseCount &&
+      epoch - options.installTime >= minInstallDays * 86400000 &&
+      epoch - options.contribPageLastOpen >= minLastOpenDays * 86400000 &&
+      epoch - options.contribPageLastAutoOpen >= minLastAutoOpenDays * 86400000
+    ) {
+      await storage.set({
+        contribPageLastOpen: epoch,
+        contribPageLastAutoOpen: epoch
+      });
+
+      return showContributePage({
+        action,
+        updateStats: false,
+        activeTab,
+        getTab: true
+      });
+    }
+  }
+}
+
+let useCountLastUpdate = 0;
+async function updateUseCount({
+  valueChange = 1,
+  maxUseCount = Infinity,
+  minInterval = 0
+} = {}) {
+  if (Date.now() - useCountLastUpdate >= minInterval) {
+    useCountLastUpdate = Date.now();
+
+    const {useCount} = await storage.get('useCount');
+
+    if (useCount < maxUseCount) {
+      await storage.set({useCount: useCount + valueChange});
+    } else if (useCount > maxUseCount) {
+      await storage.set({useCount: maxUseCount});
+    }
+  }
+}
+
+async function processAppUse({
+  action = 'auto',
+  activeTab = null,
+  showContribPage = true
+} = {}) {
+  await updateUseCount({
+    valueChange: 1,
+    maxUseCount: 1000
+  });
+
+  if (showContribPage) {
+    return autoShowContributePage({
+      minUseCount: 10,
+      minInstallDays: 14,
+      minLastOpenDays: 14,
+      minLastAutoOpenDays: 365,
+      activeTab,
+      action
+    });
+  }
+}
+
+async function showContributePage({
+  action = '',
+  updateStats = true,
+  getTab = false,
+  activeTab = null
+} = {}) {
+  if (updateStats) {
+    await storage.set({contribPageLastOpen: getDayPrecisionEpoch()});
+  }
+
+  let url = browser.runtime.getURL('/src/contribute/index.html');
+  if (action) {
+    url = `${url}?action=${action}`;
+  }
+
+  return showPage({url, getTab, activeTab});
+}
+
+async function showOptionsPage({getTab = false, activeTab = null} = {}) {
+  // Samsung Internet 13: runtime.openOptionsPage fails.
+  // runtime.openOptionsPage adds new tab at the end of the tab list.
+  return showPage({
+    url: browser.runtime.getURL('/src/options/index.html'),
+    getTab,
+    activeTab
+  });
+}
+
+async function showSupportPage({getTab = false, activeTab = null} = {}) {
+  return showPage({url: supportUrl, getTab, activeTab});
+}
+
+async function setAppVersion() {
+  await storage.set({appVersion});
+}
+
+async function isSessionStartup() {
+  const privateContext = browser.extension.inIncognitoContext;
+
+  const sessionKey = privateContext ? 'privateSession' : 'session';
+  const session = (await browser.storage.session.get(sessionKey))[sessionKey];
+
+  if (!session) {
+    await browser.storage.session.set({[sessionKey]: true});
+  }
+
+  if (privateContext) {
+    try {
+      if (!(await self.caches.has(sessionKey))) {
+        await self.caches.open(sessionKey);
+
+        return true;
+      }
+    } catch (err) {
+      return true;
+    }
+  }
+
+  if (!session) {
+    return true;
+  }
+}
+
+async function isStartup() {
+  const startup = {
+    install: false,
+    update: false,
+    session: false,
+    setupInstance: false,
+    setupSession: false
+  };
+
+  const {storageVersion, appVersion: savedAppVersion} =
+    await browser.storage.local.get(['storageVersion', 'appVersion']);
+
+  if (!storageVersion) {
+    startup.install = true;
+  }
+
+  if (
+    storageVersion !== storageRevisions.local ||
+    savedAppVersion !== appVersion
+  ) {
+    startup.update = true;
+  }
+
+  if (mv3 && (await isSessionStartup())) {
+    startup.session = true;
+  }
+
+  if (startup.install || startup.update) {
+    startup.setupInstance = true;
+  }
+
+  if (startup.session || !mv3) {
+    startup.setupSession = true;
+  }
+
+  return startup;
+}
+
+let startupState;
+async function getStartupState({event = ''} = {}) {
+  if (!startupState) {
+    startupState = isStartup();
+    startupState.events = [];
+  }
+
+  if (event) {
+    startupState.events.push(event);
+  }
+
+  const startup = await startupState;
+
+  if (startupState.events.includes('install')) {
+    startup.setupInstance = true;
+  }
+  if (startupState.events.includes('startup')) {
+    startup.setupSession = true;
+  }
+
+  return startup;
+}
+
+function getEngineIcon(engine, {variant = ''} = {}) {
+  engine = engineIconAlias[engine] || engine;
+
+  let name = engine;
+  if (variant && engineIconVariants[engine]?.includes(variant)) {
+    name += `-${variant}`;
+  }
+
+  const ext = rasterEngineIcons.includes(engine) ? 'png' : 'svg';
+
+  return `/src/assets/icons/engines/${name}.${ext}`;
+}
+
+function getEngineMenuIcon(engine, {variant = ''} = {}) {
+  engine = engineIconAlias[engine] || engine;
+
+  let name = engine;
+  if (variant && engineIconVariants[engine]?.includes(variant)) {
+    name += `-${variant}`;
+  }
+
+  if (rasterEngineIcons.includes(engine)) {
+    return {
+      16: `src/assets/icons/engines/${name}-16.png`,
+      32: `src/assets/icons/engines/${name}-32.png`
+    };
+  } else {
+    return {
+      16: `src/assets/icons/engines/${name}.svg`
+    };
+  }
+}
+
+function handleActionEscapeKey() {
+  // Keep the browser action open when a menu or popup is active
+
+  // Firefox: extensions cannot handle the Escape key event
+  window.addEventListener(
+    'keydown',
+    ev => {
+      if (ev.key === 'Escape' && document.querySelector('.v-overlay--active')) {
+        ev.preventDefault();
+      }
+    },
+    {capture: true, passive: false}
+  );
+}
+
+async function isContextMenuSupported() {
+  if (await isAndroid()) {
+    if (targetEnv === 'samsung') {
+      return true;
+    }
+  } else if (browser.contextMenus) {
+    return true;
+  }
+
+  return false;
+}
+
+async function checkSearchEngineAccess() {
+  // Check if search engine access is enabled in Opera
+  if (!mv3 && / opr\//i.test(navigator.userAgent)) {
+    const {lastEngineAccessCheck} = await storage.get('lastEngineAccessCheck');
+    // run at most once a week
+    if (Date.now() - lastEngineAccessCheck > 604800000) {
+      await storage.set({lastEngineAccessCheck: Date.now()});
+
+      const url = 'https://www.google.com/generate_204';
+
+      const hasAccess = await new Promise(resolve => {
+        let access = false;
+
+        function requestCallback() {
+          access = true;
+          removeCallback();
+          return {cancel: true};
+        }
+
+        const removeCallback = function () {
+          window.clearTimeout(timeoutId);
+          browser.webRequest.onBeforeRequest.removeListener(requestCallback);
+
+          resolve(access);
+        };
+        const timeoutId = window.setTimeout(removeCallback, 3000); // 3 seconds
+
+        browser.webRequest.onBeforeRequest.addListener(
+          requestCallback,
+          {urls: [url], types: ['xmlhttprequest']},
+          ['blocking']
+        );
+
+        fetch(url).catch(err => null);
+      });
+
+      if (!hasAccess) {
+        await showNotification({messageId: 'error_noSearchEngineAccess'});
+      }
+    }
+  }
 }
 
 function validateUrl(url, {allowDataUrl = false} = {}) {
@@ -307,9 +751,6 @@ async function dataToImage({blob, dataUrl, name} = {}) {
 }
 
 async function fileUrlToImage(url) {
-  const cnv = document.createElement('canvas');
-  const ctx = cnv.getContext('2d');
-
   const img = await getImageElement({url, query: true});
   if (img) {
     let {name, type} = getDataFromImageUrl(url);
@@ -317,8 +758,7 @@ async function fileUrlToImage(url) {
       type = 'image/png';
     }
 
-    cnv.width = img.naturalWidth;
-    cnv.height = img.naturalHeight;
+    const {cnv, ctx} = getCanvas(img.naturalWidth, img.naturalHeight);
 
     if (drawElementOnCanvas(ctx, img)) {
       const blob = await canvasToBlob(cnv, {ctx, type});
@@ -331,13 +771,9 @@ async function fileUrlToImage(url) {
 }
 
 async function blobUrlToImage(url) {
-  const cnv = document.createElement('canvas');
-  const ctx = cnv.getContext('2d');
-
   const img = await getImageElement({url, query: true});
   if (img) {
-    cnv.width = img.naturalWidth;
-    cnv.height = img.naturalHeight;
+    const {cnv, ctx} = getCanvas(img.naturalWidth, img.naturalHeight);
 
     if (drawElementOnCanvas(ctx, img)) {
       const blob = await canvasToBlob(cnv, {ctx});
@@ -503,11 +939,7 @@ async function convertImage({
       {maxDimension}
     );
 
-    const cnv = document.createElement('canvas');
-    const ctx = cnv.getContext('2d');
-
-    cnv.width = newWidth;
-    cnv.height = newHeight;
+    const {cnv, ctx} = getCanvas(newWidth, newHeight);
 
     if (newType === 'image/jpeg') {
       ctx.fillStyle = '#FFFFFF';
@@ -539,7 +971,7 @@ async function convertImage({
       }
     }
 
-    return getBlob ? blob : canvasToDataUrl(cnv, {ctx, type: newType});
+    return getBlob ? blob : await canvasToDataUrl(cnv, {ctx, type: newType});
   }
 
   if (getBlob && !blob) {
@@ -594,60 +1026,85 @@ async function convertProcessedImage(
   }
 }
 
-function getImageElement({url, blob, query = false} = {}) {
-  return new Promise(resolve => {
-    if (query) {
-      const images = document.images;
-
-      for (let i = 0; i < images.length; i++) {
-        const img = images[i];
-        if (img?.currentSrc === url) {
-          if (img.complete && img.naturalWidth) {
-            resolve(img);
-          } else {
-            break;
-          }
-        }
+async function getImageElement({url, blob, query = false} = {}) {
+  if (typeof Image === 'undefined') {
+    if (url) {
+      if (!url.startsWith('data:')) {
+        throw new Error(
+          'getImageElement does not accept image URLs in service workers'
+        );
       }
-    }
 
-    // Some browsers do not support large data URLs
-    if (url && url.startsWith('data:') && url.length > getMaxDataUrlSize()) {
       try {
         blob = dataUrlToBlob(url);
       } catch {}
     }
 
-    if (blob) {
-      url = URL.createObjectURL(blob);
-    }
+    let bmp;
+    try {
+      bmp = await createImageBitmap(blob);
+      bmp.naturalWidth = bmp.width;
+      bmp.naturalHeight = bmp.height;
+    } catch {}
 
-    function load(img) {
+    return bmp;
+  } else {
+    return new Promise(resolve => {
+      if (query) {
+        // Only use when the natural size of the image is not needed,
+        // an srcset x descriptor can affect naturalWidth and naturalHeight.
+        const images = document.images;
+
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          if (img?.currentSrc === url) {
+            if (img.complete && img.naturalWidth) {
+              resolve(img);
+            } else {
+              break;
+            }
+          }
+        }
+      }
+
+      // Some browsers do not support large data URLs
+      if (url && url.startsWith('data:') && url.length > getMaxDataUrlSize()) {
+        try {
+          blob = dataUrlToBlob(url);
+        } catch {}
+      }
+
       if (blob) {
-        URL.revokeObjectURL(url);
+        url = URL.createObjectURL(blob);
       }
 
-      if (img) {
-        resolve(img);
-      } else {
-        resolve();
+      function load(img) {
+        if (blob) {
+          URL.revokeObjectURL(url);
+        }
+
+        if (img) {
+          resolve(img);
+        } else {
+          resolve();
+        }
       }
-    }
 
-    const img = new Image();
+      const img = new Image();
 
-    img.onload = () => {
-      load(img);
-    };
-    img.onerror = () => {
-      load();
-    };
-    img.onabort = () => {
-      load();
-    };
+      img.onload = () => {
+        load(img);
+      };
+      img.onerror = () => {
+        load();
+      };
+      img.onabort = () => {
+        load();
+      };
 
-    img.src = url;
-  });
+      img.src = url;
+    });
+  }
 }
 
 async function captureVisibleTabArea(area) {
@@ -657,10 +1114,7 @@ async function captureVisibleTabArea(area) {
   const {left, top, width, height, surfaceWidth} = area;
   const scale = img.naturalWidth / surfaceWidth;
 
-  const cnv = document.createElement('canvas');
-  const ctx = cnv.getContext('2d');
-  cnv.width = width * scale;
-  cnv.height = height * scale;
+  const {cnv, ctx} = getCanvas(width * scale, height * scale);
 
   ctx.drawImage(
     img,
@@ -678,7 +1132,11 @@ async function captureVisibleTabArea(area) {
 }
 
 async function captureImage(area, tabId) {
-  const [surfaceWidth] = await executeCode(`window.innerWidth;`, tabId);
+  const [surfaceWidth] = await executeScript({
+    func: () => window.innerWidth,
+    code: `window.innerWidth;`,
+    tabId
+  });
   area = {...area, surfaceWidth};
 
   const blob = await captureVisibleTabArea(area);
@@ -731,42 +1189,75 @@ function getDataFromImageUrl(url) {
 
 function getContentXHR() {
   try {
-    // Firefox
+    // Firefox MV2
     return new content.XMLHttpRequest();
   } catch (err) {
-    // Chrome
     return new XMLHttpRequest();
   }
 }
 
-function fetchImage(url, {credentials = false, token = ''} = {}) {
-  return new Promise(resolve => {
-    const xhr = getContentXHR();
+function getAbortSignal(timeout) {
+  if (AbortSignal.timeout) {
+    return AbortSignal.timeout(timeout);
+  } else {
+    const controller = new AbortController();
+    self.setTimeout(() => controller.abort(), timeout);
 
-    xhr.open('GET', url);
-    xhr.timeout = 1200000; // 2 minutes
-    xhr.responseType = 'blob';
-    xhr.withCredentials = credentials;
+    return controller.signal;
+  }
+}
 
-    if (token) {
-      xhr.setRequestHeader('Accept', token);
+async function fetchImage(
+  url,
+  {credentials = false, timeout = 120000, token = ''} = {}
+) {
+  if (mv3) {
+    const params = {method: 'GET', mode: 'cors'};
+
+    if (timeout) {
+      params.signal = getAbortSignal(timeout);
     }
 
-    xhr.onload = () => {
-      resolve(xhr.response);
-    };
-    xhr.onerror = () => {
-      resolve();
-    };
-    xhr.onabort = () => {
-      resolve();
-    };
-    xhr.ontimeout = () => {
-      resolve();
-    };
+    if (credentials) {
+      params.credentials = 'include';
+    }
 
-    xhr.send();
-  });
+    try {
+      const rsp = await fetch(url, params);
+
+      return await rsp.blob();
+    } catch (err) {}
+  } else {
+    return new Promise(resolve => {
+      const xhr = getContentXHR();
+
+      xhr.open('GET', url);
+      if (timeout) {
+        xhr.timeout = timeout;
+      }
+      xhr.responseType = 'blob';
+      xhr.withCredentials = credentials;
+
+      if (token) {
+        xhr.setRequestHeader('Accept', token);
+      }
+
+      xhr.onload = () => {
+        resolve(xhr.response);
+      };
+      xhr.onerror = () => {
+        resolve();
+      };
+      xhr.onabort = () => {
+        resolve();
+      };
+      xhr.ontimeout = () => {
+        resolve();
+      };
+
+      xhr.send();
+    });
+  }
 }
 
 async function fetchImageFromBackgroundScript(url) {
@@ -794,110 +1285,6 @@ function getMaxImageUploadSize(engine, {target} = {}) {
     return data[target];
   } else if (!data.api || !data.ui) {
     return data.api || data.ui;
-  }
-}
-
-async function hasModule({tabId, frameId = 0, module, insert = false} = {}) {
-  try {
-    const [isModule] = await browser.tabs.executeScript(tabId, {
-      frameId,
-      runAt: 'document_start',
-      code: `typeof ${module}Module !== 'undefined'`
-    });
-
-    if (!isModule && insert) {
-      await browser.tabs.executeScript(tabId, {
-        frameId,
-        runAt: 'document_start',
-        file: `/src/${module}/script.js`
-      });
-    }
-
-    if (isModule || insert) {
-      return true;
-    }
-  } catch (err) {}
-
-  return false;
-}
-
-async function insertBaseModule({activeTab = false} = {}) {
-  const tabs = [];
-  if (activeTab) {
-    const tab = await getActiveTab();
-    if (tab) {
-      tabs.push(tab);
-    }
-  } else {
-    tabs.push(
-      ...(await browser.tabs.query({
-        url: ['http://*/*', 'https://*/*'],
-        windowType: 'normal'
-      }))
-    );
-  }
-
-  for (const tab of tabs) {
-    browser.tabs.executeScript(tab.id, {
-      allFrames: true,
-      runAt: 'document_start',
-      file: '/src/base/script.js'
-    });
-  }
-}
-
-async function isContextMenuSupported() {
-  if (await isAndroid()) {
-    if (targetEnv === 'samsung') {
-      return true;
-    }
-  } else if (browser.contextMenus) {
-    return true;
-  }
-
-  return false;
-}
-
-async function checkSearchEngineAccess() {
-  // Check if search engine access is enabled in Opera
-  if (/ opr\//i.test(navigator.userAgent)) {
-    const {lastEngineAccessCheck} = await storage.get('lastEngineAccessCheck');
-    // run at most once a week
-    if (Date.now() - lastEngineAccessCheck > 604800000) {
-      await storage.set({lastEngineAccessCheck: Date.now()});
-
-      const url = 'https://www.google.com/generate_204';
-
-      const hasAccess = await new Promise(resolve => {
-        let access = false;
-
-        function requestCallback() {
-          access = true;
-          removeCallback();
-          return {cancel: true};
-        }
-
-        const removeCallback = function () {
-          window.clearTimeout(timeoutId);
-          browser.webRequest.onBeforeRequest.removeListener(requestCallback);
-
-          resolve(access);
-        };
-        const timeoutId = window.setTimeout(removeCallback, 3000); // 3 seconds
-
-        browser.webRequest.onBeforeRequest.addListener(
-          requestCallback,
-          {urls: [url], types: ['xmlhttprequest']},
-          ['blocking']
-        );
-
-        fetch(url).catch(err => null);
-      });
-
-      if (!hasAccess) {
-        await showNotification({messageId: 'error_noSearchEngineAccess'});
-      }
-    }
   }
 }
 
@@ -948,39 +1335,6 @@ async function getImagesFromClipboard() {
 
   if (files) {
     return normalizeImages(files);
-  }
-}
-
-function getEngineIcon(engine, {variant = ''} = {}) {
-  engine = engineIconAlias[engine] || engine;
-
-  let name = engine;
-  if (variant && engineIconVariants[engine]?.includes(variant)) {
-    name += `-${variant}`;
-  }
-
-  const ext = rasterEngineIcons.includes(engine) ? 'png' : 'svg';
-
-  return `/src/assets/icons/engines/${name}.${ext}`;
-}
-
-function getEngineMenuIcon(engine, {variant = ''} = {}) {
-  engine = engineIconAlias[engine] || engine;
-
-  let name = engine;
-  if (variant && engineIconVariants[engine]?.includes(variant)) {
-    name += `-${variant}`;
-  }
-
-  if (rasterEngineIcons.includes(engine)) {
-    return {
-      16: `src/assets/icons/engines/${name}-16.png`,
-      32: `src/assets/icons/engines/${name}-32.png`
-    };
-  } else {
-    return {
-      16: `src/assets/icons/engines/${name}.svg`
-    };
   }
 }
 
@@ -1133,21 +1487,6 @@ function getSrcsetUrls(srcset) {
   return urls;
 }
 
-async function configApp(app) {
-  const platform = await getPlatform();
-
-  const classes = [platform.targetEnv, platform.os];
-  document.documentElement.classList.add(...classes);
-
-  if (app) {
-    app.config.globalProperties.$env = platform;
-  }
-}
-
-async function loadFonts(fonts) {
-  await Promise.allSettled(fonts.map(font => document.fonts.load(font)));
-}
-
 function getFormattedImageDetails({
   width,
   height,
@@ -1194,7 +1533,7 @@ function isPreviewImageValid(node) {
 function getExtensionUrlPattern() {
   try {
     const {protocol} = new URL(
-      browser.runtime.getURL('/src/background/index.html')
+      browser.runtime.getURL('/src/background/script.js')
     );
 
     return `${protocol}//*/*`;
@@ -1285,7 +1624,7 @@ function waitForMessage({port, checkMessage = null, timeout = 120000} = {}) {
     };
 
     const removeCallbacks = function ({throwError = false} = {}) {
-      window.clearTimeout(timeoutId);
+      self.clearTimeout(timeoutId);
       port.onDisconnect.removeListener(timeoutCallback);
       port.onMessage.removeListener(syncCallback);
       port.onMessage.removeListener(asyncCallback);
@@ -1300,7 +1639,7 @@ function waitForMessage({port, checkMessage = null, timeout = 120000} = {}) {
     };
 
     port.onDisconnect.addListener(timeoutCallback);
-    const timeoutId = window.setTimeout(timeoutCallback, timeout);
+    const timeoutId = self.setTimeout(timeoutCallback, timeout);
 
     if (isMessage) {
       finish();
@@ -1487,7 +1826,7 @@ async function processLargeMessage({
 
   // Samsung Internet 13: extension messages are sometimes also dispatched
   // to the sender frame.
-  if (sender.url === document.URL) {
+  if (sender.url === self.location.href) {
     return;
   }
 
@@ -1568,7 +1907,7 @@ async function processLargeMessage({
         };
 
         const removeCallbacks = function ({throwError = false} = {}) {
-          window.clearTimeout(timeoutId);
+          self.clearTimeout(timeoutId);
           messagePort.onDisconnect.removeListener(timeoutCallback);
           messagePort.onMessage.removeListener(messageCallback);
 
@@ -1582,7 +1921,7 @@ async function processLargeMessage({
         };
 
         messagePort.onDisconnect.addListener(timeoutCallback);
-        const timeoutId = window.setTimeout(timeoutCallback, 120000); // 2 minutes
+        const timeoutId = self.setTimeout(timeoutCallback, 120000); // 2 minutes
 
         messagePort.onMessage.addListener(messageCallback);
 
@@ -1669,191 +2008,6 @@ function getMaxDataUrlSize() {
   }
 }
 
-async function getOpenerTabId({tab, tabId = null} = {}) {
-  if (!tab && tabId !== null) {
-    tab = await browser.tabs.get(tabId).catch(err => null);
-  }
-
-  if ((await isValidTab({tab})) && !(await getPlatform()).isMobile) {
-    return tab.id;
-  }
-
-  return null;
-}
-
-async function showPage({
-  url = '',
-  setOpenerTab = true,
-  getTab = false,
-  activeTab = null
-} = {}) {
-  if (!activeTab) {
-    activeTab = await getActiveTab();
-  }
-
-  const props = {url, index: activeTab.index + 1, active: true, getTab};
-
-  if (setOpenerTab) {
-    props.openerTabId = await getOpenerTabId({tab: activeTab});
-  }
-
-  return createTab(props);
-}
-
-async function autoShowContributePage({
-  minUseCount = 0, // 0-1000
-  minInstallDays = 0,
-  minLastOpenDays = 0,
-  minLastAutoOpenDays = 0,
-  action = 'auto',
-  activeTab = null
-} = {}) {
-  if (enableContributions) {
-    const options = await storage.get([
-      'showContribPage',
-      'useCount',
-      'installTime',
-      'contribPageLastOpen',
-      'contribPageLastAutoOpen'
-    ]);
-
-    const epoch = getDayPrecisionEpoch();
-
-    if (
-      options.showContribPage &&
-      options.useCount >= minUseCount &&
-      epoch - options.installTime >= minInstallDays * 86400000 &&
-      epoch - options.contribPageLastOpen >= minLastOpenDays * 86400000 &&
-      epoch - options.contribPageLastAutoOpen >= minLastAutoOpenDays * 86400000
-    ) {
-      await storage.set({
-        contribPageLastOpen: epoch,
-        contribPageLastAutoOpen: epoch
-      });
-
-      return showContributePage({
-        action,
-        updateStats: false,
-        activeTab,
-        getTab: true
-      });
-    }
-  }
-}
-
-let useCountLastUpdate = 0;
-async function updateUseCount({
-  valueChange = 1,
-  maxUseCount = Infinity,
-  minInterval = 0
-} = {}) {
-  if (Date.now() - useCountLastUpdate >= minInterval) {
-    useCountLastUpdate = Date.now();
-
-    const {useCount} = await storage.get('useCount');
-
-    if (useCount < maxUseCount) {
-      await storage.set({useCount: useCount + valueChange});
-    } else if (useCount > maxUseCount) {
-      await storage.set({useCount: maxUseCount});
-    }
-  }
-}
-
-async function processAppUse({action = 'auto', activeTab = null} = {}) {
-  await updateUseCount({
-    valueChange: 1,
-    maxUseCount: 1000
-  });
-
-  return autoShowContributePage({
-    minUseCount: 10,
-    minInstallDays: 14,
-    minLastOpenDays: 14,
-    minLastAutoOpenDays: 365,
-    activeTab,
-    action
-  });
-}
-
-async function showContributePage({
-  action = '',
-  updateStats = true,
-  getTab = false,
-  activeTab = null
-} = {}) {
-  if (updateStats) {
-    await storage.set({contribPageLastOpen: getDayPrecisionEpoch()});
-  }
-
-  let url = browser.runtime.getURL('/src/contribute/index.html');
-  if (action) {
-    url = `${url}?action=${action}`;
-  }
-
-  return showPage({url, getTab, activeTab});
-}
-
-async function showOptionsPage({getTab = false, activeTab = null} = {}) {
-  // Samsung Internet 13: runtime.openOptionsPage fails.
-  // runtime.openOptionsPage adds new tab at the end of the tab list.
-  return showPage({
-    url: browser.runtime.getURL('/src/options/index.html'),
-    getTab,
-    activeTab
-  });
-}
-
-async function showSupportPage({getTab = false, activeTab = null} = {}) {
-  return showPage({url: supportUrl, getTab, activeTab});
-}
-
-function handleBrowserActionEscapeKey() {
-  // Keep the browser action open when a menu or popup is active
-
-  // Firefox: extensions cannot handle the Escape key event
-  window.addEventListener(
-    'keydown',
-    ev => {
-      if (ev.key === 'Escape' && document.querySelector('.v-overlay--active')) {
-        ev.preventDefault();
-      }
-    },
-    {capture: true, passive: false}
-  );
-}
-
-async function getAppTheme(theme) {
-  if (!theme) {
-    ({appTheme: theme} = await storage.get('appTheme'));
-  }
-
-  if (theme === 'auto') {
-    theme = getDarkColorSchemeQuery().matches ? 'dark' : 'light';
-  }
-
-  return theme;
-}
-
-function addSystemThemeListener(callback) {
-  getDarkColorSchemeQuery().addEventListener('change', function () {
-    callback();
-  });
-}
-
-function addAppThemeListener(callback) {
-  browser.storage.onChanged.addListener(function (changes, area) {
-    if (area === 'local' && changes.appTheme) {
-      callback();
-    }
-  });
-}
-
-function addThemeListener(callback) {
-  addSystemThemeListener(callback);
-  addAppThemeListener(callback);
-}
-
 async function hasClipboardReadPermission() {
   return browser.permissions.contains({permissions: ['clipboardRead']});
 }
@@ -1876,10 +2030,31 @@ export {
   createSession,
   showNotification,
   getListItems,
-  showContributePage,
+  hasModule,
+  insertBaseModule,
+  loadFonts,
+  configApp,
+  getAppTheme,
+  addSystemThemeListener,
+  addAppThemeListener,
+  addThemeListener,
+  getOpenerTabId,
+  showPage,
   autoShowContributePage,
+  updateUseCount,
+  processAppUse,
+  showContributePage,
   showOptionsPage,
   showSupportPage,
+  setAppVersion,
+  isSessionStartup,
+  isStartup,
+  getStartupState,
+  getEngineIcon,
+  getEngineMenuIcon,
+  handleActionEscapeKey,
+  isContextMenuSupported,
+  checkSearchEngineAccess,
   validateUrl,
   normalizeImageFilename,
   normalizeImageFileAttributes,
@@ -1890,34 +2065,26 @@ export {
   normalizeImages,
   processImage,
   processImages,
+  getMaxImageDimension,
+  limitImageDimensions,
   convertImage,
   convertProcessedImage,
   getImageElement,
-  getMaxImageDimension,
-  limitImageDimensions,
   captureVisibleTabArea,
   captureImage,
-  getContentXHR,
-  fetchImage,
-  fetchImageFromBackgroundScript,
   imageFileExtToMimeType,
   imageMimeTypeToFileExt,
   isImageMimeType,
   isImageFileExt,
   getDataFromImageUrl,
-  configApp,
+  getContentXHR,
+  getAbortSignal,
+  fetchImage,
+  fetchImageFromBackgroundScript,
   getLargeImageMessage,
   getMaxImageUploadSize,
-  getOpenerTabId,
-  showPage,
-  hasModule,
-  insertBaseModule,
-  isContextMenuSupported,
-  checkSearchEngineAccess,
   getFilesFromClipboard,
   getImagesFromClipboard,
-  getEngineIcon,
-  getEngineMenuIcon,
   shareImage,
   imageTypeSupport,
   isFileAccepted,
@@ -1928,7 +2095,6 @@ export {
   isIncomingShareContext,
   processIncomingShare,
   getSrcsetUrls,
-  loadFonts,
   getFormattedImageDetails,
   getFormattedImageDimension,
   getFormattedImageSize,
@@ -1943,12 +2109,6 @@ export {
   processMessageResponse,
   getMaxExtensionMessageSize,
   getMaxDataUrlSize,
-  handleBrowserActionEscapeKey,
-  getAppTheme,
-  processAppUse,
-  addSystemThemeListener,
-  addAppThemeListener,
-  addThemeListener,
   hasClipboardReadPermission,
   requestClipboardReadPermission
 };

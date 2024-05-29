@@ -18,6 +18,7 @@ import {
   sendLargeMessage
 } from 'utils/app';
 import {
+  getCanvas,
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   drawElementOnCanvas,
@@ -53,13 +54,23 @@ async function downloadImage(url, {credentials = false} = {}) {
       }
     } else {
       const token = uuidv4();
-      await browser.runtime.sendMessage({
-        id: 'setContentRequestHeaders',
-        token,
-        url
+      const origin = sameOrigin ? '' : window.location.origin;
+
+      const ruleId = await browser.runtime.sendMessage({
+        id: 'addContentRequestListener',
+        url,
+        origin,
+        token
       });
 
-      imageBlob = await fetchImage(url, {credentials, token});
+      try {
+        imageBlob = await fetchImage(url, {credentials, token});
+      } finally {
+        await browser.runtime.sendMessage({
+          id: 'removeContentRequestListener',
+          ruleId
+        });
+      }
 
       if (!imageBlob) {
         imageBlob = await fetchImageFromBackgroundScript(url);
@@ -171,19 +182,19 @@ async function parseNode(node, session) {
       results.push({data});
     }
   } else if (nodeName === 'canvas') {
-    const data = canvasToDataUrl(node, {clear: false});
-    if (data && data !== getBlankCanvasDataUrl(node.width, node.height)) {
+    const data = await canvasToDataUrl(node, {clear: false});
+    if (
+      data &&
+      data !== (await getBlankCanvasDataUrl(node.width, node.height))
+    ) {
       results.push({data});
     }
   } else if (nodeName === 'video') {
     if (node.readyState >= 2) {
-      const cnv = document.createElement('canvas');
-      const ctx = cnv.getContext('2d');
-      cnv.width = node.videoWidth;
-      cnv.height = node.videoHeight;
+      const {cnv, ctx} = getCanvas(node.videoWidth, node.videoHeight);
 
       if (drawElementOnCanvas(ctx, node)) {
-        const data = canvasToDataUrl(cnv, {ctx});
+        const data = await canvasToDataUrl(cnv, {ctx});
         if (data) {
           results.push({data});
         }
@@ -428,6 +439,8 @@ self.initParse = async function (session) {
       id: 'pageParseError',
       session
     });
+
+    throw err;
   }
 };
 

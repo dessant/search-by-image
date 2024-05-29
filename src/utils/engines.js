@@ -9,7 +9,7 @@ import {
 import {
   dataUrlToBlob,
   waitForDocumentLoad,
-  executeCodeMainContext
+  executeScriptMainContext
 } from 'utils/common';
 import {chromeSbiSrc} from 'utils/data';
 
@@ -28,79 +28,12 @@ async function setFileInputData(
   {patchInput = false} = {}
 ) {
   if (patchInput) {
-    function patch(eventName) {
-      function dataUrlToFile(dataUrl, mimeType, filename) {
-        const [meta, data] = dataUrl.split(',');
-
-        let byteString;
-        if (meta.endsWith(';base64')) {
-          byteString = atob(data);
-        } else {
-          byteString = unescape(data);
-        }
-        const length = byteString.length;
-
-        const array = new Uint8Array(new ArrayBuffer(length));
-        for (let i = 0; i < length; i++) {
-          array[i] = byteString.charCodeAt(i);
-        }
-
-        return new File([array], filename, {type: mimeType});
-      }
-
-      function patchFileInputProperty(data) {
-        const fileData = dataUrlToFile(
-          data.imageDataUrl,
-          data.imageType,
-          data.imageFilename
-        );
-
-        class FileList extends Array {
-          item(index) {
-            return this[index];
-          }
-        }
-        const files = new FileList(fileData);
-
-        const descriptor = Object.getOwnPropertyDescriptor(
-          HTMLInputElement.prototype,
-          'files'
-        );
-        const descriptorGet = descriptor.get;
-        descriptor.get = function () {
-          const input = document.querySelector(data.selector);
-          if (this.isSameNode(input)) {
-            return files;
-          } else {
-            return descriptorGet.apply(this);
-          }
-        };
-        Object.defineProperty(HTMLInputElement.prototype, 'files', descriptor);
-      }
-
-      const onMessage = function (ev) {
-        ev.stopImmediatePropagation();
-        window.clearTimeout(timeoutId);
-
-        patchFileInputProperty(JSON.parse(ev.detail));
-      };
-
-      const timeoutId = window.setTimeout(function () {
-        document.removeEventListener(eventName, onMessage, {
-          capture: true,
-          once: true
-        });
-      }, 10000); // 10 seconds
-
-      document.addEventListener(eventName, onMessage, {
-        capture: true,
-        once: true
-      });
-    }
-
     const eventName = uuidv4();
 
-    executeCodeMainContext(`(${patch.toString()})("${eventName}")`);
+    await executeScriptMainContext({
+      func: 'setFileInputData',
+      args: [eventName]
+    });
 
     document.dispatchEvent(
       new CustomEvent(eventName, {

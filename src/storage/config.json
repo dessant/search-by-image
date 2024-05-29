@@ -50,8 +50,12 @@
       "20230624145626_add_search_engines",
       "20230716121432_add_freepik",
       "20231009185955_remove_unsplash",
-      "20231102164602_add_icons8"
+      "20231102164602_add_icons8",
+      "20240514170322_add_appversion",
+      "20240529183556_update_search_engines"
     ],
-    "sync": []
+    "session": [
+      "20240514122825_initial_version"
+    ]
   }
 }

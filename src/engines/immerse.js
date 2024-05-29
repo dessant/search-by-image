@@ -1,18 +1,15 @@
-import {findNode, makeDocumentVisible} from 'utils/common';
+import {findNode, makeDocumentVisible, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'immerse';
 
 async function search({session, search, image, storageIds}) {
+  await sleep(1000);
+
+  (await findNode('img.addUploadPic')).click();
+
   const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
-
-  input.addEventListener('click', ev => ev.preventDefault(), {
-    capture: true,
-    once: true
-  });
-
-  (await findNode('button.drag-drop-btn')).click();
 
   await setFileInputData(inputSelector, input, image);
 

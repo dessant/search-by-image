@@ -23,6 +23,9 @@ const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
+
+const mv3 = ['chrome'].includes(targetEnv);
+
 const distDir = path.join(__dirname, 'dist', targetEnv);
 
 function initEnv() {
@@ -46,12 +49,17 @@ function js(done) {
 }
 
 function html() {
-  return src(
-    enableContributions
-      ? 'src/**/*.html'
-      : ['src/**/*.html', '!src/contribute/*.html'],
-    {base: '.'}
-  )
+  const htmlSrc = ['src/**/*.html'];
+
+  if (mv3) {
+    htmlSrc.push('!src/background/*.html');
+  }
+
+  if (!enableContributions) {
+    htmlSrc.push('!src/contribute/*.html');
+  }
+
+  return src(htmlSrc, {base: '.'})
     .pipe(gulpif(isProduction, htmlmin({collapseWhitespace: true})))
     .pipe(dest(distDir));
 }
@@ -135,9 +143,10 @@ async function images(done) {
 
   if (enableContributions) {
     await new Promise(resolve => {
-      src('node_modules/vueton/components/contribute/assets/*.@(png|svg)', {
-        encoding: false
-      })
+      src(
+        'node_modules/vueton/components/contribute/assets/*.@(png|webp|svg)',
+        {encoding: false}
+      )
         .pipe(gulpif(isProduction, imagemin()))
         .pipe(dest(path.join(distDir, 'src/contribute/assets')))
         .on('error', done)

@@ -1,35 +1,10 @@
-import {findNode, executeCodeMainContext} from 'utils/common';
+import {findNode, executeScriptMainContext} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'taobao';
 
 async function search({session, search, image, storageIds}) {
-  function patchContext() {
-    const appendChildFn = Element.prototype.appendChild;
-    Element.prototype.appendChild = function (node) {
-      if (node.type === 'file') {
-        node.addEventListener('click', ev => ev.preventDefault(), {
-          capture: true,
-          once: true
-        });
-
-        Element.prototype.appendChild = appendChildFn;
-      }
-
-      return appendChildFn.apply(this, arguments);
-    };
-
-    const openFn = window.open;
-    window.open = function (url) {
-      if (url.includes('/tmw/search_image')) {
-        window.location.replace(url);
-      } else {
-        return openFn.apply(this, arguments);
-      }
-    };
-  }
-
-  executeCodeMainContext(`(${patchContext.toString()})()`);
+  await executeScriptMainContext({func: 'taobaoPatchContext'});
 
   (
     await findNode(

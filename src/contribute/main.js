@@ -5,7 +5,7 @@ import {configVuetify} from 'utils/vuetify';
 import App from './App';
 
 async function init() {
-  await loadFonts(['400 14px Roboto', '500 14px Roboto']);
+  await loadFonts(['400 14px Roboto', '500 14px Roboto', '700 14px Roboto']);
 
   const app = createApp(App);
 

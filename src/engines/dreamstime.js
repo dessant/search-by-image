@@ -2,7 +2,7 @@ import {
   findNode,
   processNode,
   isMobile,
-  executeCodeMainContext
+  executeScriptMainContext
 } from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 import {targetEnv} from 'utils/config';
@@ -12,7 +12,7 @@ const engine = 'dreamstime';
 async function search({session, search, image, storageIds}) {
   if (targetEnv === 'safari' && (await isMobile())) {
     // hide noncritical upload error
-    executeCodeMainContext('window.alert = function () {}');
+    executeScriptMainContext({func: 'hideAlert'});
   }
 
   const inputSelector = 'input[type="file"]';

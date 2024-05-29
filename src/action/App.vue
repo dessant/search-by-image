@@ -111,8 +111,8 @@
 
               <template v-slot:append v-if="item.isPinnedStateProp">
                 <vn-icon-button
-                  src="/src/assets/icons/misc/push-pin-light.svg"
-                  src-on="/src/assets/icons/misc/push-pin-filled-light.svg"
+                  src="/src/assets/icons/misc/keep-light.svg"
+                  src-on="/src/assets/icons/misc/keep-filled-light.svg"
                   :title="getText('buttonTooltip_pin')"
                   :title-on="getText('buttonTooltip_unpin')"
                   :on="this[item.isPinnedStateProp]"
@@ -288,7 +288,7 @@ import {
   getEngineIcon,
   canShare,
   sendLargeMessage,
-  handleBrowserActionEscapeKey,
+  handleActionEscapeKey,
   getAppTheme,
   hasClipboardReadPermission,
   requestClipboardReadPermission
@@ -899,7 +899,7 @@ export default {
   },
 
   mounted: function () {
-    handleBrowserActionEscapeKey();
+    handleActionEscapeKey();
 
     window.setTimeout(() => {
       if (this.searchModeAction === 'url' && !this.$env.isMobile) {

@@ -10,7 +10,7 @@
   },
 
   "engineName_google": {
-    "message": "Google",
+    "message": "Google Images",
     "description": "Name of the search engine."
   },
 
@@ -210,7 +210,7 @@
   },
 
   "engineName_googleLens": {
-    "message": "Google Lens",
+    "message": "Google",
     "description": "Name of the search engine."
   },
 
@@ -276,7 +276,7 @@
   },
 
   "menuItemTitle_google": {
-    "message": "Google",
+    "message": "Google Images",
     "description": "Title of the menu item."
   },
 
@@ -476,7 +476,7 @@
   },
 
   "menuItemTitle_googleLens": {
-    "message": "Google Lens",
+    "message": "Google",
     "description": "Title of the menu item."
   },
 
@@ -1356,11 +1356,6 @@
 
   "error_optionsNotApplied": {
     "message": "Restart the browser for changes to take effect.",
-    "description": "Error message."
-  },
-
-  "error_engineSafariOutdated": {
-    "message": "The search engine is only supported in Safari 16.4 or later.",
     "description": "Error message."
   },
 

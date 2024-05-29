@@ -6,12 +6,15 @@ const {VueLoaderPlugin} = require('vue-loader');
 const {VuetifyPlugin} = require('webpack-plugin-vuetify');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const appVersion = require('./package.json').version;
 const storageRevisions = require('./src/storage/config.json').revisions;
 
 const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
 const enableContributions =
   (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
+
+const mv3 = ['chrome'].includes(targetEnv);
 
 const provideExtApi = !['firefox', 'safari'].includes(targetEnv);
 
@@ -25,10 +28,14 @@ const plugins = [
     'process.env': {
       TARGET_ENV: JSON.stringify(targetEnv),
       STORAGE_REVISION_LOCAL: JSON.stringify(storageRevisions.local.at(-1)),
-      ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString())
+      STORAGE_REVISION_SESSION: JSON.stringify(storageRevisions.session.at(-1)),
+      ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString()),
+      APP_VERSION: JSON.stringify(appVersion),
+      MV3: JSON.stringify(mv3.toString())
     },
     __VUE_OPTIONS_API__: true,
-    __VUE_PROD_DEVTOOLS__: false
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
   }),
   new webpack.ProvidePlugin(provideModules),
   new webpack.NormalModuleReplacementPlugin(/node:/, resource => {

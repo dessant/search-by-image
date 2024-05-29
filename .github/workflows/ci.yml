@@ -54,7 +54,7 @@ jobs:
       - name: Hash artifacts
         run: sha256sum artifacts/*/*
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
