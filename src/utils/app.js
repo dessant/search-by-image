@@ -24,9 +24,11 @@ import {
   getPlatform,
   shareFiles,
   getDayPrecisionEpoch,
+  getExtensionDomain,
   isAndroid,
   getDarkColorSchemeQuery,
-  isValidTab
+  isValidTab,
+  getRandomInt
 } from 'utils/common';
 import {
   targetEnv,
@@ -584,6 +586,35 @@ async function getStartupState({event = ''} = {}) {
   return startup;
 }
 
+function getNetRequestRuleIds({count = 1, reserved = false} = {}) {
+  const ruleIds = [];
+
+  let minValue, maxValue;
+  if (reserved) {
+    minValue = 1;
+    maxValue = 100_000_000;
+  } else {
+    minValue = 100_000_001;
+    maxValue = ['firefox', 'safari'].includes(targetEnv)
+      ? Number.MAX_SAFE_INTEGER
+      : 2_147_483_647;
+  }
+
+  while (true) {
+    const ruleId = getRandomInt(minValue, maxValue);
+
+    if (!ruleIds.includes(ruleId)) {
+      ruleIds.push(ruleId);
+    }
+
+    if (ruleIds.length === count) {
+      break;
+    }
+  }
+
+  return ruleIds;
+}
+
 function getEngineIcon(engine, {variant = ''} = {}) {
   engine = engineIconAlias[engine] || engine;
 
@@ -645,8 +676,13 @@ async function isContextMenuSupported() {
 }
 
 async function checkSearchEngineAccess() {
-  // Check if search engine access is enabled in Opera
-  if (!mv3 && / opr\//i.test(navigator.userAgent)) {
+  if (/ opr\//i.test(navigator.userAgent)) {
+    // Check if the "Allow access to search page results" option
+    // is enabled in Opera. Host access is needed for redirecting a request
+    // with declarativeNetRequest (but not for blocking), so a request is made
+    // with manual redirection. If host access has been granted, the request
+    // does not reach the server and the response type will be 'opaqueredirect'.
+
     const {lastEngineAccessCheck} = await storage.get('lastEngineAccessCheck');
     // run at most once a week
     if (Date.now() - lastEngineAccessCheck > 604800000) {
@@ -654,31 +690,69 @@ async function checkSearchEngineAccess() {
 
       const url = 'https://www.google.com/generate_204';
 
-      const hasAccess = await new Promise(resolve => {
-        let access = false;
+      let hasAccess = false;
 
-        function requestCallback() {
-          access = true;
-          removeCallback();
-          return {cancel: true};
+      if (mv3) {
+        const ruleIds = getNetRequestRuleIds({reserved: true});
+
+        await browser.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: ruleIds,
+          addRules: [
+            {
+              id: ruleIds[0],
+              action: {
+                type: 'redirect',
+                redirect: {
+                  transform: {path: ''}
+                }
+              },
+              condition: {
+                urlFilter: url,
+                initiatorDomains: [getExtensionDomain()],
+                resourceTypes: ['xmlhttprequest']
+              }
+            }
+          ]
+        });
+
+        const rsp = await fetch(url, {
+          redirect: 'manual',
+          credentials: 'omit'
+        }).catch(err => null);
+
+        if (rsp && rsp.type === 'opaqueredirect') {
+          hasAccess = true;
         }
 
-        const removeCallback = function () {
-          window.clearTimeout(timeoutId);
-          browser.webRequest.onBeforeRequest.removeListener(requestCallback);
+        await browser.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: ruleIds
+        });
+      } else {
+        await new Promise(resolve => {
+          function requestCallback() {
+            hasAccess = true;
+            removeCallback();
 
-          resolve(access);
-        };
-        const timeoutId = window.setTimeout(removeCallback, 3000); // 3 seconds
+            return {cancel: true};
+          }
 
-        browser.webRequest.onBeforeRequest.addListener(
-          requestCallback,
-          {urls: [url], types: ['xmlhttprequest']},
-          ['blocking']
-        );
+          const removeCallback = function () {
+            self.clearTimeout(timeoutId);
+            browser.webRequest.onBeforeRequest.removeListener(requestCallback);
 
-        fetch(url).catch(err => null);
-      });
+            resolve();
+          };
+          const timeoutId = self.setTimeout(removeCallback, 3000); // 3 seconds
+
+          browser.webRequest.onBeforeRequest.addListener(
+            requestCallback,
+            {urls: [url], types: ['xmlhttprequest']},
+            ['blocking']
+          );
+
+          fetch(url).catch(err => null);
+        });
+      }
 
       if (!hasAccess) {
         await showNotification({messageId: 'error_noSearchEngineAccess'});
@@ -2050,6 +2124,7 @@ export {
   isSessionStartup,
   isStartup,
   getStartupState,
+  getNetRequestRuleIds,
   getEngineIcon,
   getEngineMenuIcon,
   handleActionEscapeKey,
