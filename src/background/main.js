@@ -28,6 +28,7 @@ import {
   processAppUse,
   setAppVersion,
   getStartupState,
+  getNetRequestRuleIds,
   getAppTheme,
   showPage,
   getOpenerTabId
@@ -42,7 +43,6 @@ import {
   getActiveTab,
   dataUrlToBlob,
   blobToDataUrl,
-  getRandomInt,
   isAndroid,
   isMobile,
   getPlatform,
@@ -65,7 +65,7 @@ async function addContentRequestListener({
   token
 } = {}) {
   if (mv3) {
-    const ruleId = getRandomInt(1, 5000) + tabId;
+    const ruleId = getNetRequestRuleIds()[0];
 
     const ruleAction = {type: 'modifyHeaders'};
 
@@ -266,7 +266,7 @@ async function removeContentRequestListener({ruleId} = {}) {
 }
 
 async function setUserAgentHeader({tabId, tabUrl, userAgent} = {}) {
-  const ruleId = getRandomInt(1, 5000) + tabId;
+  const ruleId = getNetRequestRuleIds()[0];
 
   if (targetEnv === 'safari') {
     await browser.declarativeNetRequest.updateSessionRules({
