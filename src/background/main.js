@@ -394,21 +394,21 @@ async function removeMenuItem(menuItemId, {throwError = false} = {}) {
 }
 
 async function createMenu() {
-  const menuKey = browser.extension.inIncognitoContext
-    ? 'privateMenuItems'
-    : 'menuItems';
+  const context = {
+    name: 'private',
+    active: browser.extension.inIncognitoContext
+  };
 
-  const {showInContextMenu, [menuKey]: currentItems} = await storage.get([
-    'showInContextMenu',
-    menuKey
-  ]);
+  const {menuItems: currentItems} = await storage.get('menuItems', {context});
 
   for (const itemId of currentItems) {
     await removeMenuItem(itemId);
   }
 
+  const {showInContextMenu} = await storage.get('showInContextMenu');
   const newItems = showInContextMenu ? await getMenuItems() : [];
-  await storage.set({[menuKey]: newItems.map(item => item.id)});
+
+  await storage.set({menuItems: newItems.map(item => item.id)}, {context});
 
   try {
     for (const item of newItems) {

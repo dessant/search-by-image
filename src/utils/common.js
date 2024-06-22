@@ -754,6 +754,14 @@ function getRandomString(length) {
   return text;
 }
 
+function capitalizeFirstLetter(string, {locale = 'en-US'} = {}) {
+  return string.replace(/^\p{CWU}/u, char => char.toLocaleUpperCase(locale));
+}
+
+function lowercaseFirstLetter(string, {locale = 'en-US'} = {}) {
+  return string.replace(/^\p{CWL}/u, char => char.toLocaleLowerCase(locale));
+}
+
 function* splitAsciiString(string, maxBytes) {
   let start = 0;
   while (start < string.length) {
@@ -853,6 +861,8 @@ export {
   blobToDataUrl,
   getRandomInt,
   getRandomString,
+  capitalizeFirstLetter,
+  lowercaseFirstLetter,
   splitAsciiString,
   stringToInt,
   getAbsoluteUrl,
