@@ -1,4 +1,4 @@
-import {findNode, isMobile} from 'utils/common';
+import {findNode, isMobile, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'sogou';
@@ -22,4 +22,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

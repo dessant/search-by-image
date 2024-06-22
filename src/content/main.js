@@ -5,10 +5,10 @@ import {
   getAppTheme,
   addThemeListener
 } from 'utils/app';
-import {addCssClass} from 'utils/common';
+import {addCssClass, runOnce} from 'utils/common';
 import {targetEnv} from 'utils/config';
 
-var contentStorage = {
+const contentStorage = {
   viewFrame: null,
   viewFrameId: 0,
   viewMessagePort: null,
@@ -163,13 +163,15 @@ async function configTheme(viewFrame) {
   await setTheme();
 }
 
-self.initContent = function () {
+function main() {
   addViewFrame();
 
   browser.runtime.onMessage.addListener(onMessage);
   if (targetEnv !== 'firefox') {
     browser.runtime.onConnect.addListener(onConnect);
   }
-};
+}
 
-initContent();
+if (runOnce('contentModule')) {
+  main();
+}

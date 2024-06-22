@@ -1,4 +1,4 @@
-import {findNode, makeDocumentVisible} from 'utils/common';
+import {findNode, makeDocumentVisible, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'depositphotos';
@@ -28,4 +28,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

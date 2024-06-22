@@ -255,9 +255,9 @@ function getListItems(data, {scope = '', shortScope = ''} = {}) {
 async function hasModule({tabId, frameId = 0, module, insert = false} = {}) {
   try {
     const [isModule] = await executeScript({
-      func: name => typeof self[`${name}Module`] !== 'undefined',
+      func: module => self.runStore?.[`${module}Module`],
       args: [module],
-      code: `typeof ${module}Module !== 'undefined'`,
+      code: `self.runStore?.['${module}Module']`,
       tabId,
       frameIds: [frameId]
     });
@@ -273,7 +273,9 @@ async function hasModule({tabId, frameId = 0, module, insert = false} = {}) {
     if (isModule || insert) {
       return true;
     }
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 
   return false;
 }

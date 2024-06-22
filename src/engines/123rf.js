@@ -1,4 +1,5 @@
 import {validateUrl} from 'utils/app';
+import {runOnce} from 'utils/common';
 import {initSearch, prepareImageForUpload, sendReceipt} from 'utils/engines';
 
 const engine = '123rf';
@@ -45,4 +46,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

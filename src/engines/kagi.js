@@ -1,4 +1,4 @@
-import {findNode} from 'utils/common';
+import {findNode, runOnce} from 'utils/common';
 import {initSearch, setFileInputData, sendReceipt} from 'utils/engines';
 
 const engine = 'kagi';
@@ -47,4 +47,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

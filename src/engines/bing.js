@@ -1,4 +1,4 @@
-import {findNode, isMobile} from 'utils/common';
+import {findNode, isMobile, runOnce} from 'utils/common';
 import {
   initSearch,
   prepareImageForUpload,
@@ -59,4 +59,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

@@ -1,4 +1,4 @@
-import {findNode} from 'utils/common';
+import {findNode, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pixta';
@@ -34,4 +34,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

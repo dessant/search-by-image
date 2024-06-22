@@ -1,4 +1,4 @@
-import {findNode, processNode, sleep} from 'utils/common';
+import {findNode, processNode, runOnce, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'googleLens';
@@ -62,4 +62,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

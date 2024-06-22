@@ -1,4 +1,4 @@
-import {findNode, sleep} from 'utils/common';
+import {findNode, runOnce, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'getty';
@@ -29,4 +29,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

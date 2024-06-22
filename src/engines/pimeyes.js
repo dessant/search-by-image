@@ -1,4 +1,4 @@
-import {findNode, processNode} from 'utils/common';
+import {findNode, processNode, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pimeyes';
@@ -55,4 +55,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

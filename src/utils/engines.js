@@ -98,16 +98,9 @@ async function sendReceipt(storageIds) {
 }
 
 async function initSearch(searchFn, engine, taskId) {
-  // Script may be injected multiple times.
-  if (typeof self.task === 'undefined') {
-    self.task = null;
-  } else {
-    return;
-  }
-
   await waitForDocumentLoad();
 
-  self.task = await browser.runtime.sendMessage({
+  const task = await browser.runtime.sendMessage({
     id: 'storageRequest',
     asyncResponse: true,
     storageId: taskId

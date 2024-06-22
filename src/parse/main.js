@@ -22,7 +22,8 @@ import {
   getBlankCanvasDataUrl,
   canvasToDataUrl,
   drawElementOnCanvas,
-  getAbsoluteUrl
+  getAbsoluteUrl,
+  runOnce
 } from 'utils/common';
 import {targetEnv} from 'utils/config';
 
@@ -365,7 +366,7 @@ async function parseDocument({root = null, touchRect = null, session} = {}) {
 }
 
 async function parse(session) {
-  if (typeof baseModule === 'undefined') {
+  if (!self.runStore?.baseModule) {
     throw new Error('Base module missing');
   }
 
@@ -408,7 +409,7 @@ async function parse(session) {
   return processResults(results, session);
 }
 
-self.initParse = async function (session) {
+async function initParse(session) {
   try {
     const images = await parse(session);
 
@@ -442,7 +443,7 @@ self.initParse = async function (session) {
 
     throw err;
   }
-};
+}
 
 function onMessage(request, sender) {
   // Samsung Internet 13: extension messages are sometimes also dispatched
@@ -456,4 +457,10 @@ function onMessage(request, sender) {
   }
 }
 
-browser.runtime.onMessage.addListener(onMessage);
+function main() {
+  browser.runtime.onMessage.addListener(onMessage);
+}
+
+if (runOnce('parseModule')) {
+  main();
+}

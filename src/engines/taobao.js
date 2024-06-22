@@ -1,4 +1,4 @@
-import {findNode, executeScriptMainContext} from 'utils/common';
+import {findNode, executeScriptMainContext, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'taobao';
@@ -27,4 +27,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

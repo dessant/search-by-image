@@ -1,4 +1,4 @@
-import {findNode, makeDocumentVisible, sleep} from 'utils/common';
+import {findNode, makeDocumentVisible, runOnce, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'immerse';
@@ -23,4 +23,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

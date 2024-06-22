@@ -2,7 +2,8 @@ import {
   findNode,
   processNode,
   isMobile,
-  executeScriptMainContext
+  executeScriptMainContext,
+  runOnce
 } from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 import {targetEnv} from 'utils/config';
@@ -39,4 +40,6 @@ function init() {
   initSearch(search, engine, taskId);
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

@@ -712,13 +712,7 @@ async function openContentView(message, view) {
     return;
   }
 
-  const [isContentModule] = await executeScript({
-    func: () => typeof initContent !== 'undefined',
-    code: `typeof initContent !== 'undefined'`,
-    tabId
-  });
-
-  if (!isContentModule) {
+  if (!(await hasModule({tabId, module: 'content'}))) {
     await executeScript({files: ['/src/content/script.js'], tabId});
   }
 
@@ -1043,7 +1037,7 @@ async function execEngine(tabId, engine, taskId) {
   await executeScript({
     func: taskId => (self.taskId = taskId),
     args: [taskId],
-    code: `var taskId = '${taskId}';`,
+    code: `self.taskId = '${taskId}'`,
     tabId
   });
   await executeScript({files: ['/src/commons-engine/script.js'], tabId});
@@ -1051,12 +1045,12 @@ async function execEngine(tabId, engine, taskId) {
 }
 
 async function searchClickTarget(session) {
-  const [isParseModule] = await executeScript({
-    func: () => typeof initParse !== 'undefined',
-    code: `typeof initParse !== 'undefined'`,
+  const isParseModule = await hasModule({
     tabId: session.sourceTabId,
-    frameIds: [session.sourceFrameId]
+    frameId: session.sourceFrameId,
+    module: 'parse'
   });
+
   if (!isParseModule) {
     await executeScript({
       files: ['/src/parse/script.js'],

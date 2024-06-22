@@ -4,7 +4,8 @@ import {validateUrl, getContentXHR} from 'utils/app';
 import {
   findNode,
   makeDocumentVisible,
-  executeScriptMainContext
+  executeScriptMainContext,
+  runOnce
 } from 'utils/common';
 import {
   initSearch,
@@ -171,4 +172,6 @@ function init() {
   }
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}

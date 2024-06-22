@@ -1,14 +1,8 @@
 import storage from 'storage/storage';
 import {isIncomingShareContext, processIncomingShare} from 'utils/app';
+import {runOnce} from 'utils/common';
 
 function main() {
-  // Script may be injected multiple times.
-  if (self.baseModule) {
-    return;
-  } else {
-    self.baseModule = true;
-  }
-
   self.touchTarget = {
     node: null,
     dx: 0,
@@ -156,4 +150,6 @@ function main() {
   }
 }
 
-main();
+if (runOnce('baseModule')) {
+  main();
+}

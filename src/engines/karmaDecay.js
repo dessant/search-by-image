@@ -1,4 +1,4 @@
-import {findNode} from 'utils/common';
+import {findNode, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'karmaDecay';
@@ -24,4 +24,6 @@ function init() {
   }
 }
 
-init();
+if (runOnce('search')) {
+  init();
+}
