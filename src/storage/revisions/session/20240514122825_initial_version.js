@@ -5,7 +5,8 @@ const revision = '20240514122825_initial_version';
 async function upgrade() {
   const changes = {
     platformInfo: null,
-    setContextMenuEvent: 0
+    menuChangeEvent: 0,
+    privateMenuChangeEvent: 0
   };
 
   changes.storageVersion = revision;

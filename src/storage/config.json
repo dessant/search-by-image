@@ -52,10 +52,9 @@
       "20231009185955_remove_unsplash",
       "20231102164602_add_icons8",
       "20240514170322_add_appversion",
-      "20240529183556_update_search_engines"
+      "20240529183556_update_search_engines",
+      "20240619180111_add_menuchangeevent"
     ],
-    "session": [
-      "20240514122825_initial_version"
-    ]
+    "session": ["20240514122825_initial_version"]
   }
 }
