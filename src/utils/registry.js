@@ -1,14 +1,100 @@
 import {v4 as uuidv4} from 'uuid';
-import {get as getIDB, set as setIDB, del as delIDB} from 'idb-keyval';
+import {
+  get as getIDB,
+  set as setIDB,
+  del as delIDB,
+  createStore as createIDBStore
+} from 'idb-keyval';
 import Queue from 'p-queue';
 
 import storage from 'storage/storage';
-import {targetEnv} from 'utils/config';
 
 const storageQueue = new Queue({concurrency: 1});
 const registryQueue = new Queue({concurrency: 1});
 
-const dataStorage = {};
+class RegistryStore {
+  constructor() {
+    this.idbStore = null;
+    this.memoryStore = null;
+  }
+
+  initStore({area = '', force = false} = {}) {
+    if (area === 'indexeddb') {
+      if (!this.idbStore || force) {
+        this.idbStore = createIDBStore('keyval-store', 'keyval');
+      }
+    } else if (area === 'memory') {
+      if (!this.memoryStore) {
+        this.memoryStore = {};
+      }
+    }
+  }
+
+  handleError(err, {area = ''} = {}) {
+    if (
+      area === 'indexeddb' &&
+      err?.message?.includes('connection is closing')
+    ) {
+      console.log('IndexedDB error:', err.message);
+
+      this.initStore({area, force: true});
+    } else {
+      throw err;
+    }
+  }
+
+  async get(key, {area = ''} = {}) {
+    this.initStore({area});
+
+    if (area === 'indexeddb') {
+      try {
+        return await getIDB(key, this.idbStore);
+      } catch (err) {
+        this.handleError(err, {area});
+      }
+    } else if (area === 'local') {
+      return (await storage.get(key))[key];
+    } else if (area === 'memory') {
+      return this.memoryStore[key];
+    }
+  }
+
+  async set(key, value, {area = ''} = {}) {
+    this.initStore({area});
+
+    if (area === 'indexeddb') {
+      try {
+        await setIDB(key, value, this.idbStore);
+      } catch (err) {
+        this.handleError(err, {area});
+
+        await setIDB(key, value, this.idbStore);
+      }
+    } else if (area === 'local') {
+      await storage.set({[key]: value});
+    } else if (area === 'memory') {
+      this.memoryStore[key] = value;
+    }
+  }
+
+  async remove(key, {area = ''} = {}) {
+    this.initStore({area});
+
+    if (area === 'indexeddb') {
+      try {
+        await delIDB(key, this.idbStore);
+      } catch (err) {
+        this.handleError(err, {area});
+      }
+    } else if (area === 'local') {
+      await storage.remove(key);
+    } else if (area === 'memory') {
+      delete this.memoryStore[key];
+    }
+  }
+}
+
+const registryStore = new RegistryStore();
 
 function getStorageItemKeys(storageId) {
   return {metadataKey: `metadata_${storageId}`, dataKey: `data_${storageId}`};
@@ -23,17 +109,12 @@ async function _getStorageItem({
   const {metadataKey, dataKey} = getStorageItemKeys(storageId);
 
   if (metadata) {
-    ({[metadataKey]: {value: metadata} = {}} = await storage.get(metadataKey));
+    ({value: metadata} =
+      (await registryStore.get(metadataKey, {area: 'local'})) || {});
   }
 
   if (data) {
-    if (area === 'local') {
-      ({[dataKey]: {value: data} = {}} = await storage.get(dataKey));
-    } else if (area === 'indexeddb') {
-      ({value: data} = await getIDB(dataKey));
-    } else if (area === 'memory') {
-      ({value: data} = dataStorage[dataKey]);
-    }
+    ({value: data} = (await registryStore.get(dataKey, {area})) || {});
   }
 
   return {metadata, data};
@@ -48,17 +129,11 @@ async function _setStorageItem({
   const {metadataKey, dataKey} = getStorageItemKeys(storageId);
 
   if (metadata !== null) {
-    await storage.set({[metadataKey]: {value: metadata}});
+    await registryStore.set(metadataKey, {value: metadata}, {area: 'local'});
   }
 
   if (data !== null) {
-    if (area === 'local') {
-      await storage.set({[dataKey]: {value: data}});
-    } else if (area === 'indexeddb') {
-      await setIDB(dataKey, {value: data});
-    } else if (area === 'memory') {
-      dataStorage[dataKey] = {value: data};
-    }
+    await registryStore.set(dataKey, {value: data}, {area});
   }
 }
 
@@ -71,17 +146,11 @@ async function _removeStorageItem({
   const {metadataKey, dataKey} = getStorageItemKeys(storageId);
 
   if (metadata) {
-    await storage.remove(metadataKey);
+    await registryStore.remove(metadataKey, {area: 'local'});
   }
 
   if (data) {
-    if (area === 'local') {
-      await storage.remove(dataKey);
-    } else if (area === 'indexeddb') {
-      await delIDB(dataKey);
-    } else if (area === 'memory') {
-      delete dataStorage[dataKey];
-    }
+    await registryStore.remove(dataKey, {area});
   }
 }
 
@@ -95,10 +164,6 @@ async function addStorageItem(
     isTask = false
   } = {}
 ) {
-  if (area === 'indexeddb' && !['firefox', 'safari'].includes(targetEnv)) {
-    area = 'memory';
-  }
-
   const storageId = token || uuidv4();
   const addTime = Date.now();
   const metadata = {area, addTime, receipts, alarms: [], isTask};
