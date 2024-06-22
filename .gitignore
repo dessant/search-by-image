@@ -6,7 +6,7 @@
 /report.json
 /report.html
 
-/web-ext-config.js
+/web-ext-config.mjs
 
 node_modules/
 /npm-debug.log
