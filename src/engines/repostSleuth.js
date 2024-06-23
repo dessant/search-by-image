@@ -26,11 +26,12 @@ async function search({session, search, image, storageIds}) {
     input.dispatchEvent(new Event('input'));
   }
 
-  (
-    await findNode('.v-main button.primary:not(.v-btn--disabled)', {
-      observerOptions: {attributes: true, attributeFilter: ['class']}
-    })
-  ).click();
+  const button = await findNode(
+    '.v-main button.primary:not(.v-btn--disabled)',
+    {observerOptions: {attributes: true, attributeFilter: ['class']}}
+  );
+
+  window.setTimeout(() => button.click(), 300);
 }
 
 function init() {
