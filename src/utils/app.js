@@ -791,6 +791,9 @@ function normalizeImageFilename({name, type} = {}) {
 
         if (currentType !== type) {
           name = name.replace(new RegExp(`${currentExt}$`, 'i'), newExt);
+        } else if (!name.endsWith(currentExt)) {
+          // convert file extension to lowercase
+          name = name.replace(new RegExp(`${currentExt}$`, 'i'), currentExt);
         }
       } else {
         name = `${name}.${newExt}`;
