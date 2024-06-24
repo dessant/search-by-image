@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.1.0](https://github.com/dessant/search-by-image/compare/v7.0.0...v7.1.0) (2024-06-24)
+
+
+### Features
+
+* add storage context ([26252fe](https://github.com/dessant/search-by-image/commit/26252feee9c1f55c0d38937bb514c4317fd11085))
+* upgrade to Manifest V3 in Edge and Opera ([32549ad](https://github.com/dessant/search-by-image/commit/32549ad7108072378b08c55f41b9e7a7a9cf94a3))
+
+
+### Bug Fixes
+
+* check search engine access in MV3 ([f3c053e](https://github.com/dessant/search-by-image/commit/f3c053eae5f4a66dad239a6ab2ff871462b1daa5))
+* convert file extension to lowercase before image upload ([2d40193](https://github.com/dessant/search-by-image/commit/2d401930adedc1b202e18e975b0a2031f88d8340))
+* recover from error during context menu setup ([467eb4f](https://github.com/dessant/search-by-image/commit/467eb4f62b178c57c4e8aa1b9e2785abef84dfe5))
+* remove broken search engines ([4d6d554](https://github.com/dessant/search-by-image/commit/4d6d5548424ff236ee681305df005de5e7e96f56)), closes [#313](https://github.com/dessant/search-by-image/issues/313)
+* run content scripts only once ([40aa16f](https://github.com/dessant/search-by-image/commit/40aa16f3979b1d399ac9b5402959a6a30d5ac87d))
+* update Reddit Repost Sleuth ([48e6e4a](https://github.com/dessant/search-by-image/commit/48e6e4a08769cfa98f6353b530ca265839f8e5bf))
+* use IndexedDB on all platforms ([5fa6136](https://github.com/dessant/search-by-image/commit/5fa61369cd2385c8f942c62f687c5daeadb0f66d))
+
 ## [7.0.0](https://github.com/dessant/search-by-image/compare/v6.1.2...v7.0.0) (2024-05-29)
 
 
