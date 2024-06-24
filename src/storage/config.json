@@ -53,8 +53,11 @@
       "20231102164602_add_icons8",
       "20240514170322_add_appversion",
       "20240529183556_update_search_engines",
-      "20240619180111_add_menuchangeevent"
+      "20240619180111_add_menuchangeevent",
+      "20240624161944_remove_search_engines"
     ],
-    "session": ["20240514122825_initial_version"]
+    "session": [
+      "20240514122825_initial_version"
+    ]
   }
 }

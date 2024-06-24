@@ -224,26 +224,6 @@
     "description": "Name of the search engine."
   },
 
-  "engineName_haveibeentrained": {
-    "message": "Have I Been Trained?",
-    "description": "Name of the search engine."
-  },
-
-  "engineName_enterpix": {
-    "message": "Enterpix",
-    "description": "Name of the search engine."
-  },
-
-  "engineName_immerse": {
-    "message": "Immerse",
-    "description": "Name of the search engine."
-  },
-
-  "engineName_clipretrieval": {
-    "message": "Clip Retrieval",
-    "description": "Name of the search engine."
-  },
-
   "engineName_freepik": {
     "message": "Freepik",
     "description": "Name of the search engine."
@@ -487,26 +467,6 @@
 
   "menuItemTitle_kagi": {
     "message": "Kagi",
-    "description": "Title of the menu item."
-  },
-
-  "menuItemTitle_haveibeentrained": {
-    "message": "Have I Been Trained?",
-    "description": "Title of the menu item."
-  },
-
-  "menuItemTitle_enterpix": {
-    "message": "Enterpix",
-    "description": "Title of the menu item."
-  },
-
-  "menuItemTitle_immerse": {
-    "message": "Immerse",
-    "description": "Title of the menu item."
-  },
-
-  "menuItemTitle_clipretrieval": {
-    "message": "Clip Retrieval",
     "description": "Title of the menu item."
   },
 
@@ -773,26 +733,6 @@
 
   "optionTitle_kagi": {
     "message": "Kagi Search",
-    "description": "Title of the option."
-  },
-
-  "optionTitle_haveibeentrained": {
-    "message": "Have I Been Trained?",
-    "description": "Title of the option."
-  },
-
-  "optionTitle_enterpix": {
-    "message": "Enterpix",
-    "description": "Title of the option."
-  },
-
-  "optionTitle_immerse": {
-    "message": "Immerse",
-    "description": "Title of the option."
-  },
-
-  "optionTitle_clipretrieval": {
-    "message": "Clip Retrieval",
     "description": "Title of the option."
   },
 
