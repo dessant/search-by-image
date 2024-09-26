@@ -31,7 +31,8 @@ import {
   getNetRequestRuleIds,
   getAppTheme,
   showPage,
-  getOpenerTabId
+  getOpenerTabId,
+  addTabRevision
 } from 'utils/app';
 import {
   getText,
@@ -1614,6 +1615,13 @@ async function processMessage(request, sender) {
     }
 
     return executeScript(params);
+  } else if (request.id === 'addStorageItem') {
+    const storageId = await registry.addStorageItem(
+      request.data,
+      request.params
+    );
+
+    return Promise.resolve(storageId);
   }
 }
 
@@ -1623,7 +1631,11 @@ async function processConnection(port) {
 
     await setMessagePort(id, port);
 
-    port.postMessage({transfer: {type: 'connection', complete: true, id}});
+    // Safari 18: messages sent from the runtime.onConnect event handler
+    // are no longer delivered, the message needs to be delayed.
+    self.setTimeout(function () {
+      port.postMessage({transfer: {type: 'connection', complete: true, id}});
+    }, 100);
   }
 }
 
@@ -1681,6 +1693,10 @@ async function onStartup() {
   await setup({event: 'startup'});
 }
 
+async function onTabReplaced(addedTabId, removedTabId) {
+  await addTabRevision({addedTabId, removedTabId});
+}
+
 function addContextMenuListener() {
   if (browser.contextMenus) {
     browser.contextMenus.onClicked.addListener(onContextMenuItemClick);
@@ -1717,6 +1733,14 @@ function addInstallListener() {
 
 function addStartupListener() {
   browser.runtime.onStartup.addListener(onStartup);
+}
+
+function addTabReplacedListener() {
+  // Safari 18: tabId changes when an extension page is redirected
+  // to a website, changes are saved to assign tasks to the correct tab.
+  if (['safari'].includes(targetEnv)) {
+    browser.tabs.onReplaced.addListener(onTabReplaced);
+  }
 }
 
 async function setupUI() {
@@ -1775,6 +1799,7 @@ function init() {
   addAlarmListener();
   addInstallListener();
   addStartupListener();
+  addTabReplacedListener();
 
   setup();
 }

@@ -6,7 +6,8 @@ async function upgrade() {
   const changes = {
     platformInfo: null,
     menuChangeEvent: 0,
-    privateMenuChangeEvent: 0
+    privateMenuChangeEvent: 0,
+    tabRevisions: []
   };
 
   changes.storageVersion = revision;

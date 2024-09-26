@@ -818,6 +818,15 @@ function runOnce(name, func) {
   }
 }
 
+async function requestLock(name, func, {timeout = 60000} = {}) {
+  const params = [name];
+  if (timeout) {
+    params.push({signal: AbortSignal.timeout(timeout)});
+  }
+
+  return navigator.locks.request(...params, func);
+}
+
 function sleep(ms) {
   return new Promise(resolve => self.setTimeout(resolve, ms));
 }
@@ -871,5 +880,6 @@ export {
   filenameToFileExt,
   getStore,
   runOnce,
+  requestLock,
   sleep
 };

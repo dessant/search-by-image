@@ -25,6 +25,7 @@
 import Cropper from 'cropperjs';
 import {App, Button, IconButton, Snackbar} from 'vueton';
 
+import {validateId} from 'utils/app';
 import {getText} from 'utils/common';
 
 export default {
@@ -60,6 +61,31 @@ export default {
     setup: async function () {
       if (this.$env.isFirefox) {
         browser.runtime.onMessage.addListener(this.onMessage);
+
+        browser.runtime.sendMessage({
+          id: 'routeMessage',
+          setSenderFrameId: true,
+          messageFrameId: 0,
+          message: {id: 'saveFrameId'}
+        });
+      } else if (this.$env.isSafari) {
+        window.addEventListener('message', async ev => {
+          const messageId = ev.data;
+
+          if (validateId(messageId)) {
+            const message = await browser.runtime.sendMessage({
+              id: 'storageRequest',
+              asyncResponse: true,
+              saveReceipt: true,
+              storageId: messageId
+            });
+
+            if (message) {
+              this.onMessage(message);
+            }
+          }
+        });
+
         browser.runtime.sendMessage({
           id: 'routeMessage',
           setSenderFrameId: true,

@@ -28,7 +28,8 @@ import {
   isAndroid,
   getDarkColorSchemeQuery,
   isValidTab,
-  getRandomInt
+  getRandomInt,
+  requestLock
 } from 'utils/common';
 import {
   targetEnv,
@@ -1821,9 +1822,13 @@ async function sendLargeMessage({
           messagePort = port;
           messagePort.onMessage.addListener(messageCallback);
 
-          messagePort.postMessage({
-            transfer: {type: 'connection', complete: true, id: transferId}
-          });
+          // Safari 18: messages sent from the runtime.onConnect event handler
+          // are no longer delivered, the message needs to be delayed.
+          self.setTimeout(function () {
+            messagePort.postMessage({
+              transfer: {type: 'connection', complete: true, id: transferId}
+            });
+          }, 100);
         }
       };
 
@@ -2100,6 +2105,43 @@ async function requestClipboardReadPermission() {
   return browser.permissions.request({permissions: ['clipboardRead']});
 }
 
+async function addTabRevision({addedTabId, removedTabId} = {}) {
+  return requestLock('tab_revisions', async () => {
+    const {tabRevisions} = await storage.get('tabRevisions', {area: 'session'});
+
+    let entryFound = false;
+
+    for (const tabIds of tabRevisions) {
+      if (tabIds.includes(removedTabId)) {
+        tabIds.push(addedTabId);
+
+        entryFound = true;
+        break;
+      }
+    }
+
+    if (!entryFound) {
+      tabRevisions.push([removedTabId, addedTabId]);
+    }
+
+    await storage.set({tabRevisions}, {area: 'session'});
+  });
+}
+
+async function getTabRevisions(tabId) {
+  return requestLock('tab_revisions', async () => {
+    const {tabRevisions} = await storage.get('tabRevisions', {area: 'session'});
+
+    for (const tabIds of tabRevisions) {
+      if (tabIds.includes(tabId)) {
+        return tabIds;
+      }
+    }
+
+    return null;
+  });
+}
+
 export {
   getEnabledEngines,
   getSupportedEngines,
@@ -2190,5 +2232,7 @@ export {
   getMaxExtensionMessageSize,
   getMaxDataUrlSize,
   hasClipboardReadPermission,
-  requestClipboardReadPermission
+  requestClipboardReadPermission,
+  addTabRevision,
+  getTabRevisions
 };

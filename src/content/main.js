@@ -89,11 +89,27 @@ async function sendQueuedMessage() {
 
 async function messageView(message) {
   if (contentStorage.viewFrameId) {
-    await browser.runtime.sendMessage({
-      id: 'routeMessage',
-      messageFrameId: contentStorage.viewFrameId,
-      message
-    });
+    if (targetEnv === 'safari') {
+      const messageId = await browser.runtime.sendMessage({
+        id: 'addStorageItem',
+        data: message,
+        params: {
+          receipts: {expected: 1, received: 0},
+          expiryTime: 1.0,
+          area: 'memory'
+        }
+      });
+
+      contentStorage.viewFrame.contentWindow.postMessage(messageId, {
+        targetOrigin: browser.runtime.getURL('/')
+      });
+    } else {
+      await browser.runtime.sendMessage({
+        id: 'routeMessage',
+        messageFrameId: contentStorage.viewFrameId,
+        message
+      });
+    }
   } else if (contentStorage.viewMessagePort) {
     await sendLargeMessage({
       target: 'port',
@@ -167,7 +183,7 @@ function main() {
   addViewFrame();
 
   browser.runtime.onMessage.addListener(onMessage);
-  if (targetEnv !== 'firefox') {
+  if (!['firefox', 'safari'].includes(targetEnv)) {
     browser.runtime.onConnect.addListener(onConnect);
   }
 }

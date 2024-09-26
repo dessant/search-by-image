@@ -8,6 +8,8 @@ import {
 import Queue from 'p-queue';
 
 import storage from 'storage/storage';
+import {getTabRevisions} from 'utils/app';
+import {targetEnv} from 'utils/config';
 
 const storageQueue = new Queue({concurrency: 1});
 const registryQueue = new Queue({concurrency: 1});
@@ -240,29 +242,6 @@ async function saveStorageItemReceipt({storageId} = {}) {
   });
 }
 
-async function aquireLock({name, expiryTime = 1.0} = {}) {
-  name = await storageQueue.add(async function () {
-    if (!name) {
-      name = uuidv4();
-    }
-
-    const token = `lock_${name}`;
-
-    const {metadata} = await _getStorageItem({
-      storageId: token,
-      metadata: true
-    });
-
-    if (!metadata) {
-      await addStorageItem('', {token, expiryTime});
-
-      return name;
-    }
-  });
-
-  return name;
-}
-
 async function addStorageRegistryItem({storageId, addTime} = {}) {
   await registryQueue.add(async function () {
     const {storageRegistry} = await storage.get('storageRegistry');
@@ -298,7 +277,21 @@ async function getTaskRegistryItem({taskId, tabId} = {}) {
   const {taskRegistry} = await storage.get('taskRegistry');
 
   if (tabId) {
-    const tab = taskRegistry.tabs[tabId];
+    let tab = taskRegistry.tabs[tabId];
+
+    if (!tab && ['safari'].includes(targetEnv)) {
+      const tabRevisions = await getTabRevisions(tabId);
+
+      if (tabRevisions) {
+        for (const revision of tabRevisions) {
+          tab = taskRegistry.tabs[revision];
+
+          if (tab) {
+            break;
+          }
+        }
+      }
+    }
 
     if (tab) {
       return {
@@ -377,6 +370,5 @@ export default {
   saveStorageItemReceipt,
   addTaskRegistryItem,
   getTaskRegistryItem,
-  cleanupRegistry,
-  aquireLock
+  cleanupRegistry
 };
