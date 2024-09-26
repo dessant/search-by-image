@@ -375,11 +375,9 @@ function getDayPrecisionEpoch(epoch) {
 }
 
 function isBackgroundPageContext() {
-  const backgroundUrl = mv3
-    ? browser.runtime.getURL('/src/background/script.js')
-    : browser.runtime.getURL('/src/background/index.html');
-
-  return self.location.href === backgroundUrl;
+  return self.location.href.startsWith(
+    browser.runtime.getURL('/src/background/')
+  );
 }
 
 function getExtensionDomain() {

@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "version": "0.1.0",
@@ -9,7 +9,7 @@
 
   "browser_specific_settings": {
     "safari": {
-      "strict_min_version": "16.4"
+      "strict_min_version": "17.0"
     }
   },
 
@@ -22,9 +22,11 @@
     "activeTab",
     "nativeMessaging",
     "webNavigation",
-    "<all_urls>",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "scripting"
   ],
+
+  "host_permissions": ["<all_urls>"],
 
   "icons": {
     "16": "src/assets/icons/app/icon-16.png",
@@ -41,7 +43,7 @@
     "1024": "src/assets/icons/app/icon-1024.png"
   },
 
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "src/assets/icons/app/icon-16.png",
       "19": "src/assets/icons/app/icon-19.png",
@@ -74,10 +76,15 @@
   ],
 
   "web_accessible_resources": [
-    "src/content/style.css",
-    "src/select/pointer.css",
-    "src/select/index.html",
-    "src/capture/index.html",
-    "src/confirm/index.html"
+    {
+      "resources": [
+        "src/content/style.css",
+        "src/select/pointer.css",
+        "src/select/index.html",
+        "src/capture/index.html",
+        "src/confirm/index.html"
+      ],
+      "matches": ["http://*/*", "https://*/*"]
+    }
   ]
 }
