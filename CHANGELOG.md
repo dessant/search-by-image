@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.0.0](https://github.com/dessant/search-by-image/compare/v7.1.0...v8.0.0) (2024-09-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* browser versions older than Safari 17
+are no longer supported
+
+### Features
+
+* upgrade to Manifest V3 in Safari ([f46b754](https://github.com/dessant/search-by-image/commit/f46b75440f745438dc496b1a1c4dcf6a5b4fdc3e))
+
+
+### Bug Fixes
+
+* restore compatibility with Safari 18 ([2de3409](https://github.com/dessant/search-by-image/commit/2de34092fe62cdb235a8fb6eca7daf7c2db8981d))
+
 ## [7.1.0](https://github.com/dessant/search-by-image/compare/v7.0.0...v7.1.0) (2024-06-24)
 
 
