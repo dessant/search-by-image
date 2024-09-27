@@ -17,9 +17,13 @@ function insertCSS({
   origin = 'USER'
 }) {
   if (mv3) {
-    const params = {target: {tabId, allFrames}};
+    const params = {target: {tabId}};
 
-    if (!allFrames) {
+    // Safari 17: allFrames and frameIds cannot both be specified,
+    // fixed in Safari 18.
+    if (allFrames) {
+      params.target.allFrames = true;
+    } else {
       params.target.frameIds = frameIds;
     }
 
@@ -61,9 +65,13 @@ async function executeScript({
   code = ''
 }) {
   if (mv3) {
-    const params = {target: {tabId, allFrames}, world};
+    const params = {target: {tabId}, world};
 
-    if (!allFrames) {
+    // Safari 17: allFrames and frameIds cannot both be specified,
+    // fixed in Safari 18.
+    if (allFrames) {
+      params.target.allFrames = true;
+    } else {
       params.target.frameIds = frameIds;
     }
 
