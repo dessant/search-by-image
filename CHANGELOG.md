@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.0.1](https://github.com/dessant/search-by-image/compare/v8.0.0...v8.0.1) (2024-09-27)
+
+
+### Bug Fixes
+
+* do not set allFrames and frameIds at the same time ([919f504](https://github.com/dessant/search-by-image/commit/919f504b3bfea9539dc1948e615d42c1da098a15))
+
 ## [8.0.0](https://github.com/dessant/search-by-image/compare/v7.1.0...v8.0.0) (2024-09-26)
 
 
