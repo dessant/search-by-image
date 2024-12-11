@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.0.2](https://github.com/dessant/search-by-image/compare/v8.0.1...v8.0.2) (2024-12-11)
+
+
+### Bug Fixes
+
+* update Freepik ([32866a2](https://github.com/dessant/search-by-image/commit/32866a2131cdb3da077034a2081b7d312c05dd60))
+* update Shein ([850b3e3](https://github.com/dessant/search-by-image/commit/850b3e3e212b571e7fbe48f70c768b2abbbdeb21)), closes [#329](https://github.com/dessant/search-by-image/issues/329)
+* update Taobao and Alibaba China ([6258519](https://github.com/dessant/search-by-image/commit/62585192f3281d7c3b6cec914243ba5e7a0f9d3b))
+* update TinEye ([93f9641](https://github.com/dessant/search-by-image/commit/93f9641ffb50a628085cad87da99b3e76fea0d44)), closes [#336](https://github.com/dessant/search-by-image/issues/336)
+
 ## [8.0.1](https://github.com/dessant/search-by-image/compare/v8.0.0...v8.0.1) (2024-09-27)
 
 
