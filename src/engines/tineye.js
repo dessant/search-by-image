@@ -4,7 +4,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'tineye';
 
 async function search({session, search, image, storageIds}) {
-  const inputSelector = 'input#upload_box';
+  const inputSelector = 'input#upload-box';
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
