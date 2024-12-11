@@ -1768,6 +1768,8 @@ async function sendLargeMessage({
   if (openConnection) {
     messagePort = browser.runtime.connect({name: `message_${transferId}`});
 
+    messagePort.postMessage({id: 'safari 18 regression'});
+
     const progress = waitForMessage({
       port: messagePort,
       checkMessage: function (message) {
@@ -1951,6 +1953,8 @@ async function processLargeMessage({
       } else {
         messagePort = browser.runtime.connect({name: transferId});
       }
+
+      messagePort.postMessage({id: 'safari 18 regression'});
 
       const progress = waitForMessage({
         port: messagePort,

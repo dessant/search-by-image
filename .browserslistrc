@@ -14,8 +14,8 @@ FirefoxAndroid >= 115
 Opera >= 109
 
 [safari]
-Safari >= 17.0
-iOS >= 17.0
+Safari >= 17
+iOS >= 17
 
 [samsung]
 Samsung >= 14

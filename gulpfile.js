@@ -1,12 +1,6 @@
 const path = require('node:path');
 const {exec} = require('node:child_process');
-const {
-  lstatSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-  rmSync
-} = require('node:fs');
+const {lstat, readdir, readFile, writeFile, rm} = require('node:fs/promises');
 
 const {series, parallel, src, dest} = require('gulp');
 const postcss = require('gulp-postcss');
@@ -15,7 +9,7 @@ const jsonMerge = require('gulp-merge-json');
 const jsonmin = require('gulp-jsonmin');
 const htmlmin = require('gulp-htmlmin');
 const imagemin = require('gulp-imagemin');
-const {ensureDirSync} = require('fs-extra');
+const {ensureDir} = require('fs-extra');
 const recursiveReadDir = require('recursive-readdir');
 const sharp = require('sharp');
 
@@ -32,20 +26,22 @@ function initEnv() {
   process.env.BROWSERSLIST_ENV = targetEnv;
 }
 
-function init(done) {
+async function init() {
   initEnv();
 
-  rmSync(distDir, {recursive: true, force: true});
-  ensureDirSync(distDir);
-  done();
+  await rm(distDir, {recursive: true, force: true});
+  await ensureDir(distDir);
 }
 
 function js(done) {
-  exec('webpack-cli build --color', function (err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    done(err);
-  });
+  exec(
+    `webpack-cli build --color --env mv3=${mv3}`,
+    function (err, stdout, stderr) {
+      console.log(stdout);
+      console.log(stderr);
+      done(err);
+    }
+  );
 }
 
 function html() {
@@ -78,8 +74,8 @@ function css() {
 }
 
 async function images(done) {
-  ensureDirSync(path.join(distDir, 'src/assets/icons/app'));
-  const appIconSvg = readFileSync('src/assets/icons/app/icon.svg');
+  await ensureDir(path.join(distDir, 'src/assets/icons/app'));
+  const appIconSvg = await readFile('src/assets/icons/app/icon.svg');
   const appIconSizes = [16, 19, 24, 32, 38, 48, 64, 96, 128];
   if (targetEnv === 'safari') {
     appIconSizes.push(256, 512, 1024);
@@ -104,7 +100,7 @@ async function images(done) {
   }
 
   if (targetEnv === 'firefox') {
-    ensureDirSync(path.join(distDir, 'src/assets/icons/engines'));
+    await ensureDir(path.join(distDir, 'src/assets/icons/engines'));
     const pngPaths = await recursiveReadDir('src/assets/icons/engines', [
       '*.!(png)'
     ]);
@@ -177,9 +173,16 @@ async function fonts(done) {
 
 async function locale(done) {
   const localesRootDir = path.join(__dirname, 'src/assets/locales');
-  const localeDirs = readdirSync(localesRootDir).filter(function (file) {
-    return lstatSync(path.join(localesRootDir, file)).isDirectory();
-  });
+  const localeDirs = (
+    await Promise.all(
+      (await readdir(localesRootDir)).map(async function (file) {
+        if ((await lstat(path.join(localesRootDir, file))).isDirectory()) {
+          return file;
+        }
+      })
+    )
+  ).filter(Boolean);
+
   for (const localeDir of localeDirs) {
     const localePath = path.join(localesRootDir, localeDir);
     await new Promise(resolve => {
@@ -228,7 +231,7 @@ function manifest() {
     .pipe(dest(distDir));
 }
 
-function license(done) {
+async function license(done) {
   let year = '2017';
   const currentYear = new Date().getFullYear().toString();
   if (year !== currentYear) {
@@ -240,15 +243,20 @@ Copyright (c) ${year} Armin Sebastian
 `;
 
   if (['safari', 'samsung'].includes(targetEnv)) {
-    writeFileSync(path.join(distDir, 'NOTICE'), notice);
-    done();
+    await writeFile(path.join(distDir, 'NOTICE'), notice);
   } else {
     notice = `${notice}
 This software is released under the terms of the GNU General Public License v3.0.
 See the LICENSE file for further information.
 `;
-    writeFileSync(path.join(distDir, 'NOTICE'), notice);
-    return src('LICENSE').pipe(dest(distDir));
+    await writeFile(path.join(distDir, 'NOTICE'), notice);
+
+    await new Promise(resolve => {
+      src('LICENSE')
+        .pipe(dest(distDir))
+        .on('error', done)
+        .on('finish', resolve);
+    });
   }
 }
 

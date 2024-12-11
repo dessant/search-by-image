@@ -1736,7 +1736,7 @@ function addStartupListener() {
 }
 
 function addTabReplacedListener() {
-  // Safari 18: tabId changes when an extension page is redirected
+  // Safari 18: tab.id changes when an extension page is redirected
   // to a website, changes are saved to assign tasks to the correct tab.
   if (['safari'].includes(targetEnv)) {
     browser.tabs.onReplaced.addListener(onTabReplaced);
