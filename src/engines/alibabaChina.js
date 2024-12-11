@@ -1,19 +1,15 @@
-import {findNode, runOnce} from 'utils/common';
+import {findNode, executeScriptMainContext, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'alibabaChina';
 
 async function search({session, search, image, storageIds}) {
-  const button = await findNode('#img-search-upload', {timeout: 120000});
+  await executeScriptMainContext({func: 'alibabaChinaPatchContextScript'});
 
-  const inputSelector = 'input.react-file-reader-input';
+  const inputSelector = 'input.image-file-reader-wrapper';
   const input = await findNode(inputSelector);
-  input.addEventListener('click', ev => ev.preventDefault(), {
-    capture: true,
-    once: true
-  });
 
-  button.click();
+  input.click();
 
   await setFileInputData(inputSelector, input, image);
 

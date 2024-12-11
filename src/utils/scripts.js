@@ -154,6 +154,31 @@ function lexicaOverrideEventDispatchScript() {
   };
 }
 
+function alibabaChinaPatchContextScript() {
+  const appendChildFn = Element.prototype.appendChild;
+  Element.prototype.appendChild = function (node) {
+    if (node.type === 'file') {
+      node.addEventListener('click', ev => ev.preventDefault(), {
+        capture: true,
+        once: true
+      });
+
+      Element.prototype.appendChild = appendChildFn;
+    }
+
+    return appendChildFn.apply(this, arguments);
+  };
+
+  const openFn = window.open;
+  window.open = function (url) {
+    if (url.includes('tab=imageSearch')) {
+      window.location.replace(url);
+    } else {
+      return openFn.apply(this, arguments);
+    }
+  };
+}
+
 function taobaoPatchContextScript() {
   const appendChildFn = Element.prototype.appendChild;
   Element.prototype.appendChild = function (node) {
@@ -171,7 +196,7 @@ function taobaoPatchContextScript() {
 
   const openFn = window.open;
   window.open = function (url) {
-    if (url.includes('/tmw/search_image')) {
+    if (url.includes('imgSearchOrigin=')) {
       window.location.replace(url);
     } else {
       return openFn.apply(this, arguments);
@@ -203,6 +228,7 @@ const scriptFunctions = {
   setFileInputData: setFileInputDataScript,
   hideAlert: hideAlertScript,
   lexicaOverrideEventDispatch: lexicaOverrideEventDispatchScript,
+  alibabaChinaPatchContextScript: alibabaChinaPatchContextScript,
   taobaoPatchContext: taobaoPatchContextScript,
   yandexServiceObserver: yandexServiceObserverScript
 };

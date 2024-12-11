@@ -6,12 +6,7 @@ const engine = 'taobao';
 async function search({session, search, image, storageIds}) {
   await executeScriptMainContext({func: 'taobaoPatchContext'});
 
-  (
-    await findNode(
-      '.searchbar-camera-icon div.component-search-icon-container',
-      {timeout: 120000}
-    )
-  ).click();
+  (await findNode('div.image-search-icon-wrapper', {timeout: 120000})).click();
 
   const inputSelector = 'input[type="file"]';
   const input = await findNode(inputSelector);
@@ -20,7 +15,15 @@ async function search({session, search, image, storageIds}) {
 
   await sendReceipt(storageIds);
 
-  input.dispatchEvent(new Event('change'));
+  window.setTimeout(() => {
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+  }, 100);
+
+  (
+    await findNode('div#image-search-upload-button.upload-button-active', {
+      observerOptions: {attributes: true, attributeFilter: ['class']}
+    })
+  ).click();
 }
 
 function init() {
