@@ -4,16 +4,16 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'freepik';
 
 async function search({session, search, image, storageIds}) {
-  (await findNode('div[data-modal="search-by-image"]')).click();
+  (await findNode('form > div > button[data-state="closed"]')).click();
 
-  const inputSelector = 'input#form-search-by-image--file';
+  const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
 
   await sendReceipt(storageIds);
 
-  input.dispatchEvent(new Event('change'));
+  input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
 function init() {
