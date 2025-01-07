@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.1.0](https://github.com/dessant/search-by-image/compare/v8.0.2...v8.1.0) (2025-01-07)
+
+
+### Features
+
+* search on Lenso.ai ([2efa8d1](https://github.com/dessant/search-by-image/commit/2efa8d1c1f2b8ad5d8aa4a7b01ba2b6057b80496))
+
 ## [8.0.2](https://github.com/dessant/search-by-image/compare/v8.0.1...v8.0.2) (2024-12-11)
 
 
