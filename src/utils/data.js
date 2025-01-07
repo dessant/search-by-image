@@ -341,6 +341,16 @@ const engines = {
       target: 'https://icons8.com/',
       isExec: true
     }
+  },
+  lenso: {
+    url: {
+      target: 'https://lenso.ai/en/search-by-url?url={imgUrl}&utm_source=sbi',
+      isExec: true
+    },
+    image: {
+      target: 'https://lenso.ai/en?utm_source=sbi',
+      isExec: true
+    }
   }
 };
 
@@ -365,7 +375,8 @@ const engineIconVariants = {
   ascii2d: ['dark'],
   tmview: ['dark'],
   pixta: ['dark'],
-  freepik: ['dark']
+  freepik: ['dark'],
+  lenso: ['dark']
 };
 
 const rasterEngineIcons = [
@@ -590,7 +601,8 @@ const webpEngineSupport = [
   'lykdat',
   'googleLens',
   'lexica',
-  'icons8'
+  'icons8',
+  'lenso'
 ];
 
 // Search engines only support the image format in compatible browsers.
@@ -651,7 +663,8 @@ const maxImageUploadSize = {
   lexica: {ui: 30 * 1024 * 1024},
   kagi: {ui: 1 * 1024 * 1024},
   freepik: {ui: 60 * 1024 * 1024},
-  icons8: {ui: 5 * 1024 * 1024}
+  icons8: {ui: 5 * 1024 * 1024},
+  lenso: {ui: 10 * 1024 * 1024}
 };
 
 const chromeDesktopUA =

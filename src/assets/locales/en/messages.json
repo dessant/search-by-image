@@ -234,6 +234,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_lenso": {
+    "message": "Lenso.ai",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -477,6 +482,11 @@
 
   "menuItemTitle_icons8": {
     "message": "Icons8",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_lenso": {
+    "message": "Lenso.ai",
     "description": "Title of the menu item."
   },
 
@@ -743,6 +753,11 @@
 
   "optionTitle_icons8": {
     "message": "Icons8",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_lenso": {
+    "message": "Lenso.ai",
     "description": "Title of the option."
   },
 

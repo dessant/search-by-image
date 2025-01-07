@@ -54,7 +54,8 @@
       "20240514170322_add_appversion",
       "20240529183556_update_search_engines",
       "20240619180111_add_menuchangeevent",
-      "20240624161944_remove_search_engines"
+      "20240624161944_remove_search_engines",
+      "20250102095603_add_lenso.ai"
     ],
     "session": [
       "20240514122825_initial_version"
