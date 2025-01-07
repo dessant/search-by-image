@@ -37,6 +37,23 @@
   </br></br>
 </p>
 
+<h2 align="center">Sponsors</h2>
+
+</br>
+<a href="https://lenso.ai/en?utm_source=sbi">
+  <div align="center">
+    <picture>
+      <source srcset="https://i.imgur.com/YBkomfb.png" media="(prefers-color-scheme: dark)">
+      <img height="58" src="https://i.imgur.com/60KdpH7.png" alt="Lenso.ai"></picture>
+    <div>
+      </br>
+      <sup>Lenso.ai - Explore billions of images from all around the web.</br>
+        Search for places, people, duplicates, and more.</sup>
+    </div>
+  </div>
+</a>
+</br>
+
 ## Supporting the Project
 
 The continued development of Search by Image is made possible
@@ -44,7 +61,7 @@ thanks to the support of awesome backers. If you'd like to join them,
 please consider contributing with
 [Patreon](https://armin.dev/go/patreon?pr=search-by-image&src=repo),
 [PayPal](https://armin.dev/go/paypal?pr=search-by-image&src=repo) or
-[Bitcoin](https://armin.dev/go/bitcoin?pr=search-by-image&src=repo).
+[Coinbase](https://armin.dev/go/coinbase?pr=search-by-image&src=repo).
 
 ## Description
 
@@ -100,7 +117,7 @@ and the browser toolbar from the extension's options.
 
 ## License
 
-Copyright (c) 2017-2024 Armin Sebastian
+Copyright (c) 2017-2025 Armin Sebastian
 
 This software is released under the terms of the GNU General Public License v3.0.
 See the [LICENSE](LICENSE) file for further information.
