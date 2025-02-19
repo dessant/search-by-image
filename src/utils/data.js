@@ -29,17 +29,6 @@ const optionKeys = [
 const searchUrl = browser.runtime.getURL('/src/search/index.html') + '?id={id}';
 
 const engines = {
-  google: {
-    url: {
-      target:
-        'https://www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url={imgUrl}',
-      isExec: true
-    },
-    image: {
-      target: searchUrl,
-      isTaskId: true
-    }
-  },
   bing: {
     url: {
       target:
@@ -580,7 +569,6 @@ Object.assign(imageTypeNames, {
 const convertImageMimeTypes = ['image/webp', 'image/avif'];
 
 const webpEngineSupport = [
-  'google',
   'bing',
   'yandex',
   'baidu',
@@ -619,7 +607,6 @@ const avifEngineSupport = [
 ];
 
 const maxImageUploadSize = {
-  google: {api: 20 * 1024 * 1024},
   bing: {api: 600 * 1024, ui: 20 * 1024 * 1024},
   yandex: {api: 4 * 1024 * 1024, ui: Infinity},
   baidu: {api: 2 * 1024 * 1024, ui: 10 * 1024 * 1024},
@@ -673,8 +660,6 @@ const chromeDesktopUA =
 const chromeMobileUA =
   'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 
-const chromeSbiSrc = 'Google Chrome 110.0.5481.78 (Official) Windows';
-
 const supportUrl = 'https://github.com/dessant/search-by-image/issues';
 
 const shareBridgeUrl = 'https://searchbyimage.vapps.dev/share';
@@ -694,7 +679,6 @@ export {
   maxImageUploadSize,
   chromeDesktopUA,
   chromeMobileUA,
-  chromeSbiSrc,
   supportUrl,
   shareBridgeUrl
 };

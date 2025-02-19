@@ -51,7 +51,7 @@ import {
   runOnce
 } from 'utils/common';
 import {getScriptFunction} from 'utils/scripts';
-import {searchGoogle, searchPinterest} from 'utils/engines';
+import {searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv, mv3} from 'utils/config';
@@ -816,10 +816,10 @@ async function getTabUrl(session, search, image, taskId) {
       imgUrl = encodeURIComponent(imgUrl);
     }
     tabUrl = tabUrl.replace('{imgUrl}', imgUrl);
+  }
 
-    if (engine === 'google' && !session.options.localGoogle) {
-      tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
-    }
+  if (engine === 'googleLens' && !session.options.localGoogle) {
+    tabUrl = `${tabUrl}?gws_rd=cr&gl=US`;
   }
 
   return tabUrl;
@@ -1055,9 +1055,8 @@ async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
 
 async function getRequiredUserAgent(engine) {
   if (await isMobile()) {
-    // Google only works with a Chrome user agent on Firefox for Android,
-    // while other search engines may need a desktop user agent.
-    if (targetEnv === 'firefox' && ['google', 'ikea'].includes(engine)) {
+    // Certain search engines may need a desktop or mobile user agent.
+    if (targetEnv === 'firefox' && ['ikea'].includes(engine)) {
       return chromeMobileUA;
     } else if (['googleLens'].includes(engine)) {
       return chromeDesktopUA;
@@ -1587,9 +1586,7 @@ async function processMessage(request, sender) {
 
     try {
       let data;
-      if (search.engine === 'google') {
-        data = await searchGoogle({session, search, image});
-      } else if (search.engine === 'pinterest') {
+      if (search.engine === 'pinterest') {
         data = await searchPinterest({session, search, image});
       }
 

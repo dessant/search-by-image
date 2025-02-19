@@ -9,11 +9,6 @@
     "description": "Description of the extension."
   },
 
-  "engineName_google": {
-    "message": "Google Images",
-    "description": "Name of the search engine."
-  },
-
   "engineName_bing": {
     "message": "Bing",
     "description": "Name of the search engine."
@@ -258,11 +253,6 @@
         "example": "Google"
       }
     }
-  },
-
-  "menuItemTitle_google": {
-    "message": "Google Images",
-    "description": "Title of the menu item."
   },
 
   "menuItemTitle_bing": {
@@ -529,11 +519,6 @@
   "optionSectionDescription_engines": {
     "message": "Toggle search engines and customize their order (drag and drop)",
     "description": "Description of the options section."
-  },
-
-  "optionTitle_google": {
-    "message": "Google Images",
-    "description": "Title of the option."
   },
 
   "optionTitle_bing": {
