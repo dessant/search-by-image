@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.1.2](https://github.com/dessant/search-by-image/compare/v8.1.1...v8.1.2) (2025-03-17)
+
+
+### Bug Fixes
+
+* add back Google Images ([38c8109](https://github.com/dessant/search-by-image/commit/38c810948fb2f3d5cb71751ac11a5f07cb74a58d))
+
 ## [8.1.1](https://github.com/dessant/search-by-image/compare/v8.1.0...v8.1.1) (2025-02-19)
 
 
