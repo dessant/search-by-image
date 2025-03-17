@@ -54,7 +54,11 @@ import {App, Icon, IconButton} from 'vueton';
 
 import {validateUrl, sendLargeMessage, showPage} from 'utils/app';
 import {getText} from 'utils/common';
-import {prepareImageForUpload, searchPinterest} from 'utils/engines';
+import {
+  prepareImageForUpload,
+  searchGoogleImages,
+  searchPinterest
+} from 'utils/engines';
 
 export default {
   components: {
@@ -182,6 +186,29 @@ export default {
         }
 
         this.layoutGrid();
+      } else if (this.engine === 'googleImages') {
+        let tabUrl;
+        if (this.$env.isSafari && this.$env.isMobile) {
+          // Safari 15: cross-origin request from extension page is blocked on mobile.
+          const rsp = await browser.runtime.sendMessage({
+            id: 'searchImageImages',
+            session,
+            search,
+            image
+          });
+
+          if (rsp.error) {
+            throw new Error(rsp.error);
+          }
+
+          tabUrl = rsp.data;
+        } else {
+          tabUrl = await searchGoogleImages({session, search, image});
+        }
+
+        if (validateUrl(tabUrl)) {
+          window.location.replace(tabUrl);
+        }
       }
     },
 

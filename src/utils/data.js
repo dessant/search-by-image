@@ -340,6 +340,18 @@ const engines = {
       target: 'https://lenso.ai/en?utm_source=sbi',
       isExec: true
     }
+  },
+  googleImages: {
+    url: {
+      target:
+        'https://www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url={imgUrl}',
+      isExec: true
+    },
+
+    image: {
+      target: searchUrl,
+      isTaskId: true
+    }
   }
 };
 
@@ -590,7 +602,8 @@ const webpEngineSupport = [
   'googleLens',
   'lexica',
   'icons8',
-  'lenso'
+  'lenso',
+  'googleImages'
 ];
 
 // Search engines only support the image format in compatible browsers.
@@ -651,7 +664,8 @@ const maxImageUploadSize = {
   kagi: {ui: 1 * 1024 * 1024},
   freepik: {ui: 60 * 1024 * 1024},
   icons8: {ui: 5 * 1024 * 1024},
-  lenso: {ui: 10 * 1024 * 1024}
+  lenso: {ui: 10 * 1024 * 1024},
+  googleImages: {api: 20 * 1024 * 1024}
 };
 
 const chromeDesktopUA =
@@ -659,6 +673,8 @@ const chromeDesktopUA =
 
 const chromeMobileUA =
   'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
+
+const chromeSbiSrc = 'Google Chrome 110.0.5481.78 (Official) Windows';
 
 const supportUrl = 'https://github.com/dessant/search-by-image/issues';
 
@@ -679,6 +695,7 @@ export {
   maxImageUploadSize,
   chromeDesktopUA,
   chromeMobileUA,
+  chromeSbiSrc,
   supportUrl,
   shareBridgeUrl
 };

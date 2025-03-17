@@ -51,7 +51,7 @@ import {
   runOnce
 } from 'utils/common';
 import {getScriptFunction} from 'utils/scripts';
-import {searchPinterest} from 'utils/engines';
+import {searchGoogleImages, searchPinterest} from 'utils/engines';
 import registry from 'utils/registry';
 import {optionKeys, engines, chromeMobileUA, chromeDesktopUA} from 'utils/data';
 import {targetEnv, mv3} from 'utils/config';
@@ -816,6 +816,10 @@ async function getTabUrl(session, search, image, taskId) {
       imgUrl = encodeURIComponent(imgUrl);
     }
     tabUrl = tabUrl.replace('{imgUrl}', imgUrl);
+
+    if (engine === 'googleImages' && !session.options.localGoogle) {
+      tabUrl = `${tabUrl}&gws_rd=cr&gl=US`;
+    }
   }
 
   if (engine === 'googleLens' && !session.options.localGoogle) {
@@ -1056,7 +1060,7 @@ async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
 async function getRequiredUserAgent(engine) {
   if (await isMobile()) {
     // Certain search engines may need a desktop or mobile user agent.
-    if (targetEnv === 'firefox' && ['ikea'].includes(engine)) {
+    if (targetEnv === 'firefox' && ['googleImages', 'ikea'].includes(engine)) {
       return chromeMobileUA;
     } else if (['googleLens'].includes(engine)) {
       return chromeDesktopUA;
@@ -1586,7 +1590,9 @@ async function processMessage(request, sender) {
 
     try {
       let data;
-      if (search.engine === 'pinterest') {
+      if (search.engine === 'googleImages') {
+        data = await searchGoogleImages({session, search, image});
+      } else if (search.engine === 'pinterest') {
         data = await searchPinterest({session, search, image});
       }
 

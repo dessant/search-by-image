@@ -11,6 +11,7 @@ import {
   waitForDocumentLoad,
   executeScriptMainContext
 } from 'utils/common';
+import {chromeSbiSrc} from 'utils/data';
 
 function getValidHostname(validHostnames, engine) {
   const hostname = window.location.hostname;
@@ -154,6 +155,43 @@ async function initSearch(searchFn, engine, taskId) {
   }
 }
 
+async function searchGoogleImages({session, search, image} = {}) {
+  const data = new FormData();
+  data.append('encoded_image', image.imageBlob, image.imageFilename);
+  data.append('image_url', '');
+  data.append('sbisrc', chromeSbiSrc);
+
+  const rsp = await fetch('https://www.google.com/searchbyimage/upload', {
+    referrer: '',
+    mode: 'cors',
+    method: 'POST',
+    body: data
+  });
+
+  let tabUrl;
+
+  if (rsp.status === 200) {
+    tabUrl = rsp.url;
+  } else if (image.imageUrl) {
+    // fall back to searching with image URL
+
+    tabUrl =
+      'https:www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url=' +
+      encodeURIComponent(image.imageUrl);
+  } else {
+    throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
+  }
+
+  if (!session.options.localGoogle) {
+    tabUrl = tabUrl.replace(
+      /(.*google\.)[a-zA-Z0-9_\-.]+(\/.*)/,
+      '$1com$2&gws_rd=cr&gl=US'
+    );
+  }
+
+  return tabUrl;
+}
+
 async function searchPinterest({session, search, image} = {}) {
   const data = new FormData();
   data.append('image', image.imageBlob, image.imageFilename);
@@ -233,6 +271,7 @@ export {
   uploadCallback,
   sendReceipt,
   initSearch,
+  searchGoogleImages,
   searchPinterest,
   EngineError,
   prepareImageForUpload
