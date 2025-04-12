@@ -623,6 +623,34 @@ const avifEngineSupport = [
   'lexica'
 ];
 
+const gifEngineSupport = [
+  'bing',
+  'yandex',
+  'baidu',
+  'sogou',
+  'tineye',
+  'karmaDecay',
+  'whatanime',
+  'saucenao',
+  'iqdb',
+  'ascii2d',
+  'qihoo',
+  'dreamstime',
+  'esearch',
+  'tmview',
+  'madridMonitor',
+  'auDesign',
+  'nzTrademark',
+  'jpDesign',
+  'pond5',
+  'repostSleuth',
+  'shein',
+  'lykdat',
+  'wildberries',
+  'lexica',
+  'googleImages'
+];
+
 const maxImageUploadSize = {
   bing: {api: 600 * 1024, ui: 20 * 1024 * 1024},
   yandex: {api: 4 * 1024 * 1024, ui: Infinity},
@@ -703,6 +731,7 @@ export {
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
+  gifEngineSupport,
   maxImageUploadSize,
   chromeDesktopUA,
   chromeMobileUA,

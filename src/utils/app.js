@@ -51,6 +51,7 @@ import {
   convertImageMimeTypes,
   webpEngineSupport,
   avifEngineSupport,
+  gifEngineSupport,
   maxImageUploadSize,
   supportUrl,
   shareBridgeUrl,
@@ -1471,6 +1472,10 @@ function imageTypeSupport(type, engine) {
     }
   } else if (type === 'image/avif') {
     if (avifEngineSupport.includes(engine)) {
+      return true;
+    }
+  } else if (type === 'image/gif') {
+    if (gifEngineSupport.includes(engine)) {
       return true;
     }
   } else {
