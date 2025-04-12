@@ -380,6 +380,10 @@ const engineIconVariants = {
   lenso: ['dark']
 };
 
+const sponsorLogoVariants = {
+  lenso: ['dark']
+};
+
 const rasterEngineIcons = [
   'iqdb',
   'karmaDecay',
@@ -680,6 +684,12 @@ const supportUrl = 'https://github.com/dessant/search-by-image/issues';
 
 const shareBridgeUrl = 'https://searchbyimage.vapps.dev/share';
 
+const sponsors = ['lenso'];
+
+const sponsorSites = {
+  lenso: 'https://lenso.ai/en?utm_source=sbi'
+};
+
 export {
   optionKeys,
   engines,
@@ -687,6 +697,7 @@ export {
   rasterEngineIcons,
   engineIconAlias,
   engineIconVariants,
+  sponsorLogoVariants,
   imageMimeTypes,
   imageTypeNames,
   convertImageMimeTypes,
@@ -697,5 +708,7 @@ export {
   chromeMobileUA,
   chromeSbiSrc,
   supportUrl,
-  shareBridgeUrl
+  shareBridgeUrl,
+  sponsors,
+  sponsorSites
 };

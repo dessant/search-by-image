@@ -991,6 +991,11 @@
     "description": "Title of the option."
   },
 
+  "optionSectionTitle_sponsors": {
+    "message": "Sponsors",
+    "description": "Title of the options section."
+  },
+
   "dialogTitle_imageConfirmation": {
     "message": "Select an image",
     "description": "Title of the dialog."

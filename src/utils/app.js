@@ -45,6 +45,7 @@ import {
   rasterEngineIcons,
   engineIconAlias,
   engineIconVariants,
+  sponsorLogoVariants,
   imageMimeTypes,
   imageTypeNames,
   convertImageMimeTypes,
@@ -52,7 +53,8 @@ import {
   avifEngineSupport,
   maxImageUploadSize,
   supportUrl,
-  shareBridgeUrl
+  shareBridgeUrl,
+  sponsorSites
 } from 'utils/data';
 
 async function getEnabledEngines(options) {
@@ -497,6 +499,14 @@ async function showSupportPage({getTab = false, activeTab = null} = {}) {
   return showPage({url: supportUrl, getTab, activeTab});
 }
 
+async function showSponsorPage({
+  name = '',
+  getTab = false,
+  activeTab = null
+} = {}) {
+  return showPage({url: sponsorSites[name], getTab, activeTab});
+}
+
 async function setAppVersion() {
   await storage.set({appVersion});
 }
@@ -649,6 +659,14 @@ function getEngineMenuIcon(engine, {variant = ''} = {}) {
       16: `src/assets/icons/engines/${name}.svg`
     };
   }
+}
+
+function getSponsorLogo(name, {variant = ''} = {}) {
+  if (variant && sponsorLogoVariants[name]?.includes(variant)) {
+    name += `-${variant}`;
+  }
+
+  return `/src/assets/icons/sponsors/${name}.svg`;
 }
 
 function handleActionEscapeKey() {
@@ -2171,6 +2189,7 @@ export {
   showContributePage,
   showOptionsPage,
   showSupportPage,
+  showSponsorPage,
   setAppVersion,
   isSessionStartup,
   isStartup,
@@ -2178,6 +2197,7 @@ export {
   getNetRequestRuleIds,
   getEngineIcon,
   getEngineMenuIcon,
+  getSponsorLogo,
   handleActionEscapeKey,
   isContextMenuSupported,
   checkSearchEngineAccess,

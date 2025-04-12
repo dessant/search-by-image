@@ -198,6 +198,26 @@
         </div>
       </div>
     </div>
+
+    <div class="section-sponsors" v-if="sponsorsEnabled">
+      <div class="section-title" v-once>
+        {{ getText('optionSectionTitle_sponsors') }}
+      </div>
+      <div class="option-wrap">
+        <div
+          class="option sponsor-logo"
+          v-for="(item, index) in sponsors"
+          :key="index"
+        >
+          <img
+            tabindex="0"
+            @keyup.enter="showSponsor(item)"
+            @click="showSponsor(item)"
+            :src="getSponsorLogo(item, {variant: theme})"
+          />
+        </div>
+      </div>
+    </div>
   </vn-app>
 </template>
 
@@ -212,11 +232,14 @@ import {
   getListItems,
   canShare,
   showContributePage,
+  showSponsorPage,
+  getAppTheme,
+  getSponsorLogo,
   hasClipboardReadPermission
 } from 'utils/app';
 import {getText} from 'utils/common';
 import {enableContributions} from 'utils/config';
-import {optionKeys} from 'utils/data';
+import {optionKeys, sponsors} from 'utils/data';
 
 export default {
   components: {
@@ -250,6 +273,8 @@ export default {
     return {
       dataLoaded: false,
 
+      getSponsorLogo,
+
       listItems: {
         ...getListItems(
           {
@@ -280,12 +305,16 @@ export default {
       },
 
       enableContributions,
+      sponsors,
 
       contextMenuEnabled: true,
       searchAllEnginesEnabled: true,
       shareEnabled: true,
       autoPasteEnabled: true,
       pasteEnabled: true,
+      sponsorsEnabled: true,
+
+      theme: '',
 
       options: {
         engines: [],
@@ -316,7 +345,8 @@ export default {
   computed: {
     appClasses: function () {
       return {
-        'feature-context-menu': this.contextMenuEnabled
+        'show-context-menu': this.contextMenuEnabled,
+        'show-sponsors': this.sponsorsEnabled
       };
     }
   },
@@ -355,6 +385,13 @@ export default {
         !(this.$env.isMobile && this.$env.isFirefox) &&
         (await hasClipboardReadPermission());
 
+      this.sponsorsEnabled = !!this.sponsors.length;
+
+      this.theme = await getAppTheme(options.appTheme);
+      document.addEventListener('themeChange', ev => {
+        this.theme = ev.detail;
+      });
+
       this.dataLoaded = true;
     },
 
@@ -375,6 +412,10 @@ export default {
 
     showContribute: async function () {
       await showContributePage();
+    },
+
+    showSponsor: async function (name) {
+      await showSponsorPage({name});
     }
   },
 
@@ -436,6 +477,15 @@ export default {
     height: 40px;
   }
 
+  &.sponsor-logo,
+  &.sponsor-logo img {
+    height: 42px;
+  }
+
+  &.sponsor-logo img {
+    cursor: pointer;
+  }
+
   &.select,
   &.text-field {
     height: 56px;
@@ -459,13 +509,39 @@ export default {
       'engines misc';
   }
 
-  .feature-context-menu {
+  .show-sponsors,
+  .show-context-menu {
     & .v-application__wrap {
       grid-template-rows: min-content min-content 1fr;
+    }
+  }
+
+  .show-sponsors {
+    & .v-application__wrap {
+      grid-template-areas:
+        'engines toolbar'
+        'engines misc'
+        'engines sponsors';
+    }
+  }
+
+  .show-context-menu {
+    & .v-application__wrap {
       grid-template-areas:
         'engines context-menu'
         'engines toolbar'
         'engines misc';
+    }
+  }
+
+  .show-context-menu.show-sponsors {
+    & .v-application__wrap {
+      grid-template-rows: min-content min-content min-content 1fr;
+      grid-template-areas:
+        'engines context-menu'
+        'engines toolbar'
+        'engines misc'
+        'engines sponsors';
     }
   }
 
@@ -483,6 +559,10 @@ export default {
 
   .section-misc {
     grid-area: misc;
+  }
+
+  .section-sponsors {
+    grid-area: sponsors;
   }
 }
 </style>
