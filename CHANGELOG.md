@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.2.0](https://github.com/dessant/search-by-image/compare/v8.1.2...v8.2.0) (2025-04-13)
+
+
+### Features
+
+* convert GIF images ([f0e2441](https://github.com/dessant/search-by-image/commit/f0e24412d3c9dbd0da6673998fdd78f28c8c2780))
+* search on Unsplash ([4344df8](https://github.com/dessant/search-by-image/commit/4344df8d0029fd6677c84002d546b5ef7978661d))
+
+
+### Bug Fixes
+
+* update Freepik ([0cee3e1](https://github.com/dessant/search-by-image/commit/0cee3e117edb2a826dc6ab48f788b89e56820382))
+
 ## [8.1.2](https://github.com/dessant/search-by-image/compare/v8.1.1...v8.1.2) (2025-03-17)
 
 
