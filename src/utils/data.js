@@ -352,6 +352,12 @@ const engines = {
       target: searchUrl,
       isTaskId: true
     }
+  },
+  unsplash: {
+    image: {
+      target: 'https://unsplash.com/',
+      isExec: true
+    }
   }
 };
 
@@ -377,7 +383,8 @@ const engineIconVariants = {
   tmview: ['dark'],
   pixta: ['dark'],
   freepik: ['dark'],
-  lenso: ['dark']
+  lenso: ['dark'],
+  unsplash: ['dark']
 };
 
 const sponsorLogoVariants = {
@@ -607,7 +614,8 @@ const webpEngineSupport = [
   'lexica',
   'icons8',
   'lenso',
-  'googleImages'
+  'googleImages',
+  'unsplash'
 ];
 
 // Search engines only support the image format in compatible browsers.
@@ -648,7 +656,8 @@ const gifEngineSupport = [
   'lykdat',
   'wildberries',
   'lexica',
-  'googleImages'
+  'googleImages',
+  'unsplash'
 ];
 
 const maxImageUploadSize = {
@@ -697,7 +706,8 @@ const maxImageUploadSize = {
   freepik: {ui: 60 * 1024 * 1024},
   icons8: {ui: 5 * 1024 * 1024},
   lenso: {ui: 10 * 1024 * 1024},
-  googleImages: {api: 20 * 1024 * 1024}
+  googleImages: {api: 20 * 1024 * 1024},
+  unsplash: {api: Infinity, ui: 20 * 1024 * 1024}
 };
 
 const chromeDesktopUA =

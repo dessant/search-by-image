@@ -57,7 +57,8 @@
       "20240624161944_remove_search_engines",
       "20250102095603_add_lenso.ai",
       "20250218121640_remove_google_images",
-      "20250317134215_add_back_google_images"
+      "20250317134215_add_back_google_images",
+      "20250413115022_add_unsplash"
     ],
     "session": [
       "20240514122825_initial_version"
