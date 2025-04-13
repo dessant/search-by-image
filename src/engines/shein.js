@@ -1,9 +1,4 @@
-import {
-  findNode,
-  processNode,
-  makeDocumentVisible,
-  runOnce
-} from 'utils/common';
+import {findNode, makeDocumentVisible, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'shein';
