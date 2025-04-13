@@ -14,6 +14,13 @@ async function search({session, search, image, storageIds}) {
   await sendReceipt(storageIds);
 
   input.dispatchEvent(new Event('change', {bubbles: true}));
+
+  (
+    await findNode(
+      'button[data-cy="home-hero-bar-upload-modal-submit"]:not([disabled])',
+      {observerOptions: {attributes: true}}
+    )
+  ).click();
 }
 
 function init() {
