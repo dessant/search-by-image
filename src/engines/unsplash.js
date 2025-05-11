@@ -10,7 +10,9 @@ import {
 const engine = 'unsplash';
 
 async function search({session, search, image, storageIds}) {
-  await findNode('body div[data-testid="client-side-hydration-complete"]');
+  await findNode('body[data-testid="client-side-hydration-complete"]', {
+    observerOptions: {attributes: true}
+  });
 
   const formButtons = document.querySelectorAll(
     'form[data-testid="nav-bar-search-form-form"] button'
