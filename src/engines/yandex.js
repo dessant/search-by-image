@@ -15,21 +15,9 @@ import {
   getValidHostname,
   uploadCallback
 } from 'utils/engines';
+import {targetEnv} from 'utils/config';
 
 const engine = 'yandex';
-
-function getHostname() {
-  const hostnames = [
-    'yandex.com',
-    'yandex.ru',
-    'yandex.ua',
-    'yandex.by',
-    'yandex.kz',
-    'yandex.uz',
-    'yandex.com.tr'
-  ];
-  return getValidHostname(hostnames, engine);
-}
 
 function showResults(xhr) {
   if (xhr.status === 413) {
@@ -38,7 +26,7 @@ function showResults(xhr) {
   }
 
   const params = JSON.parse(xhr.responseText).blocks[0].params.url;
-  const tabUrl = `https://${getHostname()}/images/search?${params}`;
+  const tabUrl = `https://${getValidHostname()}/images/search?${params}`;
 
   if (validateUrl(tabUrl)) {
     window.location.replace(tabUrl);
@@ -57,7 +45,7 @@ async function search({session, search, image, storageIds}) {
   });
 
   if (mobile) {
-    const hostname = getHostname();
+    const hostname = getValidHostname();
     const url =
       `https://${hostname}/images/touch/search?rpt=imageview&format=json` +
       `&request={"blocks":[{"block":"cbir-uploader__get-cbir-id"}]}`;
@@ -137,16 +125,51 @@ async function search({session, search, image, storageIds}) {
       });
     }
 
-    (
-      await Promise.race([
+    const validateNode = function (node) {
+      // checkVisibility supported from Safari 17.4 and Samsung Internet 20
+      if (['safari', 'samsung'].includes(targetEnv)) {
+        return (
+          window.getComputedStyle(node).getPropertyValue('display') !== 'none'
+        );
+      } else {
+        return node.checkVisibility();
+      }
+    };
+
+    const {node: button, layout: buttonLayout} = await Promise.race([
+      new Promise((resolve, reject) => {
         findNode('.input_js_inited .input__cbir-button button', {
           observerOptions: {attributes: true, attributeFilter: ['class']}
-        }), // old layout
-        findNode('.input_js_inited button.input__cbir-button', {
-          observerOptions: {attributes: true, attributeFilter: ['class']}
-        }) // new layout
-      ])
-    ).click();
+        })
+          .then(node => resolve({node, layout: 'old'}))
+          .catch(err => reject(err));
+      }), // old layout
+      new Promise((resolve, reject) => {
+        findNode('.i-keyrouter_js_inited button.HeaderForm-InlineCbirButton', {
+          observerOptions: {attributes: true, attributeFilter: ['class']},
+          validateFn: validateNode
+        })
+          .then(node => resolve({node, layout: 'narrow'}))
+          .catch(err => reject(err));
+      }), // new layout: narrow
+      new Promise((resolve, reject) => {
+        findNode(
+          '.i-keyrouter_js_inited button.HeaderDesktopActions-CbirButton',
+          {
+            observerOptions: {attributes: true, attributeFilter: ['class']},
+            validateFn: validateNode
+          }
+        )
+          .then(node => resolve({node, layout: 'wide'}))
+          .catch(err => reject(err));
+      }) // new layout: wide
+    ]);
+
+    if (buttonLayout === 'narrow') {
+      button.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    } else {
+      button.click();
+    }
 
     await Promise.race([
       findNode('div.cbir-panel_visibility_visible', {

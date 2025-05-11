@@ -13,10 +13,10 @@ import {
 } from 'utils/common';
 import {chromeSbiSrc} from 'utils/data';
 
-function getValidHostname(validHostnames, engine) {
+function getValidHostname({validHostnames = null} = {}) {
   const hostname = window.location.hostname;
-  if (!validHostnames.includes(hostname)) {
-    throw new Error(`Invalid ${engine} hostname: ${hostname}`);
+  if (validHostnames && !validHostnames.includes(hostname)) {
+    throw new Error(`Invalid hostname: ${hostname}`);
   }
   return hostname;
 }

@@ -430,21 +430,22 @@ function findNode(
     throwError = true,
     observerOptions = null,
     rootNode = null,
-    selectorType = 'css'
+    selectorType = 'css',
+    validateFn = null
   } = {}
 ) {
   return new Promise((resolve, reject) => {
     rootNode = rootNode || document;
 
     const el = nodeQuerySelector(selector, {rootNode, selectorType});
-    if (el) {
+    if (el && (!validateFn || validateFn(el))) {
       resolve(el);
       return;
     }
 
     const observer = new MutationObserver(function (mutations, obs) {
       const el = nodeQuerySelector(selector, {rootNode, selectorType});
-      if (el) {
+      if (el && (!validateFn || validateFn(el))) {
         obs.disconnect();
         window.clearTimeout(timeoutId);
         resolve(el);
@@ -482,6 +483,7 @@ async function processNode(
     observerOptions = null,
     rootNode = null,
     selectorType = 'css',
+    validateFn = null,
     reprocess = false
   } = {}
 ) {
@@ -492,13 +494,14 @@ async function processNode(
     throwError,
     observerOptions,
     rootNode,
-    selectorType
+    selectorType,
+    validateFn
   });
 
   if (reprocess) {
     const observer = new MutationObserver(function (mutations, obs) {
       const el = nodeQuerySelector(selector, {rootNode, selectorType});
-      if (el && !el.isSameNode(node)) {
+      if (el && !el.isSameNode(node) && (!validateFn || validateFn(el))) {
         node = el;
         actionFn(node);
       }
