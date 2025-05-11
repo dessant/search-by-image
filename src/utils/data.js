@@ -74,13 +74,6 @@ const engines = {
       isExec: true
     }
   },
-  karmaDecay: {
-    url: {target: 'http://karmadecay.com/search?q={imgUrl}'},
-    image: {
-      target: 'http://karmadecay.com/',
-      isExec: true
-    }
-  },
   whatanime: {
     url: {target: 'https://trace.moe/?url={imgUrl}'},
     image: {
@@ -391,13 +384,7 @@ const sponsorLogoVariants = {
   lenso: ['dark']
 };
 
-const rasterEngineIcons = [
-  'iqdb',
-  'karmaDecay',
-  'tineye',
-  'whatanime',
-  'repostSleuth'
-];
+const rasterEngineIcons = ['iqdb', 'tineye', 'whatanime', 'repostSleuth'];
 
 // https://github.com/jshttp/mime-db
 const imageMimeTypes = {
@@ -637,7 +624,6 @@ const gifEngineSupport = [
   'baidu',
   'sogou',
   'tineye',
-  'karmaDecay',
   'whatanime',
   'saucenao',
   'iqdb',
@@ -666,7 +652,6 @@ const maxImageUploadSize = {
   baidu: {api: 2 * 1024 * 1024, ui: 10 * 1024 * 1024},
   tineye: {ui: 10 * 1024 * 1024},
   sogou: {ui: 10 * 1024 * 1024},
-  karmaDecay: {ui: 9 * 1024 * 1024},
   whatanime: {ui: Infinity},
   saucenao: {ui: 15 * 1024 * 1024},
   iqdb: {ui: 8 * 1024 * 1024},
