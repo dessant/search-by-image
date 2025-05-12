@@ -303,7 +303,7 @@ async function setUserAgentHeader({tabId, tabUrl, userAgent} = {}) {
     });
 
     browser.alarms.create(`delete-net-request-session-rule_${ruleId}`, {
-      delayInMinutes: 2
+      delayInMinutes: 10
     });
   } else if (mv3) {
     await browser.declarativeNetRequest.updateSessionRules({
@@ -338,11 +338,13 @@ async function setUserAgentHeader({tabId, tabUrl, userAgent} = {}) {
     });
 
     browser.alarms.create(`delete-net-request-session-rule_${ruleId}`, {
-      delayInMinutes: 2
+      delayInMinutes: 10
     });
   } else {
-    setWebRequestUserAgentHeader({tabId, userAgent});
+    return setWebRequestUserAgentHeader({tabId, userAgent});
   }
+
+  return ruleId;
 }
 
 function setWebRequestUserAgentHeader({tabId, userAgent} = {}) {
@@ -364,6 +366,8 @@ function setWebRequestUserAgentHeader({tabId, userAgent} = {}) {
     },
     ['blocking', 'requestHeaders']
   );
+
+  return engineRequestCallback;
 }
 
 async function createMenuItem(item) {
@@ -946,9 +950,13 @@ async function searchImage(session, image, firstBatchItem = true) {
 
 async function searchEngine(session, search, image, imageId, tabActive) {
   let taskId;
+  let tabSetupDataId;
+
   if (search.sendsReceipt) {
+    tabSetupDataId = uuidv4();
+
     taskId = await registry.addStorageItem(
-      {session, search, imageId},
+      {session, search, imageId, tabSetupDataId},
       {
         receipts: {expected: 1, received: 0},
         expiryTime: 10.0,
@@ -962,15 +970,21 @@ async function searchEngine(session, search, image, imageId, tabActive) {
 
   const tabUrl = await getTabUrl(session, search, image, taskId);
 
-  const setupSteps = [];
+  const tabSetupData = {steps: []};
 
   const userAgent = await getRequiredUserAgent(search.engine);
   if (userAgent) {
-    setupSteps.push({id: 'setUserAgent', tabUrl, userAgent, beaconToken});
+    tabSetupData.steps.push({
+      id: 'setUserAgent',
+      tabUrl,
+      userAgent,
+      beaconToken
+    });
   }
 
-  if (search.sendsReceipt) {
-    setupSteps.push({id: 'addTask', taskId});
+  if (taskId) {
+    tabSetupData.storageId = tabSetupDataId;
+    tabSetupData.steps.push({id: 'addTask', taskId});
   }
 
   const storageItem = {
@@ -978,8 +992,8 @@ async function searchEngine(session, search, image, imageId, tabActive) {
     keepHistory: false
   };
 
-  if (setupSteps.length) {
-    storageItem.setupSteps = setupSteps;
+  if (tabSetupData.steps.length) {
+    storageItem.tabSetupData = tabSetupData;
   }
 
   await registry.addStorageItem(storageItem, {
@@ -1002,40 +1016,70 @@ async function searchEngine(session, search, image, imageId, tabActive) {
   await createTab({token, index: session.sourceTabIndex, active: tabActive});
 }
 
-async function setupTab(sender, steps) {
+async function setupTab(tabId, data) {
   const results = {};
 
-  for (const step of steps) {
+  for (const step of data.steps) {
     if (step.id === 'setUserAgent') {
-      await setTabUserAgent({
-        tabId: sender.tab.id,
+      const ruleId = await setTabUserAgent({
+        tabId,
         tabUrl: step.tabUrl,
         userAgent: step.userAgent,
-        beaconToken: step.beaconToken
+        beaconToken: step.beaconToken,
+        tabSetupDataId: data.storageId
       });
 
-      results[step.id] = '';
+      results[step.id] = ruleId;
     } else if (step.id === 'addTask') {
       await registry.addTaskRegistryItem({
         taskId: step.taskId,
-        tabId: sender.tab.id
+        tabId
       });
 
       results[step.id] = '';
     }
   }
 
-  return results;
+  if (data.storageId && targetEnv !== 'samsung') {
+    await registry.addStorageItem(results, {
+      receipts: {expected: 1, received: 0},
+      expiryTime: 10.0,
+      token: data.storageId,
+      area: targetEnv === 'firefox' ? 'memory' : 'local'
+    });
+  }
 }
 
-async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
+async function setTabUserAgent({
+  tabId,
+  tabUrl,
+  userAgent,
+  beaconToken,
+  tabSetupDataId
+} = {}) {
   if (targetEnv === 'samsung') {
     // Samsung Internet 13: webRequest listener filtering by tab ID
     // provided by tabs.createTab returns requests from different tab.
 
     function requestCallback(details) {
       removeCallback();
-      setWebRequestUserAgentHeader({tabId: details.tabId, userAgent});
+
+      const callback = setWebRequestUserAgentHeader({
+        tabId: details.tabId,
+        userAgent
+      });
+
+      if (tabSetupDataId) {
+        registry.addStorageItem(
+          {setUserAgent: callback},
+          {
+            receipts: {expected: 1, received: 0},
+            expiryTime: 10.0,
+            token: tabSetupDataId,
+            area: 'memory'
+          }
+        );
+      }
     }
 
     const removeCallback = function () {
@@ -1053,7 +1097,19 @@ async function setTabUserAgent({tabId, tabUrl, userAgent, beaconToken} = {}) {
       ['blocking']
     );
   } else {
-    await setUserAgentHeader({tabId, tabUrl, userAgent});
+    return setUserAgentHeader({tabId, tabUrl, userAgent});
+  }
+}
+
+async function unsetTabUserAgent({tabSetupDataId} = {}) {
+  const data = await registry.getStorageItem({storageId: tabSetupDataId});
+
+  if (data && data.setUserAgent) {
+    if (['firefox', 'samsung'].includes(targetEnv)) {
+      browser.webRequest.onBeforeSendHeaders.removeListener(data.setUserAgent);
+    } else {
+      await removeContentRequestListener({ruleId: data.setUserAgent});
+    }
   }
 }
 
@@ -1513,6 +1569,8 @@ async function processMessage(request, sender) {
     });
   } else if (request.id === 'removeContentRequestListener') {
     await removeContentRequestListener({ruleId: request.ruleId});
+  } else if (request.id === 'unsetTabUserAgent') {
+    await unsetTabUserAgent({tabSetupDataId: request.tabSetupDataId});
   } else if (request.id === 'fetchImage') {
     const imageBlob = await fetchImage(request.url);
     const imageDataUrl = imageBlob && (await blobToDataUrl(imageBlob));
@@ -1603,7 +1661,7 @@ async function processMessage(request, sender) {
   } else if (request.id === 'showPage') {
     await showPage({url: request.url});
   } else if (request.id === 'setupTab') {
-    return setupTab(sender, request.steps);
+    return setupTab(sender.tab.id, request.data);
   } else if (request.id === 'executeScript') {
     const params = request.params;
     if (request.setSenderTabId) {

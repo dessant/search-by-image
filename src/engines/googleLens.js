@@ -1,5 +1,10 @@
 import {findNode, processNode, runOnce, sleep} from 'utils/common';
-import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
+import {
+  setFileInputData,
+  initSearch,
+  sendReceipt,
+  unsetUserAgent
+} from 'utils/engines';
 
 const engine = 'googleLens';
 
@@ -35,6 +40,8 @@ async function search({session, search, image, storageIds}) {
   );
 
   await clickButton();
+
+  await unsetUserAgent(storageIds);
 
   if (search.assetType === 'image') {
     const input = await findNode(inputSelector);

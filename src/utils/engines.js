@@ -57,6 +57,13 @@ async function setFileInputData(
   }
 }
 
+async function unsetUserAgent(storageIds) {
+  await browser.runtime.sendMessage({
+    id: 'unsetTabUserAgent',
+    tabSetupDataId: storageIds[2]
+  });
+}
+
 function showEngineError({message, errorId, engine}) {
   if (!message) {
     message = browser.i18n.getMessage(
@@ -107,7 +114,7 @@ async function initSearch(searchFn, engine, taskId) {
   });
 
   if (task) {
-    const storageIds = [taskId, task.imageId];
+    const storageIds = [taskId, task.imageId, task.tabSetupDataId];
 
     try {
       let image = await sendLargeMessage({
@@ -267,6 +274,7 @@ async function prepareImageForUpload({
 export {
   getValidHostname,
   setFileInputData,
+  unsetUserAgent,
   showEngineError,
   uploadCallback,
   sendReceipt,

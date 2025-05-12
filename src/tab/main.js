@@ -17,15 +17,15 @@ function setLocation(tabUrl, keepHistory) {
   }
 }
 
-async function setupTab(steps) {
-  return browser.runtime.sendMessage({id: 'setupTab', steps});
+async function setupTab(data) {
+  return browser.runtime.sendMessage({id: 'setupTab', data});
 }
 
 async function start() {
   const data = await getLocationData();
 
-  if (data.setupSteps) {
-    await setupTab(data.setupSteps);
+  if (data.tabSetupData) {
+    await setupTab(data.tabSetupData);
   }
 
   setLocation(data.tabUrl, data.keepHistory);
