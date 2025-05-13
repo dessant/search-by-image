@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.2.1](https://github.com/dessant/search-by-image/compare/v8.2.0...v8.2.1) (2025-05-13)
+
+
+### Bug Fixes
+
+* remove custom user agent after page load on Google Lens ([09f0fe2](https://github.com/dessant/search-by-image/commit/09f0fe23234a0b38a3ccfd2365d4115072fe48fc))
+* remove Karma Decay ([b986ac4](https://github.com/dessant/search-by-image/commit/b986ac4354bfe594caaf2c2072ca06a226e929ad))
+* update Freepik ([b286672](https://github.com/dessant/search-by-image/commit/b286672f0ff20f145b86c17d86faad50ccbf702c))
+* update Freepik ([3e51fb5](https://github.com/dessant/search-by-image/commit/3e51fb5eb2e2aa73933b83831c4b1cd4ee9ddd6b))
+* update TinEye ([3fabb19](https://github.com/dessant/search-by-image/commit/3fabb19d56219671552090af4aed60295aac06c3))
+* update Unsplash ([a432cc4](https://github.com/dessant/search-by-image/commit/a432cc40bd3c0ef4efce687fc490576fbfdb7efe))
+* update Yandex ([c798855](https://github.com/dessant/search-by-image/commit/c798855e07b0633f26713413c9674bb9da58e174)), closes [#360](https://github.com/dessant/search-by-image/issues/360)
+
 ## [8.2.0](https://github.com/dessant/search-by-image/compare/v8.1.2...v8.2.0) (2025-04-13)
 
 
