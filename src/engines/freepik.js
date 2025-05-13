@@ -1,4 +1,4 @@
-import {findNode, runOnce} from 'utils/common';
+import {findNode, runOnce, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'freepik';
@@ -16,6 +16,8 @@ async function search({session, search, image, storageIds}) {
   await sendReceipt(storageIds);
 
   input.dispatchEvent(new Event('change', {bubbles: true}));
+
+  await sleep(1000);
 
   (await findNode('.bg-surface-1 button[type=submit]')).click();
 }
