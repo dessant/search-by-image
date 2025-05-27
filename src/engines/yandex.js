@@ -33,6 +33,30 @@ function showResults(xhr) {
   }
 }
 
+async function searchApi({image, storageIds} = {}) {
+  const hostname = getValidHostname();
+  const url =
+    `https://${hostname}/images/touch/search?rpt=imageview&format=json` +
+    `&request={"blocks":[{"block":"cbir-uploader__get-cbir-id"}]}`;
+
+  const data = new FormData();
+  data.append('upfile', image.imageBlob);
+
+  const xhr = getContentXHR();
+  xhr.addEventListener('load', function () {
+    sendReceipt(storageIds);
+
+    uploadCallback(this, showResults, engine);
+  });
+  xhr.open('POST', url);
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+  xhr.setRequestHeader(
+    'Accept',
+    'application/json, text/javascript, */*; q=0.01'
+  );
+  xhr.send(data);
+}
+
 async function search({session, search, image, storageIds}) {
   const mobile = document.head.querySelector(
     'meta[name="apple-mobile-web-app-capable"]'
@@ -45,27 +69,7 @@ async function search({session, search, image, storageIds}) {
   });
 
   if (mobile) {
-    const hostname = getValidHostname();
-    const url =
-      `https://${hostname}/images/touch/search?rpt=imageview&format=json` +
-      `&request={"blocks":[{"block":"cbir-uploader__get-cbir-id"}]}`;
-
-    const data = new FormData();
-    data.append('upfile', image.imageBlob);
-
-    const xhr = getContentXHR();
-    xhr.addEventListener('load', function () {
-      sendReceipt(storageIds);
-
-      uploadCallback(this, showResults, engine);
-    });
-    xhr.open('POST', url);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    xhr.setRequestHeader(
-      'Accept',
-      'application/json, text/javascript, */*; q=0.01'
-    );
-    xhr.send(data);
+    await searchApi({image, storageIds});
   } else {
     // new layout: hide onboarding popup
     localStorage.setItem(
@@ -171,20 +175,28 @@ async function search({session, search, image, storageIds}) {
       button.click();
     }
 
-    await Promise.race([
+    const popup = await Promise.race([
       findNode('div.cbir-panel_visibility_visible', {
-        observerOptions: {attributes: true, attributeFilter: ['class']}
+        observerOptions: {attributes: true, attributeFilter: ['class']},
+        throwError: false,
+        timeout: 1000
       }), // old layout
       findNode('div.CbirPanel-Popup.Popup2_visible', {
-        observerOptions: {attributes: true, attributeFilter: ['class']}
+        observerOptions: {attributes: true, attributeFilter: ['class']},
+        throwError: false,
+        timeout: 1000
       }) // new layout
     ]);
 
-    await setFileInputData(inputSelector, input, image);
+    if (popup) {
+      await setFileInputData(inputSelector, input, image);
 
-    await sendReceipt(storageIds);
+      await sendReceipt(storageIds);
 
-    input.dispatchEvent(new Event('change', {bubbles: true}));
+      input.dispatchEvent(new Event('change', {bubbles: true}));
+    } else {
+      await searchApi({image, storageIds});
+    }
   }
 }
 
