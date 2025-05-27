@@ -287,11 +287,11 @@ const engines = {
   },
   googleLens: {
     url: {
-      target: 'https://www.google.com/imghp',
+      target: 'https://www.google.com/webhp',
       isExec: true
     },
     image: {
-      target: 'https://www.google.com/imghp',
+      target: 'https://www.google.com/webhp',
       isExec: true
     }
   },
