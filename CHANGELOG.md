@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.2.2](https://github.com/dessant/search-by-image/compare/v8.2.1...v8.2.2) (2025-05-27)
+
+
+### Bug Fixes
+
+* update Google ([e47c9e6](https://github.com/dessant/search-by-image/commit/e47c9e62f58d13d92360e4e152fca34b71f316a4)), closes [#381](https://github.com/dessant/search-by-image/issues/381)
+* update Yandex ([293d275](https://github.com/dessant/search-by-image/commit/293d275675b73f5c49991e96dd205e2808a08dd1)), closes [#383](https://github.com/dessant/search-by-image/issues/383)
+
 ## [8.2.1](https://github.com/dessant/search-by-image/compare/v8.2.0...v8.2.1) (2025-05-13)
 
 
