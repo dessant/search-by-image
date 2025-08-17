@@ -11,13 +11,9 @@ import {
 const engine = 'yandex';
 
 function showResults(xhr) {
-  if (xhr.status === 413) {
-    largeImageNotify(engine, '8');
-    return;
-  }
+  const params = JSON.parse(xhr.responseText).blocks[0].params;
 
-  const params = JSON.parse(xhr.responseText).blocks[0].params.url;
-  const tabUrl = `https://${getValidHostname()}/images/search?${params}`;
+  const tabUrl = `https://${getValidHostname()}/images/search?cbir_id=${params.cbirId}&rpt=imageview&tabInt=1&url=${params.originalImageUrl}`;
 
   if (validateUrl(tabUrl)) {
     window.location.replace(tabUrl);
@@ -25,9 +21,8 @@ function showResults(xhr) {
 }
 
 async function searchApi({image, storageIds} = {}) {
-  const hostname = getValidHostname();
   const url =
-    `https://${hostname}/images/touch/search?rpt=imageview&format=json` +
+    `https://${getValidHostname()}/images/touch/search?rpt=imageview&format=json` +
     `&request={"blocks":[{"block":"cbir-uploader__get-cbir-id"}]}`;
 
   const data = new FormData();
