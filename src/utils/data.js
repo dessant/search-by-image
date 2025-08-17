@@ -326,8 +326,7 @@ const engines = {
   },
   lenso: {
     url: {
-      target: 'https://lenso.ai/en/search-by-url?url={imgUrl}&utm_source=sbi',
-      isExec: true
+      target: 'https://lenso.ai/en/search-by-url?url={imgUrl}&utm_source=sbi'
     },
     image: {
       target: 'https://lenso.ai/en?utm_source=sbi',
