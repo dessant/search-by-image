@@ -5,7 +5,9 @@ const engine = 'freepik';
 
 async function search({session, search, image, storageIds}) {
   (
-    await findNode('form > div > button[data-state="closed"]:last-of-type')
+    await findNode(
+      'form button[data-cy="search-by-image"][data-state="closed"]'
+    )
   ).click();
 
   const inputSelector = 'input[type=file]';
@@ -19,7 +21,7 @@ async function search({session, search, image, storageIds}) {
 
   await sleep(1000);
 
-  (await findNode('.bg-surface-1 button[type=submit]')).click();
+  (await findNode('div[role=dialog] button[type=submit]')).click();
 }
 
 function init() {
