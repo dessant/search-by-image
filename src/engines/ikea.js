@@ -14,7 +14,7 @@ async function search({session, search, image, storageIds}) {
     throwError: false
   });
 
-  (await findNode('#search-box__visualsearch')).click();
+  (await findNode('#search-box-visual-search-icon')).click();
 
   const inputSelector = 'input[type=file]';
   const input = await findNode(inputSelector);
