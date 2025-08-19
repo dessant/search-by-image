@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.2.4](https://github.com/dessant/search-by-image/compare/v8.2.3...v8.2.4) (2025-08-19)
+
+
+### Bug Fixes
+
+* prevent crash in Safari ([0569c31](https://github.com/dessant/search-by-image/commit/0569c314238bc563598f190c08085b239ff6cf6d))
+* update Freepik ([a07ad48](https://github.com/dessant/search-by-image/commit/a07ad48f940a66093ac86e3fad67d2cac1a52218))
+* update IKEA ([6d8f4c4](https://github.com/dessant/search-by-image/commit/6d8f4c4e943860028a2072e3707e997d514e82cd))
+* update Lenso.ai ([c02050f](https://github.com/dessant/search-by-image/commit/c02050fa4c03ec65c8c091911dccc66587244f30))
+* update Wildberries ([97496e9](https://github.com/dessant/search-by-image/commit/97496e9102bb8635ae9d4bb196357286e777cc4a))
+* update Yandex ([fab85e4](https://github.com/dessant/search-by-image/commit/fab85e469c1c07634c5a08e3eb02e8ca26c3541b))
+
 ## [8.2.3](https://github.com/dessant/search-by-image/compare/v8.2.2...v8.2.3) (2025-05-27)
 
 
