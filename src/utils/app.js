@@ -690,6 +690,12 @@ async function isContextMenuSupported() {
     if (targetEnv === 'samsung') {
       return true;
     }
+  } else if (targetEnv === 'safari') {
+    const platform = await getPlatform();
+
+    if (platform.isMacos) {
+      return true;
+    }
   } else if (browser.contextMenus) {
     return true;
   }

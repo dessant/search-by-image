@@ -388,6 +388,10 @@ async function createMenuItem(item) {
 }
 
 async function removeMenuItem(menuItemId, {throwError = false} = {}) {
+  // Safari 18: contextMenus.remove crashes the extension process
+  // when the menu item to be removed was created from a previous instance
+  // of a non-persistent background page.
+
   try {
     // removes context menu item from current instance
     await browser.contextMenus.remove(menuItemId);
@@ -409,10 +413,14 @@ async function createMenu() {
     active: browser.extension.inIncognitoContext
   };
 
-  const {menuItems: currentItems} = await storage.get('menuItems', {context});
+  if (['chrome', 'edge', 'opera'].includes(targetEnv)) {
+    const {menuItems: currentItems} = await storage.get('menuItems', {context});
 
-  for (const itemId of currentItems) {
-    await removeMenuItem(itemId);
+    for (const itemId of currentItems) {
+      await removeMenuItem(itemId);
+    }
+  } else {
+    await removeAllMenuItems();
   }
 
   const {showInContextMenu} = await storage.get('showInContextMenu');
