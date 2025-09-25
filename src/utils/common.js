@@ -805,6 +805,17 @@ function filenameToFileExt(name) {
   return (/(?:\.([^.]+))?$/.exec(name)[1] || '').toLowerCase();
 }
 
+function isIndexedDbSupported() {
+  // Firefox 117: IndexedDB does not work when Private Browsing is automatically
+  // enabled on browser start. DOMException: A mutation operation was attempted
+  // on a database that did not allow mutations.
+  if (targetEnv === 'firefox' && browser.extension.inIncognitoContext) {
+    return false;
+  }
+
+  return true;
+}
+
 function getStore(name, {content = null} = {}) {
   name = `${name}Store`;
 
@@ -889,6 +900,7 @@ export {
   getAbsoluteUrl,
   getDataFromUrl,
   filenameToFileExt,
+  isIndexedDbSupported,
   getStore,
   runOnce,
   requestLock,

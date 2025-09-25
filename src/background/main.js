@@ -48,6 +48,7 @@ import {
   isMobile,
   getPlatform,
   stringToInt,
+  isIndexedDbSupported,
   runOnce
 } from 'utils/common';
 import {getScriptFunction} from 'utils/scripts';
@@ -900,6 +901,8 @@ async function searchImage(session, image, firstBatchItem = true) {
 
   const altReceiptSearches = searches.filter(item => item.isAltImage);
 
+  const imageStorageArea = isIndexedDbSupported() ? 'indexeddb' : 'local';
+
   let altImage, altImageId;
   if (altReceiptSearches.length) {
     altImage = await convertProcessedImage(image, {newType: 'image/png'});
@@ -908,7 +911,7 @@ async function searchImage(session, image, firstBatchItem = true) {
       altImageId = await registry.addStorageItem(altImage, {
         receipts: {expected: altReceiptSearches.length, received: 0},
         expiryTime: 10.0,
-        area: 'indexeddb'
+        area: imageStorageArea
       });
     }
   }
@@ -922,7 +925,7 @@ async function searchImage(session, image, firstBatchItem = true) {
     imageId = await registry.addStorageItem(image, {
       receipts: {expected: receiptSearches.length, received: 0},
       expiryTime: 10.0,
-      area: 'indexeddb'
+      area: imageStorageArea
     });
   }
 
