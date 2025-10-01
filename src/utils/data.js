@@ -75,7 +75,6 @@ const engines = {
     }
   },
   whatanime: {
-    url: {target: 'https://trace.moe/?url={imgUrl}'},
     image: {
       target: 'https://trace.moe/',
       isExec: true
