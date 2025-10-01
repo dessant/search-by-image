@@ -37,7 +37,7 @@ const engines = {
         '%2Fimages%2Fdiscover%3Fform%3DHDRSC2#enterInsights'
     },
     image: {
-      target: 'https://www.bing.com/',
+      target: 'https://www.bing.com/images',
       isExec: true
     }
   },
