@@ -19,7 +19,7 @@ function init() {
   if (
     !document
       .querySelector('noscript')
-      .textContent.includes('<div class="h2"><span id="challenge-error-text">')
+      ?.textContent.includes('<div class="h2"><span id="challenge-error-text">')
   ) {
     initSearch(search, engine, taskId);
   }
