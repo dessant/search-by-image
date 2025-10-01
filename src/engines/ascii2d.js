@@ -15,7 +15,14 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  initSearch(search, engine, taskId);
+  // skip Cloudflare challenge
+  if (
+    !document
+      .querySelector('noscript')
+      ?.textContent.includes('<div class="h2"><span id="challenge-error-text">')
+  ) {
+    initSearch(search, engine, taskId);
+  }
 }
 
 if (runOnce('search')) {
