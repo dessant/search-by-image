@@ -4,6 +4,11 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'shutterstock';
 
 async function search({session, search, image, storageIds}) {
+  // challenge may be added only after page load
+  if (document.querySelector('iframe[src*="captcha-delivery.com"]')) {
+    return;
+  }
+
   if (await isMobile()) {
     // some elements are loaded only after the first user interaction
     window.dispatchEvent(new Event('touchstart'));
