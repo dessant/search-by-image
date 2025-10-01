@@ -66,7 +66,9 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  initSearch(search, engine, taskId);
+  if (!window.location.pathname.startsWith('/sorry')) {
+    initSearch(search, engine, taskId);
+  }
 }
 
 if (runOnce('search')) {
