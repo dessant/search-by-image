@@ -22,11 +22,11 @@ async function search({session, search, image, storageIds}) {
   await findNode('.ui-icon-pencil');
 
   // select Concept strategy
-  (await findNode('a[data-hasqtip="82"]')).click();
+  (await findNode('a[data-hasqtip="83"]')).click();
 
   // deselect all image types
-  (await findNode('a[data-hasqtip="88"]')).click();
   (await findNode('a[data-hasqtip="89"]')).click();
+  (await findNode('a[data-hasqtip="90"]')).click();
 
   await sendReceipt(storageIds);
 
