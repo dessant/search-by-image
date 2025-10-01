@@ -32,7 +32,14 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  initSearch(search, engine, taskId);
+  if (
+    !document
+      .querySelector('body')
+      ?.textContent.toLowerCase()
+      .includes('url was rejected')
+  ) {
+    initSearch(search, engine, taskId);
+  }
 }
 
 if (runOnce('search')) {
