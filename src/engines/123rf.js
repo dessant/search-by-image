@@ -1,6 +1,11 @@
 import {validateUrl} from 'utils/app';
 import {runOnce} from 'utils/common';
-import {initSearch, prepareImageForUpload, sendReceipt} from 'utils/engines';
+import {
+  initSearch,
+  prepareImageForUpload,
+  sendReceipt,
+  getValidHostname
+} from 'utils/engines';
 
 const engine = '123rf';
 
@@ -14,14 +19,13 @@ async function search({session, search, image, storageIds}) {
   const data = new FormData();
   data.append('image_base64', image.imageDataUrl);
 
-  const rsp = await fetch(
-    'https://www.123rf.com/apicore/search/reverse/upload',
-    {
-      mode: 'cors',
-      method: 'POST',
-      body: data
-    }
-  );
+  const apiHost = getValidHostname();
+
+  const rsp = await fetch(`https://${apiHost}/apicore/search/reverse/upload`, {
+    mode: 'cors',
+    method: 'POST',
+    body: data
+  });
 
   if (rsp.status !== 200) {
     throw new Error(`API response: ${rsp.status}, ${await rsp.text()}`);
@@ -32,8 +36,7 @@ async function search({session, search, image, storageIds}) {
   // JSON response may start with HTML
   const searchData = JSON.parse(rspText.substring(rspText.indexOf('{')));
 
-  const tabUrl =
-    'https://www.123rf.com/reverse-search/?fid=' + searchData.data.fid;
+  const tabUrl = `https://${apiHost}/reverse-search/?fid=${searchData.data.fid}`;
 
   await sendReceipt(storageIds);
 
@@ -43,7 +46,9 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  initSearch(search, engine, taskId);
+  if (document.querySelector('h1')?.textContent.toLowerCase() !== '403 error') {
+    initSearch(search, engine, taskId);
+  }
 }
 
 if (runOnce('search')) {
