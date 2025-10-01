@@ -5,7 +5,9 @@ const engine = 'istock';
 
 async function search({session, search, image, storageIds}) {
   // wait for search service to load
-  await findNode('#onetrust-consent-sdk');
+  await findNode('body.ng-scope', {
+    observerOptions: {attributes: true, attributeFilter: ['class']}
+  });
   await sleep(1000);
 
   (
@@ -26,7 +28,12 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  initSearch(search, engine, taskId);
+  if (
+    !window.location.pathname.includes('/bot-wall') &&
+    document.querySelector('h1')?.textContent.toLowerCase() !== '403 error'
+  ) {
+    initSearch(search, engine, taskId);
+  }
 }
 
 if (runOnce('search')) {
