@@ -131,7 +131,7 @@ const engines = {
   },
   depositphotos: {
     image: {
-      target: 'https://depositphotos.com/',
+      target: 'https://depositphotos.com/search/',
       isExec: true
     }
   },

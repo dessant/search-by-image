@@ -5,12 +5,9 @@ const engine = 'depositphotos';
 
 async function search({session, search, image, storageIds}) {
   (
-    await findNode(
-      'body:not(.preload) button[data-qa="SearchByImageButtonV2"]',
-      {
-        observerOptions: {attributes: true, attributeFilter: ['class']}
-      }
-    )
+    await findNode('body:not(.preload) div[data-qa="SearchByImageBoxV2"]', {
+      observerOptions: {attributes: true, attributeFilter: ['class']}
+    })
   ).click();
 
   const inputSelector = 'input[type=file]';
