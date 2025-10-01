@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'nzTrademark';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('#logoCheckButton')).click();
 
   const inputSelector = '#imageSearchDialogUploadButton';

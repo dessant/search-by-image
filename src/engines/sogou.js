@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'sogou';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   if (!(await isMobile())) {
     (await findNode('a#cameraIco', {timeout: 120000})).click();
   }

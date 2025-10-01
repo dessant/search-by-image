@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'repostSleuth';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   if (search.assetType === 'image') {
     const inputSelector = 'input[type=file]';
     const input = await findNode(inputSelector);
@@ -34,8 +34,25 @@ async function search({session, search, image, storageIds}) {
   window.setTimeout(() => button.click(), 300);
 }
 
+async function engineAccess() {
+  if (
+    // Cloudflare challenge
+    document
+      .querySelector('noscript')
+      ?.textContent.includes(
+        '<div class="h2"><span id="challenge-error-text">'
+      ) ||
+    // Cloudflare error
+    document.querySelector('div#cf-wrapper > div#cf-error-details')
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

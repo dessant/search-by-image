@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'auTrademark';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   // go to desktop version on mobile
   processNode(
     '#pageContent a[onclick^="document.cookie=\'_fullMobile=true"]',

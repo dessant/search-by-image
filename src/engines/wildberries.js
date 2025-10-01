@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'wildberries';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   // wait for search service to load
   await sleep(1000);
 

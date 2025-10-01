@@ -1,5 +1,5 @@
 import {validateUrl, getContentXHR} from 'utils/app';
-import {makeDocumentVisible, runOnce} from 'utils/common';
+import {runOnce} from 'utils/common';
 import {
   initSearch,
   prepareImageForUpload,
@@ -43,7 +43,7 @@ async function searchApi({image, storageIds} = {}) {
   xhr.send(data);
 }
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   image = await prepareImageForUpload({
     image,
     engine,
@@ -53,11 +53,16 @@ async function search({session, search, image, storageIds}) {
   await searchApi({image, storageIds});
 }
 
-function init() {
-  makeDocumentVisible();
-  if (!window.location.pathname.startsWith('/showcaptcha')) {
-    initSearch(search, engine, taskId);
+async function engineAccess() {
+  if (window.location.pathname.startsWith('/showcaptcha')) {
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess, documentVisible: true});
 }
 
 if (runOnce('search')) {

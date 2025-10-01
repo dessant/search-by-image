@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'lexica';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   await executeScriptMainContext({func: 'lexicaOverrideEventDispatch'});
 
   (await findNode('input#main-search')).nextElementSibling.click();

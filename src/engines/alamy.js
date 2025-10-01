@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'alamy';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('button[data-testid="searchByImageLong"]')).click();
 
   const inputSelector = '#upload-an-image-tab input[type=file]';
@@ -16,15 +16,21 @@ async function search({session, search, image, storageIds}) {
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
-function init() {
+async function engineAccess() {
   if (
-    !document
+    document
       .querySelector('body')
       ?.textContent.toLowerCase()
       .includes('has been blocked')
   ) {
-    initSearch(search, engine, taskId);
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

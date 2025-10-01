@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'taobao';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   await executeScriptMainContext({func: 'taobaoPatchContext'});
 
   (await findNode('div.image-search-icon-wrapper', {timeout: 120000})).click();

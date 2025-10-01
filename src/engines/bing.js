@@ -8,7 +8,7 @@ import {
 
 const engine = 'bing';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const mobile = await isMobile();
 
   image = await prepareImageForUpload({

@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'tineye';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const inputSelector = 'input#upload-box';
   const input = await findNode(inputSelector);
 
@@ -14,15 +14,25 @@ async function search({session, search, image, storageIds}) {
   input.dispatchEvent(new Event('change'));
 }
 
-function init() {
-  // skip Cloudflare challenge
+async function engineAccess() {
   if (
-    !document
+    // Cloudflare challenge
+    document
       .querySelector('noscript')
-      ?.textContent.includes('<div class="h2"><span id="challenge-error-text">')
+      ?.textContent.includes(
+        '<div class="h2"><span id="challenge-error-text">'
+      ) ||
+    // Cloudflare error
+    document.querySelector('div#cf-wrapper > div#cf-error-details')
   ) {
-    initSearch(search, engine, taskId);
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'adobestock';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('svg[data-t="find-similar-icon"]')).parentNode.click();
 
   const inputSelector = 'input[type=file]';

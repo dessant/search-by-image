@@ -7,8 +7,10 @@ import {
   sendLargeMessage
 } from 'utils/app';
 import {
+  getText,
   dataUrlToBlob,
   waitForDocumentLoad,
+  makeDocumentVisible,
   executeScriptMainContext
 } from 'utils/common';
 import {chromeSbiSrc} from 'utils/data';
@@ -66,10 +68,7 @@ async function unsetUserAgent(storageIds) {
 
 function showEngineError({message, errorId, engine}) {
   if (!message) {
-    message = browser.i18n.getMessage(
-      errorId,
-      browser.i18n.getMessage(`engineName_${engine}`)
-    );
+    message = getText(errorId, getText(`engineName_${engine}`));
   }
 
   browser.runtime.sendMessage({
@@ -104,8 +103,21 @@ async function sendReceipt(storageIds) {
   }
 }
 
-async function initSearch(searchFn, engine, taskId) {
+async function initSearch(
+  searchFn,
+  engine,
+  taskId,
+  {engineAccess = null, documentVisible = false} = {}
+) {
+  if (documentVisible) {
+    makeDocumentVisible();
+  }
+
   await waitForDocumentLoad();
+
+  if (engineAccess && !(await engineAccess())) {
+    return;
+  }
 
   const task = await browser.runtime.sendMessage({
     id: 'storageRequest',

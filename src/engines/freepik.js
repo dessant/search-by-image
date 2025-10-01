@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'freepik';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (
     await findNode(
       'form button[data-cy="search-by-image"][data-state="closed"]'
@@ -24,8 +24,16 @@ async function search({session, search, image, storageIds}) {
   (await findNode('div[role=dialog] button[type=submit]')).click();
 }
 
+async function engineAccess() {
+  if (document.title.toLowerCase() === 'access denied') {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

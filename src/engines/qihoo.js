@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'qihoo';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   let inputSelector;
   let input;
   if (document.head.querySelector('meta[name^="apple-mobile"]')) {

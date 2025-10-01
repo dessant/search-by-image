@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'branddb';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   await findNode('body[style^="opacity: 1"]', {
     observerOptions: {attributes: true, attributeFilter: ['class']}
   });

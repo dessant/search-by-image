@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'lykdat';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const inputSelector = '.top-search-image-box input[type=file]';
   const input = await findNode(inputSelector);
 

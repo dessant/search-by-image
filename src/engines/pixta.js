@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pixta';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const mobileLayout = window.matchMedia('(max-width: 768px)').matches;
 
   if (mobileLayout) {

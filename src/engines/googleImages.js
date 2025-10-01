@@ -3,7 +3,7 @@ import {initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'googleImages';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   await sendReceipt(storageIds);
 
   const targetNode = await Promise.race([

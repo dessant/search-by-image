@@ -9,7 +9,7 @@ import {
 
 const engine = 'unsplash';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   await findNode('body[data-testid="client-side-hydration-complete"]', {
     observerOptions: {attributes: true}
   });

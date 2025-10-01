@@ -3,7 +3,7 @@ import {initSearch, setFileInputData, sendReceipt} from 'utils/engines';
 
 const engine = 'kagi';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('.img_search_state_checkbox_label')).click();
 
   if (search.assetType === 'image') {

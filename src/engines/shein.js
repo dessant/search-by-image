@@ -1,9 +1,9 @@
-import {findNode, makeDocumentVisible, runOnce} from 'utils/common';
+import {findNode, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'shein';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('.search-input_upload span.sui-icon-common__wrap')).click();
 
   const inputSelector = '.search-upload input[type="file"]';
@@ -17,8 +17,7 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  makeDocumentVisible();
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {documentVisible: true});
 }
 
 if (runOnce('search')) {

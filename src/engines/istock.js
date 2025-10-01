@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'istock';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   // wait for search service to load
   await findNode('body.ng-scope', {
     observerOptions: {attributes: true, attributeFilter: ['class']}
@@ -27,13 +27,19 @@ async function search({session, search, image, storageIds}) {
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
-function init() {
+async function engineAccess() {
   if (
-    !window.location.pathname.includes('/bot-wall') &&
-    document.querySelector('h1')?.textContent.toLowerCase() !== '403 error'
+    window.location.pathname.includes('/bot-wall') ||
+    document.querySelector('h1')?.textContent.toLowerCase() === '403 error'
   ) {
-    initSearch(search, engine, taskId);
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

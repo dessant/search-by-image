@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'saucenao';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const autoSubmit = await findNode('input#auto-cb');
   if (!autoSubmit.checked) {
     autoSubmit.click();

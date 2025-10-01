@@ -4,7 +4,7 @@ import {targetEnv} from 'utils/config';
 
 const engine = 'madridMonitor';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('#imageModeLink')).click();
 
   await findNode('.fileTarget-open');

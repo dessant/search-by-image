@@ -1,9 +1,9 @@
-import {findNode, makeDocumentVisible, runOnce} from 'utils/common';
+import {findNode, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'icons8';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (await findNode('button.search-autocomplete__img-trigger')).click();
 
   const inputSelector = 'input#file-input';
@@ -17,8 +17,7 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  makeDocumentVisible();
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {documentVisible: true});
 }
 
 if (runOnce('search')) {

@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'tmview';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   // previous search may be cached
   let removeImage = true;
   processNode(
@@ -31,15 +31,21 @@ async function search({session, search, image, storageIds}) {
   (await findNode('button[data-test-id=search-button]')).click();
 }
 
-function init() {
+async function engineAccess() {
   if (
-    !document
+    document
       .querySelector('body')
       ?.textContent.toLowerCase()
       .includes('url was rejected')
   ) {
-    initSearch(search, engine, taskId);
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

@@ -3,7 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'alibabaChina';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   await executeScriptMainContext({func: 'alibabaChinaPatchContextScript'});
 
   const inputSelector = 'input.image-file-reader-wrapper';

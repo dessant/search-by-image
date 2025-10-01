@@ -8,7 +8,7 @@ import {
 
 const engine = 'googleLens';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const inputSelector = 'input[type="file"]';
 
   async function clickButton() {
@@ -65,10 +65,16 @@ async function search({session, search, image, storageIds}) {
   }
 }
 
-function init() {
-  if (!window.location.pathname.startsWith('/sorry')) {
-    initSearch(search, engine, taskId);
+async function engineAccess() {
+  if (window.location.pathname.startsWith('/sorry')) {
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

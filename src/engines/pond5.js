@@ -3,12 +3,7 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pond5';
 
-async function search({session, search, image, storageIds}) {
-  // challenge may be added only after page load
-  if (document.querySelector('iframe[src*="captcha-delivery.com"]')) {
-    return;
-  }
-
+async function search({session, search, image, storageIds} = {}) {
   (
     await findNode('div#main form.SiteSearch button.js-reverseSearchInputIcon')
   ).click();
@@ -23,8 +18,16 @@ async function search({session, search, image, storageIds}) {
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
+async function engineAccess() {
+  if (document.querySelector('iframe[src*="captcha-delivery.com"]')) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

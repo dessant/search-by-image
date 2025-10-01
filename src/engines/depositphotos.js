@@ -1,9 +1,9 @@
-import {findNode, makeDocumentVisible, runOnce} from 'utils/common';
+import {findNode, runOnce} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'depositphotos';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   (
     await findNode('body:not(.preload) div[data-qa="SearchByImageBoxV2"]', {
       observerOptions: {attributes: true, attributeFilter: ['class']}
@@ -21,8 +21,7 @@ async function search({session, search, image, storageIds}) {
 }
 
 function init() {
-  makeDocumentVisible();
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {documentVisible: true});
 }
 
 if (runOnce('search')) {

@@ -9,7 +9,7 @@ import {
 
 const engine = 'baidu';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   const mobile = await isMobile();
 
   image = await prepareImageForUpload({

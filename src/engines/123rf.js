@@ -9,7 +9,7 @@ import {
 
 const engine = '123rf';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   image = await prepareImageForUpload({
     image,
     engine,
@@ -45,10 +45,16 @@ async function search({session, search, image, storageIds}) {
   }
 }
 
-function init() {
-  if (document.querySelector('h1')?.textContent.toLowerCase() !== '403 error') {
-    initSearch(search, engine, taskId);
+async function engineAccess() {
+  if (document.querySelector('h1')?.textContent.toLowerCase() === '403 error') {
+    return false;
   }
+
+  return true;
+}
+
+function init() {
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {

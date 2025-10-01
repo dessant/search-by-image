@@ -10,7 +10,7 @@ import {targetEnv} from 'utils/config';
 
 const engine = 'dreamstime';
 
-async function search({session, search, image, storageIds}) {
+async function search({session, search, image, storageIds} = {}) {
   if (targetEnv === 'safari' && (await isMobile())) {
     // hide noncritical upload error
     executeScriptMainContext({func: 'hideAlert'});
