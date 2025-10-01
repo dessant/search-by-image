@@ -296,7 +296,6 @@ const engines = {
     }
   },
   lexica: {
-    url: {target: 'https://lexica.art/?q={imgUrl}'},
     image: {
       target: 'https://lexica.art/',
       isExec: true
