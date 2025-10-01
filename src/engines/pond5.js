@@ -4,6 +4,11 @@ import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 const engine = 'pond5';
 
 async function search({session, search, image, storageIds}) {
+  // challenge may be added only after page load
+  if (document.querySelector('iframe[src*="captcha-delivery.com"]')) {
+    return;
+  }
+
   (
     await findNode('div#main form.SiteSearch button.js-reverseSearchInputIcon')
   ).click();
