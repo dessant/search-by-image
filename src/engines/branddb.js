@@ -29,8 +29,16 @@ async function search({session, search, image, storageIds} = {}) {
   }, 100);
 }
 
+async function engineAccess() {
+  if (!document.querySelector('app-root')?.hasChildNodes()) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {
