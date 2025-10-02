@@ -43,8 +43,16 @@ async function search({session, search, image, storageIds} = {}) {
   }
 }
 
+async function engineAccess() {
+  if (window.location.pathname.startsWith('/signin')) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {
