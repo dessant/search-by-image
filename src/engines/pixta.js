@@ -30,8 +30,18 @@ async function search({session, search, image, storageIds} = {}) {
   input.dispatchEvent(new Event('change'));
 }
 
+async function engineAccess() {
+  if (
+    document.querySelector('h1')?.textContent.toLowerCase() === '403 forbidden'
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {
