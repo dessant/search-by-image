@@ -47,6 +47,7 @@ import {
   isAndroid,
   isMobile,
   getPlatform,
+  getBrowser,
   stringToInt,
   isIndexedDbSupported,
   runOnce
@@ -1495,13 +1496,21 @@ async function setMessagePort(id, port) {
 }
 
 async function processMessage(request, sender) {
-  if (request.id === 'cancelView') {
+  if (request.id === 'showOverlay') {
+    await openContentView(
+      {
+        session: request.session || {sourceTabId: sender.tab.id},
+        message: request.message
+      },
+      'overlay'
+    );
+  } else if (request.id === 'cancelView') {
     if (request.view === 'select') {
       hideContentSelectionPointer(sender.tab.id);
     }
     browser.tabs.sendMessage(
       sender.tab.id,
-      {id: 'closeView', view: request.view},
+      {id: 'closeView', view: request.view, messageView: request.messageView},
       {frameId: 0}
     );
   } else if (request.id === 'discardView') {
@@ -1619,6 +1628,8 @@ async function processMessage(request, sender) {
     return Promise.resolve({response});
   } else if (request.id === 'getPlatform') {
     return getPlatform();
+  } else if (request.id === 'getBrowser') {
+    return getBrowser();
   } else if (request.id === 'storageRequest') {
     const data = await registry.getStorageItem({
       storageId: request.storageId,

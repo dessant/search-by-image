@@ -33,7 +33,7 @@ async function engineAccess() {
 }
 
 function init() {
-  initSearch(search, engine, taskId, {engineAccess});
+  initSearch(search, engine, taskId, {engineAccess, canvasAccess: true});
 }
 
 if (runOnce('search')) {

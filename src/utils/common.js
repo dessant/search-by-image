@@ -64,7 +64,7 @@ async function executeScript({
 
   code = ''
 }) {
-  if (mv3) {
+  if (mv3 || (targetEnv === 'firefox' && (await getBrowserVersion()) >= 128)) {
     const params = {target: {tabId}, world};
 
     // Safari 17: allFrames and frameIds cannot both be specified,
@@ -113,7 +113,7 @@ async function executeScript({
   }
 }
 
-function executeScriptMainContext({
+async function executeScriptMainContext({
   files = null,
   func = null,
   args = null,
@@ -124,7 +124,7 @@ function executeScriptMainContext({
   setNonce = true
 } = {}) {
   // Must be called from a content script, `args[0]` must be a trusted string in MV2.
-  if (mv3) {
+  if (mv3 || (targetEnv === 'firefox' && (await getBrowserVersion()) >= 128)) {
     return browser.runtime.sendMessage({
       id: 'executeScript',
       setSenderTabId: true,
@@ -362,6 +362,22 @@ async function getPlatform() {
   };
 }
 
+async function getBrowser() {
+  if (!isBackgroundPageContext()) {
+    return browser.runtime.sendMessage({id: 'getBrowser'});
+  }
+
+  const {name, version} = await browser.runtime.getBrowserInfo();
+
+  return {name: name.toLowerCase(), version: version.toLowerCase()};
+}
+
+async function getBrowserVersion() {
+  const {version} = await getBrowser();
+
+  return parseInt(version.split('.')[0], 10);
+}
+
 async function isAndroid() {
   return (await getPlatform()).isAndroid;
 }
@@ -578,6 +594,17 @@ function addCssClass(node, newClass, {replaceClass = ''} = {}) {
   }
 }
 
+function isOffscreenCanvasSupported() {
+  // Firefox < 131: OffscreenCanvas may be disabled with the
+  // gfx.offscreencanvas.enabled preference.
+
+  if (targetEnv === 'firefox') {
+    return typeof window.OffscreenCanvas !== 'undefined';
+  }
+
+  return true;
+}
+
 function isOffscreenCanvas(cnv) {
   return typeof cnv.convertToBlob !== 'undefined';
 }
@@ -588,6 +615,10 @@ function isOffscreenCanvasContext(ctx) {
 
 function getCanvas(width, height, {offscreen = true, contextType = '2d'} = {}) {
   let cnv, ctx;
+
+  if (offscreen && !isOffscreenCanvasSupported()) {
+    offscreen = false;
+  }
 
   if (offscreen) {
     cnv = new OffscreenCanvas(width, height);
@@ -809,6 +840,7 @@ function isIndexedDbSupported() {
   // Firefox 117: IndexedDB does not work when Private Browsing is automatically
   // enabled on browser start. DOMException: A mutation operation was attempted
   // on a database that did not allow mutations.
+
   if (targetEnv === 'firefox' && browser.extension.inIncognitoContext) {
     return false;
   }
@@ -865,6 +897,8 @@ export {
   isValidTab,
   getPlatformInfo,
   getPlatform,
+  getBrowser,
+  getBrowserVersion,
   isAndroid,
   isMobile,
   getDarkColorSchemeQuery,
@@ -879,6 +913,7 @@ export {
   makeDocumentVisible,
   shareFiles,
   addCssClass,
+  isOffscreenCanvasSupported,
   isOffscreenCanvas,
   isOffscreenCanvasContext,
   getCanvas,

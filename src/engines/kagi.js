@@ -1,5 +1,10 @@
 import {findNode, runOnce} from 'utils/common';
-import {initSearch, setFileInputData, sendReceipt} from 'utils/engines';
+import {
+  initSearch,
+  setFileInputData,
+  sendReceipt,
+  waitForCanvasAccess
+} from 'utils/engines';
 
 const engine = 'kagi';
 
@@ -7,6 +12,8 @@ async function search({session, search, image, storageIds} = {}) {
   (await findNode('.img_search_state_checkbox_label')).click();
 
   if (search.assetType === 'image') {
+    await waitForCanvasAccess({engine});
+
     const inputSelector = 'input[type="file"]';
     const input = await findNode(inputSelector);
 

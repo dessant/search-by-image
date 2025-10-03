@@ -11,8 +11,11 @@ import {
   dataUrlToBlob,
   waitForDocumentLoad,
   makeDocumentVisible,
-  executeScriptMainContext
+  executeScriptMainContext,
+  getBrowserVersion,
+  isMobile
 } from 'utils/common';
+import {targetEnv} from 'utils/config';
 import {chromeSbiSrc} from 'utils/data';
 
 function getValidHostname({validHostnames = null} = {}) {
@@ -107,7 +110,7 @@ async function initSearch(
   searchFn,
   engine,
   taskId,
-  {engineAccess = null, documentVisible = false} = {}
+  {engineAccess = null, canvasAccess = false, documentVisible = false} = {}
 ) {
   if (documentVisible) {
     makeDocumentVisible();
@@ -141,6 +144,10 @@ async function initSearch(
       if (image) {
         if (task.search.assetType === 'image') {
           image = await prepareImageForUpload({image, engine});
+        }
+
+        if (canvasAccess) {
+          await waitForCanvasAccess({engine});
         }
 
         await searchFn({
@@ -283,6 +290,80 @@ async function prepareImageForUpload({
   return image;
 }
 
+async function waitForCanvasAccess({
+  timeout = 120000,
+  throwError = true,
+  engine = ''
+} = {}) {
+  if (
+    targetEnv === 'firefox' &&
+    !(await isMobile()) &&
+    (await getBrowserVersion()) >= 140
+  ) {
+    return new Promise(async (resolve, reject) => {
+      const eventName = uuidv4();
+      let showOverlay = false;
+
+      const cleanup = function () {
+        window.clearTimeout(timeoutId);
+
+        document.removeEventListener(eventName, onEvent, {capture: true});
+
+        if (showOverlay) {
+          browser.runtime.sendMessage({
+            id: 'cancelView',
+            view: 'overlay',
+            messageView: true
+          });
+        }
+      };
+
+      const onEvent = function (ev) {
+        if (ev.detail) {
+          cleanup();
+
+          resolve();
+        } else {
+          showOverlay = true;
+
+          browser.runtime.sendMessage({
+            id: 'showOverlay',
+            message: {
+              overlayType: 'dialog',
+              dialogTitle: getText('dialogTitle_permissionNeeded'),
+              dialogText: getText(
+                'dialogText_CanvasAccessNeeded',
+                getText(`engineName_${engine}`)
+              )
+            }
+          });
+        }
+      };
+
+      const timeoutId = window.setTimeout(function () {
+        cleanup();
+
+        if (throwError) {
+          reject(
+            new EngineError(
+              getText('error_noCanvasAccess', getText(`engineName_${engine}`))
+            )
+          );
+        } else {
+          resolve();
+        }
+      }, timeout);
+
+      document.addEventListener(eventName, onEvent, {capture: true});
+
+      await executeScriptMainContext({
+        func: 'waitForCanvasAccess',
+        args: [eventName]
+      });
+    });
+  }
+}
+
 export {
   getValidHostname,
   setFileInputData,
@@ -294,5 +375,6 @@ export {
   searchGoogleImages,
   searchPinterest,
   EngineError,
-  prepareImageForUpload
+  prepareImageForUpload,
+  waitForCanvasAccess
 };

@@ -223,6 +223,59 @@ function yandexServiceObserverScript(eventName) {
   checkService();
 }
 
+function waitForCanvasAccessScript(eventName) {
+  const cnv = document.createElement('canvas');
+  cnv.width = 1;
+  cnv.height = 1;
+  const ctx = cnv.getContext('2d');
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, 1, 1);
+
+  const cleanup = function ({timeoutId} = {}) {
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+    }
+
+    ctx.clearRect(0, 0, 1, 1);
+  };
+
+  const sendEvent = function (data) {
+    document.dispatchEvent(new CustomEvent(eventName, {detail: data}));
+  };
+
+  const hasAccess = function () {
+    return ctx.getImageData(0, 0, 1, 1).data.every(x => x === 255);
+  };
+
+  if (hasAccess()) {
+    cleanup();
+
+    sendEvent(true);
+    return;
+  } else {
+    sendEvent(false);
+  }
+
+  let stop;
+
+  const checkAccess = function () {
+    if (hasAccess()) {
+      cleanup({timeoutId});
+
+      sendEvent(true);
+    } else if (!stop) {
+      window.setTimeout(checkAccess, 500);
+    }
+  };
+
+  const timeoutId = window.setTimeout(function () {
+    stop = true;
+  }, 120000); // 2 minutes
+
+  checkAccess();
+}
+
 const scriptFunctions = {
   makeDocumentVisible: makeDocumentVisibleScript,
   setFileInputData: setFileInputDataScript,
@@ -230,7 +283,8 @@ const scriptFunctions = {
   lexicaOverrideEventDispatch: lexicaOverrideEventDispatchScript,
   alibabaChinaPatchContextScript: alibabaChinaPatchContextScript,
   taobaoPatchContext: taobaoPatchContextScript,
-  yandexServiceObserver: yandexServiceObserverScript
+  yandexServiceObserver: yandexServiceObserverScript,
+  waitForCanvasAccess: waitForCanvasAccessScript
 };
 
 function getScriptFunction(func) {

@@ -1377,9 +1377,9 @@ async function fetchImageFromBackgroundScript(url) {
 }
 
 function getLargeImageMessage(engine, maxSize) {
-  return browser.i18n.getMessage('error_invalidImageSize', [
-    browser.i18n.getMessage(`engineName_${engine}`),
-    browser.i18n.getMessage('unit_mb', (maxSize / 1024 / 1024).toString())
+  return getText('error_invalidImageSize', [
+    getText(`engineName_${engine}`),
+    getText('unit_mb', (maxSize / 1024 / 1024).toString())
   ]);
 }
 

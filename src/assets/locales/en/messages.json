@@ -1001,6 +1001,22 @@
     "description": "Title of the dialog."
   },
 
+  "dialogTitle_permissionNeeded": {
+    "message": "Permission needed",
+    "description": "Title of the dialog."
+  },
+
+  "dialogText_CanvasAccessNeeded": {
+    "message": "Allow $ENGINE$ to access your canvas image data to search with an image. The permission can be managed from the browser's address bar.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+
   "snackbarMessage_imageSelection": {
     "message": "Select an image",
     "description": "Text of the snackbar."
@@ -1013,6 +1029,11 @@
 
   "buttonLabel_cancel": {
     "message": "Cancel",
+    "description": "Text of the button."
+  },
+
+  "buttonLabel_close": {
+    "message": "Close",
     "description": "Text of the button."
   },
 
@@ -1327,6 +1348,17 @@
   "error_noClipboardWriteAccess": {
     "message": "Cannot add data to the clipboard.",
     "description": "Error message."
+  },
+
+  "error_noCanvasAccess": {
+    "message": "Cannot access canvas data. Try searching again and allow $ENGINE$ to access your canvas image data.",
+    "description": "Error message.",
+    "placeholders": {
+      "engine": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
   },
 
   "error_pageParseError": {

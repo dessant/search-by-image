@@ -17,7 +17,10 @@ async function search({session, search, image, storageIds} = {}) {
 }
 
 function init() {
-  initSearch(search, engine, taskId, {documentVisible: true});
+  initSearch(search, engine, taskId, {
+    canvasAccess: true,
+    documentVisible: true
+  });
 }
 
 if (runOnce('search')) {

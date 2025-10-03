@@ -3,7 +3,8 @@ import {
   setFileInputData,
   initSearch,
   sendReceipt,
-  unsetUserAgent
+  unsetUserAgent,
+  waitForCanvasAccess
 } from 'utils/engines';
 
 const engine = 'googleLens';
@@ -44,6 +45,8 @@ async function search({session, search, image, storageIds} = {}) {
   await unsetUserAgent(storageIds);
 
   if (search.assetType === 'image') {
+    await waitForCanvasAccess({engine});
+
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);

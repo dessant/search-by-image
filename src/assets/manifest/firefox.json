@@ -27,7 +27,8 @@
     "notifications",
     "webRequest",
     "webRequestBlocking",
-    "<all_urls>"
+    "<all_urls>",
+    "scripting"
   ],
 
   "optional_permissions": ["clipboardRead"],

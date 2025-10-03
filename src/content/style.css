@@ -17,7 +17,8 @@
 }
 
 #capture,
-#confirm {
+#confirm,
+#overlay {
   all: initial;
   position: fixed;
   top: 0;
@@ -43,12 +44,12 @@
 
 @keyframes fadeIn {
   0% {
-      opacity: 0;
+    opacity: 0;
   }
 
   100% {
-      opacity: 1;
-   }
+    opacity: 1;
+  }
 }
 
 .theme-light {
