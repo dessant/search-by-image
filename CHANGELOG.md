@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.3.0](https://github.com/dessant/search-by-image/compare/v8.2.4...v8.3.0) (2025-10-03)
+
+
+### Features
+
+* pause search until canvas data access is granted in Firefox ([9bab6a4](https://github.com/dessant/search-by-image/commit/9bab6a4fe780a721d2010d696be1465e2419f3fa)), closes [#407](https://github.com/dessant/search-by-image/issues/407)
+* search on VCG ([22a40c3](https://github.com/dessant/search-by-image/commit/22a40c3de02b6823828567bcc26634f9eec23645)), closes [#400](https://github.com/dessant/search-by-image/issues/400)
+
+
+### Bug Fixes
+
+* check search engine access after document load ([530e758](https://github.com/dessant/search-by-image/commit/530e758ff25a79d91e8e297cb49bf8543878f9e3))
+* prevent IndexedDB error in Firefox when Private Browsing is enabled ([9365dd9](https://github.com/dessant/search-by-image/commit/9365dd939041345cddb9d420ffd2d916e60d3e7d)), closes [#377](https://github.com/dessant/search-by-image/issues/377)
+* update 123RF ([0834521](https://github.com/dessant/search-by-image/commit/0834521bbf2f6597043363dcf822864168b4724e))
+* update Adobe Stock ([4f0fbb9](https://github.com/dessant/search-by-image/commit/4f0fbb98ad5ffe70964016eab8380de2e0a66ec1))
+* update Alamy ([2c6c5fe](https://github.com/dessant/search-by-image/commit/2c6c5fe7a22c16d2c6878f7f689150ddd17c909b))
+* update Ascii2d ([ef3fec6](https://github.com/dessant/search-by-image/commit/ef3fec6191f11f5e8b804880518bb3d125ffa877))
+* update Bing ([1a4622d](https://github.com/dessant/search-by-image/commit/1a4622d2188f1249826484a76e8476248ba7d975))
+* update Depositphotos ([3aa91ce](https://github.com/dessant/search-by-image/commit/3aa91ce74c82a831898650e1e28beaa2c412fcd6))
+* update Getty ([98135fe](https://github.com/dessant/search-by-image/commit/98135fedc83d6312e930064054a7765a7ecbaaaa))
+* update Global Brand Database ([cf6cfd1](https://github.com/dessant/search-by-image/commit/cf6cfd1db916c09dbc6924200328271028ad1cdf))
+* update Google Lens ([820402c](https://github.com/dessant/search-by-image/commit/820402c797ff623117913786ea62bab7aa4c81f5))
+* update iStock ([c49c72b](https://github.com/dessant/search-by-image/commit/c49c72bd720d87731aaaa473fcf5f69576620a13))
+* update Kagi ([beb084b](https://github.com/dessant/search-by-image/commit/beb084bf086e7352d20f598f4c0625d62ed8322e))
+* update Lexica ([4764e3a](https://github.com/dessant/search-by-image/commit/4764e3a4c43550af973d9788a649655cf4a96b95))
+* update Madrid Monitor ([e766954](https://github.com/dessant/search-by-image/commit/e76695443e71ff58c6c4383567d7f0da9755d5f9))
+* update PIXTA ([b62c37e](https://github.com/dessant/search-by-image/commit/b62c37ec6a147263c19725b8a0340b1e33a61caa))
+* update Pond5 ([a451d13](https://github.com/dessant/search-by-image/commit/a451d13b14ffbb46a759b1495f886a3a4893f1f1))
+* update Shutterstock ([dddc416](https://github.com/dessant/search-by-image/commit/dddc41605609c95f4c4eef59d8b5cc10b3869a41))
+* update TinEye ([4277de5](https://github.com/dessant/search-by-image/commit/4277de571798babafa6cfc92c35ddee69d43878b))
+* update TMview ([8dcf1c9](https://github.com/dessant/search-by-image/commit/8dcf1c9a436483051c32dc56f2435eac076f1f1d))
+* update trace.moe ([c294de3](https://github.com/dessant/search-by-image/commit/c294de397a2e86deb159628240d00dde08a67ef3))
+
 ## [8.2.4](https://github.com/dessant/search-by-image/compare/v8.2.3...v8.2.4) (2025-08-19)
 
 
