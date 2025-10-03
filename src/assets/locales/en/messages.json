@@ -239,6 +239,11 @@
     "description": "Name of the search engine."
   },
 
+  "engineName_vcg": {
+    "message": "VCG",
+    "description": "Name of the search engine."
+  },
+
   "engineName_allEngines": {
     "message": "all search engines",
     "description": "Name of the search engine."
@@ -487,6 +492,11 @@
 
   "menuItemTitle_unsplash": {
     "message": "Unsplash",
+    "description": "Title of the menu item."
+  },
+
+  "menuItemTitle_vcg": {
+    "message": "VCG",
     "description": "Title of the menu item."
   },
 
@@ -758,6 +768,11 @@
 
   "optionTitle_unsplash": {
     "message": "Unsplash",
+    "description": "Title of the option."
+  },
+
+  "optionTitle_vcg": {
+    "message": "VCG",
     "description": "Title of the option."
   },
 

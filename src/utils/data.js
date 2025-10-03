@@ -348,10 +348,23 @@ const engines = {
       target: 'https://unsplash.com/',
       isExec: true
     }
+  },
+  vcg: {
+    image: {
+      target: 'https://vcg.com/',
+      isExec: true
+    }
   }
 };
 
-const censoredEngines = ['baidu', 'sogou', 'qihoo', 'taobao', 'alibabaChina'];
+const censoredEngines = [
+  'baidu',
+  'sogou',
+  'qihoo',
+  'taobao',
+  'alibabaChina',
+  'vcg'
+];
 
 const engineIconAlias = {branddb: 'wipo', madridMonitor: 'wipo'};
 
@@ -689,7 +702,8 @@ const maxImageUploadSize = {
   icons8: {ui: 5 * 1024 * 1024},
   lenso: {ui: 10 * 1024 * 1024},
   googleImages: {api: 20 * 1024 * 1024},
-  unsplash: {api: Infinity, ui: 20 * 1024 * 1024}
+  unsplash: {api: Infinity, ui: 20 * 1024 * 1024},
+  vcg: {ui: 50 * 1024 * 1024}
 };
 
 const chromeDesktopUA =
