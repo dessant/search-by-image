@@ -25,8 +25,16 @@ async function search({session, search, image, storageIds} = {}) {
   }, 100);
 }
 
+async function engineAccess() {
+  if (document.title.toLowerCase().includes('security')) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId, {canvasAccess: true});
+  initSearch(search, engine, taskId, {engineAccess, canvasAccess: true});
 }
 
 if (runOnce('search')) {
