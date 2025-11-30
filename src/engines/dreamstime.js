@@ -36,8 +36,16 @@ async function search({session, search, image, storageIds} = {}) {
   input.dispatchEvent(new Event('change'));
 }
 
+async function engineAccess() {
+  if (document.querySelector('body > div.px-captcha-error-container')) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId);
+  initSearch(search, engine, taskId, {engineAccess});
 }
 
 if (runOnce('search')) {
