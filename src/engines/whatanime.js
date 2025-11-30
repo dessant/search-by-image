@@ -14,8 +14,25 @@ async function search({session, search, image, storageIds} = {}) {
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
+async function engineAccess() {
+  if (
+    // Cloudflare challenge
+    document
+      .querySelector('noscript')
+      ?.textContent.includes(
+        '<div class="h2"><span id="challenge-error-text">'
+      ) ||
+    // Cloudflare error
+    document.querySelector('div#cf-wrapper > div#cf-error-details')
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId, {canvasAccess: true});
+  initSearch(search, engine, taskId, {engineAccess, canvasAccess: true});
 }
 
 if (runOnce('search')) {
