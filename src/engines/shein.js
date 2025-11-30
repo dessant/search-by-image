@@ -16,8 +16,17 @@ async function search({session, search, image, storageIds} = {}) {
   input.dispatchEvent(new Event('change'));
 }
 
+async function engineAccess() {
+  if (document.title.toLowerCase() === 'access denied') {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
   initSearch(search, engine, taskId, {
+    engineAccess,
     canvasAccess: true,
     documentVisible: true
   });
