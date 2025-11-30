@@ -1,5 +1,5 @@
 import {validateUrl} from 'utils/app';
-import {findNode, runOnce} from 'utils/common';
+import {findNode, runOnce, sleep} from 'utils/common';
 import {
   initSearch,
   prepareImageForUpload,
@@ -10,9 +10,7 @@ import {
 const engine = 'unsplash';
 
 async function search({session, search, image, storageIds} = {}) {
-  await findNode('body[data-testid="client-side-hydration-complete"]', {
-    observerOptions: {attributes: true}
-  });
+  await sleep(1000);
 
   const formButtons = document.querySelectorAll(
     'form[data-testid="nav-bar-search-form-form"] button'
