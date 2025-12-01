@@ -110,13 +110,20 @@ async function initSearch(
   searchFn,
   engine,
   taskId,
-  {engineAccess = null, canvasAccess = false, documentVisible = false} = {}
+  {
+    engineAccess = null,
+    canvasAccess = false,
+    documentVisible = false,
+    documentLoad = true
+  } = {}
 ) {
   if (documentVisible) {
     makeDocumentVisible();
   }
 
-  await waitForDocumentLoad();
+  if (documentLoad) {
+    await waitForDocumentLoad();
+  }
 
   if (engineAccess && !(await engineAccess())) {
     return;

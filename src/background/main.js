@@ -984,7 +984,7 @@ async function searchEngine(session, search, image, imageId, tabActive) {
 
   const tabSetupData = {steps: []};
 
-  const userAgent = await getRequiredUserAgent(search.engine);
+  const userAgent = await getRequiredUserAgent(search);
   if (userAgent) {
     tabSetupData.steps.push({
       id: 'setUserAgent',
@@ -1125,12 +1125,12 @@ async function unsetTabUserAgent({tabSetupDataId} = {}) {
   }
 }
 
-async function getRequiredUserAgent(engine) {
+async function getRequiredUserAgent({engine, assetType} = {}) {
   if (await isMobile()) {
     // Certain search engines may need a desktop or mobile user agent.
     if (targetEnv === 'firefox' && ['googleImages', 'ikea'].includes(engine)) {
       return chromeMobileUA;
-    } else if (['googleLens'].includes(engine)) {
+    } else if (['googleLens'].includes(engine) && assetType === 'image') {
       return chromeDesktopUA;
     }
   }

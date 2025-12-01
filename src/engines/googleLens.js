@@ -34,37 +34,46 @@ async function search({session, search, image, storageIds} = {}) {
       if (node) {
         node.querySelectorAll('button')[2].click();
 
-        clickButton();
+        if (search.assetType === 'image') {
+          clickButton();
+        } else {
+          // the preview image is not loaded after submitting the consent form
+          processNode(
+            'img[src*="googlesymbols/hide_image"]',
+            function (node) {
+              if (node) {
+                window.location.reload();
+              }
+            },
+            {
+              observerOptions: {attributes: true, attributeFilter: ['src']},
+              throwError: false,
+              timeout: 10000
+            }
+          );
+        }
       }
     },
     {throwError: false, selectorType: 'xpath'}
   );
 
-  await clickButton();
-
-  await unsetUserAgent(storageIds);
-
   if (search.assetType === 'image') {
     await waitForCanvasAccess({engine});
+
+    await clickButton();
 
     const input = await findNode(inputSelector);
 
     await setFileInputData(inputSelector, input, image);
 
+    await unsetUserAgent(storageIds);
     await sendReceipt(storageIds);
 
     input.dispatchEvent(new Event('change'));
   } else {
-    const input = await findNode(
-      `//div[count(child::*)=2]/input[following-sibling::div[@role="button"]]`,
-      {selectorType: 'xpath'}
-    );
-
-    input.value = image.imageUrl;
+    await sleep(6000);
 
     await sendReceipt(storageIds);
-
-    input.nextElementSibling.click();
   }
 }
 

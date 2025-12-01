@@ -286,7 +286,7 @@ const engines = {
   },
   googleLens: {
     url: {
-      target: 'https://www.google.com/webhp',
+      target: 'https://lens.google.com/upload?url={imgUrl}',
       isExec: true
     },
     image: {
