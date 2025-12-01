@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.3.1](https://github.com/dessant/search-by-image/compare/v8.3.0...v8.3.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* update Dreamstime ([645983e](https://github.com/dessant/search-by-image/commit/645983e9a34874c9aab8f3a23031b95fec0331da))
+* update Google Lens ([02f057f](https://github.com/dessant/search-by-image/commit/02f057fbe49bea8fc64c1154c61773ccf47d5617)), closes [#399](https://github.com/dessant/search-by-image/issues/399)
+* update Lenso.ai ([3f7187e](https://github.com/dessant/search-by-image/commit/3f7187e020b61062eeb1a98b963decf498f56c2a))
+* update SHEIN ([959faa8](https://github.com/dessant/search-by-image/commit/959faa8600be2b7c3e20a2b5ab8cf747a56171cc))
+* update Shutterstock ([e06f4fd](https://github.com/dessant/search-by-image/commit/e06f4fde6dc6f0dd93a425863b6380e23961e03f))
+* update trace.moe ([363e552](https://github.com/dessant/search-by-image/commit/363e552792817e10599a2ac2fc1837da3fd6ff1c))
+* update Unsplash ([6212008](https://github.com/dessant/search-by-image/commit/62120089b68ef5b992a547cf6be4277c7cc8ae0b))
+* update VCG ([94f00e9](https://github.com/dessant/search-by-image/commit/94f00e9fe5a9afb20afc79e42e3bb808761537c4))
+
 ## [8.3.0](https://github.com/dessant/search-by-image/compare/v8.2.4...v8.3.0) (2025-10-03)
 
 
