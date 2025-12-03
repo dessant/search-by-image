@@ -10,7 +10,7 @@ import {
 const engine = 'googleLens';
 
 async function search({session, search, image, storageIds} = {}) {
-  const inputSelector = 'input[type="file"]';
+  const inputSelector = 'input[type="file"][name="encoded_image"]';
 
   async function clickButton() {
     await processNode('div[data-base-lens-url]', async function (node) {
