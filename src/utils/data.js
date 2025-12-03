@@ -20,6 +20,7 @@ const optionKeys = [
   'appTheme',
   'showContribPage',
   'showEngineIcons',
+  'yandexHost',
   'pinActionToolbarViewImage',
   'pinActionToolbarShareImage',
   'pinActionToolbarOptions',
@@ -43,10 +44,11 @@ const engines = {
   },
   yandex: {
     url: {
-      target: 'https://yandex.com/images/search?url={imgUrl}&rpt=imageview'
+      target: 'https://{host}/images/search?url={imgUrl}&rpt=imageview',
+      isExec: true
     },
     image: {
-      target: 'https://yandex.com/images/',
+      target: 'https://{host}/images/',
       isExec: true
     }
   },

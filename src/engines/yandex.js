@@ -1,3 +1,4 @@
+import storage from 'storage/storage';
 import {validateUrl, getContentXHR} from 'utils/app';
 import {runOnce} from 'utils/common';
 import {
@@ -44,13 +45,40 @@ async function searchApi({image, storageIds} = {}) {
 }
 
 async function search({session, search, image, storageIds} = {}) {
-  image = await prepareImageForUpload({
-    image,
-    engine,
-    target: 'api'
-  });
+  if (
+    document
+      .querySelector('h1')
+      ?.textContent.toLowerCase()
+      .includes('is under construction')
+  ) {
+    // Yandex blocks some regions from accessing yandex.com, the service host
+    // is changed to yandex.ru to restore access.
 
-  await searchApi({image, storageIds});
+    const url = new URL(window.location.href);
+
+    if (url.host === 'yandex.com') {
+      await storage.set({yandexHost: 'yandex_ru'});
+
+      url.host = 'yandex.ru';
+      const tabUrl = url.href;
+
+      window.location.replace(tabUrl);
+    }
+
+    return;
+  }
+
+  if (search.assetType === 'image') {
+    image = await prepareImageForUpload({
+      image,
+      engine,
+      target: 'api'
+    });
+
+    await searchApi({image, storageIds});
+  } else {
+    sendReceipt(storageIds);
+  }
 }
 
 async function engineAccess() {

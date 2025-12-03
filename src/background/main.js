@@ -838,6 +838,10 @@ async function getTabUrl(session, search, image, taskId) {
 
   if (engine === 'googleLens' && !session.options.localGoogle) {
     tabUrl = `${tabUrl}?gws_rd=cr&gl=US`;
+  } else if (engine === 'yandex') {
+    const host =
+      session.options.yandexHost === 'yandex_com' ? 'yandex.com' : 'yandex.ru';
+    tabUrl = tabUrl.replace('{host}', host);
   }
 
   return tabUrl;

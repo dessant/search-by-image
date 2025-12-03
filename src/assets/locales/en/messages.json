@@ -1006,6 +1006,21 @@
     "description": "Title of the option."
   },
 
+  "optionTitle_yandexHost": {
+    "message": "Yandex host",
+    "description": "Title of the option."
+  },
+
+  "optionValue_yandexHost_yandex_com": {
+    "message": "yandex.com",
+    "description": "Value of the option."
+  },
+
+  "optionValue_yandexHost_yandex_ru": {
+    "message": "yandex.ru",
+    "description": "Value of the option."
+  },
+
   "optionSectionTitle_sponsors": {
     "message": "Sponsors",
     "description": "Title of the options section."

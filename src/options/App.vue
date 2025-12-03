@@ -170,12 +170,6 @@
         </div>
         <div class="option">
           <vn-switch
-            :label="getText('optionTitle_localGoogle')"
-            v-model="options.localGoogle"
-          ></vn-switch>
-        </div>
-        <div class="option">
-          <vn-switch
             :label="getText('optionTitle_showEngineIcons')"
             v-model="options.showEngineIcons"
           ></vn-switch>
@@ -185,6 +179,21 @@
             :label="getText('optionTitle_showContribPage')"
             v-model="options.showContribPage"
           ></vn-switch>
+        </div>
+        <div class="option">
+          <vn-switch
+            :label="getText('optionTitle_localGoogle')"
+            v-model="options.localGoogle"
+          ></vn-switch>
+        </div>
+        <div class="option select">
+          <vn-select
+            :label="getText('optionTitle_yandexHost')"
+            :items="listItems.yandexHost"
+            v-model="options.yandexHost"
+            transition="scale-transition"
+          >
+          </vn-select>
         </div>
         <div class="option button" v-if="enableContributions">
           <vn-button
@@ -301,6 +310,10 @@ export default {
         ...getListItems(
           {appTheme: ['auto', 'light', 'dark']},
           {scope: 'optionValue_appTheme'}
+        ),
+        ...getListItems(
+          {yandexHost: ['yandex_com', 'yandex_ru']},
+          {scope: 'optionValue_yandexHost'}
         )
       },
 
@@ -337,7 +350,8 @@ export default {
         viewImageUseViewer: false,
         appTheme: '',
         showContribPage: false,
-        showEngineIcons: false
+        showEngineIcons: false,
+        yandexHost: ''
       }
     };
   },
