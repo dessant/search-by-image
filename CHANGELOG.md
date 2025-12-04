@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.4.0](https://github.com/dessant/search-by-image/compare/v8.3.1...v8.4.0) (2025-12-04)
+
+
+### Features
+
+* add option to change Yandex host ([8c0a092](https://github.com/dessant/search-by-image/commit/8c0a092b6cc8d15476560b5325ac94031b8c658c)), closes [#383](https://github.com/dessant/search-by-image/issues/383)
+
+
+### Bug Fixes
+
+* update Google Lens ([00043c7](https://github.com/dessant/search-by-image/commit/00043c7362ea08e30d2c582610538ba7ab3182e6)), closes [#419](https://github.com/dessant/search-by-image/issues/419)
+
 ## [8.3.1](https://github.com/dessant/search-by-image/compare/v8.3.0...v8.3.1) (2025-12-01)
 
 
