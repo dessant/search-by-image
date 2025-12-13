@@ -169,7 +169,7 @@ module.exports = async function (env, argv) {
                 api: 'legacy',
                 sassOptions: {
                   includePaths: ['node_modules'],
-                  silenceDeprecations: ['legacy-js-api', 'mixed-decls'],
+                  silenceDeprecations: ['legacy-js-api'],
                   quietDeps: true
                 },
                 additionalData: (content, loaderContext) => {

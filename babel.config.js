@@ -25,7 +25,7 @@ module.exports = function (api) {
     new RegExp(`node_modules\\${path.sep}(?!(vueton|wesa)\\${path.sep}).*`)
   ];
 
-  const parserOpts = {plugins: ['importAttributes']};
+  const parserOpts = {};
 
   return {presets, plugins, ignore, parserOpts};
 };
