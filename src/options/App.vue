@@ -246,7 +246,7 @@ import {
   getSponsorLogo,
   hasClipboardReadPermission
 } from 'utils/app';
-import {getText} from 'utils/common';
+import {getText, getBrowserVersion} from 'utils/common';
 import {enableContributions} from 'utils/config';
 import {optionKeys, sponsors} from 'utils/data';
 
@@ -390,13 +390,17 @@ export default {
 
       this.shareEnabled = canShare(this.$env);
 
-      this.pasteEnabled =
-        !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
+      const isOutdatedFirefoxMobile =
+        this.$env.isMobile &&
+        this.$env.isFirefox &&
+        (await getBrowserVersion()) < 140;
+
+      this.pasteEnabled = !this.$env.isSamsung && !isOutdatedFirefoxMobile;
 
       this.autoPasteEnabled =
         !this.$env.isSafari &&
         !this.$env.isSamsung &&
-        !(this.$env.isMobile && this.$env.isFirefox) &&
+        !isOutdatedFirefoxMobile &&
         (await hasClipboardReadPermission());
 
       this.sponsorsEnabled = !!this.sponsors.length;

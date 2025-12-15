@@ -186,7 +186,7 @@ import {
   getAppTheme,
   requestClipboardReadPermission
 } from 'utils/app';
-import {getText} from 'utils/common';
+import {getText, getBrowserVersion} from 'utils/common';
 import {optionKeys} from 'utils/data';
 
 export default {
@@ -335,9 +335,12 @@ export default {
 
           this.dropEnabled = !this.$env.isAndroid;
 
-          this.pasteEnabled =
-            !this.$env.isSamsung &&
-            !(this.$env.isMobile && this.$env.isFirefox);
+          const isOutdatedFirefoxMobile =
+            this.$env.isMobile &&
+            this.$env.isFirefox &&
+            (await getBrowserVersion()) < 140;
+
+          this.pasteEnabled = !this.$env.isSamsung && !isOutdatedFirefoxMobile;
 
           this.confirmPaste = options.confirmPaste;
 

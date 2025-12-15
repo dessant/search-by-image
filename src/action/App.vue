@@ -293,7 +293,12 @@ import {
   hasClipboardReadPermission,
   requestClipboardReadPermission
 } from 'utils/app';
-import {getText, getActiveTab, isValidTab} from 'utils/common';
+import {
+  getText,
+  getActiveTab,
+  isValidTab,
+  getBrowserVersion
+} from 'utils/common';
 import {enableContributions} from 'utils/config';
 import {optionKeys} from 'utils/data';
 
@@ -867,14 +872,18 @@ export default {
         !this.$env.isFirefox &&
         !(this.$env.isSafari && this.$env.isMacos);
 
-      this.pasteEnabled =
-        !this.$env.isSamsung && !(this.$env.isMobile && this.$env.isFirefox);
+      const isOutdatedFirefoxMobile =
+        this.$env.isMobile &&
+        this.$env.isFirefox &&
+        (await getBrowserVersion()) < 140;
+
+      this.pasteEnabled = !this.$env.isSamsung && !isOutdatedFirefoxMobile;
 
       this.autoPasteEnabled =
         options.autoPasteAction &&
         !this.$env.isSafari &&
         !this.$env.isSamsung &&
-        !(this.$env.isMobile && this.$env.isFirefox) &&
+        !isOutdatedFirefoxMobile &&
         (await hasClipboardReadPermission());
 
       this.setupPinnedButtons({maxPins: this.maxPinnedToolbarButtons});
