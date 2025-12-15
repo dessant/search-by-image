@@ -1,10 +1,13 @@
-const path = require('node:path');
+import path from 'node:path';
+import {createRequire} from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 const corejsVersion = require(
   path.join(path.dirname(require.resolve('core-js')), 'package.json')
 ).version;
 
-module.exports = function (api) {
+export default function (api) {
   api.cache(true);
 
   const presets = [
@@ -28,4 +31,4 @@ module.exports = function (api) {
   const parserOpts = {};
 
   return {presets, plugins, ignore, parserOpts};
-};
+}

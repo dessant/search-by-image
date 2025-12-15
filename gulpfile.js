@@ -1,17 +1,22 @@
-const path = require('node:path');
-const {exec} = require('node:child_process');
-const {lstat, readdir, readFile, writeFile, rm} = require('node:fs/promises');
+import path from 'node:path';
+import {exec} from 'node:child_process';
+import {lstat, readdir, readFile, writeFile, rm} from 'node:fs/promises';
+import {createRequire} from 'node:module';
 
-const {series, parallel, src, dest} = require('gulp');
-const postcss = require('gulp-postcss');
-const gulpif = require('gulp-if');
+import {series, parallel, src, dest} from 'gulp';
+import postcss from 'gulp-postcss';
+import gulpif from 'gulp-if';
+import jsonmin from 'gulp-jsonmin';
+import htmlmin from 'gulp-htmlmin';
+import imagemin from 'gulp-imagemin';
+import {ensureDir} from 'fs-extra';
+import recursiveReadDir from 'recursive-readdir';
+import sharp from 'sharp';
+
+const require = createRequire(import.meta.url);
+const __dirname = import.meta.dirname;
+
 const jsonMerge = require('gulp-merge-json');
-const jsonmin = require('gulp-jsonmin');
-const htmlmin = require('gulp-htmlmin');
-const imagemin = require('gulp-imagemin');
-const {ensureDir} = require('fs-extra');
-const recursiveReadDir = require('recursive-readdir');
-const sharp = require('sharp');
 
 const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -260,6 +265,11 @@ See the LICENSE file for further information.
   }
 }
 
+const build = series(
+  init,
+  parallel(js, html, css, images, fonts, locale, manifest, license)
+);
+
 function zip(done) {
   exec(
     `web-ext build -s dist/${targetEnv} -a artifacts/${targetEnv} -n "{name}-{version}-${targetEnv}.zip" --overwrite-dest`,
@@ -287,9 +297,4 @@ function inspect(done) {
   );
 }
 
-exports.build = series(
-  init,
-  parallel(js, html, css, images, fonts, locale, manifest, license)
-);
-exports.zip = zip;
-exports.inspect = inspect;
+export {build, zip, inspect};

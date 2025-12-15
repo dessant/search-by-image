@@ -1,15 +1,21 @@
-const path = require('node:path');
-const {lstat, readdir} = require('node:fs/promises');
+import path from 'node:path';
+import {lstat, readdir} from 'node:fs/promises';
 
-const webpack = require('webpack');
-const {VueLoaderPlugin} = require('vue-loader');
-const {VuetifyPlugin} = require('webpack-plugin-vuetify');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+import webpack from 'webpack';
+import {VueLoaderPlugin} from 'vue-loader';
+import {VuetifyPlugin} from 'webpack-plugin-vuetify';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-const appVersion = require('./package.json').version;
-const storageRevisions = require('./src/storage/config.json').revisions;
+const __dirname = import.meta.dirname;
 
-module.exports = async function (env, argv) {
+const {
+  default: {version: appVersion}
+} = await import('./package.json', {with: {type: 'json'}});
+const {
+  default: {revisions: storageRevisions}
+} = await import('./src/storage/config.json', {with: {type: 'json'}});
+
+export default async function (env, argv) {
   const targetEnv = process.env.TARGET_ENV || 'chrome';
   const isProduction = process.env.NODE_ENV === 'production';
   const enableContributions =
@@ -79,6 +85,7 @@ module.exports = async function (env, argv) {
 
   return {
     mode: isProduction ? 'production' : 'development',
+    target: 'browserslist',
     entry: {
       background: './src/background/main.js',
       options: './src/options/main.js',
@@ -104,6 +111,7 @@ module.exports = async function (env, argv) {
           : '[name]/script.js';
       },
       chunkFilename: '[name]/script.js',
+      chunkFormat: 'array-push',
       asyncChunks: false
     },
     optimization: {
@@ -195,4 +203,4 @@ module.exports = async function (env, argv) {
     devtool: false,
     plugins
   };
-};
+}

@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/dessant/search-by-image/issues"
   },
+  "type": "module",
   "scripts": {
     "_build": "cross-env NODE_ENV=development gulp build",
     "build:chrome": "cross-env TARGET_ENV=chrome npm run _build",
