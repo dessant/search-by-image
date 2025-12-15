@@ -12,4 +12,4 @@ jobs:
   action:
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/label-actions@v4
+      - uses: dessant/label-actions@v5
