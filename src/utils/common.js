@@ -312,6 +312,10 @@ async function getPlatform() {
     os = 'windows';
   } else if (os === 'mac') {
     os = 'macos';
+  } else if (os === 'cros') {
+    os = 'chromeos';
+  } else if (os.includes('bsd')) {
+    os = 'linux';
   }
 
   if (['x86-32', 'i386'].includes(arch)) {
@@ -325,20 +329,22 @@ async function getPlatform() {
   const isWindows = os === 'windows';
   const isMacos = os === 'macos';
   const isLinux = os === 'linux';
+  const isChromeos = os === 'chromeos';
   const isAndroid = os === 'android';
   const isIos = os === 'ios';
   const isIpados = os === 'ipados';
+  const isVisionos = os === 'visionos';
 
   const isMobile = ['android', 'ios', 'ipados'].includes(os);
 
-  const isChrome = targetEnv === 'chrome';
+  const isFirefox = targetEnv === 'firefox';
   const isEdge =
     ['chrome', 'edge'].includes(targetEnv) &&
     /\sedg(?:e|a|ios)?\//i.test(navigator.userAgent);
-  const isFirefox = targetEnv === 'firefox';
   const isOpera =
     ['chrome', 'opera'].includes(targetEnv) &&
     /\sopr\//i.test(navigator.userAgent);
+  const isChrome = targetEnv === 'chrome' && !isEdge && !isOpera;
   const isSafari = targetEnv === 'safari';
   const isSamsung = targetEnv === 'samsung';
 
@@ -349,9 +355,11 @@ async function getPlatform() {
     isWindows,
     isMacos,
     isLinux,
+    isChromeos,
     isAndroid,
     isIos,
     isIpados,
+    isVisionos,
     isMobile,
     isChrome,
     isEdge,
