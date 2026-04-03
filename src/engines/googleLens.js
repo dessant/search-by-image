@@ -13,13 +13,16 @@ async function search({session, search, image, storageIds} = {}) {
   const inputSelector = 'input[type="file"][name="encoded_image"]';
 
   async function clickButton() {
-    await processNode('div[data-base-lens-url]', async function (node) {
-      await sleep(1000);
+    await processNode(
+      'div[data-base-lens-url], div[data-is-images-mode]',
+      async function (node) {
+        await sleep(1000);
 
-      if (!document.querySelector(inputSelector)) {
-        node.click();
+        if (!document.querySelector(inputSelector)) {
+          node.click();
+        }
       }
-    });
+    );
   }
 
   // handle consent popup
