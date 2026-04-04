@@ -63,7 +63,7 @@ thanks to the support of awesome backers. If you'd like to join them,
 please consider contributing with
 [Patreon](https://armin.dev/go/patreon?pr=search-by-image&src=repo),
 [PayPal](https://armin.dev/go/paypal?pr=search-by-image&src=repo) or
-[Coinbase](https://armin.dev/go/coinbase?pr=search-by-image&src=repo).
+[Bitcoin](https://armin.dev/go/bitcoin?pr=search-by-image&src=repo).
 
 ## Description
 

@@ -195,16 +195,6 @@
           >
           </vn-select>
         </div>
-        <div class="option button" v-if="enableContributions">
-          <vn-button
-            class="contribute-button vn-icon--start"
-            @click="showContribute"
-            ><vn-icon
-              src="/src/assets/icons/misc/favorite-filled.svg"
-            ></vn-icon>
-            {{ getText('buttonLabel_contribute') }}
-          </vn-button>
-        </div>
       </div>
     </div>
 
@@ -218,12 +208,23 @@
           v-for="(item, index) in sponsors"
           :key="index"
         >
-          <img
-            tabindex="0"
-            @keyup.enter="showSponsor(item)"
-            @click="showSponsor(item)"
-            :src="getSponsorLogo(item, {variant: theme})"
-          />
+          <a
+            :href="getSponsorUrl(item)"
+            @click.prevent="showSponsor(item)"
+            @keyup.enter.prevent="showSponsor(item)"
+          >
+            <img :src="getSponsorLogo(item, {variant: theme})" />
+          </a>
+        </div>
+        <div class="option button" v-if="enableContributions">
+          <vn-button
+            class="contribute-button vn-icon--start"
+            @click="showContribute"
+            ><vn-icon
+              src="/src/assets/icons/misc/favorite-filled.svg"
+            ></vn-icon>
+            {{ getText('buttonLabel_contribute') }}
+          </vn-button>
         </div>
       </div>
     </div>
@@ -243,6 +244,7 @@ import {
   showContributePage,
   showSponsorPage,
   getAppTheme,
+  getSponsorUrl,
   getSponsorLogo,
   hasClipboardReadPermission
 } from 'utils/app';
@@ -282,6 +284,7 @@ export default {
     return {
       dataLoaded: false,
 
+      getSponsorUrl,
       getSponsorLogo,
 
       listItems: {
@@ -403,7 +406,7 @@ export default {
         !isOutdatedFirefoxMobile &&
         (await hasClipboardReadPermission());
 
-      this.sponsorsEnabled = !!this.sponsors.length;
+      this.sponsorsEnabled = !!this.sponsors.length || enableContributions;
 
       this.theme = await getAppTheme(options.appTheme);
       document.addEventListener('themeChange', ev => {
@@ -495,51 +498,55 @@ export default {
     height: 40px;
   }
 
-  &.sponsor-logo,
-  &.sponsor-logo img {
-    height: 42px;
-  }
-
-  &.sponsor-logo img {
-    cursor: pointer;
-  }
-
   &.select,
   &.text-field {
     height: 56px;
   }
 }
 
-.contribute-button {
-  @include vueton.theme-prop(color, primary);
+.section-sponsors {
+  & .sponsor-logo,
+  & .sponsor-logo a,
+  & .sponsor-logo img {
+    height: 42px;
+  }
 
-  & .vn-icon {
-    @include vueton.theme-prop(background-color, cta);
+  & .contribute-button {
+    @include vueton.theme-prop(color, primary);
+
+    & .vn-icon {
+      @include vueton.theme-prop(background-color, cta);
+    }
+  }
+
+  & .button:not(:only-child) {
+    margin-top: 12px;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 992px) {
   .v-application__wrap {
-    grid-template-columns: 464px 464px;
+    grid-template-columns: minmax(320px, max-content) max-content;
     grid-template-rows: min-content 1fr;
     grid-template-areas:
       'engines toolbar'
       'engines misc';
+    justify-content: center;
   }
 
   .show-sponsors,
   .show-context-menu {
     & .v-application__wrap {
-      grid-template-rows: min-content min-content 1fr;
+      grid-template-rows: repeat(2, min-content) 1fr;
     }
   }
 
   .show-sponsors {
     & .v-application__wrap {
       grid-template-areas:
-        'engines toolbar'
-        'engines misc'
-        'engines sponsors';
+        'engines toolbar sponsors'
+        'engines misc sponsors'
+        'engines misc sponsors';
     }
   }
 
@@ -554,12 +561,13 @@ export default {
 
   .show-context-menu.show-sponsors {
     & .v-application__wrap {
-      grid-template-rows: min-content min-content min-content 1fr;
+      grid-template-columns: repeat(2, minmax(320px, max-content)) max-content;
+      grid-template-rows: repeat(3, min-content) 1fr;
       grid-template-areas:
-        'engines context-menu'
-        'engines toolbar'
-        'engines misc'
-        'engines sponsors';
+        'engines context-menu sponsors'
+        'engines toolbar sponsors'
+        'engines misc sponsors'
+        'engines misc sponsors';
     }
   }
 

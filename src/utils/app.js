@@ -662,6 +662,10 @@ function getEngineMenuIcon(engine, {variant = ''} = {}) {
   }
 }
 
+function getSponsorUrl(name) {
+  return sponsorSites[name];
+}
+
 function getSponsorLogo(name, {variant = ''} = {}) {
   if (variant && sponsorLogoVariants[name]?.includes(variant)) {
     name += `-${variant}`;
@@ -2208,6 +2212,7 @@ export {
   getNetRequestRuleIds,
   getEngineIcon,
   getEngineMenuIcon,
+  getSponsorUrl,
   getSponsorLogo,
   handleActionEscapeKey,
   isContextMenuSupported,
