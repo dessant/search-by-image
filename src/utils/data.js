@@ -676,7 +676,7 @@ const maxImageUploadSize = {
   dreamstime: {ui: Infinity},
   alamy: {ui: 5 * 1024 * 1024},
   '123rf': {api: 5 * 1024 * 1024, ui: 5 * 1024 * 1024},
-  esearch: {ui: 5 * 1024 * 1024},
+  esearch: {ui: 2 * 1024 * 1024},
   tmview: {ui: 2 * 1024 * 1024},
   branddb: {ui: 2 * 1024 * 1024},
   madridMonitor: {ui: 2 * 1024 * 1024},
