@@ -19,7 +19,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
       - name: Build artifacts
         run: |
           npm run build:prod:zip:chrome
@@ -32,7 +32,7 @@ jobs:
         run: sha256sum artifacts/*/*
         if: startsWith(github.ref, 'refs/tags/v')
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: artifacts
@@ -48,7 +48,7 @@ jobs:
       contents: write
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: artifacts
           path: artifacts/
