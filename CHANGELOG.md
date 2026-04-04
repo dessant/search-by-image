@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.5.1](https://github.com/dessant/search-by-image/compare/v8.5.0...v8.5.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* update Alamy ([c9600e5](https://github.com/dessant/search-by-image/commit/c9600e5f581d4fddb3c277e601693be192328b19))
+* update Baidu ([5d6ab54](https://github.com/dessant/search-by-image/commit/5d6ab543e136937e88dd7aae7dd151dc7e8529d1)), closes [#431](https://github.com/dessant/search-by-image/issues/431) [#422](https://github.com/dessant/search-by-image/issues/422)
+* update eSearch plus ([2cebf72](https://github.com/dessant/search-by-image/commit/2cebf72c0f4810023cdf747218df4e9415fcde42))
+* update Google Lens ([30ac9ee](https://github.com/dessant/search-by-image/commit/30ac9eeae6c8ce49775e1a271f71d08dfdb013fc)), closes [#432](https://github.com/dessant/search-by-image/issues/432)
+
 ## [8.5.0](https://github.com/dessant/search-by-image/compare/v8.4.0...v8.5.0) (2026-02-09)
 
 
