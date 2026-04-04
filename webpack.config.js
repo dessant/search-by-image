@@ -9,9 +9,6 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 const __dirname = import.meta.dirname;
 
 const {
-  default: {version: appVersion}
-} = await import('./package.json', {with: {type: 'json'}});
-const {
   default: {revisions: storageRevisions}
 } = await import('./src/storage/config.json', {with: {type: 'json'}});
 
@@ -22,6 +19,7 @@ export default async function (env, argv) {
     (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
 
   const mv3 = env.mv3 === 'true';
+  const appVersion = env.appVersion;
 
   const provideExtApi = !['firefox', 'safari'].includes(targetEnv);
 

@@ -9,6 +9,7 @@ import gulpif from 'gulp-if';
 import jsonmin from 'gulp-jsonmin';
 import htmlmin from 'gulp-htmlmin';
 import imagemin from 'gulp-imagemin';
+import {optipng, svgo} from 'gulp-imagemin';
 import {ensureDir} from 'fs-extra';
 import recursiveReadDir from 'recursive-readdir';
 import sharp from 'sharp';
@@ -17,6 +18,10 @@ const require = createRequire(import.meta.url);
 const __dirname = import.meta.dirname;
 
 const jsonMerge = require('gulp-merge-json');
+
+const {
+  default: {version: appVersion}
+} = await import('./package.json', {with: {type: 'json'}});
 
 const targetEnv = process.env.TARGET_ENV || 'chrome';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -40,7 +45,7 @@ async function init() {
 
 function js(done) {
   exec(
-    `webpack-cli build --color --env mv3=${mv3}`,
+    `webpack-cli build --color --env appVersion=${appVersion} --env mv3=${mv3}`,
     function (err, stdout, stderr) {
       console.log(stdout);
       console.log(stderr);
@@ -52,7 +57,7 @@ function js(done) {
 function html() {
   const htmlSrc = ['src/**/*.html'];
 
-  if (mv3 && !['safari'].includes(targetEnv)) {
+  if (mv3 && !['firefox', 'safari'].includes(targetEnv)) {
     htmlSrc.push('!src/background/*.html');
   }
 
@@ -97,7 +102,7 @@ async function images(done) {
         base: '.',
         encoding: false
       })
-        .pipe(imagemin())
+        .pipe(imagemin([optipng()]))
         .pipe(dest('.'))
         .on('error', done)
         .on('finish', resolve);
@@ -123,7 +128,7 @@ async function images(done) {
           base: '.',
           encoding: false
         })
-          .pipe(imagemin())
+          .pipe(imagemin([optipng()]))
           .pipe(dest('.'))
           .on('error', done)
           .on('finish', resolve);
@@ -136,7 +141,7 @@ async function images(done) {
       base: '.',
       encoding: false
     })
-      .pipe(gulpif(isProduction, imagemin()))
+      .pipe(gulpif(isProduction, imagemin([svgo()])))
       .pipe(dest(distDir))
       .on('error', done)
       .on('finish', resolve);
@@ -148,7 +153,7 @@ async function images(done) {
         'node_modules/vueton/components/contribute/assets/*.@(png|webp|svg)',
         {encoding: false}
       )
-        .pipe(gulpif(isProduction, imagemin()))
+        .pipe(gulpif(isProduction, imagemin([svgo()])))
         .pipe(dest(path.join(distDir, 'src/contribute/assets')))
         .on('error', done)
         .on('finish', resolve);
@@ -227,7 +232,7 @@ function manifest() {
       jsonMerge({
         fileName: 'manifest.json',
         edit: (parsedJson, file) => {
-          parsedJson.version = require('./package.json').version;
+          parsedJson.version = appVersion;
           return parsedJson;
         }
       })
