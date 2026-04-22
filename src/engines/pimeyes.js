@@ -1,20 +1,12 @@
-import {findNode, processNode, runOnce} from 'utils/common';
+import {findNode, processNode, runOnce, sleep} from 'utils/common';
 import {setFileInputData, initSearch, sendReceipt} from 'utils/engines';
 
 const engine = 'pimeyes';
 
 async function search({session, search, image, storageIds} = {}) {
-  const inputSelector = '.upload-file input#file-input';
+  await sleep(1000);
 
-  processNode(inputSelector, function (node) {
-    node.addEventListener('click', ev => ev.preventDefault(), {
-      capture: true,
-      once: true
-    });
-  });
-
-  (await findNode('.upload-bar button[aria-label="upload photo" i]')).click();
-
+  const inputSelector = '#file-input';
   const input = await findNode(inputSelector);
 
   await setFileInputData(inputSelector, input, image);
@@ -30,7 +22,7 @@ async function search({session, search, image, storageIds} = {}) {
   // button is missing when no faces were detected
   if (searchButton) {
     if (searchButton.classList.contains('disabled')) {
-      await findNode('.permissions input[type=checkbox]');
+      await sleep(1000);
 
       for (const checkbox of document.querySelectorAll(
         '.permissions input[type=checkbox]'
