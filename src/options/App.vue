@@ -511,6 +511,10 @@ export default {
     height: 42px;
   }
 
+  & .sponsor-logo img {
+    cursor: pointer;
+  }
+
   & .contribute-button {
     @include vueton.theme-prop(color, primary);
 

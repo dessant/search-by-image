@@ -505,7 +505,7 @@ async function showSponsorPage({
   getTab = false,
   activeTab = null
 } = {}) {
-  return showPage({url: sponsorSites[name], getTab, activeTab});
+  return showPage({url: getSponsorUrl(name), getTab, activeTab});
 }
 
 async function setAppVersion() {

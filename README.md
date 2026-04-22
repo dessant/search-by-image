@@ -41,7 +41,7 @@
 
 </br>
 <div align="center">
-  <a href="https://lenso.ai/en?utm_source=sbi">
+  <a href="https://go.vapps.dev/v1/sponsor/lenso">
     <div>
       <picture>
         <source srcset="https://i.imgur.com/YBkomfb.png" media="(prefers-color-scheme: dark)">
@@ -61,9 +61,9 @@
 The continued development of Search by Image is made possible
 thanks to the support of awesome backers. If you'd like to join them,
 please consider contributing with
-[Patreon](https://armin.dev/go/patreon?pr=search-by-image&src=repo),
-[PayPal](https://armin.dev/go/paypal?pr=search-by-image&src=repo) or
-[Bitcoin](https://armin.dev/go/bitcoin?pr=search-by-image&src=repo).
+[Patreon](https://go.vapps.dev/patreon?pr=search-by-image&src=repo),
+[PayPal](https://go.vapps.dev/paypal?pr=search-by-image&src=repo) or
+[Bitcoin](https://go.vapps.dev/bitcoin?pr=search-by-image&src=repo).
 
 ## Description
 

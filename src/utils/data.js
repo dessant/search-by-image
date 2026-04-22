@@ -719,7 +719,7 @@ const shareBridgeUrl = 'https://searchbyimage.vapps.dev/share';
 const sponsors = ['lenso'];
 
 const sponsorSites = {
-  lenso: 'https://lenso.ai/en?utm_source=sbi'
+  lenso: 'https://go.vapps.dev/v2/sponsor/lenso'
 };
 
 export {
