@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.5.2](https://github.com/dessant/search-by-image/compare/v8.5.1...v8.5.2) (2026-04-22)
+
+
+### Bug Fixes
+
+* update Adobe Stock ([fdda0fc](https://github.com/dessant/search-by-image/commit/fdda0fc46e1baa99d738393da2c478b0bbee3207))
+* update PimEyes ([a4eeea1](https://github.com/dessant/search-by-image/commit/a4eeea17e5452a2ba67fa1ca783472faf60298a3)), closes [#426](https://github.com/dessant/search-by-image/issues/426)
+
 ## [8.5.1](https://github.com/dessant/search-by-image/compare/v8.5.0...v8.5.1) (2026-04-04)
 
 
