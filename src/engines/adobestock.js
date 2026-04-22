@@ -16,8 +16,16 @@ async function search({session, search, image, storageIds} = {}) {
   input.dispatchEvent(new Event('change', {bubbles: true}));
 }
 
+async function engineAccess() {
+  if (document.querySelector('iframe[src*="captcha-delivery.com"]')) {
+    return false;
+  }
+
+  return true;
+}
+
 function init() {
-  initSearch(search, engine, taskId, {canvasAccess: true});
+  initSearch(search, engine, taskId, {engineAccess, canvasAccess: true});
 }
 
 if (runOnce('search')) {
