@@ -19,7 +19,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: Build artifacts
         run: |
           npm run build:prod:zip:chrome
@@ -55,7 +55,7 @@ jobs:
       - name: Hash artifacts
         run: sha256sum artifacts/*/*
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
