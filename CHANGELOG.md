@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.5.3](https://github.com/dessant/search-by-image/compare/v8.5.2...v8.5.3) (2026-06-04)
+
+
+### Bug Fixes
+
+* update dependencies ([2d518e0](https://github.com/dessant/search-by-image/commit/2d518e03113dacbbb1e819f0d2679b80df59b8b2))
+
 ## [8.5.2](https://github.com/dessant/search-by-image/compare/v8.5.1...v8.5.2) (2026-04-22)
 
 
