@@ -284,9 +284,6 @@ export default {
     return {
       dataLoaded: false,
 
-      getSponsorUrl,
-      getSponsorLogo,
-
       listItems: {
         ...getListItems(
           {
@@ -370,6 +367,9 @@ export default {
 
   methods: {
     getText,
+
+    getSponsorUrl,
+    getSponsorLogo,
 
     setup: async function () {
       const options = await storage.get(optionKeys);
@@ -528,9 +528,9 @@ export default {
   }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 736px) {
   .v-application__wrap {
-    grid-template-columns: minmax(320px, max-content) max-content;
+    grid-template-columns: minmax(280px, max-content) max-content;
     grid-template-rows: min-content 1fr;
     grid-template-areas:
       'engines toolbar'
@@ -548,9 +548,9 @@ export default {
   .show-sponsors {
     & .v-application__wrap {
       grid-template-areas:
-        'engines toolbar sponsors'
-        'engines misc sponsors'
-        'engines misc sponsors';
+        'engines toolbar'
+        'engines misc'
+        'engines sponsors';
     }
   }
 
@@ -565,13 +565,12 @@ export default {
 
   .show-context-menu.show-sponsors {
     & .v-application__wrap {
-      grid-template-columns: repeat(2, minmax(320px, max-content)) max-content;
       grid-template-rows: repeat(3, min-content) 1fr;
       grid-template-areas:
-        'engines context-menu sponsors'
-        'engines toolbar sponsors'
-        'engines misc sponsors'
-        'engines misc sponsors';
+        'engines context-menu'
+        'engines toolbar'
+        'engines misc'
+        'engines sponsors';
     }
   }
 
@@ -593,6 +592,42 @@ export default {
 
   .section-sponsors {
     grid-area: sponsors;
+  }
+
+  & .vn-checkbox,
+  & .vn-switch {
+    grid-template-columns: min-content;
+  }
+}
+
+@media (min-width: 992px) {
+  .show-sponsors {
+    & .v-application__wrap {
+      grid-template-columns: repeat(2, minmax(280px, max-content)) max-content;
+      grid-template-rows: min-content 1fr;
+      grid-template-areas:
+        'engines toolbar sponsors'
+        'engines misc sponsors';
+    }
+  }
+
+  .show-context-menu {
+    & .v-application__wrap {
+      grid-template-areas:
+        'engines context-menu'
+        'engines toolbar'
+        'engines misc';
+    }
+  }
+
+  .show-context-menu.show-sponsors {
+    & .v-application__wrap {
+      grid-template-rows: repeat(2, min-content) 1fr;
+      grid-template-areas:
+        'engines context-menu sponsors'
+        'engines toolbar sponsors'
+        'engines misc sponsors';
+    }
   }
 }
 </style>
