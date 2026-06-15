@@ -174,7 +174,7 @@
             v-model="options.showEngineIcons"
           ></vn-switch>
         </div>
-        <div class="option" v-if="enableContributions">
+        <div class="option" v-if="contributionsEnabled">
           <vn-switch
             :label="getText('optionTitle_showContribPage')"
             v-model="options.showContribPage"
@@ -198,13 +198,17 @@
       </div>
     </div>
 
-    <div class="section-sponsors" v-if="sponsorsEnabled">
+    <div
+      class="section-sponsors"
+      v-if="contributionsEnabled || sponsorsEnabled"
+    >
       <div class="section-title" v-once>
         {{ getText('optionSectionTitle_sponsors') }}
       </div>
       <div class="option-wrap">
         <div
           class="option sponsor-logo"
+          v-if="sponsorsEnabled"
           v-for="(item, index) in sponsors"
           :key="index"
         >
@@ -216,7 +220,7 @@
             <img :src="getSponsorLogo(item, {variant: theme})" />
           </a>
         </div>
-        <div class="option button" v-if="enableContributions">
+        <div class="option button" v-if="contributionsEnabled">
           <vn-button
             class="contribute-button vn-icon--start"
             @click="showContribute"
@@ -249,7 +253,7 @@ import {
   hasClipboardReadPermission
 } from 'utils/app';
 import {getText, getBrowserVersion} from 'utils/common';
-import {enableContributions} from 'utils/config';
+import {enableContributions, enableSponsors} from 'utils/config';
 import {optionKeys, sponsors} from 'utils/data';
 
 export default {
@@ -317,7 +321,6 @@ export default {
         )
       },
 
-      enableContributions,
       sponsors,
 
       contextMenuEnabled: true,
@@ -325,6 +328,7 @@ export default {
       shareEnabled: true,
       autoPasteEnabled: true,
       pasteEnabled: true,
+      contributionsEnabled: true,
       sponsorsEnabled: true,
 
       theme: '',
@@ -360,7 +364,7 @@ export default {
     appClasses: function () {
       return {
         'show-context-menu': this.contextMenuEnabled,
-        'show-sponsors': this.sponsorsEnabled
+        'show-sponsors': this.sponsorsEnabled || this.contributionsEnabled
       };
     }
   },
@@ -406,7 +410,8 @@ export default {
         !isOutdatedFirefoxMobile &&
         (await hasClipboardReadPermission());
 
-      this.sponsorsEnabled = !!this.sponsors.length || enableContributions;
+      this.sponsorsEnabled = enableSponsors && !!this.sponsors.length;
+      this.contributionsEnabled = enableContributions;
 
       this.theme = await getAppTheme(options.appTheme);
       document.addEventListener('themeChange', ev => {

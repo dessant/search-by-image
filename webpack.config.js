@@ -17,6 +17,7 @@ export default async function (env, argv) {
   const isProduction = process.env.NODE_ENV === 'production';
   const enableContributions =
     (process.env.ENABLE_CONTRIBUTIONS || 'true') === 'true';
+  const enableSponsors = (process.env.ENABLE_SPONSORS || 'true') === 'true';
 
   const mv3 = env.mv3 === 'true';
   const appVersion = env.appVersion;
@@ -37,6 +38,7 @@ export default async function (env, argv) {
           storageRevisions.session.at(-1)
         ),
         ENABLE_CONTRIBUTIONS: JSON.stringify(enableContributions.toString()),
+        ENABLE_SPONSORS: JSON.stringify(enableSponsors.toString()),
         APP_VERSION: JSON.stringify(appVersion),
         MV3: JSON.stringify(mv3.toString())
       },
