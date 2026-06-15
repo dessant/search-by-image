@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [8.5.4](https://github.com/dessant/search-by-image/compare/v8.5.3...v8.5.4) (2026-06-15)
+
+
+### Bug Fixes
+
+* account for undefined InjectionResult ([81bd18f](https://github.com/dessant/search-by-image/commit/81bd18f44e3e203516bc1a789b9bb7de1bdf9a46))
+* update dependencies ([5e7b29a](https://github.com/dessant/search-by-image/commit/5e7b29a4e818307c3dd4f41ec582510db7fff6ec))
+
 ## [8.5.3](https://github.com/dessant/search-by-image/compare/v8.5.2...v8.5.3) (2026-06-04)
 
 
