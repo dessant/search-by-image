@@ -92,7 +92,7 @@ async function executeScript({
     const results = await browser.scripting.executeScript(params);
 
     if (unwrapResults) {
-      return results.map(item => item.result);
+      return results.map(item => item?.result);
     } else {
       return results;
     }
