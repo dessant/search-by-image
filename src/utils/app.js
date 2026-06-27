@@ -284,7 +284,11 @@ async function hasModule({tabId, frameId = 0, module, insert = false} = {}) {
   return false;
 }
 
-async function insertBaseModule({activeTab = false} = {}) {
+async function insertBaseModule({
+  activeTab = false,
+  url = null,
+  allFrames = true
+} = {}) {
   const tabs = [];
   if (activeTab) {
     const tab = await getActiveTab();
@@ -294,7 +298,7 @@ async function insertBaseModule({activeTab = false} = {}) {
   } else {
     tabs.push(
       ...(await browser.tabs.query({
-        url: ['http://*/*', 'https://*/*'],
+        url: url || ['http://*/*', 'https://*/*'],
         windowType: 'normal'
       }))
     );
@@ -304,7 +308,7 @@ async function insertBaseModule({activeTab = false} = {}) {
     executeScript({
       files: ['/src/base/script.js'],
       tabId: tab.id,
-      allFrames: true
+      allFrames
     });
   }
 }

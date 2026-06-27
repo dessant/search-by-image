@@ -10,7 +10,7 @@ import jsonmin from 'gulp-jsonmin';
 import htmlmin from 'gulp-htmlmin';
 import imagemin from 'gulp-imagemin';
 import {optipng, svgo} from 'gulp-imagemin';
-import {ensureDir} from 'fs-extra';
+import {ensureDir} from 'fs-extra/esm';
 import recursiveReadDir from 'recursive-readdir';
 import sharp from 'sharp';
 
